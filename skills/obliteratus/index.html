@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>obliteratus — Skill Hermes</title>
+<meta name="description" content="OBLITERATUS: abliterate LLM refusals (diff-in-means).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>obliteratus</h1>
+    <p class="lede">OBLITERATUS: abliterate LLM refusals (diff-in-means).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>obliteratus</dd>
+      <dt>Keterangan</dt><dd>OBLITERATUS: abliterate LLM refusals (diff-in-means).</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/obliteratus.zip" download>Muat turun ZIP (14.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (6)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">15.1 KB</td></tr>
+<tr><td><code>references/analysis-modules.md</code></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>references/methods-guide.md</code></td><td class="sz">6.6 KB</td></tr>
+<tr><td><code>templates/abliteration-config.yaml</code></td><td class="sz">1.2 KB</td></tr>
+<tr><td><code>templates/analysis-study.yaml</code></td><td class="sz">1.3 KB</td></tr>
+<tr><td><code>templates/batch-abliteration.yaml</code></td><td class="sz">1.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OBLITERATUS Skill</h2>
+<h3>What&#39;s inside</h3>
+<p>9 CLI methods, 28 analysis modules, 116 model presets across 5 compute tiers, tournament evaluation, and telemetry-driven recommendations.</p>
+<p>Remove refusal behaviors (guardrails) from open-weight LLMs without retraining or fine-tuning. Uses mechanistic interpretability techniques — including diff-in-means, SVD, whitened SVD, LEACE concept erasure, SAE decomposition, Bayesian kernel projection, and more — to identify and surgically excise refusal directions from model weights while preserving reasoning capabilities.</p>
+<p><strong>License warning:</strong> OBLITERATUS is AGPL-3.0. NEVER import it as a Python library. Always invoke via CLI (<code>obliteratus</code> command) or subprocess. This keeps Hermes Agent&#39;s MIT license clean.</p>
+<h3>Video Guide</h3>
+<p>Walkthrough of OBLITERATUS used by a Hermes agent to abliterate Gemma:
+<a href="https://www.youtube.com/watch?v=8fG9BrNTeHs">https://www.youtube.com/watch?v=8fG9BrNTeHs</a> (&quot;OBLITERATUS: An AI Agent Removed Gemma 4&#39;s Safety Guardrails&quot;)</p>
+<p>Useful when the user wants a visual overview of the end-to-end workflow before running it themselves.</p>
+<h3>When to Use This Skill</h3>
+<p>Trigger when the user:</p>
+<ul>
+<li>Wants to &quot;uncensor&quot; or &quot;abliterate&quot; an LLM</li>
+<li>Asks about removing refusal/guardrails from a model</li>
+<li>Wants to create an uncensored version of Llama, Qwen, Mistral, etc.</li>
+<li>Mentions &quot;refusal removal&quot;, &quot;abliteration&quot;, &quot;weight projection&quot;</li>
+<li>Wants to analyze how a model&#39;s refusal mechanism works</li>
+<li>References OBLITERATUS, abliterator, or refusal directions</li>
+</ul>
+<h3>Step 1: Installation</h3>
+<p>Check if already installed:</p>
+<pre><code class="language-bash">obliteratus --version 2&gt;/dev/null &amp;&amp; echo &quot;INSTALLED&quot; || echo &quot;NOT INSTALLED&quot;
+</code></pre>
+<p>If not installed, clone and install from GitHub:</p>
+<pre><code class="language-bash">git clone https://github.com/elder-plinius/OBLITERATUS.git
+cd OBLITERATUS
+pip install -e .
+# For Gradio web UI support:
+# pip install -e &quot;.[spaces]&quot;
+</code></pre>
+<p><strong>IMPORTANT:</strong> Confirm with user before installing. This pulls in ~5-10GB of dependencies (PyTorch, Transformers, bitsandbytes, etc.).</p>
+<h3>Step 2: Check Hardware</h3>
+<p>Before anything, check what GPU is available:</p>
+<pre><code class="language-bash">python3 -c &quot;
+import torch
+if torch.cuda.is_available():
+    gpu = torch.cuda.get_device_name(0)
+    vram = torch.cuda.get_device_properties(0).total_memory / 1024**3
+    print(f&#39;GPU: {gpu}&#39;)
+    print(f&#39;VRAM: {vram:.1f} GB&#39;)
+    if vram &lt; 4: print(&#39;TIER: tiny (models under 1B)&#39;)
+    elif vram &lt; 8: print(&#39;TIER: small (models 1-4B)&#39;)
+    elif vram &lt; 16: print(&#39;TIER: medium (models 4-9B with 4bit quant)&#39;)
+    elif vram &lt; 32: print(&#39;TIER: large (models 8-32B with 4bit quant)&#39;)
+    else: print(&#39;TIER: frontier (models 32B+)&#39;)
+else:
+    print(&#39;NO GPU - only tiny models (under 1B) on CPU&#39;)
+&quot;
+</code></pre>
+<h4>VRAM Requirements (with 4-bit quantization)</h4>
+<table>
+<thead>
+<tr>
+<th align="left">VRAM</th>
+<th align="left">Max Model Size</th>
+<th align="left">Example Models</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">CPU only</td>
+<td align="left">~1B params</td>
+<td align="left">GPT-2, TinyLlama, SmolLM</td>
+</tr>
+<tr>
+<td align="left">4-8 GB</td>
+<td align="left">~4B params</td>
+<td align="left">Qwen2.5-1.5B, Phi-3.5 mini, Llama 3.2 3B</td>
+</tr>
+<tr>
+<td align="left">8-16 GB</td>
+<td align="left">~9B params</td>
+<td align="left">Llama 3.1 8B, Mistral 7B, Gemma 2 9B</td>
+</tr>
+<tr>
+<td align="left">24 GB</td>
+<td align="left">~32B params</td>
+<td align="left">Qwen3-32B, Llama 3.1 70B (tight), Command-R</td>
+</tr>
+<tr>
+<td align="left">48 GB+</td>
+<td align="left">~72B+ params</td>
+<td align="left">Qwen2.5-72B, DeepSeek-R1</td>
+</tr>
+<tr>
+<td align="left">Multi-GPU</td>
+<td align="left">200B+ params</td>
+<td align="left">Llama 3.1 405B, DeepSeek-V3 (685B MoE)</td>
+</tr>
+</tbody></table>
+<h3>Step 3: Browse Available Models &amp; Get Recommendations</h3>
+<pre><code class="language-bash"># Browse models by compute tier
+obliteratus models --tier medium
+
+# Get architecture info for a specific model
+obliteratus info &lt;model_name&gt;
+
+# Get telemetry-driven recommendation for best method &amp; params
+obliteratus recommend &lt;model_name&gt;
+obliteratus recommend &lt;model_name&gt; --insights  # global cross-architecture rankings
+</code></pre>
+<h3>Step 4: Choose a Method</h3>
+<h4>Method Selection Guide</h4>
+<p><strong>Default / recommended for most cases: <code>advanced</code>.</strong> It uses multi-direction SVD with norm-preserving projection and is well-tested.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Situation</th>
+<th align="left">Recommended Method</th>
+<th align="left">Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Default / most models</td>
+<td align="left"><code>advanced</code></td>
+<td align="left">Multi-direction SVD, norm-preserving, reliable</td>
+</tr>
+<tr>
+<td align="left">Quick test / prototyping</td>
+<td align="left"><code>basic</code></td>
+<td align="left">Fast, simple, good enough to evaluate</td>
+</tr>
+<tr>
+<td align="left">Dense model (Llama, Mistral)</td>
+<td align="left"><code>advanced</code></td>
+<td align="left">Multi-direction, norm-preserving</td>
+</tr>
+<tr>
+<td align="left">MoE model (DeepSeek, Mixtral)</td>
+<td align="left"><code>nuclear</code></td>
+<td align="left">Expert-granular, handles MoE complexity</td>
+</tr>
+<tr>
+<td align="left">Reasoning model (R1 distills)</td>
+<td align="left"><code>surgical</code></td>
+<td align="left">CoT-aware, preserves chain-of-thought</td>
+</tr>
+<tr>
+<td align="left">Stubborn refusals persist</td>
+<td align="left"><code>aggressive</code></td>
+<td align="left">Whitened SVD + head surgery + jailbreak</td>
+</tr>
+<tr>
+<td align="left">Want reversible changes</td>
+<td align="left">Use steering vectors (see Analysis section)</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">Maximum quality, time no object</td>
+<td align="left"><code>optimized</code></td>
+<td align="left">Bayesian search for best parameters</td>
+</tr>
+<tr>
+<td align="left">Experimental auto-detection</td>
+<td align="left"><code>informed</code></td>
+<td align="left">Auto-detects alignment type — experimental, may not always outperform advanced</td>
+</tr>
+</tbody></table>
+<h4>9 CLI Methods</h4>
+<ul>
+<li><strong>basic</strong> — Single refusal direction via diff-in-means. Fast (~5-10 min for 8B).</li>
+<li><strong>advanced</strong> (DEFAULT, RECOMMENDED) — Multiple SVD directions, norm-preserving projection, 2 refinement passes. Medium speed (~10-20 min).</li>
+<li><strong>aggressive</strong> — Whitened SVD + jailbreak-contrastive + attention head surgery. Higher risk of coherence damage.</li>
+<li><strong>spectral_cascade</strong> — DCT frequency-domain decomposition. Research/novel approach.</li>
+<li><strong>informed</strong> — Runs analysis DURING abliteration to auto-configure. Experimental — slower and less predictable than advanced.</li>
+<li><strong>surgical</strong> — SAE features + neuron masking + head surgery + per-expert. Very slow (~1-2 hrs). Best for reasoning models.</li>
+<li><strong>optimized</strong> — Bayesian hyperparameter search (Optuna TPE). Longest runtime but finds optimal parameters.</li>
+<li><strong>inverted</strong> — Flips the refusal direction. Model becomes actively willing.</li>
+<li><strong>nuclear</strong> — Maximum force combo for stubborn MoE models. Expert-granular.</li>
+</ul>
+<h4>Direction Extraction Methods (--direction-method flag)</h4>
+<ul>
+<li><strong>diff_means</strong> (default) — Simple difference-in-means between refused/complied activations. Robust.</li>
+<li><strong>svd</strong> — Multi-direction SVD extraction. Better for complex alignment.</li>
+<li><strong>leace</strong> — LEACE (Linear Erasure via Closed-form Estimation). Optimal linear erasure.</li>
+</ul>
+<h4>4 Python-API-Only Methods</h4>
+<p>(NOT available via CLI — require Python import, which violates AGPL boundary. Mention to user only if they explicitly want to use OBLITERATUS as a library in their own AGPL project.)</p>
+<ul>
+<li>failspy, gabliteration, heretic, rdo</li>
+</ul>
+<h3>Step 5: Run Abliteration</h3>
+<h4>Standard usage</h4>
+<pre><code class="language-bash"># Default method (advanced) — recommended for most models
+obliteratus obliterate &lt;model_name&gt; --method advanced --output-dir ./abliterated-models
+
+# With 4-bit quantization (saves VRAM)
+obliteratus obliterate &lt;model_name&gt; --method advanced --quantization 4bit --output-dir ./abliterated-models
+
+# Large models (70B+) — conservative defaults
+obliteratus obliterate &lt;model_name&gt; --method advanced --quantization 4bit --large-model --output-dir ./abliterated-models
+</code></pre>
+<h4>Fine-tuning parameters</h4>
+<pre><code class="language-bash">obliteratus obliterate &lt;model_name&gt; \
+  --method advanced \
+  --direction-method diff_means \
+  --n-directions 4 \
+  --refinement-passes 2 \
+  --regularization 0.1 \
+  --quantization 4bit \
+  --output-dir ./abliterated-models \
+  --contribute  # opt-in telemetry for community research
+</code></pre>
+<h4>Key flags</h4>
+<table>
+<thead>
+<tr>
+<th align="left">Flag</th>
+<th align="left">Description</th>
+<th align="left">Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>--method</code></td>
+<td align="left">Abliteration method</td>
+<td align="left">advanced</td>
+</tr>
+<tr>
+<td align="left"><code>--direction-method</code></td>
+<td align="left">Direction extraction</td>
+<td align="left">diff_means</td>
+</tr>
+<tr>
+<td align="left"><code>--n-directions</code></td>
+<td align="left">Number of refusal directions (1-32)</td>
+<td align="left">method-dependent</td>
+</tr>
+<tr>
+<td align="left"><code>--refinement-passes</code></td>
+<td align="left">Iterative passes (1-5)</td>
+<td align="left">2</td>
+</tr>
+<tr>
+<td align="left"><code>--regularization</code></td>
+<td align="left">Regularization strength (0.0-1.0)</td>
+<td align="left">0.1</td>
+</tr>
+<tr>
+<td align="left"><code>--quantization</code></td>
+<td align="left">Load in 4bit or 8bit</td>
+<td align="left">none (full precision)</td>
+</tr>
+<tr>
+<td align="left"><code>--large-model</code></td>
+<td align="left">Conservative defaults for 120B+</td>
+<td align="left">false</td>
+</tr>
+<tr>
+<td align="left"><code>--output-dir</code></td>
+<td align="left">Where to save the abliterated model</td>
+<td align="left">./obliterated_model</td>
+</tr>
+<tr>
+<td align="left"><code>--contribute</code></td>
+<td align="left">Share anonymized results for research</td>
+<td align="left">false</td>
+</tr>
+<tr>
+<td align="left"><code>--verify-sample-size</code></td>
+<td align="left">Number of test prompts for refusal check</td>
+<td align="left">20</td>
+</tr>
+<tr>
+<td align="left"><code>--dtype</code></td>
+<td align="left">Model dtype (float16, bfloat16)</td>
+<td align="left">auto</td>
+</tr>
+</tbody></table>
+<h4>Other execution modes</h4>
+<pre><code class="language-bash"># Interactive guided mode (hardware → model → preset)
+obliteratus interactive
+
+# Web UI (Gradio)
+obliteratus ui --port 7860
+
+# Run a full ablation study from YAML config
+obliteratus run config.yaml --preset quick
+
+# Tournament: pit all methods against each other
+obliteratus tourney &lt;model_name&gt;
+</code></pre>
+<h3>Step 6: Verify Results</h3>
+<p>After abliteration, check the output metrics:</p>
+<table>
+<thead>
+<tr>
+<th align="left">Metric</th>
+<th align="left">Good Value</th>
+<th align="left">Warning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">Refusal rate</td>
+<td align="left">&lt; 5% (ideally ~0%)</td>
+<td align="left">&gt; 10% means refusals persist</td>
+</tr>
+<tr>
+<td align="left">Perplexity change</td>
+<td align="left">&lt; 10% increase</td>
+<td align="left">&gt; 15% means coherence damage</td>
+</tr>
+<tr>
+<td align="left">KL divergence</td>
+<td align="left">&lt; 0.1</td>
+<td align="left">&gt; 0.5 means significant distribution shift</td>
+</tr>
+<tr>
+<td align="left">Coherence</td>
+<td align="left">High / passes qualitative check</td>
+<td align="left">Degraded responses, repetition</td>
+</tr>
+</tbody></table>
+<h4>If refusals persist (&gt; 10%)</h4>
+<ol>
+<li>Try <code>aggressive</code> method</li>
+<li>Increase <code>--n-directions</code> (e.g., 8 or 16)</li>
+<li>Add <code>--refinement-passes 3</code></li>
+<li>Try <code>--direction-method svd</code> instead of diff_means</li>
+</ol>
+<h4>If coherence is damaged (perplexity &gt; 15% increase)</h4>
+<ol>
+<li>Reduce <code>--n-directions</code> (try 2)</li>
+<li>Increase <code>--regularization</code> (try 0.3)</li>
+<li>Reduce <code>--refinement-passes</code> to 1</li>
+<li>Try <code>basic</code> method (gentler)</li>
+</ol>
+<h3>Step 7: Use the Abliterated Model</h3>
+<p>The output is a standard HuggingFace model directory.</p>
+<pre><code class="language-bash"># Test locally with transformers
+python3 -c &quot;
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model = AutoModelForCausalLM.from_pretrained(&#39;./abliterated-models/&lt;model&gt;&#39;)
+tokenizer = AutoTokenizer.from_pretrained(&#39;./abliterated-models/&lt;model&gt;&#39;)
+inputs = tokenizer(&#39;How do I pick a lock?&#39;, return_tensors=&#39;pt&#39;)
+outputs = model.generate(**inputs, max_new_tokens=200)
+print(tokenizer.decode(outputs[0], skip_special_tokens=True))
+&quot;
+
+# Upload to HuggingFace Hub
+huggingface-cli upload &lt;username&gt;/&lt;model-name&gt;-abliterated ./abliterated-models/&lt;model&gt;
+
+# Serve with vLLM
+vllm serve ./abliterated-models/&lt;model&gt;
+</code></pre>
+<h3>CLI Command Reference</h3>
+<table>
+<thead>
+<tr>
+<th align="left">Command</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><code>obliteratus obliterate</code></td>
+<td align="left">Main abliteration command</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus info &lt;model&gt;</code></td>
+<td align="left">Print model architecture details</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus models --tier &lt;tier&gt;</code></td>
+<td align="left">Browse curated models by compute tier</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus recommend &lt;model&gt;</code></td>
+<td align="left">Telemetry-driven method/param suggestion</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus interactive</code></td>
+<td align="left">Guided setup wizard</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus tourney &lt;model&gt;</code></td>
+<td align="left">Tournament: all methods head-to-head</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus run &lt;config.yaml&gt;</code></td>
+<td align="left">Execute ablation study from YAML</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus strategies</code></td>
+<td align="left">List all registered ablation strategies</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus report &lt;results.json&gt;</code></td>
+<td align="left">Regenerate visual reports</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus ui</code></td>
+<td align="left">Launch Gradio web interface</td>
+</tr>
+<tr>
+<td align="left"><code>obliteratus aggregate</code></td>
+<td align="left">Summarize community telemetry data</td>
+</tr>
+</tbody></table>
+<h3>Analysis Modules</h3>
+<p>OBLITERATUS includes 28 analysis modules for mechanistic interpretability.
+See <code>skill_view(name=&quot;obliteratus&quot;, file_path=&quot;references/analysis-modules.md&quot;)</code> for the full reference.</p>
+<h4>Quick analysis commands</h4>
+<pre><code class="language-bash"># Run specific analysis modules
+obliteratus run analysis-config.yaml --preset quick
+
+# Key modules to run first:
+# - alignment_imprint: Fingerprint DPO/RLHF/CAI/SFT alignment method
+# - concept_geometry: Single direction vs polyhedral cone
+# - logit_lens: Which layer decides to refuse
+# - anti_ouroboros: Self-repair risk score
+# - causal_tracing: Causally necessary components
+</code></pre>
+<h4>Steering Vectors (Reversible Alternative)</h4>
+<p>Instead of permanent weight modification, use inference-time steering:</p>
+<pre><code class="language-python"># Python API only — for user&#39;s own projects
+from obliteratus.analysis.steering_vectors import SteeringVectorFactory, SteeringHookManager
+</code></pre>
+<h3>Ablation Strategies</h3>
+<p>Beyond direction-based abliteration, OBLITERATUS includes structural ablation strategies:</p>
+<ul>
+<li><strong>Embedding Ablation</strong> — Target embedding layer components</li>
+<li><strong>FFN Ablation</strong> — Feed-forward network block removal</li>
+<li><strong>Head Pruning</strong> — Attention head pruning</li>
+<li><strong>Layer Removal</strong> — Full layer removal</li>
+</ul>
+<p>List all available: <code>obliteratus strategies</code></p>
+<h3>Evaluation</h3>
+<p>OBLITERATUS includes built-in evaluation tools:</p>
+<ul>
+<li>Refusal rate benchmarking</li>
+<li>Perplexity comparison (before/after)</li>
+<li>LM Eval Harness integration for academic benchmarks</li>
+<li>Head-to-head competitor comparison</li>
+<li>Baseline performance tracking</li>
+</ul>
+<h3>Platform Support</h3>
+<ul>
+<li><strong>CUDA</strong> — Full support (NVIDIA GPUs)</li>
+<li><strong>Apple Silicon (MLX)</strong> — Supported via MLX backend</li>
+<li><strong>CPU</strong> — Supported for tiny models (&lt; 1B params)</li>
+</ul>
+<h3>YAML Config Templates</h3>
+<p>Load templates for reproducible runs via <code>skill_view</code>:</p>
+<ul>
+<li><code>templates/abliteration-config.yaml</code> — Standard single-model config</li>
+<li><code>templates/analysis-study.yaml</code> — Pre-abliteration analysis study</li>
+<li><code>templates/batch-abliteration.yaml</code> — Multi-model batch processing</li>
+</ul>
+<h3>Telemetry</h3>
+<p>OBLITERATUS can optionally contribute anonymized run data to a global research dataset.
+Enable with <code>--contribute</code> flag. No personal data is collected — only model name, method, metrics.</p>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><strong>Don&#39;t use <code>informed</code> as default</strong> — it&#39;s experimental and slower. Use <code>advanced</code> for reliable results.</li>
+<li><strong>Models under ~1B respond poorly to abliteration</strong> — their refusal behaviors are shallow and fragmented, making clean direction extraction difficult. Expect partial results (20-40% remaining refusal). Models 3B+ have cleaner refusal directions and respond much better (often 0% refusal with <code>advanced</code>).</li>
+<li><strong><code>aggressive</code> can make things worse</strong> — on small models it can damage coherence and actually increase refusal rate. Only use it if <code>advanced</code> leaves &gt; 10% refusals on a 3B+ model.</li>
+<li><strong>Always check perplexity</strong> — if it spikes &gt; 15%, the model is damaged. Reduce aggressiveness.</li>
+<li><strong>MoE models need special handling</strong> — use <code>nuclear</code> method for Mixtral, DeepSeek-MoE, etc.</li>
+<li><strong>Quantized models can&#39;t be re-quantized</strong> — abliterate the full-precision model, then quantize the output.</li>
+<li><strong>VRAM estimation is approximate</strong> — 4-bit quant helps but peak usage can spike during extraction.</li>
+<li><strong>Reasoning models are sensitive</strong> — use <code>surgical</code> for R1 distills to preserve chain-of-thought.</li>
+<li><strong>Check <code>obliteratus recommend</code></strong> — telemetry data may have better parameters than defaults.</li>
+<li><strong>AGPL license</strong> — never <code>import obliteratus</code> in MIT/Apache projects. CLI invocation only.</li>
+<li><strong>Large models (70B+)</strong> — always use <code>--large-model</code> flag for conservative defaults.</li>
+<li><strong>Spectral certification RED is common</strong> — the spectral check often flags &quot;incomplete&quot; even when practical refusal rate is 0%. Check actual refusal rate rather than relying on spectral certification alone.</li>
+</ol>
+<h3>Complementary Skills</h3>
+<ul>
+<li><strong>vllm</strong> — Serve abliterated models with high throughput</li>
+<li><strong>gguf</strong> — Convert abliterated models to GGUF for llama.cpp</li>
+<li><strong>huggingface-tokenizers</strong> — Work with model tokenizers</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/obliteratus</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

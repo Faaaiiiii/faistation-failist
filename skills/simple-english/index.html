@@ -1,0 +1,831 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>simple-english — Skill Hermes</title>
+<meta name="description" content="Rewrite text to ASD-STE100 Simplified Technical English.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>simple-english</h1>
+    <p class="lede">Rewrite text to ASD-STE100 Simplified Technical English.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>simple-english</dd>
+      <dt>Keterangan</dt><dd>Rewrite text to ASD-STE100 Simplified Technical English.</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>AminBlg (https://github.com/AminBlg/SimpleEnglish), ported by Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/simple-english.zip" download>Muat turun ZIP (12.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">20.1 KB</td></tr>
+<tr><td><code>references/checklist.md</code></td><td class="sz">2.9 KB</td></tr>
+<tr><td><code>references/use-cases.md</code></td><td class="sz">4.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Simple English: Write Like an Aerospace Manual</h2>
+<p>Write technical text with the rules of ASD-STE100 Simplified Technical English. STE is the controlled language that aerospace and defense manufacturers use for maintenance documentation. The rules exist so that a tired reader who is not a native English speaker cannot misread an instruction. They remove the usual signs of AI-generated text as a side effect: long sentences, synonym rotation, hedges, filler, and decorative clauses.</p>
+<p>Write for that tired reader. Each sentence must survive one read.</p>
+<h3>How to use it in Hermes</h3>
+<p>The text usually arrives one of three ways:</p>
+<ol>
+<li><strong>Inline.</strong> The user pastes the text into the message. Rewrite it in place and reply with the result.</li>
+<li><strong>File.</strong> The user points at a file (README, runbook, docs page). Use <code>read_file</code> to load it, then <code>patch</code> for targeted section rewrites or <code>write_file</code> for a full rewrite. Never touch code blocks, identifiers, or quoted errors (see Untouchables).</li>
+<li><strong>Check mode.</strong> The user asks you to audit text for STE compliance instead of rewriting it. Report each violation as rule number + offending text + compliant rewrite, using <code>references/checklist.md</code>.</li>
+</ol>
+<p>This skill differs from <code>humanizer</code>: humanizer restores natural human voice; simple-english enforces a controlled language for technical instructions. For docs, runbooks, and error messages use this skill. For blog posts, essays, and personal writing use humanizer. Do not apply both to the same text.</p>
+<h3>Your Task</h3>
+<p>When asked to write or rewrite technical text:</p>
+<ol>
+<li><strong>Select the mode</strong> (pragmatic or strict, below).</li>
+<li><strong>Classify each passage</strong> as procedural or descriptive. Every other rule depends on this.</li>
+<li><strong>Correct your vocabulary before drafting.</strong> In strict mode, use <code>make sure that</code> for the check/verify/confirm/ensure concept — the dictionary rejects all four as verbs. In pragmatic mode, pick one and keep it. Pick ONE noun for config/settings (all are valid technical nouns — pick one and keep it). Use no other word for these concepts in the whole document.</li>
+<li><strong>Apply the rules</strong> from the catalog below.</li>
+<li><strong>Do the self-check</strong> before you deliver. This step is not optional.</li>
+<li><strong>Never touch code</strong>, identifiers, commands, or quoted errors (see Untouchables).</li>
+</ol>
+<p>When asked to CHECK text instead of writing it, report each violation as: rule number, the offending text, a compliant rewrite. Cite only rule numbers that exist in this file. Do not cite rule numbers from memory: the numbering is unintuitive and models invent it (tested — an agent without this file cited &quot;Rule 3.1: short sentences&quot;; the real Rule 3.1 is about verb forms).</p>
+<h3>Two Modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>When</th>
+<th>What you apply</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Pragmatic</strong> (default)</td>
+<td>Docs, READMEs, error messages — the user wants clear text</td>
+<td>All structural rules. Domain words stay (&quot;idempotent&quot;, &quot;webhook&quot;).</td>
+</tr>
+<tr>
+<td><strong>Strict</strong></td>
+<td>The user names STE, ASD-STE100, or compliance</td>
+<td>Structural rules + full vocabulary discipline, and tell the user that full compliance needs the official dictionary (free at asd-ste100.org).</td>
+</tr>
+</tbody></table>
+<h3>Step 1: Classify the Text</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Procedural (instructions)</th>
+<th>Descriptive (explanations)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Purpose</td>
+<td>Tell the reader what to do</td>
+<td>Explain what a thing is or does</td>
+</tr>
+<tr>
+<td>Verb form</td>
+<td>Imperative: &quot;Install the pump.&quot;</td>
+<td>Simple present/past/future</td>
+</tr>
+<tr>
+<td>Sentence limit</td>
+<td><strong>20 words</strong> (Rule 5.1)</td>
+<td><strong>25 words</strong> (Rule 6.3)</td>
+</tr>
+<tr>
+<td>Unit rule</td>
+<td>One instruction per sentence (5.2)</td>
+<td>One topic per paragraph (6.5), max six sentences per paragraph (6.6)</td>
+</tr>
+</tbody></table>
+<p>Do not mix the two in one passage. A &quot;Getting started&quot; section is procedural. An &quot;Architecture&quot; section is descriptive. A note inside a procedure is descriptive (25-word limit, no imperative).</p>
+<h3>THE RULE CATALOG</h3>
+<p>53 rules in 9 sections, paraphrased from ASD-STE100 Issue 9 with software examples. The official wording is in the free standard at asd-ste100.org.</p>
+<h4>Section 1 — Words (Rules 1.1-1.14)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1.1</td>
+<td>Use only approved words, technical nouns, or technical verbs.</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>Use an approved word only as its listed part of speech.</td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>Use an approved word only with its approved meaning.</td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>Use only the approved forms of verbs and adjectives.</td>
+</tr>
+<tr>
+<td>1.5</td>
+<td>You can use domain words as technical nouns (&quot;webhook&quot;, &quot;commit&quot;, &quot;endpoint&quot;).</td>
+</tr>
+<tr>
+<td>1.6</td>
+<td>Use an unapproved word only when it is a technical noun or part of one.</td>
+</tr>
+<tr>
+<td>1.7</td>
+<td>Do not use technical nouns as verbs.</td>
+</tr>
+<tr>
+<td>1.8</td>
+<td>Use the technical nouns of your project or industry.</td>
+</tr>
+<tr>
+<td>1.9</td>
+<td>When you pick a technical noun, pick a short and clear one.</td>
+</tr>
+<tr>
+<td>1.10</td>
+<td>No regional, slang, or jargon words as technical nouns.</td>
+</tr>
+<tr>
+<td>1.11</td>
+<td>One item, one name. Do not call it &quot;config&quot; here and &quot;settings&quot; there.</td>
+</tr>
+<tr>
+<td>1.12</td>
+<td>You can use domain verbs as technical verbs (&quot;deploy&quot;, &quot;compile&quot;, &quot;merge&quot;).</td>
+</tr>
+<tr>
+<td>1.13</td>
+<td>Do not use technical verbs as nouns.</td>
+</tr>
+<tr>
+<td>1.14</td>
+<td>Use American English spelling.</td>
+</tr>
+</tbody></table>
+<p>In pragmatic mode, rules 1.5, 1.8, and 1.12 do the heavy lifting: your domain vocabulary is legal. The ones agents break are 1.7, 1.11, and 1.13.</p>
+<p><strong>Before:</strong> You can webhook the event, then do a deploy.
+<strong>After:</strong> Send the event to the webhook. Then deploy the service.</p>
+<h4>Section 2 — Multi-word nouns (Rules 2.1-2.2)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2.1</td>
+<td>Write multi-word nouns of three words or fewer.</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>When a technical noun needs more than three words, write it in full once, then give a short form or hyphenate the units.</td>
+</tr>
+</tbody></table>
+<p>Break long noun chains with prepositions (of, on, in, for):</p>
+<p><strong>Before:</strong> the connection pool timeout configuration value
+<strong>After:</strong> the timeout value for the connection pool</p>
+<h4>Section 3 — Verbs (Rules 3.1-3.7)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>3.1</td>
+<td>Use only the verb forms that the dictionary gives.</td>
+</tr>
+<tr>
+<td>3.2</td>
+<td>Use only: infinitive, imperative, simple present, simple past, simple future, past participle as adjective.</td>
+</tr>
+<tr>
+<td>3.3</td>
+<td>Use the past participle only as an adjective (&quot;the cached response&quot;).</td>
+</tr>
+<tr>
+<td>3.4</td>
+<td>No auxiliary verbs for complex constructions. No present perfect, no &quot;is to be installed&quot;.</td>
+</tr>
+<tr>
+<td>3.5</td>
+<td>Use an &quot;-ing&quot; form only as a technical noun or inside one (&quot;logging&quot;, &quot;the mounting bracket&quot;) — never as a verb.</td>
+</tr>
+<tr>
+<td>3.6</td>
+<td>Active voice. In descriptive text, passive is legal only when the agent is unknown.</td>
+</tr>
+<tr>
+<td>3.7</td>
+<td>Describe an action with a verb, not a noun (&quot;compress the file&quot;, not &quot;perform compression of the file&quot;).</td>
+</tr>
+</tbody></table>
+<p><strong>Approved modals: can, will, must. Banned: should, would, may, might, could (Rule 3.2).</strong>
+The standard rejects &quot;could&quot; even for possibility: write &quot;an explosion can occur&quot;, never &quot;could occur&quot;. For &quot;should&quot;: a requirement becomes &quot;must&quot;; a suggestion is stated as fact or deleted. This matters double for agent instructions — models read &quot;should&quot; as optional.</p>
+<p><strong>Before:</strong> The migration has completed and the table is being rebuilt.
+<strong>After:</strong> The migration is complete. The database rebuilds the table.</p>
+<p><strong>Before:</strong> The flag can be set in the config file, making restarts unnecessary.
+<strong>After:</strong> You can set the flag in the config file. Then a restart is not necessary.</p>
+<p><strong>Before:</strong> The temperature must be adjusted.
+<strong>After:</strong> Adjust the temperature.</p>
+<h4>Section 4 — Sentences (Rules 4.1-4.5)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>4.1</td>
+<td>Write short and clear sentences.</td>
+</tr>
+<tr>
+<td>4.2</td>
+<td>Do not omit words or use contractions to shorten sentences. Keep articles, keep &quot;that&quot;.</td>
+</tr>
+<tr>
+<td>4.3</td>
+<td>Use a vertical list for complex text.</td>
+</tr>
+<tr>
+<td>4.4</td>
+<td>Use connecting words between sentences on related topics (&quot;Then&quot;, &quot;As a result&quot;).</td>
+</tr>
+<tr>
+<td>4.5</td>
+<td>Put an article (the, a, an) or a demonstrative adjective (this, these) before nouns where applicable.</td>
+</tr>
+</tbody></table>
+<p>Rule 4.2 is the anti-terseness rule. STE is short sentences with complete grammar, not telegraph style:</p>
+<p><strong>Wrong shortening:</strong> Ensure file exists before running.
+<strong>STE:</strong> Make sure that the file exists before you run the command.</p>
+<h4>Section 5 — Procedural writing (Rules 5.1-5.5)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>5.1</td>
+<td>Maximum 20 words per sentence. Warnings and cautions included.</td>
+</tr>
+<tr>
+<td>5.2</td>
+<td>One instruction per sentence, unless two actions happen at the same time.</td>
+</tr>
+<tr>
+<td>5.3</td>
+<td>Write instructions in the imperative: &quot;Run the migration.&quot;</td>
+</tr>
+<tr>
+<td>5.4</td>
+<td>Put a required condition before the command, divided by a comma: &quot;If the build fails, read the log.&quot;</td>
+</tr>
+<tr>
+<td>5.5</td>
+<td>Notes give information, never instructions. Notes get the 25-word limit.</td>
+</tr>
+</tbody></table>
+<p><strong>Before:</strong> You&#39;ll want to grab the API key from the dashboard before configuring the client, which you can do under Settings.
+<strong>After:</strong> Get the API key from the dashboard, under Settings. Then configure the client with this key.</p>
+<h4>Section 6 — Descriptive writing (Rules 6.1-6.6)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>6.1</td>
+<td>Give information gradually: one new fact per sentence.</td>
+</tr>
+<tr>
+<td>6.2</td>
+<td>Use key words and phrases to give the text a logical structure.</td>
+</tr>
+<tr>
+<td>6.3</td>
+<td>Maximum 25 words per sentence.</td>
+</tr>
+<tr>
+<td>6.4</td>
+<td>Group related information in paragraphs.</td>
+</tr>
+<tr>
+<td>6.5</td>
+<td>One topic per paragraph.</td>
+</tr>
+<tr>
+<td>6.6</td>
+<td>Maximum six sentences per paragraph.</td>
+</tr>
+</tbody></table>
+<p>No imperative in descriptive text. Descriptions explain; procedures instruct.</p>
+<h4>Section 7 — Safety instructions (Rules 7.1-7.3)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>7.1</td>
+<td>Use a word that shows the risk level (&quot;WARNING&quot; = injury, &quot;CAUTION&quot; = damage).</td>
+</tr>
+<tr>
+<td>7.2</td>
+<td>Start with a clear command or condition.</td>
+</tr>
+<tr>
+<td>7.3</td>
+<td>Then give the risk or the possible result.</td>
+</tr>
+</tbody></table>
+<p>Never bury the instruction after the explanation. The pattern transfers directly to destructive CLI flags, irreversible migrations, and dangerous API options.</p>
+<p><strong>Before:</strong> Note that data loss may occur in some circumstances if the destructive flag happens to be enabled when running against production.
+<strong>After:</strong> CAUTION: Do not use the <code>--force</code> flag against production. The flag deletes rows that do not match the source.</p>
+<h4>Section 8 — Punctuation and word count (Rules 8.1-8.7)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8.1</td>
+<td>All standard punctuation is legal except the semicolon. Write two sentences instead.</td>
+</tr>
+<tr>
+<td>8.2</td>
+<td>Use hyphens to connect words that act as one unit.</td>
+</tr>
+<tr>
+<td>8.3</td>
+<td>Parentheses are legal for references, item numbers, abbreviations, plural forms, explanations, alternatives.</td>
+</tr>
+<tr>
+<td>8.4</td>
+<td>In a vertical list, the lead-in colon ends a sentence for word count.</td>
+</tr>
+<tr>
+<td>8.5</td>
+<td>Text inside parentheses counts as one word.</td>
+</tr>
+<tr>
+<td>8.6</td>
+<td>Count as one word each: numbers, numbers with units, abbreviations, alphanumeric identifiers, quoted text, titles, labels, proper nouns.</td>
+</tr>
+<tr>
+<td>8.7</td>
+<td>A hyphenated word counts as one word.</td>
+</tr>
+</tbody></table>
+<p>Rule 8.6 matters for software text: <code>sqlpipe run --config sqlpipe.yaml</code> in backticks is quoted text and counts as one word. Long identifiers do not blow your sentence budget.</p>
+<h4>Section 9 — Writing practices (Rules 9.1-9.4, GR-1 to GR-8)</h4>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Instruction</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>9.1</td>
+<td>When a word-for-word replacement does not work, restructure the sentence.</td>
+</tr>
+<tr>
+<td>9.2</td>
+<td>Use each approved word correctly: approved meaning, approved part of speech.</td>
+</tr>
+<tr>
+<td>9.3</td>
+<td>Do not build phrasal verbs (&quot;go down&quot; → &quot;decrease&quot;, &quot;set up&quot; → &quot;install&quot; or &quot;configure&quot;).</td>
+</tr>
+<tr>
+<td>9.4</td>
+<td>Keep one consistent style and terminology through the whole document.</td>
+</tr>
+</tbody></table>
+<p>General recommendations GR-1 to GR-8: keep the conjunction &quot;that&quot;, be careful with &quot;with&quot;, give pronouns clear referents, prefer &quot;this + noun&quot; over bare &quot;this&quot;, avoid false friends, avoid Latin abbreviations, use inclusive language, and use the possessive apostrophe form only when you are sure it is correct (GR-8: if unsure, do not use it — non-native readers find it hard).</p>
+<p>GR-6 for software docs: &quot;e.g.&quot; → &quot;for example&quot;, &quot;i.e.&quot; → &quot;that is&quot;, and delete &quot;etc.&quot; — name the items or write &quot;and more&quot;.</p>
+<h3>VOCABULARY DISCIPLINE</h3>
+<p>The official dictionary (~900 approved words, ~1,200 banned words with alternatives) is copyrighted by ASD and is not reproduced here. Its mechanics apply without it: <strong>one word, one meaning, one part of speech.</strong></p>
+<p>Known part-of-speech rulings, useful as patterns:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>Ruling</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>test, check, work</td>
+<td>Noun only. &quot;Do a test&quot;, not &quot;test the pump&quot;. &quot;Check that X&quot; becomes &quot;make sure that X&quot;.</td>
+</tr>
+<tr>
+<td>oil</td>
+<td>Technical noun (TN) only. For the verb, the dictionary gives &quot;lubricate&quot;: &quot;Lubricate the linkage with oil.&quot;</td>
+</tr>
+<tr>
+<td>help</td>
+<td>Verb only. For the noun, the dictionary gives &quot;aid&quot;: &quot;with the aid of&quot;.</td>
+</tr>
+<tr>
+<td>fall (noun)</td>
+<td>Rejected. Use &quot;decrease&quot; for a reduction in value. Use FALL (verb) only for physical movement downward by gravity: &quot;Make sure that the tools do not fall into the engine.&quot;</td>
+</tr>
+<tr>
+<td>follow</td>
+<td>&quot;To come after&quot; only, never &quot;obey&quot;. Write &quot;obey the instructions&quot;.</td>
+</tr>
+<tr>
+<td>above, below</td>
+<td>Physical positions only. For limits write &quot;more than&quot;, &quot;less than&quot;.</td>
+</tr>
+</tbody></table>
+<h4>The modal ladder</h4>
+<table>
+<thead>
+<tr>
+<th>You wrote</th>
+<th>STE writes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>should (requirement)</td>
+<td>must</td>
+</tr>
+<tr>
+<td>should (recommendation)</td>
+<td>Delete it, or state it as fact: &quot;X is better because Y.&quot;</td>
+</tr>
+<tr>
+<td>may / might / could (possibility)</td>
+<td>can</td>
+</tr>
+<tr>
+<td>may (permission)</td>
+<td>can</td>
+</tr>
+<tr>
+<td>would (hypothetical)</td>
+<td>Restructure: &quot;If X occurs, Y occurs.&quot;</td>
+</tr>
+</tbody></table>
+<h4>Slop-to-simple substitutions</h4>
+<p>This table is ours, not the ASD dictionary. It maps the words AI-generated docs overuse to plain replacements. If the word carries no fact, delete it instead of replacing it.</p>
+<table>
+<thead>
+<tr>
+<th>Slop</th>
+<th>Write instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>leverage, utilize</td>
+<td>use</td>
+</tr>
+<tr>
+<td>in order to</td>
+<td>to</td>
+</tr>
+<tr>
+<td>prior to</td>
+<td>before</td>
+</tr>
+<tr>
+<td>ensure</td>
+<td>make sure that (strict mode; in pragmatic mode, ensure is an allowed pick if it is your one chosen check-verb)</td>
+</tr>
+<tr>
+<td>it is worth noting that</td>
+<td>(delete)</td>
+</tr>
+<tr>
+<td>it&#39;s important to, crucially</td>
+<td>(delete — state the fact)</td>
+</tr>
+<tr>
+<td>simply, just, easily, seamlessly, effortlessly</td>
+<td>(delete)</td>
+</tr>
+<tr>
+<td>robust, powerful, comprehensive, performant</td>
+<td>(delete, or give the measurable property)</td>
+</tr>
+<tr>
+<td>functionality</td>
+<td>function, feature</td>
+</tr>
+<tr>
+<td>enables you to, allows you to</td>
+<td>you can</td>
+</tr>
+<tr>
+<td>is designed to, aims to</td>
+<td>(delete — say what it does)</td>
+</tr>
+<tr>
+<td>facilitate</td>
+<td>help, make possible</td>
+</tr>
+<tr>
+<td>dive into, delve into</td>
+<td>read, examine</td>
+</tr>
+<tr>
+<td>when it comes to</td>
+<td>for</td>
+</tr>
+<tr>
+<td>in the event that</td>
+<td>if</td>
+</tr>
+<tr>
+<td>due to the fact that</td>
+<td>because</td>
+</tr>
+<tr>
+<td>as needed, as necessary</td>
+<td>(state the condition)</td>
+</tr>
+<tr>
+<td>and/or</td>
+<td>Pick one, or write &quot;X, or Y, or both&quot;</td>
+</tr>
+<tr>
+<td>e.g. / i.e. / etc.</td>
+<td>for example / that is / (name the items)</td>
+</tr>
+<tr>
+<td>gracefully handles</td>
+<td>(say what it does: &quot;retries three times, then stops&quot;)</td>
+</tr>
+<tr>
+<td>out of the box</td>
+<td>by default</td>
+</tr>
+<tr>
+<td>under the hood</td>
+<td>internally</td>
+</tr>
+<tr>
+<td>blazingly fast, state-of-the-art</td>
+<td>fast (give the number) / (delete)</td>
+</tr>
+<tr>
+<td>streamline</td>
+<td>make simpler, make faster</td>
+</tr>
+<tr>
+<td>plethora, myriad</td>
+<td>many</td>
+</tr>
+<tr>
+<td>addresses the issue, tackles</td>
+<td>corrects the fault, removes the error</td>
+</tr>
+</tbody></table>
+<h4>Consistency pass</h4>
+<p>Collapse synonym rotations to one term each (Rules 1.11, 9.4). The two lists below work differently.</p>
+<p><strong>Technical nouns — not in the dictionary. Pick one and keep it consistent (both modes):</strong></p>
+<ul>
+<li>config / configuration / settings / options → pick one</li>
+</ul>
+<p><strong>Dictionary rulings — the standard has already chosen. Use the approved word (strict mode); pick one and keep it consistent (pragmatic mode):</strong></p>
+<table>
+<thead>
+<tr>
+<th>You wrote</th>
+<th>Dictionary status</th>
+<th>Use instead</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>check (verb) / verify / confirm / ensure</td>
+<td>All rejected as verbs</td>
+<td><code>make sure that</code> (strict); pick one (pragmatic)</td>
+</tr>
+<tr>
+<td>validate</td>
+<td>Not in dictionary</td>
+<td>Use as technical verb (Rule 1.12), or replace with <code>make sure that</code></td>
+</tr>
+<tr>
+<td>delete / drop (verb) / destroy</td>
+<td>All rejected</td>
+<td><code>erase</code> (data), <code>remove</code> (physical); avoid <code>drop</code> and <code>destroy</code></td>
+</tr>
+<tr>
+<td>remove</td>
+<td>Approved verb</td>
+<td>Keep it</td>
+</tr>
+<tr>
+<td>run / execute</td>
+<td>Both rejected</td>
+<td><code>operate</code> for run, <code>do</code> for execute (strict); pick one (pragmatic)</td>
+</tr>
+<tr>
+<td>invoke / launch</td>
+<td>Not in dictionary</td>
+<td>Use as technical verbs (Rule 1.12)</td>
+</tr>
+<tr>
+<td>display (verb) / render / present (verb)</td>
+<td>All rejected</td>
+<td><code>show</code> (approved verb)</td>
+</tr>
+<tr>
+<td>issue</td>
+<td>Not in dictionary</td>
+<td>Use as technical noun, or replace with <code>problem</code> (approved)</td>
+</tr>
+<tr>
+<td>failure</td>
+<td>Rejected in general use; approved as TN for performance loss</td>
+<td>Use only when it means a performance error: &quot;a failure of the pump&quot;</td>
+</tr>
+<tr>
+<td>error</td>
+<td>Approved noun</td>
+<td>Keep it</td>
+</tr>
+<tr>
+<td>problem</td>
+<td>Approved noun</td>
+<td>Keep it</td>
+</tr>
+</tbody></table>
+<h3>Untouchables</h3>
+<p>These are technical names (Rules 1.5, 8.6). Leave them exact, even when they break vocabulary rules:</p>
+<ul>
+<li>Code blocks, inline code, identifiers, CLI commands, flags, file paths</li>
+<li>Quoted error messages and log lines</li>
+<li>Product names, API endpoint names, config keys</li>
+<li>Numbers with units — each counts as one word in the sentence limit</li>
+</ul>
+<h3>Beyond Documentation</h3>
+<p>Same rules, different targets. Full adaptations in <code>references/use-cases.md</code>:</p>
+<ul>
+<li><strong>Error messages</strong>: state what happened (simple past), the cause if known, then the fix as an imperative. No &quot;Oops&quot;, no &quot;Please ensure&quot;, no apology filler.</li>
+<li><strong>Runbooks</strong>: STE&#39;s home turf. Imperative steps, conditions first, warnings before the step.</li>
+<li><strong>Incident reports</strong>: simple past only. &quot;We have identified an issue that may have impacted&quot; becomes &quot;Between 14:02 and 14:31 UTC, 12% of requests failed.&quot;</li>
+<li><strong>Release notes</strong>: breaking changes follow the warning pattern — command first, risk second.</li>
+<li><strong>Agent instructions (prompts, AGENTS.md)</strong>: a system prompt is a procedure for a reader that cannot ask questions. One instruction per sentence, no &quot;should&quot;, condition first.</li>
+<li><strong>Translation prep</strong>: STE&#39;s original job. One meaning per word plus complete grammar removes most translation ambiguity.</li>
+</ul>
+<h3>Self-Check Before You Deliver</h3>
+<p>This step is not optional. Run these four checks on your draft:</p>
+<ol>
+<li>Count words in your three longest sentences. Over the 20/25 limit → split them.</li>
+<li>Search your draft for: <code>&#39;ll</code>, <code>&#39;re</code>, <code>&#39;s</code> (contraction), <code>has been</code>, <code>have been</code>, <code>should</code>, <code>-ing</code> verbs after a comma, semicolons.</li>
+<li>Search for every <code>if</code> and <code>when</code>. Each one stands at the START of its sentence, before the command. &quot;Increase the timeout if the network is slow&quot; → &quot;If the network is slow, increase the timeout.&quot;</li>
+<li>Search for the verbs you did NOT pick in Your Task step 3 (the check/verify/confirm set). Replace every hit with your chosen verb.</li>
+</ol>
+<p>Fix what you find, then deliver. For a full audit, run <code>references/checklist.md</code>.</p>
+<h3>Full Example</h3>
+<p><strong>Before (real unedited AI output):</strong></p>
+<blockquote>
+<p><strong>Connection timeouts.</strong> If sqlpipe hangs or fails with <code>dial tcp: i/o timeout</code>, check that the host running sqlpipe can reach the Postgres port (usually 5432) — this is often a security group or firewall rule blocking the connection. If you&#39;re connecting to a managed database (RDS, Cloud SQL, etc.), confirm the instance allows connections from sqlpipe&#39;s IP. You can also try increasing <code>source.connect_timeout_seconds</code> in your config, since a slow network path can trip the default timeout even when the connection eventually succeeds.</p>
+</blockquote>
+<p><strong>After (classified procedural, verb = &quot;make sure&quot;, conditions first, one instruction per sentence):</strong></p>
+<blockquote>
+<p><strong>Connection timeouts.</strong> sqlpipe stops with <code>dial tcp: i/o timeout</code> when it cannot reach the Postgres port (5432 by default).</p>
+<ol>
+<li>Make sure that the host that runs sqlpipe can reach the Postgres port. A firewall or security group usually blocks it.</li>
+<li>If the database is managed (RDS, Cloud SQL), make sure that the instance accepts connections from the IP of sqlpipe.</li>
+<li>If the network is slow, increase <code>source.connect_timeout_seconds</code> in the configuration.</li>
+</ol>
+</blockquote>
+<p>What changed: 40-word sentences split under 20; &quot;you&#39;re&quot; expanded; &quot;check/confirm&quot; collapsed to &quot;make sure that&quot;; every condition moved before its command; &quot;etc.&quot; removed; code and error strings untouched.</p>
+<h3>Limits</h3>
+<p>STE is for technical facts and instructions. Do not apply it to marketing copy, blog voice, or brand writing — it deletes persuasion by design. When a user asks for STE on marketing text, say so and offer it for the docs instead.</p>
+<p>This skill is an unofficial aid. It is not affiliated with or endorsed by ASD or STEMG, and no tool can guarantee STE compliance. ASD-STE100 is a registered trademark of ASD. The official standard is a free download at asd-ste100.org.</p>
+<h3>References</h3>
+<ul>
+<li><code>references/checklist.md</code> — full verification pass with searchable patterns, for check mode and final audits</li>
+<li><code>references/use-cases.md</code> — long-form adaptations: error messages, runbooks, incident reports, commits, UI copy, i18n</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/simple-english</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

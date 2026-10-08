@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>audiocraft-audio-generation — Skill Hermes</title>
+<meta name="description" content="AudioCraft: MusicGen text-to-music, AudioGen text-to-sound.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>audiocraft-audio-generation</h1>
+    <p class="lede">AudioCraft: MusicGen text-to-music, AudioGen text-to-sound.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>audiocraft-audio-generation</dd>
+      <dt>Keterangan</dt><dd>AudioCraft: MusicGen text-to-music, AudioGen text-to-sound.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/audiocraft-audio-generation.zip" download>Muat turun ZIP (14.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">15.9 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">16.6 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">11.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>AudioCraft: Audio Generation</h2>
+<p>Guide to using Meta&#39;s AudioCraft for text-to-music and text-to-audio generation with MusicGen, AudioGen, and EnCodec.</p>
+<h3>When to use AudioCraft</h3>
+<p><strong>Use AudioCraft when:</strong></p>
+<ul>
+<li>Need to generate music from text descriptions</li>
+<li>Creating sound effects and environmental audio</li>
+<li>Building music generation applications</li>
+<li>Need melody-conditioned music generation</li>
+<li>Want stereo audio output</li>
+<li>Require controllable music generation with style transfer</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>MusicGen</strong>: Text-to-music generation with melody conditioning</li>
+<li><strong>AudioGen</strong>: Text-to-sound effects generation</li>
+<li><strong>EnCodec</strong>: High-fidelity neural audio codec</li>
+<li><strong>Multiple model sizes</strong>: Small (300M) to Large (3.3B)</li>
+<li><strong>Stereo support</strong>: Full stereo audio generation</li>
+<li><strong>Style conditioning</strong>: MusicGen-Style for reference-based generation</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>Stable Audio</strong>: For longer commercial music generation</li>
+<li><strong>Bark</strong>: For text-to-speech with music/sound effects</li>
+<li><strong>Riffusion</strong>: For spectogram-based music generation</li>
+<li><strong>OpenAI Jukebox</strong>: For raw audio generation with lyrics</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># From PyPI
+pip install audiocraft
+
+# From GitHub (latest)
+pip install git+https://github.com/facebookresearch/audiocraft.git
+
+# Or use HuggingFace Transformers
+pip install transformers torch torchaudio
+</code></pre>
+<h4>Basic text-to-music (AudioCraft)</h4>
+<pre><code class="language-python">import torchaudio
+from audiocraft.models import MusicGen
+
+# Load model
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-small&#39;)
+
+# Set generation parameters
+model.set_generation_params(
+    duration=8,  # seconds
+    top_k=250,
+    temperature=1.0
+)
+
+# Generate from text
+descriptions = [&quot;happy upbeat electronic dance music with synths&quot;]
+wav = model.generate(descriptions)
+
+# Save audio
+torchaudio.save(&quot;output.wav&quot;, wav[0].cpu(), sample_rate=32000)
+</code></pre>
+<h4>Using HuggingFace Transformers</h4>
+<pre><code class="language-python">from transformers import AutoProcessor, MusicgenForConditionalGeneration
+import scipy
+
+# Load model and processor
+processor = AutoProcessor.from_pretrained(&quot;facebook/musicgen-small&quot;)
+model = MusicgenForConditionalGeneration.from_pretrained(&quot;facebook/musicgen-small&quot;)
+model.to(&quot;cuda&quot;)
+
+# Generate music
+inputs = processor(
+    text=[&quot;80s pop track with bassy drums and synth&quot;],
+    padding=True,
+    return_tensors=&quot;pt&quot;
+).to(&quot;cuda&quot;)
+
+audio_values = model.generate(
+    **inputs,
+    do_sample=True,
+    guidance_scale=3,
+    max_new_tokens=256
+)
+
+# Save
+sampling_rate = model.config.audio_encoder.sampling_rate
+scipy.io.wavfile.write(&quot;output.wav&quot;, rate=sampling_rate, data=audio_values[0, 0].cpu().numpy())
+</code></pre>
+<h4>Text-to-sound with AudioGen</h4>
+<pre><code class="language-python">from audiocraft.models import AudioGen
+
+# Load AudioGen
+model = AudioGen.get_pretrained(&#39;facebook/audiogen-medium&#39;)
+
+model.set_generation_params(duration=5)
+
+# Generate sound effects
+descriptions = [&quot;dog barking in a park with birds chirping&quot;]
+wav = model.generate(descriptions)
+
+torchaudio.save(&quot;sound.wav&quot;, wav[0].cpu(), sample_rate=16000)
+</code></pre>
+<h3>Core concepts</h3>
+<h4>Architecture overview</h4>
+<pre><code>AudioCraft Architecture:
+┌──────────────────────────────────────────────────────────────┐
+│                    Text Encoder (T5)                          │
+│                         │                                     │
+│                    Text Embeddings                            │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+┌────────────────────────▼─────────────────────────────────────┐
+│              Transformer Decoder (LM)                         │
+│     Auto-regressively generates audio tokens                  │
+│     Using efficient token interleaving patterns               │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+┌────────────────────────▼─────────────────────────────────────┐
+│                EnCodec Audio Decoder                          │
+│        Converts tokens back to audio waveform                 │
+└──────────────────────────────────────────────────────────────┘
+</code></pre>
+<h4>Model variants</h4>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Size</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>musicgen-small</code></td>
+<td>300M</td>
+<td>Text-to-music</td>
+<td>Quick generation</td>
+</tr>
+<tr>
+<td><code>musicgen-medium</code></td>
+<td>1.5B</td>
+<td>Text-to-music</td>
+<td>Balanced</td>
+</tr>
+<tr>
+<td><code>musicgen-large</code></td>
+<td>3.3B</td>
+<td>Text-to-music</td>
+<td>Best quality</td>
+</tr>
+<tr>
+<td><code>musicgen-melody</code></td>
+<td>1.5B</td>
+<td>Text + melody</td>
+<td>Melody conditioning</td>
+</tr>
+<tr>
+<td><code>musicgen-melody-large</code></td>
+<td>3.3B</td>
+<td>Text + melody</td>
+<td>Best melody</td>
+</tr>
+<tr>
+<td><code>musicgen-stereo-*</code></td>
+<td>Varies</td>
+<td>Stereo output</td>
+<td>Stereo generation</td>
+</tr>
+<tr>
+<td><code>musicgen-style</code></td>
+<td>1.5B</td>
+<td>Style transfer</td>
+<td>Reference-based</td>
+</tr>
+<tr>
+<td><code>audiogen-medium</code></td>
+<td>1.5B</td>
+<td>Text-to-sound</td>
+<td>Sound effects</td>
+</tr>
+</tbody></table>
+<h4>Generation parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>duration</code></td>
+<td>8.0</td>
+<td>Length in seconds (1-120)</td>
+</tr>
+<tr>
+<td><code>top_k</code></td>
+<td>250</td>
+<td>Top-k sampling</td>
+</tr>
+<tr>
+<td><code>top_p</code></td>
+<td>0.0</td>
+<td>Nucleus sampling (0 = disabled)</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>1.0</td>
+<td>Sampling temperature</td>
+</tr>
+<tr>
+<td><code>cfg_coef</code></td>
+<td>3.0</td>
+<td>Classifier-free guidance</td>
+</tr>
+</tbody></table>
+<h3>MusicGen usage</h3>
+<h4>Text-to-music generation</h4>
+<pre><code class="language-python">from audiocraft.models import MusicGen
+import torchaudio
+
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-medium&#39;)
+
+# Configure generation
+model.set_generation_params(
+    duration=30,          # Up to 30 seconds
+    top_k=250,            # Sampling diversity
+    top_p=0.0,            # 0 = use top_k only
+    temperature=1.0,      # Creativity (higher = more varied)
+    cfg_coef=3.0          # Text adherence (higher = stricter)
+)
+
+# Generate multiple samples
+descriptions = [
+    &quot;epic orchestral soundtrack with strings and brass&quot;,
+    &quot;chill lo-fi hip hop beat with jazzy piano&quot;,
+    &quot;energetic rock song with electric guitar&quot;
+]
+
+# Generate (returns [batch, channels, samples])
+wav = model.generate(descriptions)
+
+# Save each
+for i, audio in enumerate(wav):
+    torchaudio.save(f&quot;music_{i}.wav&quot;, audio.cpu(), sample_rate=32000)
+</code></pre>
+<h4>Melody-conditioned generation</h4>
+<pre><code class="language-python">from audiocraft.models import MusicGen
+import torchaudio
+
+# Load melody model
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-melody&#39;)
+model.set_generation_params(duration=30)
+
+# Load melody audio
+melody, sr = torchaudio.load(&quot;melody.wav&quot;)
+
+# Generate with melody conditioning
+descriptions = [&quot;acoustic guitar folk song&quot;]
+wav = model.generate_with_chroma(descriptions, melody, sr)
+
+torchaudio.save(&quot;melody_conditioned.wav&quot;, wav[0].cpu(), sample_rate=32000)
+</code></pre>
+<h4>Stereo generation</h4>
+<pre><code class="language-python">from audiocraft.models import MusicGen
+
+# Load stereo model
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-stereo-medium&#39;)
+model.set_generation_params(duration=15)
+
+descriptions = [&quot;ambient electronic music with wide stereo panning&quot;]
+wav = model.generate(descriptions)
+
+# wav shape: [batch, 2, samples] for stereo
+print(f&quot;Stereo shape: {wav.shape}&quot;)  # [1, 2, 480000]
+torchaudio.save(&quot;stereo.wav&quot;, wav[0].cpu(), sample_rate=32000)
+</code></pre>
+<h4>Audio continuation</h4>
+<pre><code class="language-python">from transformers import AutoProcessor, MusicgenForConditionalGeneration
+
+processor = AutoProcessor.from_pretrained(&quot;facebook/musicgen-medium&quot;)
+model = MusicgenForConditionalGeneration.from_pretrained(&quot;facebook/musicgen-medium&quot;)
+
+# Load audio to continue
+import torchaudio
+audio, sr = torchaudio.load(&quot;intro.wav&quot;)
+
+# Process with text and audio
+inputs = processor(
+    audio=audio.squeeze().numpy(),
+    sampling_rate=sr,
+    text=[&quot;continue with a epic chorus&quot;],
+    padding=True,
+    return_tensors=&quot;pt&quot;
+)
+
+# Generate continuation
+audio_values = model.generate(**inputs, do_sample=True, guidance_scale=3, max_new_tokens=512)
+</code></pre>
+<h3>MusicGen-Style usage</h3>
+<h4>Style-conditioned generation</h4>
+<pre><code class="language-python">from audiocraft.models import MusicGen
+
+# Load style model
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-style&#39;)
+
+# Configure generation with style
+model.set_generation_params(
+    duration=30,
+    cfg_coef=3.0,
+    cfg_coef_beta=5.0  # Style influence
+)
+
+# Configure style conditioner
+model.set_style_conditioner_params(
+    eval_q=3,          # RVQ quantizers (1-6)
+    excerpt_length=3.0  # Style excerpt length
+)
+
+# Load style reference
+style_audio, sr = torchaudio.load(&quot;reference_style.wav&quot;)
+
+# Generate with text + style
+descriptions = [&quot;upbeat dance track&quot;]
+wav = model.generate_with_style(descriptions, style_audio, sr)
+</code></pre>
+<h4>Style-only generation (no text)</h4>
+<pre><code class="language-python"># Generate matching style without text prompt
+model.set_generation_params(
+    duration=30,
+    cfg_coef=3.0,
+    cfg_coef_beta=None  # Disable double CFG for style-only
+)
+
+wav = model.generate_with_style([None], style_audio, sr)
+</code></pre>
+<h3>AudioGen usage</h3>
+<h4>Sound effect generation</h4>
+<pre><code class="language-python">from audiocraft.models import AudioGen
+import torchaudio
+
+model = AudioGen.get_pretrained(&#39;facebook/audiogen-medium&#39;)
+model.set_generation_params(duration=10)
+
+# Generate various sounds
+descriptions = [
+    &quot;thunderstorm with heavy rain and lightning&quot;,
+    &quot;busy city traffic with car horns&quot;,
+    &quot;ocean waves crashing on rocks&quot;,
+    &quot;crackling campfire in forest&quot;
+]
+
+wav = model.generate(descriptions)
+
+for i, audio in enumerate(wav):
+    torchaudio.save(f&quot;sound_{i}.wav&quot;, audio.cpu(), sample_rate=16000)
+</code></pre>
+<h3>EnCodec usage</h3>
+<h4>Audio compression</h4>
+<pre><code class="language-python">from audiocraft.models import CompressionModel
+import torch
+import torchaudio
+
+# Load EnCodec
+model = CompressionModel.get_pretrained(&#39;facebook/encodec_32khz&#39;)
+
+# Load audio
+wav, sr = torchaudio.load(&quot;audio.wav&quot;)
+
+# Ensure correct sample rate
+if sr != 32000:
+    resampler = torchaudio.transforms.Resample(sr, 32000)
+    wav = resampler(wav)
+
+# Encode to tokens
+with torch.no_grad():
+    encoded = model.encode(wav.unsqueeze(0))
+    codes = encoded[0]  # Audio codes
+
+# Decode back to audio
+with torch.no_grad():
+    decoded = model.decode(codes)
+
+torchaudio.save(&quot;reconstructed.wav&quot;, decoded[0].cpu(), sample_rate=32000)
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Music generation pipeline</h4>
+<pre><code class="language-python">import torch
+import torchaudio
+from audiocraft.models import MusicGen
+
+class MusicGenerator:
+    def __init__(self, model_name=&quot;facebook/musicgen-medium&quot;):
+        self.model = MusicGen.get_pretrained(model_name)
+        self.sample_rate = 32000
+
+    def generate(self, prompt, duration=30, temperature=1.0, cfg=3.0):
+        self.model.set_generation_params(
+            duration=duration,
+            top_k=250,
+            temperature=temperature,
+            cfg_coef=cfg
+        )
+
+        with torch.no_grad():
+            wav = self.model.generate([prompt])
+
+        return wav[0].cpu()
+
+    def generate_batch(self, prompts, duration=30):
+        self.model.set_generation_params(duration=duration)
+
+        with torch.no_grad():
+            wav = self.model.generate(prompts)
+
+        return wav.cpu()
+
+    def save(self, audio, path):
+        torchaudio.save(path, audio, sample_rate=self.sample_rate)
+
+# Usage
+generator = MusicGenerator()
+audio = generator.generate(
+    &quot;epic cinematic orchestral music&quot;,
+    duration=30,
+    temperature=1.0
+)
+generator.save(audio, &quot;epic_music.wav&quot;)
+</code></pre>
+<h4>Workflow 2: Sound design batch processing</h4>
+<pre><code class="language-python">import json
+from pathlib import Path
+from audiocraft.models import AudioGen
+import torchaudio
+
+def batch_generate_sounds(sound_specs, output_dir):
+    &quot;&quot;&quot;
+    Generate multiple sounds from specifications.
+
+    Args:
+        sound_specs: list of {&quot;name&quot;: str, &quot;description&quot;: str, &quot;duration&quot;: float}
+        output_dir: output directory path
+    &quot;&quot;&quot;
+    model = AudioGen.get_pretrained(&#39;facebook/audiogen-medium&#39;)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(exist_ok=True)
+
+    results = []
+
+    for spec in sound_specs:
+        model.set_generation_params(duration=spec.get(&quot;duration&quot;, 5))
+
+        wav = model.generate([spec[&quot;description&quot;]])
+
+        output_path = output_dir / f&quot;{spec[&#39;name&#39;]}.wav&quot;
+        torchaudio.save(str(output_path), wav[0].cpu(), sample_rate=16000)
+
+        results.append({
+            &quot;name&quot;: spec[&quot;name&quot;],
+            &quot;path&quot;: str(output_path),
+            &quot;description&quot;: spec[&quot;description&quot;]
+        })
+
+    return results
+
+# Usage
+sounds = [
+    {&quot;name&quot;: &quot;explosion&quot;, &quot;description&quot;: &quot;massive explosion with debris&quot;, &quot;duration&quot;: 3},
+    {&quot;name&quot;: &quot;footsteps&quot;, &quot;description&quot;: &quot;footsteps on wooden floor&quot;, &quot;duration&quot;: 5},
+    {&quot;name&quot;: &quot;door&quot;, &quot;description&quot;: &quot;wooden door creaking and closing&quot;, &quot;duration&quot;: 2}
+]
+
+results = batch_generate_sounds(sounds, &quot;sound_effects/&quot;)
+</code></pre>
+<h4>Workflow 3: Gradio demo</h4>
+<pre><code class="language-python">import gradio as gr
+import torch
+import torchaudio
+from audiocraft.models import MusicGen
+
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-small&#39;)
+
+def generate_music(prompt, duration, temperature, cfg_coef):
+    model.set_generation_params(
+        duration=duration,
+        temperature=temperature,
+        cfg_coef=cfg_coef
+    )
+
+    with torch.no_grad():
+        wav = model.generate([prompt])
+
+    # Save to temp file
+    path = &quot;temp_output.wav&quot;
+    torchaudio.save(path, wav[0].cpu(), sample_rate=32000)
+    return path
+
+demo = gr.Interface(
+    fn=generate_music,
+    inputs=[
+        gr.Textbox(label=&quot;Music Description&quot;, placeholder=&quot;upbeat electronic dance music&quot;),
+        gr.Slider(1, 30, value=8, label=&quot;Duration (seconds)&quot;),
+        gr.Slider(0.5, 2.0, value=1.0, label=&quot;Temperature&quot;),
+        gr.Slider(1.0, 10.0, value=3.0, label=&quot;CFG Coefficient&quot;)
+    ],
+    outputs=gr.Audio(label=&quot;Generated Music&quot;),
+    title=&quot;MusicGen Demo&quot;
+)
+
+demo.launch()
+</code></pre>
+<h3>Performance optimization</h3>
+<h4>Memory optimization</h4>
+<pre><code class="language-python"># Use smaller model
+model = MusicGen.get_pretrained(&#39;facebook/musicgen-small&#39;)
+
+# Clear cache between generations
+torch.cuda.empty_cache()
+
+# Generate shorter durations
+model.set_generation_params(duration=10)  # Instead of 30
+
+# Use half precision
+model = model.half()
+</code></pre>
+<h4>Batch processing efficiency</h4>
+<pre><code class="language-python"># Process multiple prompts at once (more efficient)
+descriptions = [&quot;prompt1&quot;, &quot;prompt2&quot;, &quot;prompt3&quot;, &quot;prompt4&quot;]
+wav = model.generate(descriptions)  # Single batch
+
+# Instead of
+for desc in descriptions:
+    wav = model.generate([desc])  # Multiple batches (slower)
+</code></pre>
+<h4>GPU memory requirements</h4>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>FP32 VRAM</th>
+<th>FP16 VRAM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>musicgen-small</td>
+<td>~4GB</td>
+<td>~2GB</td>
+</tr>
+<tr>
+<td>musicgen-medium</td>
+<td>~8GB</td>
+<td>~4GB</td>
+</tr>
+<tr>
+<td>musicgen-large</td>
+<td>~16GB</td>
+<td>~8GB</td>
+</tr>
+</tbody></table>
+<h3>Common issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CUDA OOM</td>
+<td>Use smaller model, reduce duration</td>
+</tr>
+<tr>
+<td>Poor quality</td>
+<td>Increase cfg_coef, better prompts</td>
+</tr>
+<tr>
+<td>Generation too short</td>
+<td>Check max duration setting</td>
+</tr>
+<tr>
+<td>Audio artifacts</td>
+<td>Try different temperature</td>
+</tr>
+<tr>
+<td>Stereo not working</td>
+<td>Use stereo model variant</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Training, fine-tuning, deployment</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues and solutions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/facebookresearch/audiocraft">https://github.com/facebookresearch/audiocraft</a></li>
+<li><strong>Paper (MusicGen)</strong>: <a href="https://arxiv.org/abs/2306.05284">https://arxiv.org/abs/2306.05284</a></li>
+<li><strong>Paper (AudioGen)</strong>: <a href="https://arxiv.org/abs/2209.15352">https://arxiv.org/abs/2209.15352</a></li>
+<li><strong>HuggingFace</strong>: <a href="https://huggingface.co/facebook/musicgen-small">https://huggingface.co/facebook/musicgen-small</a></li>
+<li><strong>Demo</strong>: <a href="https://huggingface.co/spaces/facebook/MusicGen">https://huggingface.co/spaces/facebook/MusicGen</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/audiocraft-audio-generation</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

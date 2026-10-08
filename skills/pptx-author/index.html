@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pptx-author — Skill Hermes</title>
+<meta name="description" content="Build PowerPoint decks headless with python-pptx.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pptx-author</h1>
+    <p class="lede">Build PowerPoint decks headless with python-pptx.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pptx-author</dd>
+      <dt>Keterangan</dt><dd>Build PowerPoint decks headless with python-pptx.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anthropic (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>Apache-2.0</dd>
+      <dt>Kategori</dt><dd>finance · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pptx-author.zip" download>Muat turun ZIP (2.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>pptx-author</h2>
+<p>Produce a .pptx file on disk using <code>python-pptx</code>. Use when you need to deliver a deck as a file artifact, not drive a live PowerPoint session.</p>
+<p>Adapted from Anthropic&#39;s <code>pptx-author</code> and <code>pitch-deck</code> skills in <a href="https://github.com/anthropics/financial-services">anthropics/financial-services</a>. The MCP / Office-JS branches of the originals are dropped — this assumes headless Python.</p>
+<p>For the broader, already-shipped PowerPoint authoring skill (slides, speaker notes, embeds, media), see the built-in <code>powerpoint</code> skill. This skill is a lighter-weight pattern tuned for model-backed decks (pitch decks, IC memos, earnings notes) where every number must trace to a source workbook.</p>
+<h3>Output contract</h3>
+<ul>
+<li>Write to <code>./out/&lt;name&gt;.pptx</code>. Create <code>./out/</code> if it does not exist.</li>
+<li>Return the relative path in your final message.</li>
+</ul>
+<h3>Setup</h3>
+<pre><code class="language-bash">pip install &quot;python-pptx&gt;=0.6&quot;
+</code></pre>
+<h3>Core conventions</h3>
+<h4>One idea per slide</h4>
+<p>Title states the takeaway; body supports it. A slide titled &quot;Q3 Revenue&quot; is weak; &quot;Revenue growth accelerated to 14% Y/Y in Q3&quot; is strong.</p>
+<h4>Every number traces to the model</h4>
+<p>If a figure on a slide came from <code>./out/model.xlsx</code>, footnote the sheet and cell.</p>
+<pre><code>Revenue: $1,250M  (Source: model.xlsx, Inputs!C3)
+</code></pre>
+<p>Never transcribe numbers from memory or from a summary — open the workbook, read the named range, and bind the deck value to it programmatically when you can.</p>
+<h4>Use the firm template when one is mounted</h4>
+<p>If <code>./templates/firm-template.pptx</code> exists, load it so the deck inherits branded colors, fonts, and master layouts.</p>
+<pre><code class="language-python">from pptx import Presentation
+from pathlib import Path
+
+template = Path(&quot;./templates/firm-template.pptx&quot;)
+prs = Presentation(str(template)) if template.exists() else Presentation()
+</code></pre>
+<h4>Charts: PNG-from-model beats native pptx charts</h4>
+<p>When fidelity matters (the model&#39;s chart styling must match the deck exactly), render the chart to PNG from the source workbook and embed the image. Native <code>pptx.chart</code> charts are fragile and often don&#39;t match firm conventions.</p>
+<pre><code class="language-python">from pptx.util import Inches
+slide.shapes.add_picture(&quot;./out/charts/football_field.png&quot;,
+                         Inches(1), Inches(2),
+                         width=Inches(8))
+</code></pre>
+<h4>No external sends</h4>
+<p>This skill writes a file. It never emails, uploads, or posts. Orchestration layers handle delivery.</p>
+<h3>Skeleton</h3>
+<pre><code class="language-python">from pptx import Presentation
+from pptx.util import Inches, Pt
+from pptx.dml.color import RGBColor
+from pathlib import Path
+
+template = Path(&quot;./templates/firm-template.pptx&quot;)
+prs = Presentation(str(template)) if template.exists() else Presentation()
+
+# Title slide
+slide = prs.slides.add_slide(prs.slide_layouts[0])
+slide.shapes.title.text = &quot;Project Aurora — Strategic Alternatives&quot;
+slide.placeholders[1].text = &quot;Preliminary Discussion Materials&quot;
+
+# Valuation summary slide (title-only layout)
+slide = prs.slides.add_slide(prs.slide_layouts[5])
+slide.shapes.title.text = &quot;Valuation implies $38–$52 per share across methodologies&quot;
+
+# Add a table bound to model outputs
+rows, cols = 5, 4
+tbl_shape = slide.shapes.add_table(rows, cols,
+                                   Inches(0.5), Inches(1.5),
+                                   Inches(9), Inches(3))
+tbl = tbl_shape.table
+headers = [&quot;Methodology&quot;, &quot;Low ($)&quot;, &quot;Mid ($)&quot;, &quot;High ($)&quot;]
+for c, h in enumerate(headers):
+    tbl.cell(0, c).text = h
+
+# In a real deck, read these from the model workbook with openpyxl
+data = [
+    (&quot;Trading comps&quot;,     &quot;35&quot;, &quot;41&quot;, &quot;48&quot;),
+    (&quot;Precedent M&amp;A&quot;,     &quot;39&quot;, &quot;45&quot;, &quot;52&quot;),
+    (&quot;DCF (base)&quot;,        &quot;36&quot;, &quot;43&quot;, &quot;51&quot;),
+    (&quot;LBO (10% IRR)&quot;,     &quot;33&quot;, &quot;38&quot;, &quot;44&quot;),
+]
+for r, row in enumerate(data, start=1):
+    for c, val in enumerate(row):
+        tbl.cell(r, c).text = val
+
+# Embed a chart rendered from the model
+slide = prs.slides.add_slide(prs.slide_layouts[5])
+slide.shapes.title.text = &quot;Football field — current price $42&quot;
+slide.shapes.add_picture(&quot;./out/charts/football_field.png&quot;,
+                         Inches(1), Inches(1.8), width=Inches(8))
+
+Path(&quot;./out&quot;).mkdir(exist_ok=True)
+prs.save(&quot;./out/pitch-aurora.pptx&quot;)
+</code></pre>
+<h3>Binding deck numbers to the source workbook</h3>
+<p>Read named ranges or specific cells from your Excel model so deck numbers never drift.</p>
+<pre><code class="language-python">from openpyxl import load_workbook
+
+wb = load_workbook(&quot;./out/model.xlsx&quot;, data_only=True)
+def nr(name):
+    &quot;&quot;&quot;Resolve a named range to its current computed value.&quot;&quot;&quot;
+    rng = wb.defined_names[name]
+    sheet, coord = next(rng.destinations)
+    return wb[sheet][coord].value
+
+revenue_fy24 = nr(&quot;RevenueFY24&quot;)
+implied_mid  = nr(&quot;ImpliedSharePriceBase&quot;)
+</code></pre>
+<p>Then build deck content using those values:</p>
+<pre><code class="language-python">slide.shapes.title.text = f&quot;Implied share price of ${implied_mid:.2f} (base case)&quot;
+</code></pre>
+<p>Remember to recalculate the workbook before reading it — openpyxl only sees computed values if something has already calculated the sheet. Run the recalc helper in the <code>excel-author</code> skill first, or open/save through a real Excel session.</p>
+<h3>Slide-type checklist for pitch decks</h3>
+<p>A typical banking pitch deck follows this structure. Not prescriptive, but useful as a starting skeleton:</p>
+<ol>
+<li>Cover / title</li>
+<li>Disclaimer</li>
+<li>Table of contents</li>
+<li>Situation overview</li>
+<li>Company snapshot (the target)</li>
+<li>Market / sector context</li>
+<li>Valuation summary (football field) — the money slide</li>
+<li>Trading comps detail</li>
+<li>Precedent transactions detail</li>
+<li>DCF summary</li>
+<li>Illustrative LBO / sponsor case</li>
+<li>Process considerations</li>
+<li>Appendix</li>
+</ol>
+<h3>When NOT to use this skill</h3>
+<ul>
+<li>Users in a live PowerPoint session with an Office MCP available — drive their live doc instead.</li>
+<li>Non-financial slideware (quarterly all-hands, marketing decks) — use the broader <code>powerpoint</code> skill.</li>
+<li>Decks with heavy animation, transitions, or speaker notes — use the broader <code>powerpoint</code> skill.</li>
+</ul>
+<h3>Attribution</h3>
+<p>Conventions adapted from Anthropic&#39;s Claude for Financial Services plugin suite, Apache-2.0 licensed. Original: <a href="https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/pitch-agent/skills/pptx-author">https://github.com/anthropics/financial-services/tree/main/plugins/agent-plugins/pitch-agent/skills/pptx-author</a></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/finance/pptx-author</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

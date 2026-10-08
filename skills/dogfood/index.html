@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dogfood — Skill Hermes</title>
+<meta name="description" content="Exploratory QA of web apps: find bugs, evidence, reports.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>dogfood</h1>
+    <p class="lede">Exploratory QA of web apps: find bugs, evidence, reports.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>dogfood</dd>
+      <dt>Keterangan</dt><dd>Exploratory QA of web apps: find bugs, evidence, reports.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/dogfood.zip" download>Muat turun ZIP (5.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.2 KB</td></tr>
+<tr><td><code>references/issue-taxonomy.md</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>templates/dogfood-report-template.md</code></td><td class="sz">1.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Dogfood: Systematic Web Application QA Testing</h2>
+<h3>Overview</h3>
+<p>This skill guides you through systematic exploratory QA testing of web applications using the browser toolset. You will navigate the application, interact with elements, capture evidence of issues, and produce a structured bug report.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Browser toolset must be available (<code>browser_navigate</code>, <code>browser_snapshot</code>, <code>browser_click</code>, <code>browser_type</code>, <code>browser_vision</code>, <code>browser_console</code>, <code>browser_scroll</code>, <code>browser_back</code>, <code>browser_press</code>)</li>
+<li>A target URL and testing scope from the user</li>
+</ul>
+<h3>Inputs</h3>
+<p>The user provides:</p>
+<ol>
+<li><strong>Target URL</strong> — the entry point for testing</li>
+<li><strong>Scope</strong> — what areas/features to focus on (or &quot;full site&quot; for comprehensive testing)</li>
+<li><strong>Output directory</strong> (optional) — where to save screenshots and the report (default: <code>./dogfood-output</code>)</li>
+</ol>
+<h3>Workflow</h3>
+<p>Follow this 5-phase systematic workflow:</p>
+<h4>Phase 1: Plan</h4>
+<ol>
+<li>Create the output directory structure:<pre><code>{output_dir}/
+├── screenshots/       # Evidence screenshots
+└── report.md          # Final report (generated in Phase 5)
+</code></pre>
+</li>
+<li>Identify the testing scope based on user input.</li>
+<li>Build a rough sitemap by planning which pages and features to test:<ul>
+<li>Landing/home page</li>
+<li>Navigation links (header, footer, sidebar)</li>
+<li>Key user flows (sign up, login, search, checkout, etc.)</li>
+<li>Forms and interactive elements</li>
+<li>Edge cases (empty states, error pages, 404s)</li>
+</ul>
+</li>
+</ol>
+<h4>Phase 2: Explore</h4>
+<p>For each page or feature in your plan:</p>
+<ol>
+<li><p><strong>Navigate</strong> to the page:</p>
+<pre><code>browser_navigate(url=&quot;https://example.com/page&quot;)
+</code></pre>
+</li>
+<li><p><strong>Take a snapshot</strong> to understand the DOM structure:</p>
+<pre><code>browser_snapshot()
+</code></pre>
+</li>
+<li><p><strong>Check the console</strong> for JavaScript errors:</p>
+<pre><code>browser_console(clear=true)
+</code></pre>
+<p>Do this after every navigation and after every significant interaction. Silent JS errors are high-value findings.</p>
+</li>
+<li><p><strong>Take an annotated screenshot</strong> to visually assess the page and identify interactive elements:</p>
+<pre><code>browser_vision(question=&quot;Describe the page layout, identify any visual issues, broken elements, or accessibility concerns&quot;, annotate=true)
+</code></pre>
+<p>The <code>annotate=true</code> flag overlays numbered <code>[N]</code> labels on interactive elements. Each <code>[N]</code> maps to ref <code>@eN</code> for subsequent browser commands.</p>
+</li>
+<li><p><strong>Test interactive elements</strong> systematically:</p>
+<ul>
+<li>Click buttons and links: <code>browser_click(ref=&quot;@eN&quot;)</code></li>
+<li>Fill forms: <code>browser_type(ref=&quot;@eN&quot;, text=&quot;test input&quot;)</code></li>
+<li>Test keyboard navigation: <code>browser_press(key=&quot;Tab&quot;)</code>, <code>browser_press(key=&quot;Enter&quot;)</code></li>
+<li>Scroll through content: <code>browser_scroll(direction=&quot;down&quot;)</code></li>
+<li>Test form validation with invalid inputs</li>
+<li>Test empty submissions</li>
+</ul>
+</li>
+<li><p><strong>After each interaction</strong>, check for:</p>
+<ul>
+<li>Console errors: <code>browser_console()</code></li>
+<li>Visual changes: <code>browser_vision(question=&quot;What changed after the interaction?&quot;)</code></li>
+<li>Expected vs actual behavior</li>
+</ul>
+</li>
+</ol>
+<h4>Phase 3: Collect Evidence</h4>
+<p>For every issue found:</p>
+<ol>
+<li><p><strong>Take a screenshot</strong> showing the issue:</p>
+<pre><code>browser_vision(question=&quot;Capture and describe the issue visible on this page&quot;, annotate=false)
+</code></pre>
+<p>Save the <code>screenshot_path</code> from the response — you will reference it in the report.</p>
+</li>
+<li><p><strong>Record the details</strong>:</p>
+<ul>
+<li>URL where the issue occurs</li>
+<li>Steps to reproduce</li>
+<li>Expected behavior</li>
+<li>Actual behavior</li>
+<li>Console errors (if any)</li>
+<li>Screenshot path</li>
+</ul>
+</li>
+<li><p><strong>Classify the issue</strong> using the issue taxonomy (see <code>references/issue-taxonomy.md</code>):</p>
+<ul>
+<li>Severity: Critical / High / Medium / Low</li>
+<li>Category: Functional / Visual / Accessibility / Console / UX / Content</li>
+</ul>
+</li>
+</ol>
+<h4>Phase 4: Categorize</h4>
+<ol>
+<li>Review all collected issues.</li>
+<li>De-duplicate — merge issues that are the same bug manifesting in different places.</li>
+<li>Assign final severity and category to each issue.</li>
+<li>Sort by severity (Critical first, then High, Medium, Low).</li>
+<li>Count issues by severity and category for the executive summary.</li>
+</ol>
+<h4>Phase 5: Report</h4>
+<p>Generate the final report using the template at <code>templates/dogfood-report-template.md</code>.</p>
+<p>The report must include:</p>
+<ol>
+<li><strong>Executive summary</strong> with total issue count, breakdown by severity, and testing scope</li>
+<li><strong>Per-issue sections</strong> with:<ul>
+<li>Issue number and title</li>
+<li>Severity and category badges</li>
+<li>URL where observed</li>
+<li>Description of the issue</li>
+<li>Steps to reproduce</li>
+<li>Expected vs actual behavior</li>
+<li>Screenshot references (use <code>MEDIA:&lt;screenshot_path&gt;</code> for inline images)</li>
+<li>Console errors if relevant</li>
+</ul>
+</li>
+<li><strong>Summary table</strong> of all issues</li>
+<li><strong>Testing notes</strong> — what was tested, what was not, any blockers</li>
+</ol>
+<p>Save the report to <code>{output_dir}/report.md</code>.</p>
+<h3>Tools Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>browser_navigate</code></td>
+<td>Go to a URL</td>
+</tr>
+<tr>
+<td><code>browser_snapshot</code></td>
+<td>Get DOM text snapshot (accessibility tree)</td>
+</tr>
+<tr>
+<td><code>browser_click</code></td>
+<td>Click an element by ref (<code>@eN</code>) or text</td>
+</tr>
+<tr>
+<td><code>browser_type</code></td>
+<td>Type into an input field</td>
+</tr>
+<tr>
+<td><code>browser_scroll</code></td>
+<td>Scroll up/down on the page</td>
+</tr>
+<tr>
+<td><code>browser_back</code></td>
+<td>Go back in browser history</td>
+</tr>
+<tr>
+<td><code>browser_press</code></td>
+<td>Press a keyboard key</td>
+</tr>
+<tr>
+<td><code>browser_vision</code></td>
+<td>Screenshot + AI analysis; use <code>annotate=true</code> for element labels</td>
+</tr>
+<tr>
+<td><code>browser_console</code></td>
+<td>Get JS console output and errors</td>
+</tr>
+</tbody></table>
+<h3>Tips</h3>
+<ul>
+<li><strong>Always check <code>browser_console()</code> after navigating and after significant interactions.</strong> Silent JS errors are among the most valuable findings.</li>
+<li><strong>Use <code>annotate=true</code> with <code>browser_vision</code></strong> when you need to reason about interactive element positions or when the snapshot refs are unclear.</li>
+<li><strong>Test with both valid and invalid inputs</strong> — form validation bugs are common.</li>
+<li><strong>Scroll through long pages</strong> — content below the fold may have rendering issues.</li>
+<li><strong>Test navigation flows</strong> — click through multi-step processes end-to-end.</li>
+<li><strong>Check responsive behavior</strong> by noting any layout issues visible in screenshots.</li>
+<li><strong>Don&#39;t forget edge cases</strong>: empty states, very long text, special characters, rapid clicking.</li>
+<li>When reporting screenshots to the user, include <code>MEDIA:&lt;screenshot_path&gt;</code> so they can see the evidence inline.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/dogfood</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

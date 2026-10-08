@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>xlsx — Skill Hermes</title>
+<meta name="description" content="Create, read, edit Excel .xlsx workbooks and CSVs.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>xlsx</h1>
+    <p class="lede">Create, read, edit Excel .xlsx workbooks and CSVs.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>xlsx</dd>
+      <dt>Keterangan</dt><dd>Create, read, edit Excel .xlsx workbooks and CSVs.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Nous Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/xlsx.zip" download>Muat turun ZIP (30.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (11)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.4 KB</td></tr>
+<tr><td><code>LICENSE</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/restructuring.md</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>scripts/csv_to_xlsx.py</code></td><td class="sz">3.4 KB</td></tr>
+<tr><td><code>scripts/xlsx_create.py</code></td><td class="sz">9.6 KB</td></tr>
+<tr><td><code>scripts/xlsx_edit.py</code></td><td class="sz">10.6 KB</td></tr>
+<tr><td><code>scripts/xlsx_read.py</code></td><td class="sz">5.7 KB</td></tr>
+<tr><td><code>scripts/xlsx_recalc.py</code></td><td class="sz">4.1 KB</td></tr>
+<tr><td><code>scripts/xlsx_restructure.py</code></td><td class="sz">13.4 KB</td></tr>
+<tr><td><code>scripts/xlsx_to_csv.py</code></td><td class="sz">2.3 KB</td></tr>
+<tr><td><code>tests/test_xlsx_skill.py</code></td><td class="sz">21.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Xlsx Skill</h2>
+<p>Work with Excel .xlsx workbooks using Python and openpyxl: build styled
+multi-sheet workbooks with formulas and charts, inspect or dump existing
+files, edit cells and structure, and convert to/from CSV. All helper
+scripts are argparse CLIs that print JSON and use explicit UTF-8 I/O.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Creating .xlsx reports: multiple sheets, number formats, styling,
+merged cells, freeze panes, autofilter, conditional formatting,
+charts, data-validation dropdowns, native Excel tables, defined
+names, hyperlinks, cell notes, sheet protection.</li>
+<li>Reading a workbook: sheet inventory, dumping data as JSON or CSV,
+listing formulas vs cached values, notes, defined names, tables.</li>
+<li>Editing existing files: set cells, append rows, insert/delete
+rows/columns (reference-aware via <code>xlsx_restructure.py</code>),
+copy/rename sheets, tables, names, notes, protection.</li>
+<li>Recalculating formulas headlessly via LibreOffice
+(<code>xlsx_recalc.py</code>).</li>
+<li>CSV interop with type inference and non-UTF-8 encodings.</li>
+<li>Not for the legacy .xls binary format (use LibreOffice to convert
+first: <code>soffice --headless --convert-to xlsx old.xls</code>).</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Python 3.10+ with <code>openpyxl</code> (<code>pip install openpyxl</code>). No other
+third-party packages are needed; everything else is stdlib.</li>
+<li>Optional: LibreOffice (<code>soffice</code>) for headless recalculation or
+format conversion.</li>
+</ul>
+<h3>How to Run</h3>
+<p>Run the helper scripts with the <code>terminal</code> tool from this skill&#39;s
+<code>scripts/</code> directory (every script supports <code>--help</code>):</p>
+<pre><code class="language-bash">python scripts/xlsx_create.py spec.json report.xlsx   # build from JSON spec
+python scripts/xlsx_read.py report.xlsx --sheets      # inventory
+python scripts/xlsx_read.py report.xlsx --json --sheet Data
+python scripts/xlsx_read.py report.xlsx --formulas
+python scripts/xlsx_edit.py report.xlsx --sheet Data --set B2=42 --recalc
+python scripts/xlsx_restructure.py report.xlsx --sheet Data --insert-rows 3:2
+python scripts/xlsx_recalc.py report.xlsx
+python scripts/csv_to_xlsx.py data.csv out.xlsx --encoding utf-8
+python scripts/xlsx_to_csv.py report.xlsx out.csv --sheet Data
+</code></pre>
+<p>Author the JSON spec with <code>write_file</code>, inspect script JSON output with
+<code>read_file</code> or directly from stdout.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create workbook from spec</td>
+<td><code>xlsx_create.py spec.json out.xlsx</code></td>
+</tr>
+<tr>
+<td>Sheet names + dimensions</td>
+<td><code>xlsx_read.py f.xlsx --sheets</code></td>
+</tr>
+<tr>
+<td>Dump sheet as JSON</td>
+<td><code>xlsx_read.py f.xlsx --json --sheet S</code></td>
+</tr>
+<tr>
+<td>Dump sheet as CSV</td>
+<td><code>xlsx_read.py f.xlsx --csv --out d.csv</code></td>
+</tr>
+<tr>
+<td>List formulas + cached values</td>
+<td><code>xlsx_read.py f.xlsx --formulas</code></td>
+</tr>
+<tr>
+<td>Set a cell / formula</td>
+<td><code>xlsx_edit.py f.xlsx --set &quot;A1==SUM(B:B)&quot;</code></td>
+</tr>
+<tr>
+<td>Append a row</td>
+<td><code>xlsx_edit.py f.xlsx --append &#39;[1,&quot;x&quot;,true]&#39;</code></td>
+</tr>
+<tr>
+<td>Insert 2 rows, refs NOT shifted</td>
+<td><code>xlsx_edit.py f.xlsx --insert-rows 3:2</code></td>
+</tr>
+<tr>
+<td>Insert 2 rows, refs shifted</td>
+<td><code>xlsx_restructure.py f.xlsx --insert-rows 3:2</code></td>
+</tr>
+<tr>
+<td>Delete a column, refs shifted</td>
+<td><code>xlsx_restructure.py f.xlsx --delete-cols B</code></td>
+</tr>
+<tr>
+<td>Create a native table</td>
+<td><code>xlsx_edit.py f.xlsx --add-table Sales:A1:C9</code></td>
+</tr>
+<tr>
+<td>Append inside a table</td>
+<td><code>--table-append &#39;Sales=[&quot;West&quot;,5]&#39;</code></td>
+</tr>
+<tr>
+<td>List tables</td>
+<td><code>xlsx_edit.py f.xlsx --list-tables</code></td>
+</tr>
+<tr>
+<td>Defined names</td>
+<td><code>--define-name &quot;Rates=&#39;Data&#39;!$B$2:$B$9&quot;</code> / <code>--delete-name Rates</code> / <code>xlsx_read.py f.xlsx --names</code></td>
+</tr>
+<tr>
+<td>Hyperlink</td>
+<td>`--hyperlink &quot;A1=<a href="https://example.com">https://example.com</a></td>
+</tr>
+<tr>
+<td>Cell note</td>
+<td>`--note &quot;B2=Check this</td>
+</tr>
+<tr>
+<td>Protect sheet (see Pitfalls)</td>
+<td><code>--protect your-password --unlock B2:B9</code></td>
+</tr>
+<tr>
+<td>Recalculate via LibreOffice</td>
+<td><code>xlsx_recalc.py f.xlsx</code></td>
+</tr>
+<tr>
+<td>Copy / rename sheet</td>
+<td><code>--copy-sheet Src:New --rename-sheet Old:New</code></td>
+</tr>
+<tr>
+<td>Force recalc on open</td>
+<td><code>xlsx_edit.py f.xlsx --recalc</code></td>
+</tr>
+<tr>
+<td>CSV -&gt; styled xlsx</td>
+<td><code>csv_to_xlsx.py in.csv out.xlsx</code></td>
+</tr>
+<tr>
+<td>xlsx -&gt; CSV</td>
+<td><code>xlsx_to_csv.py f.xlsx out.csv --encoding utf-8</code></td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<ol>
+<li><strong>Create</strong>: write a JSON spec (schema documented in
+<code>xlsx_create.py --help</code> and its docstring). Each sheet supports
+<code>rows</code> (scalars or styled cell objects), sparse <code>cells</code> overrides,
+<code>column_widths</code>, <code>row_heights</code>, <code>merges</code>, <code>freeze_panes</code>,
+<code>autofilter</code>, <code>conditional_formats</code> (cell_is rules and color
+scales), <code>charts</code> (bar/line/pie from cell ranges),
+<code>validations</code> (list dropdowns), <code>tables</code> (native Excel tables with
+a style name), and <code>protection</code>. Workbook-level <code>defined_names</code>
+maps names to refs. Cell objects also take <code>hyperlink</code> and <code>note</code>.
+Typed values: JSON numbers/bools
+pass through; dates use <code>{&quot;value&quot;: &quot;2026-01-31&quot;, &quot;type&quot;: &quot;date&quot;}</code>.
+Number formats are Excel format strings: currency <code>&quot;$#,##0.00&quot;</code>,
+percent <code>&quot;0.0%&quot;</code>, date <code>&quot;yyyy-mm-dd&quot;</code>.</li>
+<li><strong>Formulas</strong>: set with <code>&quot;formula&quot;: &quot;SUM(B2:B9)&quot;</code> in the spec or
+<code>--set &quot;C1==SUM(A:A)&quot;</code> in the editor. When writing formulas, add
+<code>&quot;full_calc_on_load&quot;: true</code> (spec) or <code>--recalc</code> (editor); this sets
+the workbook&#39;s <code>fullCalcOnLoad</code> flag so Excel/LibreOffice recompute
+everything on open. openpyxl itself NEVER evaluates formulas.</li>
+<li><strong>Read</strong>: <code>--sheets</code> for inventory (names, dimensions, merged
+ranges, chart count, tables, protection, defined names),
+<code>--json</code>/<code>--csv</code> for data, <code>--formulas</code> to
+pair each formula string with its cached result, <code>--notes</code> for
+cell comments, <code>--names</code> for defined names. Cached results
+exist only if the file was last saved by a real spreadsheet app;
+files fresh from openpyxl return <code>null</code> there. To materialize
+results headlessly run <code>xlsx_recalc.py file.xlsx</code> (uses
+LibreOffice; prints <code>{&quot;recalculated&quot;: false, ...}</code> and exits 0
+when <code>soffice</code> is absent), then reload with <code>--data-only</code>.</li>
+<li><strong>Edit</strong>: <code>xlsx_edit.py</code> applies renames/copies first, then
+structural row/column changes, then <code>--set</code>/<code>--append</code>. It edits in
+place unless <code>--out</code> is given — copy the file first if you need the
+original.</li>
+<li><strong>Restructure</strong>: for insert/delete on sheets that have formulas,
+merges, tables, or filters, use <code>xlsx_restructure.py</code> instead of
+<code>xlsx_edit.py</code>. It rewrites formula references on ALL sheets
+(absolute <code>$</code> refs, ranges, cross-sheet refs), shifts merges,
+autofilter, freeze panes, validation and conditional-format
+ranges, table refs, defined names, and row/column dimensions, then
+prints a JSON report including a <code>not_shifted</code> list. Rules and
+limits: <code>references/restructuring.md</code>.</li>
+<li><strong>CSV interop</strong>: <code>csv_to_xlsx.py</code> infers int/float/bool/ISO-date
+per cell and styles the header row; <code>xlsx_to_csv.py</code> writes ISO
+dates and blank strings for empty cells. Both default to UTF-8 and
+accept <code>--encoding</code> (e.g. <code>utf-8-sig</code> for Excel-friendly BOM,
+<code>cp1252</code> for legacy Windows exports).</li>
+</ol>
+<h3>Converting to PDF</h3>
+<p>LibreOffice converts headlessly (also works for CSV export of a single
+sheet):</p>
+<pre><code class="language-bash">soffice --headless --convert-to pdf report.xlsx --outdir out/
+soffice --headless --convert-to csv report.xlsx --outdir out/  # 1st sheet only
+</code></pre>
+<p>Only the first sheet lands in a CSV; for other sheets use
+<code>xlsx_to_csv.py --sheet NAME</code>. If <code>soffice</code> is missing, install
+LibreOffice or hand the file to the user unconverted.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>openpyxl does not calculate.</strong> Formula results are available only
+via <code>load_workbook(path, data_only=True)</code> and only when the file was
+previously saved by Excel/LibreOffice. Otherwise you get <code>None</code>.</li>
+<li><strong><code>xlsx_edit.py</code> insert/delete does not shift references</strong> (raw
+openpyxl behavior). Use <code>xlsx_restructure.py</code>, which does — but even
+it cannot move chart anchors, images, or conditional-format RULE
+formulas; read its JSON report&#39;s <code>not_shifted</code> list and
+<code>references/restructuring.md</code>.</li>
+<li><strong>Sheet protection is NOT security.</strong> <code>--protect</code> sets the standard
+xlsx sheet-protection hash: it signals &quot;don&#39;t edit this&quot; to
+well-behaved apps and nothing more. Anyone can strip it by editing
+the zip&#39;s XML or unchecking it in LibreOffice. Never rely on it for
+confidentiality or integrity; it does not encrypt anything.</li>
+<li><strong><code>data_only=True</code> then save</strong> silently discards all formulas
+(cached values replace them). Never save a workbook loaded that way
+unless that is the goal.</li>
+<li><strong>Loading strips charts/images</strong>: openpyxl does not round-trip
+charts, so editing a charted workbook and saving drops the charts.
+Re-add charts after editing, or avoid re-saving charted files.</li>
+<li><strong>CSV locale traps</strong>: always pass explicit encodings (the scripts
+already do) and remember European CSVs often use <code>;</code> delimiters and
+decimal commas — use <code>--delimiter &#39;;&#39;</code> and expect strings like
+<code>&quot;12,5&quot;</code> to stay strings.</li>
+<li><strong>Dates are datetimes</strong>: Excel stores dates as serial numbers;
+openpyxl returns <code>datetime</code>/<code>date</code> objects. Dumps here emit ISO
+strings.</li>
+<li>Sheet names are capped at 31 chars and reject <code>[ ] : * ? / \</code>.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>After creating: <code>xlsx_read.py out.xlsx --sheets</code> and confirm sheet
+names, dimensions, merged ranges, and chart counts match intent.</li>
+<li>Dump data with <code>--json</code> and compare against the source values.</li>
+<li>After edits: re-dump the touched range; if formulas were written,
+confirm <code>--formulas</code> lists them and that <code>--recalc</code> was applied.</li>
+<li>After <code>xlsx_restructure.py</code>: read its JSON report, then re-run
+<code>--formulas</code> and <code>--sheets</code> to confirm references and ranges landed
+where expected.</li>
+<li>For a full visual check, open in LibreOffice:
+<code>soffice --headless --convert-to pdf out.xlsx</code> and inspect the PDF.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/xlsx</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

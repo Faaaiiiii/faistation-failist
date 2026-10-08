@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>excalidraw — Skill Hermes</title>
+<meta name="description" content="Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>excalidraw</h1>
+    <p class="lede">Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>excalidraw</dd>
+      <dt>Keterangan</dt><dd>Hand-drawn Excalidraw JSON diagrams (arch, flow, seq).</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/excalidraw.zip" download>Muat turun ZIP (9.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.1 KB</td></tr>
+<tr><td><code>references/colors.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/dark-mode.md</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">13.9 KB</td></tr>
+<tr><td><code>scripts/upload.py</code></td><td class="sz">3.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Excalidraw Diagram Skill</h2>
+<p>Create diagrams by writing standard Excalidraw element JSON and saving as <code>.excalidraw</code> files. These files can be drag-and-dropped onto <a href="https://excalidraw.com">excalidraw.com</a> for viewing and editing. No accounts, no API keys, no rendering libraries -- just JSON.</p>
+<h3>When to use</h3>
+<p>Generate <code>.excalidraw</code> files for architecture diagrams, flowcharts, sequence diagrams, concept maps, and more. Files can be opened at excalidraw.com or uploaded for shareable links.</p>
+<h3>Workflow</h3>
+<ol>
+<li><strong>Load this skill</strong> (you already did)</li>
+<li><strong>Write the elements JSON</strong> -- an array of Excalidraw element objects</li>
+<li><strong>Save the file</strong> using <code>write_file</code> to create a <code>.excalidraw</code> file</li>
+<li><strong>Optionally upload</strong> for a shareable link using <code>scripts/upload.py</code> via <code>terminal</code></li>
+</ol>
+<h4>Saving a Diagram</h4>
+<p>Wrap your elements array in the standard <code>.excalidraw</code> envelope and save with <code>write_file</code>:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;excalidraw&quot;,
+  &quot;version&quot;: 2,
+  &quot;source&quot;: &quot;hermes-agent&quot;,
+  &quot;elements&quot;: [ ...your elements array here... ],
+  &quot;appState&quot;: {
+    &quot;viewBackgroundColor&quot;: &quot;#ffffff&quot;
+  }
+}
+</code></pre>
+<p>Save to any path, e.g. <code>~/diagrams/my_diagram.excalidraw</code>.</p>
+<h4>Uploading for a Shareable Link</h4>
+<p>Run the upload script (located in this skill&#39;s <code>scripts/</code> directory) via terminal:</p>
+<pre><code class="language-bash">python skills/creative/excalidraw/scripts/upload.py ~/diagrams/my_diagram.excalidraw
+</code></pre>
+<p>This uploads to excalidraw.com (no account needed) and prints a shareable URL. Requires the <code>cryptography</code> pip package (<code>pip install cryptography</code>).</p>
+<hr>
+<h3>Element Format Reference</h3>
+<h4>Required Fields (all elements)</h4>
+<p><code>type</code>, <code>id</code> (unique string), <code>x</code>, <code>y</code>, <code>width</code>, <code>height</code></p>
+<h4>Defaults (skip these -- they&#39;re applied automatically)</h4>
+<ul>
+<li><code>strokeColor</code>: <code>&quot;#1e1e1e&quot;</code></li>
+<li><code>backgroundColor</code>: <code>&quot;transparent&quot;</code></li>
+<li><code>fillStyle</code>: <code>&quot;solid&quot;</code></li>
+<li><code>strokeWidth</code>: <code>2</code></li>
+<li><code>roughness</code>: <code>1</code> (hand-drawn look)</li>
+<li><code>opacity</code>: <code>100</code></li>
+</ul>
+<p>Canvas background is white.</p>
+<h4>Element Types</h4>
+<p><strong>Rectangle</strong>:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;rectangle&quot;, &quot;id&quot;: &quot;r1&quot;, &quot;x&quot;: 100, &quot;y&quot;: 100, &quot;width&quot;: 200, &quot;height&quot;: 100 }
+</code></pre>
+<ul>
+<li><code>roundness: { &quot;type&quot;: 3 }</code> for rounded corners</li>
+<li><code>backgroundColor: &quot;#a5d8ff&quot;</code>, <code>fillStyle: &quot;solid&quot;</code> for filled</li>
+</ul>
+<p><strong>Ellipse</strong>:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;ellipse&quot;, &quot;id&quot;: &quot;e1&quot;, &quot;x&quot;: 100, &quot;y&quot;: 100, &quot;width&quot;: 150, &quot;height&quot;: 150 }
+</code></pre>
+<p><strong>Diamond</strong>:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;diamond&quot;, &quot;id&quot;: &quot;d1&quot;, &quot;x&quot;: 100, &quot;y&quot;: 100, &quot;width&quot;: 150, &quot;height&quot;: 150 }
+</code></pre>
+<p><strong>Labeled shape (container binding)</strong> -- create a text element bound to the shape:</p>
+<blockquote>
+<p><strong>WARNING:</strong> Do NOT use <code>&quot;label&quot;: { &quot;text&quot;: &quot;...&quot; }</code> on shapes. This is NOT a valid
+Excalidraw property and will be silently ignored, producing blank shapes. You MUST
+use the container binding approach below.</p>
+</blockquote>
+<p>The shape needs <code>boundElements</code> listing the text, and the text needs <code>containerId</code> pointing back:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;rectangle&quot;, &quot;id&quot;: &quot;r1&quot;, &quot;x&quot;: 100, &quot;y&quot;: 100, &quot;width&quot;: 200, &quot;height&quot;: 80,
+  &quot;roundness&quot;: { &quot;type&quot;: 3 }, &quot;backgroundColor&quot;: &quot;#a5d8ff&quot;, &quot;fillStyle&quot;: &quot;solid&quot;,
+  &quot;boundElements&quot;: [{ &quot;id&quot;: &quot;t_r1&quot;, &quot;type&quot;: &quot;text&quot; }] },
+{ &quot;type&quot;: &quot;text&quot;, &quot;id&quot;: &quot;t_r1&quot;, &quot;x&quot;: 105, &quot;y&quot;: 110, &quot;width&quot;: 190, &quot;height&quot;: 25,
+  &quot;text&quot;: &quot;Hello&quot;, &quot;fontSize&quot;: 20, &quot;fontFamily&quot;: 1, &quot;strokeColor&quot;: &quot;#1e1e1e&quot;,
+  &quot;textAlign&quot;: &quot;center&quot;, &quot;verticalAlign&quot;: &quot;middle&quot;,
+  &quot;containerId&quot;: &quot;r1&quot;, &quot;originalText&quot;: &quot;Hello&quot;, &quot;autoResize&quot;: true }
+</code></pre>
+<ul>
+<li>Works on rectangle, ellipse, diamond</li>
+<li>Text is auto-centered by Excalidraw when <code>containerId</code> is set</li>
+<li>The text <code>x</code>/<code>y</code>/<code>width</code>/<code>height</code> are approximate -- Excalidraw recalculates them on load</li>
+<li><code>originalText</code> should match <code>text</code></li>
+<li>Always include <code>fontFamily: 1</code> (Virgil/hand-drawn font)</li>
+</ul>
+<p><strong>Labeled arrow</strong> -- same container binding approach:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;arrow&quot;, &quot;id&quot;: &quot;a1&quot;, &quot;x&quot;: 300, &quot;y&quot;: 150, &quot;width&quot;: 200, &quot;height&quot;: 0,
+  &quot;points&quot;: [[0,0],[200,0]], &quot;endArrowhead&quot;: &quot;arrow&quot;,
+  &quot;boundElements&quot;: [{ &quot;id&quot;: &quot;t_a1&quot;, &quot;type&quot;: &quot;text&quot; }] },
+{ &quot;type&quot;: &quot;text&quot;, &quot;id&quot;: &quot;t_a1&quot;, &quot;x&quot;: 370, &quot;y&quot;: 130, &quot;width&quot;: 60, &quot;height&quot;: 20,
+  &quot;text&quot;: &quot;connects&quot;, &quot;fontSize&quot;: 16, &quot;fontFamily&quot;: 1, &quot;strokeColor&quot;: &quot;#1e1e1e&quot;,
+  &quot;textAlign&quot;: &quot;center&quot;, &quot;verticalAlign&quot;: &quot;middle&quot;,
+  &quot;containerId&quot;: &quot;a1&quot;, &quot;originalText&quot;: &quot;connects&quot;, &quot;autoResize&quot;: true }
+</code></pre>
+<p><strong>Standalone text</strong> (titles and annotations only -- no container):</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;text&quot;, &quot;id&quot;: &quot;t1&quot;, &quot;x&quot;: 150, &quot;y&quot;: 138, &quot;text&quot;: &quot;Hello&quot;, &quot;fontSize&quot;: 20,
+  &quot;fontFamily&quot;: 1, &quot;strokeColor&quot;: &quot;#1e1e1e&quot;, &quot;originalText&quot;: &quot;Hello&quot;, &quot;autoResize&quot;: true }
+</code></pre>
+<ul>
+<li><code>x</code> is the LEFT edge. To center at position <code>cx</code>: <code>x = cx - (text.length * fontSize * 0.5) / 2</code></li>
+<li>Do NOT rely on <code>textAlign</code> or <code>width</code> for positioning</li>
+</ul>
+<p><strong>Arrow</strong>:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;arrow&quot;, &quot;id&quot;: &quot;a1&quot;, &quot;x&quot;: 300, &quot;y&quot;: 150, &quot;width&quot;: 200, &quot;height&quot;: 0,
+  &quot;points&quot;: [[0,0],[200,0]], &quot;endArrowhead&quot;: &quot;arrow&quot; }
+</code></pre>
+<ul>
+<li><code>points</code>: <code>[dx, dy]</code> offsets from element <code>x</code>, <code>y</code></li>
+<li><code>endArrowhead</code>: <code>null</code> | <code>&quot;arrow&quot;</code> | <code>&quot;bar&quot;</code> | <code>&quot;dot&quot;</code> | <code>&quot;triangle&quot;</code></li>
+<li><code>strokeStyle</code>: <code>&quot;solid&quot;</code> (default) | <code>&quot;dashed&quot;</code> | <code>&quot;dotted&quot;</code></li>
+</ul>
+<h4>Arrow Bindings (connect arrows to shapes)</h4>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;arrow&quot;, &quot;id&quot;: &quot;a1&quot;, &quot;x&quot;: 300, &quot;y&quot;: 150, &quot;width&quot;: 150, &quot;height&quot;: 0,
+  &quot;points&quot;: [[0,0],[150,0]], &quot;endArrowhead&quot;: &quot;arrow&quot;,
+  &quot;startBinding&quot;: { &quot;elementId&quot;: &quot;r1&quot;, &quot;fixedPoint&quot;: [1, 0.5] },
+  &quot;endBinding&quot;: { &quot;elementId&quot;: &quot;r2&quot;, &quot;fixedPoint&quot;: [0, 0.5] }
+}
+</code></pre>
+<p><code>fixedPoint</code> coordinates: <code>top=[0.5,0]</code>, <code>bottom=[0.5,1]</code>, <code>left=[0,0.5]</code>, <code>right=[1,0.5]</code></p>
+<h4>Drawing Order (z-order)</h4>
+<ul>
+<li>Array order = z-order (first = back, last = front)</li>
+<li>Emit progressively: background zones → shape → its bound text → its arrows → next shape</li>
+<li>BAD: all rectangles, then all texts, then all arrows</li>
+<li>GOOD: bg_zone → shape1 → text_for_shape1 → arrow1 → arrow_label_text → shape2 → text_for_shape2 → ...</li>
+<li>Always place the bound text element immediately after its container shape</li>
+</ul>
+<h4>Sizing Guidelines</h4>
+<p><strong>Font sizes:</strong></p>
+<ul>
+<li>Minimum <code>fontSize</code>: <strong>16</strong> for body text, labels, descriptions</li>
+<li>Minimum <code>fontSize</code>: <strong>20</strong> for titles and headings</li>
+<li>Minimum <code>fontSize</code>: <strong>14</strong> for secondary annotations only (sparingly)</li>
+<li>NEVER use <code>fontSize</code> below 14</li>
+</ul>
+<p><strong>Element sizes:</strong></p>
+<ul>
+<li>Minimum shape size: 120x60 for labeled rectangles/ellipses</li>
+<li>Leave 20-30px gaps between elements minimum</li>
+<li>Prefer fewer, larger elements over many tiny ones</li>
+</ul>
+<h4>Color Palette</h4>
+<p>See <code>references/colors.md</code> for full color tables. Quick reference:</p>
+<table>
+<thead>
+<tr>
+<th>Use</th>
+<th>Fill Color</th>
+<th>Hex</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Primary / Input</td>
+<td>Light Blue</td>
+<td><code>#a5d8ff</code></td>
+</tr>
+<tr>
+<td>Success / Output</td>
+<td>Light Green</td>
+<td><code>#b2f2bb</code></td>
+</tr>
+<tr>
+<td>Warning / External</td>
+<td>Light Orange</td>
+<td><code>#ffd8a8</code></td>
+</tr>
+<tr>
+<td>Processing / Special</td>
+<td>Light Purple</td>
+<td><code>#d0bfff</code></td>
+</tr>
+<tr>
+<td>Error / Critical</td>
+<td>Light Red</td>
+<td><code>#ffc9c9</code></td>
+</tr>
+<tr>
+<td>Notes / Decisions</td>
+<td>Light Yellow</td>
+<td><code>#fff3bf</code></td>
+</tr>
+<tr>
+<td>Storage / Data</td>
+<td>Light Teal</td>
+<td><code>#c3fae8</code></td>
+</tr>
+</tbody></table>
+<h4>Tips</h4>
+<ul>
+<li>Use the color palette consistently across the diagram</li>
+<li><strong>Text contrast is CRITICAL</strong> -- never use light gray on white backgrounds. Minimum text color on white: <code>#757575</code></li>
+<li>Do NOT use emoji in text -- they don&#39;t render in Excalidraw&#39;s font</li>
+<li>For dark mode diagrams, see <code>references/dark-mode.md</code></li>
+<li>For larger examples, see <code>references/examples.md</code></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/excalidraw</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

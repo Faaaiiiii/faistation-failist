@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>node-inspect-debugger — Skill Hermes</title>
+<meta name="description" content="Debug Node.js via --inspect + Chrome DevTools Protocol CLI.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>node-inspect-debugger</h1>
+    <p class="lede">Debug Node.js via --inspect + Chrome DevTools Protocol CLI.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>node-inspect-debugger</dd>
+      <dt>Keterangan</dt><dd>Debug Node.js via --inspect + Chrome DevTools Protocol CLI.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/node-inspect-debugger.zip" download>Muat turun ZIP (4.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Node.js Inspect Debugger</h2>
+<h3>Overview</h3>
+<p>When <code>console.log</code> isn&#39;t enough, drive Node&#39;s built-in V8 inspector programmatically from the terminal. You get real breakpoints, step in/over/out, call-stack walking, local/closure scope dumps, and arbitrary expression evaluation in the paused frame.</p>
+<p>Two tools, pick one:</p>
+<ul>
+<li><strong><code>node inspect</code></strong> — built-in, zero install, CLI REPL. Best for quick poking.</li>
+<li><strong><code>ndb</code> / CDP via <code>chrome-remote-interface</code></strong> — scriptable from Node/Python; best when you want to automate many breakpoints, collect state across runs, or debug non-interactively from an agent loop.</li>
+</ul>
+<p><strong>Prefer <code>node inspect</code> first.</strong> It&#39;s always available and the REPL is fast.</p>
+<h3>When to Use</h3>
+<ul>
+<li>A Node test fails and you need to see intermediate state</li>
+<li>ui-tui crashes or behaves wrong and you want to inspect React/Ink state pre-render</li>
+<li>tui_gateway child processes (<code>_SlashWorker</code>, PTY bridge workers) misbehave</li>
+<li>You need to inspect a value in a closure that <code>console.log</code> can&#39;t reach without patching</li>
+<li>Perf: attach to a running process to capture a CPU profile or heap snapshot</li>
+</ul>
+<p><strong>Don&#39;t use for:</strong> things <code>console.log</code> solves in under a minute. Breakpoint-driven debugging is heavier; use it when the payoff is real.</p>
+<h3>Quick Reference: <code>node inspect</code> REPL</h3>
+<p>Launch paused on first line:</p>
+<pre><code class="language-bash">node inspect path/to/script.js
+# or with tsx
+node --inspect-brk $(which tsx) path/to/script.ts
+</code></pre>
+<p>The <code>debug&gt;</code> prompt accepts:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>c</code> or <code>cont</code></td>
+<td>continue</td>
+</tr>
+<tr>
+<td><code>n</code> or <code>next</code></td>
+<td>step over</td>
+</tr>
+<tr>
+<td><code>s</code> or <code>step</code></td>
+<td>step into</td>
+</tr>
+<tr>
+<td><code>o</code> or <code>out</code></td>
+<td>step out</td>
+</tr>
+<tr>
+<td><code>pause</code></td>
+<td>pause running code</td>
+</tr>
+<tr>
+<td><code>sb(&#39;file.js&#39;, 42)</code></td>
+<td>set breakpoint at file.js line 42</td>
+</tr>
+<tr>
+<td><code>sb(42)</code></td>
+<td>set breakpoint at line 42 of current file</td>
+</tr>
+<tr>
+<td><code>sb(&#39;functionName&#39;)</code></td>
+<td>break when function is called</td>
+</tr>
+<tr>
+<td><code>cb(&#39;file.js&#39;, 42)</code></td>
+<td>clear breakpoint</td>
+</tr>
+<tr>
+<td><code>breakpoints</code></td>
+<td>list all breakpoints</td>
+</tr>
+<tr>
+<td><code>bt</code></td>
+<td>backtrace (call stack)</td>
+</tr>
+<tr>
+<td><code>list(5)</code></td>
+<td>show 5 lines of source around current position</td>
+</tr>
+<tr>
+<td><code>watch(&#39;expr&#39;)</code></td>
+<td>evaluate expr on every pause</td>
+</tr>
+<tr>
+<td><code>watchers</code></td>
+<td>show watched expressions</td>
+</tr>
+<tr>
+<td><code>repl</code></td>
+<td>drop into REPL in current scope (Ctrl+C to exit REPL)</td>
+</tr>
+<tr>
+<td><code>exec expr</code></td>
+<td>evaluate expression once</td>
+</tr>
+<tr>
+<td><code>restart</code></td>
+<td>restart script</td>
+</tr>
+<tr>
+<td><code>kill</code></td>
+<td>kill the script</td>
+</tr>
+<tr>
+<td><code>.exit</code></td>
+<td>quit debugger</td>
+</tr>
+</tbody></table>
+<p><strong>In the <code>repl</code> sub-mode:</strong> type any JS expression, including access to locals/closure variables. <code>Ctrl+C</code> exits back to <code>debug&gt;</code>.</p>
+<h3>Attaching to a Running Process</h3>
+<p>When the process is already running (e.g. a long-lived dev server or the TUI gateway):</p>
+<pre><code class="language-bash"># 1. Send SIGUSR1 to enable the inspector on an existing process
+kill -SIGUSR1 &lt;pid&gt;
+# Node prints: Debugger listening on ws://127.0.0.1:9229/&lt;uuid&gt;
+
+# 2. Attach the debugger CLI
+node inspect -p &lt;pid&gt;
+# or by URL
+node inspect ws://127.0.0.1:9229/&lt;uuid&gt;
+</code></pre>
+<p>To start a process with the inspector from the beginning:</p>
+<pre><code class="language-bash">node --inspect script.js           # listen on 127.0.0.1:9229, keep running
+node --inspect-brk script.js       # listen AND pause on first line
+node --inspect=0.0.0.0:9230 script.js   # custom host:port
+</code></pre>
+<p>For TypeScript via tsx:</p>
+<pre><code class="language-bash">node --inspect-brk --import tsx script.ts
+# or older tsx
+node --inspect-brk -r tsx/cjs script.ts
+</code></pre>
+<h3>Programmatic CDP (scripting from terminal)</h3>
+<p>When you want to automate — set many breakpoints, capture scope state, script a repro — use <code>chrome-remote-interface</code>:</p>
+<pre><code class="language-bash">npm i -g chrome-remote-interface        # or project-local
+# Start your target:
+node --inspect-brk=9229 target.js &amp;
+</code></pre>
+<p>Driver script (save as <code>~/.hermes/cache/scratch/cdp-debug.js</code>):</p>
+<pre><code class="language-javascript">const CDP = require(&#39;chrome-remote-interface&#39;);
+
+(async () =&gt; {
+  const client = await CDP({ port: 9229 });
+  const { Debugger, Runtime } = client;
+
+  Debugger.paused(async ({ callFrames, reason }) =&gt; {
+    const top = callFrames[0];
+    console.log(`PAUSED: ${reason} @ ${top.url}:${top.location.lineNumber + 1}`);
+
+    // Walk scopes for locals
+    for (const scope of top.scopeChain) {
+      if (scope.type === &#39;local&#39; || scope.type === &#39;closure&#39;) {
+        const { result } = await Runtime.getProperties({
+          objectId: scope.object.objectId,
+          ownProperties: true,
+        });
+        for (const p of result) {
+          console.log(`  ${scope.type}.${p.name} =`, p.value?.value ?? p.value?.description);
+        }
+      }
+    }
+
+    // Evaluate an expression in the paused frame
+    const { result } = await Debugger.evaluateOnCallFrame({
+      callFrameId: top.callFrameId,
+      expression: &#39;typeof state !== &quot;undefined&quot; ? JSON.stringify(state) : &quot;n/a&quot;&#39;,
+    });
+    console.log(&#39;state =&#39;, result.value ?? result.description);
+
+    await Debugger.resume();
+  });
+
+  await Runtime.enable();
+  await Debugger.enable();
+
+  // Set a breakpoint by URL regex + line
+  await Debugger.setBreakpointByUrl({
+    urlRegex: &#39;.*app\\.tsx$&#39;,
+    lineNumber: 119,       // 0-indexed
+    columnNumber: 0,
+  });
+
+  await Runtime.runIfWaitingForDebugger();
+})();
+</code></pre>
+<p>Run it:</p>
+<pre><code class="language-bash">node ~/.hermes/cache/scratch/cdp-debug.js
+</code></pre>
+<p>Hermes-specific note: <code>chrome-remote-interface</code> is NOT in <code>ui-tui/package.json</code>. Install it to a throwaway location if you don&#39;t want to dirty the project:</p>
+<pre><code class="language-bash">mkdir -p ~/.hermes/cache/scratch/cdp-tools &amp;&amp; cd ~/.hermes/cache/scratch/cdp-tools &amp;&amp; npm i chrome-remote-interface
+NODE_PATH=~/.hermes/cache/scratch/cdp-tools/node_modules node ~/.hermes/cache/scratch/cdp-debug.js
+</code></pre>
+<h3>Debugging Hermes ui-tui</h3>
+<p>The TUI is built Ink + tsx. Two common scenarios:</p>
+<h4>Debugging a single Ink component under dev</h4>
+<p><code>ui-tui/package.json</code> has <code>npm run dev</code> (tsx --watch). Add <code>--inspect-brk</code> by running tsx directly:</p>
+<pre><code class="language-bash">cd &lt;hermes-agent-repo&gt;/ui-tui
+npm run build    # produce dist/ once so transpile isn&#39;t needed on first load
+node --inspect-brk dist/entry.js
+# In another terminal:
+node inspect -p &lt;node pid&gt;
+</code></pre>
+<p>Then inside <code>debug&gt;</code>:</p>
+<pre><code>sb(&#39;dist/app.js&#39;, 220)     # or wherever the suspect render is
+cont
+</code></pre>
+<p>When it pauses, <code>repl</code> → inspect <code>props</code>, state refs, <code>useInput</code> handler values, etc.</p>
+<h4>Debugging a running <code>hermes --tui</code></h4>
+<p>The TUI spawns Node from the Python CLI. Easiest path:</p>
+<pre><code class="language-bash"># 1. Launch TUI
+hermes --tui &amp;
+TUI_PID=$(pgrep -f &#39;ui-tui/dist/entry&#39; | head -1)
+
+# 2. Enable inspector on that Node PID
+kill -SIGUSR1 &quot;$TUI_PID&quot;
+
+# 3. Find the WS URL
+curl -s http://127.0.0.1:9229/json/list | jq -r &#39;.[0].webSocketDebuggerUrl&#39;
+
+# 4. Attach
+node inspect ws://127.0.0.1:9229/&lt;uuid&gt;
+</code></pre>
+<p>Interacting with the TUI (typing in its window) continues to advance execution; your debugger can pause it on a breakpoint at any <code>sb(...)</code>.</p>
+<h4>Debugging <code>_SlashWorker</code> / PTY child processes</h4>
+<p>Those are Python, not Node — use the <code>python-debugpy</code> skill for them. Only Node portions (Ink UI, tui_gateway client, tsx-run tests under <code>ui-tui/</code>) use this skill.</p>
+<h3>Running Vitest Tests Under the Debugger</h3>
+<pre><code class="language-bash">cd &lt;hermes-agent-repo&gt;/ui-tui
+# Run a single test file paused on entry
+node --inspect-brk ./node_modules/vitest/vitest.mjs run --no-file-parallelism src/app/foo.test.tsx
+</code></pre>
+<p>In another terminal: <code>node inspect -p &lt;pid&gt;</code>, then <code>sb(&#39;src/app/foo.tsx&#39;, 42)</code>, <code>cont</code>.</p>
+<p>Use <code>--no-file-parallelism</code> (vitest) or <code>--runInBand</code> (jest) so only one worker exists — debugging a pool is painful.</p>
+<h3>Heap Snapshots &amp; CPU Profiles (Non-interactive)</h3>
+<p>From the CDP driver above, swap Debugger for <code>HeapProfiler</code> / <code>Profiler</code>:</p>
+<pre><code class="language-javascript">// CPU profile for 5 seconds
+await client.Profiler.enable();
+await client.Profiler.start();
+await new Promise(r =&gt; setTimeout(r, 5000));
+const { profile } = await client.Profiler.stop();
+require(&#39;fs&#39;).writeFileSync(&#39;~/.hermes/cache/scratch/cpu.cpuprofile&#39;, JSON.stringify(profile));
+// Open ~/.hermes/cache/scratch/cpu.cpuprofile in Chrome DevTools → Performance tab
+</code></pre>
+<pre><code class="language-javascript">// Heap snapshot
+await client.HeapProfiler.enable();
+const chunks = [];
+client.HeapProfiler.addHeapSnapshotChunk(({ chunk }) =&gt; chunks.push(chunk));
+await client.HeapProfiler.takeHeapSnapshot({ reportProgress: false });
+require(&#39;fs&#39;).writeFileSync(&#39;~/.hermes/cache/scratch/heap.heapsnapshot&#39;, chunks.join(&#39;&#39;));
+</code></pre>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><p><strong>Wrong line numbers in TS source.</strong> Breakpoints hit the emitted JS, not the <code>.ts</code>. Either (a) break in the built <code>dist/*.js</code>, or (b) enable sourcemaps (<code>node --enable-source-maps</code>) and use <code>sb(&#39;src/app.tsx&#39;, N)</code> — but only with CDP clients that follow sourcemaps. <code>node inspect</code> CLI does not.</p>
+</li>
+<li><p><strong><code>--inspect</code> vs <code>--inspect-brk</code>.</strong> <code>--inspect</code> starts the inspector but doesn&#39;t pause; your script races past your first breakpoint if you attach too late. Use <code>--inspect-brk</code> when you need to set breakpoints before any code runs.</p>
+</li>
+<li><p><strong>Port collisions.</strong> Default is <code>9229</code>. If multiple Node processes are inspecting, pass <code>--inspect=0</code> (random port) and read the actual URL from <code>/json/list</code>:</p>
+<pre><code class="language-bash">curl -s http://127.0.0.1:9229/json/list   # lists all inspectable targets on the host
+</code></pre>
+</li>
+<li><p><strong>Child processes.</strong> <code>--inspect</code> on a parent does NOT inspect its children. Use <code>NODE_OPTIONS=&#39;--inspect-brk&#39; node parent.js</code> to propagate to every child; be aware they all need unique ports (Node auto-increments when <code>NODE_OPTIONS=&#39;--inspect&#39;</code> is inherited).</p>
+</li>
+<li><p><strong>Background kills.</strong> If you <code>Ctrl+C</code> out of <code>node inspect</code> while the target is paused, the target stays paused. Either <code>cont</code> first, or <code>kill</code> the target explicitly.</p>
+</li>
+<li><p><strong>Running <code>node inspect</code> through an agent terminal.</strong> It&#39;s a PTY-friendly REPL. In Hermes, launch it with <code>terminal(pty=true)</code> or <code>background=true</code> + <code>process(action=&#39;submit&#39;, data=&#39;...&#39;)</code>. Non-PTY foreground mode will work for one-shot commands but not for interactive stepping.</p>
+</li>
+<li><p><strong>Security.</strong> <code>--inspect=0.0.0.0:9229</code> exposes arbitrary code execution. Always bind to <code>127.0.0.1</code> (the default) unless you have an isolated network.</p>
+</li>
+</ol>
+<h3>Verification Checklist</h3>
+<p>After setting up a debug session, verify:</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>curl -s http://127.0.0.1:9229/json/list</code> returns exactly the target you expect</li>
+<li><input disabled="" type="checkbox"> First breakpoint actually hits (if it doesn&#39;t, you likely missed <code>--inspect-brk</code> or attached after execution completed)</li>
+<li><input disabled="" type="checkbox"> Source listing at pause shows the right file (mismatch = sourcemap issue, see pitfall 1)</li>
+<li><input disabled="" type="checkbox"> <code>exec process.pid</code> in <code>repl</code> returns the PID you meant to attach to</li>
+</ul>
+<h3>One-Shot Recipes</h3>
+<p><strong>&quot;Why is this variable undefined at line X?&quot;</strong></p>
+<pre><code class="language-bash">node --inspect-brk script.js &amp;
+node inspect -p $!
+# debug&gt;
+sb(&#39;script.js&#39;, X)
+cont
+# paused. Now:
+repl
+&gt; myVariable
+&gt; Object.keys(this)
+</code></pre>
+<p><strong>&quot;What&#39;s the call path into this function?&quot;</strong></p>
+<pre><code>debug&gt; sb(&#39;suspectFn&#39;)
+debug&gt; cont
+# paused on entry
+debug&gt; bt
+</code></pre>
+<p><strong>&quot;This async chain hangs — where?&quot;</strong></p>
+<pre><code># Start with --inspect (no -brk), let it run to the hang, then:
+debug&gt; pause
+debug&gt; bt
+# Now you see the stuck frame
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/node-inspect-debugger</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

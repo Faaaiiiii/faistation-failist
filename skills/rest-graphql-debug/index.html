@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rest-graphql-debug — Skill Hermes</title>
+<meta name="description" content="Debug REST/GraphQL APIs: status codes, auth, schemas, repro.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>rest-graphql-debug</h1>
+    <p class="lede">Debug REST/GraphQL APIs: status codes, auth, schemas, repro.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>rest-graphql-debug</dd>
+      <dt>Keterangan</dt><dd>Debug REST/GraphQL APIs: status codes, auth, schemas, repro.</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>eren-karakus0</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/rest-graphql-debug.zip" download>Muat turun ZIP (6.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">15.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>API Testing &amp; Debugging</h2>
+<p>Drive REST and GraphQL diagnosis through Hermes tools — <code>terminal</code> for <code>curl</code>, <code>execute_code</code> for Python <code>requests</code>, <code>web_extract</code> for vendor docs. Isolate the failing layer before guessing at the fix.</p>
+<h3>When to Use</h3>
+<ul>
+<li>API returns unexpected status or body</li>
+<li>Auth fails (401/403 after token refresh, OAuth, API key)</li>
+<li>Works in Postman but fails in code</li>
+<li>Webhook / callback integration debugging</li>
+<li>Building or reviewing API integration tests</li>
+<li>Rate limiting or pagination issues</li>
+</ul>
+<p>Skip for UI rendering, DB query tuning, or DNS/firewall infra (escalate).</p>
+<h3>Core Principle</h3>
+<p><strong>Isolate the layer, then fix.</strong> A 200 OK can hide broken data. A 500 can mask a one-character auth typo. Walk the chain in order; never skip a step.</p>
+<pre><code>1. Connectivity   → can we reach the host at all?
+1.5 Timeouts      → connect-slow vs read-slow?
+2. TLS/SSL        → cert valid and trusted?
+3. Auth           → credentials correct and unexpired?
+4. Request format → payload shape match server expectations?
+5. Response parse → does our code accept what came back?
+6. Semantics      → does the data mean what we assume?
+</code></pre>
+<h3>5-Minute Quickstart</h3>
+<h4>REST via terminal</h4>
+<pre><code class="language-python"># Verbose request/response exchange
+terminal(&#39;curl -v https://api.example.com/users/1&#39;)
+
+# POST with JSON
+terminal(&quot;&quot;&quot;curl -X POST https://api.example.com/users \\
+  -H &#39;Content-Type: application/json&#39; \\
+  -H &quot;Authorization: Bearer $TOKEN&quot; \\
+  -d &#39;{&quot;name&quot;:&quot;test&quot;,&quot;email&quot;:&quot;test@example.com&quot;}&#39;&quot;&quot;&quot;)
+
+# Headers only
+terminal(&#39;curl -sI https://api.example.com/health&#39;)
+
+# Pretty-print JSON
+terminal(&#39;curl -s https://api.example.com/users | python -m json.tool&#39;)
+</code></pre>
+<h4>GraphQL via terminal</h4>
+<pre><code class="language-python">terminal(&quot;&quot;&quot;curl -X POST https://api.example.com/graphql \\
+  -H &#39;Content-Type: application/json&#39; \\
+  -H &quot;Authorization: Bearer $TOKEN&quot; \\
+  -d &#39;{&quot;query&quot;:&quot;{ user(id: 1) { name email } }&quot;}&#39;&quot;&quot;&quot;)
+</code></pre>
+<p><strong>GraphQL gotcha:</strong> servers often return HTTP 200 even when the query failed. Always inspect the <code>errors</code> field regardless of status code:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import os, requests
+resp = requests.post(
+    &quot;https://api.example.com/graphql&quot;,
+    json={&quot;query&quot;: &quot;{ user(id: 1) { name email } }&quot;},
+    headers={&quot;Authorization&quot;: f&quot;Bearer {os.environ[&#39;TOKEN&#39;]}&quot;},
+    timeout=10,
+)
+data = resp.json()
+if data.get(&quot;errors&quot;):
+    for err in data[&quot;errors&quot;]:
+        print(f&quot;GraphQL error: {err[&#39;message&#39;]} (path: {err.get(&#39;path&#39;)})&quot;)
+print(data.get(&quot;data&quot;))
+&#39;&#39;&#39;)
+</code></pre>
+<h4>Python (requests) via execute_code</h4>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import requests
+resp = requests.get(
+    &quot;https://api.example.com/users/1&quot;,
+    headers={&quot;Authorization&quot;: &quot;Bearer &lt;TOKEN&gt;&quot;},
+    timeout=(3.05, 30),  # (connect, read)
+)
+print(resp.status_code, dict(resp.headers))
+print(resp.text[:500])
+&#39;&#39;&#39;)
+</code></pre>
+<h3>Layered Debug Flow</h3>
+<h4>Step 1 — Connectivity</h4>
+<pre><code class="language-python">terminal(&#39;nslookup api.example.com&#39;)
+terminal(&#39;curl -v --connect-timeout 5 https://api.example.com/health&#39;)
+</code></pre>
+<p>Failures: DNS not resolving, firewall, VPN required, proxy missing.</p>
+<h4>Step 1.5 — Timeouts</h4>
+<p>Distinguish <em>can&#39;t reach</em> from <em>reaches but slow</em>:</p>
+<pre><code class="language-python">terminal(&#39;&#39;&#39;curl -w &quot;dns:%{time_namelookup}s connect:%{time_connect}s tls:%{time_appconnect}s ttfb:%{time_starttransfer}s total:%{time_total}s\\n&quot; \\
+  -o /dev/null -s https://api.example.com/endpoint&#39;&#39;&#39;)
+</code></pre>
+<p>In Python, always pass a tuple timeout — <code>requests</code> has no default and will hang forever:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import requests
+from requests.exceptions import ConnectTimeout, ReadTimeout
+try:
+    requests.get(url, timeout=(3.05, 30))
+except ConnectTimeout:
+    print(&quot;Cannot reach host — DNS, firewall, VPN&quot;)
+except ReadTimeout:
+    print(&quot;Connected but server is slow&quot;)
+&#39;&#39;&#39;)
+</code></pre>
+<p>Diagnosis: high <code>time_connect</code> is network/firewall; high <code>time_starttransfer</code> with low <code>time_connect</code> is a slow server.</p>
+<h4>Step 2 — TLS/SSL</h4>
+<pre><code class="language-python">terminal(&#39;curl -vI https://api.example.com 2&gt;&amp;1 | grep -E &quot;SSL|subject|expire|issuer&quot;&#39;)
+</code></pre>
+<p>Failures: expired cert, self-signed, hostname mismatch, missing CA bundle. Use <code>-k</code> only for ad-hoc debug, never in code.</p>
+<h4>Step 3 — Authentication</h4>
+<pre><code class="language-python"># Token validity check
+terminal(&#39;curl -s -o /dev/null -w &quot;%{http_code}\\n&quot; -H &quot;Authorization: Bearer $TOKEN&quot; https://api.example.com/me&#39;)
+
+# Decode JWT exp claim — handles base64url padding correctly
+execute_code(&#39;&#39;&#39;
+import json, base64, os
+tok = os.environ[&quot;TOKEN&quot;]
+payload = tok.split(&quot;.&quot;)[1]
+payload += &quot;=&quot; * (-len(payload) % 4)
+print(json.dumps(json.loads(base64.urlsafe_b64decode(payload)), indent=2))
+&#39;&#39;&#39;)
+</code></pre>
+<p>Checklist:</p>
+<ul>
+<li>Token expired? (<code>exp</code> claim in JWT)</li>
+<li>Right scheme? Bearer vs Basic vs Token vs <code>X-Api-Key</code></li>
+<li>Right environment? Staging key on prod is a classic</li>
+<li>API key in header vs query param (<code>?api_key=…</code>)?</li>
+</ul>
+<h4>Step 4 — Request Format</h4>
+<pre><code class="language-python">terminal(&quot;&quot;&quot;curl -v -X POST https://api.example.com/endpoint \\
+  -H &#39;Content-Type: application/json&#39; \\
+  -d &#39;{&quot;key&quot;:&quot;value&quot;}&#39; 2&gt;&amp;1&quot;&quot;&quot;)
+</code></pre>
+<p><strong>Content-Type / body mismatch — the silent 415/400:</strong></p>
+<pre><code class="language-python"># WRONG — data= sends form-encoded, header lies
+requests.post(url, data=&#39;{&quot;k&quot;:&quot;v&quot;}&#39;, headers={&quot;Content-Type&quot;: &quot;application/json&quot;})
+
+# RIGHT — json= auto-sets header AND serializes
+requests.post(url, json={&quot;k&quot;: &quot;v&quot;})
+
+# WRONG — Accept says XML, code calls .json()
+requests.get(url, headers={&quot;Accept&quot;: &quot;text/xml&quot;})
+
+# RIGHT — let requests build multipart with boundary
+requests.post(url, files={&quot;file&quot;: open(&quot;doc.pdf&quot;, &quot;rb&quot;)})
+</code></pre>
+<p>Common: form-encoded vs JSON, missing required fields, wrong HTTP method, unencoded query params.</p>
+<h4>Step 5 — Response Parsing</h4>
+<p>Always inspect content-type before calling <code>.json()</code>:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import requests
+resp = requests.post(url, json=payload, timeout=10)
+print(f&quot;status={resp.status_code}&quot;)
+print(f&quot;headers={dict(resp.headers)}&quot;)
+ct = resp.headers.get(&quot;Content-Type&quot;, &quot;&quot;)
+if &quot;application/json&quot; in ct:
+    print(resp.json())
+else:
+    print(f&quot;unexpected content-type {ct!r}, body={resp.text[:500]!r}&quot;)
+&#39;&#39;&#39;)
+</code></pre>
+<p>Failures: HTML error page where JSON expected, empty body, wrong charset.</p>
+<h4>Step 6 — Semantic Validation</h4>
+<p>Parsed cleanly — but is the data <em>correct</em>?</p>
+<ul>
+<li>Does <code>&quot;status&quot;: &quot;active&quot;</code> mean what your code thinks?</li>
+<li>ID in response matches the one requested?</li>
+<li>Timestamps in expected timezone?</li>
+<li>Pagination returning all results, or just page 1?</li>
+</ul>
+<h3>HTTP Status Playbook</h3>
+<h4>401 Unauthorized — credentials missing or invalid</h4>
+<ol>
+<li><code>Authorization</code> header actually present? (<code>curl -v</code> to confirm)</li>
+<li>Token correct and unexpired?</li>
+<li>Right auth scheme? (<code>Bearer</code> vs <code>Basic</code> vs <code>Token</code>)</li>
+<li>Some APIs use query param (<code>?api_key=…</code>) instead of header.</li>
+</ol>
+<h4>403 Forbidden — authenticated but not authorized</h4>
+<ol>
+<li>Token has the required scopes/permissions?</li>
+<li>Resource owned by a different account?</li>
+<li>IP allowlist blocking you?</li>
+<li>CORS in browser? (check <code>Access-Control-Allow-Origin</code>)</li>
+</ol>
+<h4>404 Not Found — resource doesn&#39;t exist or URL is wrong</h4>
+<ol>
+<li>Path correct? (trailing slash, typo, version prefix)</li>
+<li>Resource ID exists?</li>
+<li>Right API version (<code>/v1/</code> vs <code>/v2/</code>)?</li>
+<li>Right base URL (staging vs prod)?</li>
+</ol>
+<h4>409 Conflict — state collision</h4>
+<ol>
+<li>Resource already exists (duplicate create)?</li>
+<li>Stale <code>ETag</code> / <code>If-Match</code>?</li>
+<li>Concurrent modification by another process?</li>
+</ol>
+<h4>422 Unprocessable Entity — valid JSON, invalid data</h4>
+<p>The error body usually names the bad fields. Check:</p>
+<ul>
+<li>Field types (string vs int, date format)</li>
+<li>Required vs optional</li>
+<li>Enum values inside the allowed set</li>
+</ul>
+<h4>429 Too Many Requests — rate limited</h4>
+<p>Check <code>Retry-After</code> and <code>X-RateLimit-*</code> headers. Exponential backoff:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import time, requests
+
+def with_backoff(method, url, **kwargs):
+    for attempt in range(5):
+        resp = requests.request(method, url, **kwargs)
+        if resp.status_code != 429:
+            return resp
+        wait = int(resp.headers.get(&quot;Retry-After&quot;, 2 ** attempt))
+        time.sleep(wait)
+    return resp
+&#39;&#39;&#39;)
+</code></pre>
+<h4>5xx — server-side, usually not your fault</h4>
+<ul>
+<li><strong>500</strong> — server bug. Capture correlation ID, file with provider.</li>
+<li><strong>502</strong> — upstream down. Backoff + retry.</li>
+<li><strong>503</strong> — overloaded / maintenance. Check status page.</li>
+<li><strong>504</strong> — upstream timeout. Reduce payload or raise timeout.</li>
+</ul>
+<p>For all 5xx: backoff with jitter, alert on persistence.</p>
+<h3>Pagination &amp; Idempotency</h3>
+<p><strong>Pagination.</strong> Verify you&#39;re getting <em>all</em> results. Look for <code>next_cursor</code>, <code>next_page</code>, <code>total_count</code>. Two patterns:</p>
+<ul>
+<li>Offset (<code>?limit=100&amp;offset=200</code>) — simple, can skip items if data shifts.</li>
+<li>Cursor (<code>?cursor=abc123</code>) — preferred for live or large datasets.</li>
+</ul>
+<p><strong>Idempotency.</strong> For non-idempotent operations (POST), send <code>Idempotency-Key: &lt;uuid&gt;</code> so retries don&#39;t double-charge / double-create. Mandatory for payments and orders.</p>
+<h3>Contract Validation</h3>
+<p>Catch schema drift before it hits production:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import requests
+
+def validate_user(data: dict) -&gt; list[str]:
+    errors = []
+    required = {&quot;id&quot;: int, &quot;email&quot;: str, &quot;created_at&quot;: str}
+    for field, expected in required.items():
+        if field not in data:
+            errors.append(f&quot;missing field: {field}&quot;)
+        elif not isinstance(data[field], expected):
+            errors.append(f&quot;{field}: want {expected.__name__}, got {type(data[field]).__name__}&quot;)
+    return errors
+
+resp = requests.get(f&quot;{BASE}/users/1&quot;, headers=HEADERS, timeout=10)
+issues = validate_user(resp.json())
+if issues:
+    print(f&quot;contract violations: {issues}&quot;)
+&#39;&#39;&#39;)
+</code></pre>
+<p>Run after API upgrades, when integrating new third parties, or in CI smoke tests.</p>
+<h3>Correlation IDs</h3>
+<p>Always capture the provider&#39;s request ID — fastest path to vendor support:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import requests
+resp = requests.post(url, json=payload, headers=headers, timeout=10)
+request_id = (
+    resp.headers.get(&quot;X-Request-Id&quot;)
+    or resp.headers.get(&quot;X-Trace-Id&quot;)
+    or resp.headers.get(&quot;CF-Ray&quot;)  # Cloudflare
+)
+if resp.status_code &gt;= 400:
+    print(f&quot;failed status={resp.status_code} req_id={request_id} ts={resp.headers.get(&#39;Date&#39;)}&quot;)
+&#39;&#39;&#39;)
+</code></pre>
+<p><strong>Vendor bug-report template:</strong></p>
+<pre><code>Endpoint:    POST /api/v1/orders
+Request ID:  req_abc123xyz
+Timestamp:   2026-03-17T14:30:00Z
+Status:      500
+Expected:    201 with order object
+Actual:      500 {&quot;error&quot;:&quot;internal server error&quot;}
+Repro:       curl -X POST … (auth: &lt;REDACTED&gt;)
+</code></pre>
+<h3>Regression Test Template</h3>
+<p>Drop this into <code>tests/</code> and run via <code>terminal(&#39;pytest tests/test_api_smoke.py -v&#39;)</code>:</p>
+<pre><code class="language-python">import os, requests, pytest
+
+BASE_URL = os.environ.get(&quot;API_BASE_URL&quot;, &quot;https://api.example.com&quot;)
+TOKEN    = os.environ.get(&quot;API_TOKEN&quot;, &quot;&quot;)
+HEADERS  = {&quot;Authorization&quot;: f&quot;Bearer {TOKEN}&quot;}
+
+class TestAPISmoke:
+    def test_health(self):
+        resp = requests.get(f&quot;{BASE_URL}/health&quot;, timeout=5)
+        assert resp.status_code == 200
+
+    def test_list_users_returns_array(self):
+        resp = requests.get(f&quot;{BASE_URL}/users&quot;, headers=HEADERS, timeout=10)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert isinstance(data.get(&quot;data&quot;, data), list)
+
+    def test_get_user_required_fields(self):
+        resp = requests.get(f&quot;{BASE_URL}/users/1&quot;, headers=HEADERS, timeout=10)
+        assert resp.status_code in (200, 404)
+        if resp.status_code == 200:
+            user = resp.json()
+            assert &quot;id&quot; in user and &quot;email&quot; in user
+
+    def test_invalid_auth_returns_401(self):
+        resp = requests.get(
+            f&quot;{BASE_URL}/users&quot;,
+            headers={&quot;Authorization&quot;: &quot;Bearer invalid-token&quot;},
+            timeout=10,
+        )
+        assert resp.status_code == 401
+</code></pre>
+<h3>Security</h3>
+<h4>Token handling</h4>
+<ul>
+<li>Never log full tokens. Redact: <code>Bearer &lt;REDACTED&gt;</code>.</li>
+<li>Never hardcode tokens in scripts. Read from env (<code>os.environ[&quot;API_TOKEN&quot;]</code>) or <code>${HERMES_HOME:-~/.hermes}/.env</code>.</li>
+<li>Rotate immediately if a token surfaces in logs, error messages, or git history.</li>
+</ul>
+<h4>Safe logging</h4>
+<pre><code class="language-python">def redact_auth(headers: dict) -&gt; dict:
+    sensitive = {&quot;authorization&quot;, &quot;x-api-key&quot;, &quot;cookie&quot;, &quot;set-cookie&quot;}
+    return {k: (&quot;&lt;REDACTED&gt;&quot; if k.lower() in sensitive else v) for k, v in headers.items()}
+</code></pre>
+<h4>Leak checklist</h4>
+<ul>
+<li><input disabled="" type="checkbox"> <strong>Credentials in URLs.</strong> API keys in query strings end up in server logs, browser history, referrer headers — use headers.</li>
+<li><input disabled="" type="checkbox"> <strong>PII in error responses.</strong> <code>404 on /users/123</code> shouldn&#39;t reveal whether the user exists (enumeration).</li>
+<li><input disabled="" type="checkbox"> <strong>Stack traces in prod.</strong> 500s shouldn&#39;t leak file paths, framework versions.</li>
+<li><input disabled="" type="checkbox"> <strong>Internal hostnames/IPs.</strong> <code>10.x.x.x</code>, <code>internal-api.corp.local</code> in error bodies.</li>
+<li><input disabled="" type="checkbox"> <strong>Tokens echoed back.</strong> Some APIs include the auth token in error details. Verify they don&#39;t.</li>
+<li><input disabled="" type="checkbox"> <strong>Verbose <code>Server</code> / <code>X-Powered-By</code>.</strong> Stack-info leaks. Note for security review.</li>
+</ul>
+<h3>Hermes Tool Patterns</h3>
+<h4>terminal — for curl, dig, openssl</h4>
+<pre><code class="language-python">terminal(&#39;curl -sI https://api.example.com&#39;)
+terminal(&#39;openssl s_client -connect api.example.com:443 -servername api.example.com &lt;/dev/null 2&gt;/dev/null | openssl x509 -noout -dates&#39;)
+</code></pre>
+<h4>execute_code — for multi-step Python flows</h4>
+<p>When debugging spans auth → fetch → paginate → validate, use <code>execute_code</code>. Variables persist for the script, results print to stdout, no risk of token spam in your context:</p>
+<pre><code class="language-python">execute_code(&#39;&#39;&#39;
+import os, requests
+
+token = os.environ[&quot;API_TOKEN&quot;]
+base  = &quot;https://api.example.com&quot;
+H     = {&quot;Authorization&quot;: f&quot;Bearer {token}&quot;}
+
+# 1. auth
+me = requests.get(f&quot;{base}/me&quot;, headers=H, timeout=10)
+print(f&quot;auth {me.status_code}&quot;)
+
+# 2. paginate
+all_users, cursor = [], None
+while True:
+    params = {&quot;cursor&quot;: cursor} if cursor else {}
+    r = requests.get(f&quot;{base}/users&quot;, headers=H, params=params, timeout=10)
+    body = r.json()
+    all_users.extend(body[&quot;data&quot;])
+    cursor = body.get(&quot;next_cursor&quot;)
+    if not cursor:
+        break
+print(f&quot;users={len(all_users)}&quot;)
+&#39;&#39;&#39;)
+</code></pre>
+<h4>web_extract — for vendor API docs</h4>
+<p>Pull the spec for the endpoint you&#39;re debugging instead of guessing:</p>
+<pre><code class="language-python">web_extract(urls=[&quot;https://docs.example.com/api/v1/users&quot;])
+</code></pre>
+<h4>delegate_task — for full CRUD test sweeps</h4>
+<pre><code class="language-python">delegate_task(
+    goal=&quot;Test all CRUD endpoints for /api/v1/users&quot;,
+    context=&quot;&quot;&quot;
+Follow the rest-graphql-debug skill (optional-skills/software-development/rest-graphql-debug).
+Base URL: https://api.example.com
+Auth: Bearer token from API_TOKEN env var.
+
+For each verb (POST, GET, PATCH, DELETE):
+  - happy path: assert status + response schema
+  - error cases: 400, 404, 422
+  - log a repro curl for any failure (redact tokens)
+
+Output: pass/fail per endpoint + correlation IDs for failures.
+&quot;&quot;&quot;,
+    toolsets=[&quot;terminal&quot;, &quot;file&quot;],
+)
+</code></pre>
+<h3>Output Format</h3>
+<p>When reporting findings:</p>
+<pre><code>## Finding
+Endpoint: POST /api/v1/users
+Status:   422 Unprocessable Entity
+Req ID:   req_abc123xyz
+
+## Repro
+curl -X POST https://api.example.com/api/v1/users \
+  -H &#39;Content-Type: application/json&#39; \
+  -H &#39;Authorization: Bearer &lt;REDACTED&gt;&#39; \
+  -d &#39;{&quot;name&quot;:&quot;test&quot;}&#39;
+
+## Root Cause
+Missing required field `email`. Server validation rejects before processing.
+
+## Fix
+-d &#39;{&quot;name&quot;:&quot;test&quot;,&quot;email&quot;:&quot;test@example.com&quot;}&#39;
+</code></pre>
+<h3>Related</h3>
+<ul>
+<li><code>systematic-debugging</code> — once the failing API layer is isolated, root-cause your code</li>
+<li><code>test-driven-development</code> — write the regression test before shipping the fix</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/software-development/rest-graphql-debug</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

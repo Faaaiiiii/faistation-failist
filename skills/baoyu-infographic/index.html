@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>baoyu-infographic — Skill Hermes</title>
+<meta name="description" content="Infographics: 21 layouts x 21 styles (信息图, 可视化).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>baoyu-infographic</h1>
+    <p class="lede">Infographics: 21 layouts x 21 styles (信息图, 可视化).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>baoyu-infographic</dd>
+      <dt>Keterangan</dt><dd>Infographics: 21 layouts x 21 styles (信息图, 可视化).</dd>
+      <dt>Versi</dt><dd>1.56.1</dd>
+      <dt>Pengarang</dt><dd>宝玉 (JimLiu)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/baoyu-infographic.zip" download>Muat turun ZIP (42.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (47)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.2 KB</td></tr>
+<tr><td><code>PORT_NOTES.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/analysis-framework.md</code></td><td class="sz">7.3 KB</td></tr>
+<tr><td><code>references/base-prompt.md</code></td><td class="sz">1.1 KB</td></tr>
+<tr><td><code>references/layouts/bento-grid.md</code></td><td class="sz">851 B</td></tr>
+<tr><td><code>references/layouts/binary-comparison.md</code></td><td class="sz">1.2 KB</td></tr>
+<tr><td><code>references/layouts/bridge.md</code></td><td class="sz">907 B</td></tr>
+<tr><td><code>references/layouts/circular-flow.md</code></td><td class="sz">759 B</td></tr>
+<tr><td><code>references/layouts/comic-strip.md</code></td><td class="sz">847 B</td></tr>
+<tr><td><code>references/layouts/comparison-matrix.md</code></td><td class="sz">893 B</td></tr>
+<tr><td><code>references/layouts/dashboard.md</code></td><td class="sz">776 B</td></tr>
+<tr><td><code>references/layouts/dense-modules.md</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>references/layouts/funnel.md</code></td><td class="sz">821 B</td></tr>
+<tr><td><code>references/layouts/hierarchical-layers.md</code></td><td class="sz">1.2 KB</td></tr>
+<tr><td><code>references/layouts/hub-spoke.md</code></td><td class="sz">865 B</td></tr>
+<tr><td><code>references/layouts/iceberg.md</code></td><td class="sz">884 B</td></tr>
+<tr><td><code>references/layouts/isometric-map.md</code></td><td class="sz">833 B</td></tr>
+<tr><td><code>references/layouts/jigsaw.md</code></td><td class="sz">844 B</td></tr>
+<tr><td><code>references/layouts/linear-progression.md</code></td><td class="sz">1.2 KB</td></tr>
+<tr><td><code>references/layouts/periodic-table.md</code></td><td class="sz">774 B</td></tr>
+<tr><td><code>references/layouts/story-mountain.md</code></td><td class="sz">815 B</td></tr>
+<tr><td><code>references/layouts/structural-breakdown.md</code></td><td class="sz">1.1 KB</td></tr>
+<tr><td><code>references/layouts/tree-branching.md</code></td><td class="sz">913 B</td></tr>
+<tr><td><code>references/layouts/venn-diagram.md</code></td><td class="sz">825 B</td></tr>
+<tr><td><code>references/layouts/winding-roadmap.md</code></td><td class="sz">799 B</td></tr>
+<tr><td><code>references/structured-content-template.md</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>references/styles/aged-academia.md</code></td><td class="sz">990 B</td></tr>
+<tr><td><code>references/styles/bold-graphic.md</code></td><td class="sz">920 B</td></tr>
+<tr><td><code>references/styles/chalkboard.md</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>references/styles/claymation.md</code></td><td class="sz">654 B</td></tr>
+<tr><td><code>references/styles/corporate-memphis.md</code></td><td class="sz">612 B</td></tr>
+<tr><td><code>references/styles/craft-handmade.md</code></td><td class="sz">1.4 KB</td></tr>
+<tr><td><code>references/styles/cyberpunk-neon.md</code></td><td class="sz">625 B</td></tr>
+<tr><td><code>references/styles/hand-drawn-edu.md</code></td><td class="sz">2.6 KB</td></tr>
+<tr><td><code>references/styles/ikea-manual.md</code></td><td class="sz">572 B</td></tr>
+<tr><td><code>references/styles/kawaii.md</code></td><td class="sz">653 B</td></tr>
+<tr><td><code>references/styles/knolling.md</code></td><td class="sz">584 B</td></tr>
+<tr><td><code>references/styles/lego-brick.md</code></td><td class="sz">574 B</td></tr>
+<tr><td><code>references/styles/morandi-journal.md</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>references/styles/origami.md</code></td><td class="sz">607 B</td></tr>
+<tr><td><code>references/styles/pixel-art.md</code></td><td class="sz">562 B</td></tr>
+<tr><td><code>references/styles/pop-laboratory.md</code></td><td class="sz">2.1 KB</td></tr>
+<tr><td><code>references/styles/retro-pop-grid.md</code></td><td class="sz">2.1 KB</td></tr>
+<tr><td><code>references/styles/storybook-watercolor.md</code></td><td class="sz">703 B</td></tr>
+<tr><td><code>references/styles/subway-map.md</code></td><td class="sz">591 B</td></tr>
+<tr><td><code>references/styles/technical-schematic.md</code></td><td class="sz">983 B</td></tr>
+<tr><td><code>references/styles/ui-wireframe.md</code></td><td class="sz">596 B</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Infographic Generator</h2>
+<p>Adapted from <a href="https://github.com/JimLiu/baoyu-skills">baoyu-infographic</a> for Hermes Agent&#39;s tool ecosystem.</p>
+<p>Two dimensions: <strong>layout</strong> (information structure) × <strong>style</strong> (visual aesthetics). Freely combine any layout with any style.</p>
+<h3>When to Use</h3>
+<p>Trigger this skill when the user asks to create an infographic, visual summary, information graphic, or uses terms like &quot;信息图&quot;, &quot;可视化&quot;, or &quot;高密度信息大图&quot;. The user provides content (text, file path, URL, or topic) and optionally specifies layout, style, aspect ratio, or language.</p>
+<h3>Options</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Layout</td>
+<td>21 options (see Layout Gallery), default: bento-grid</td>
+</tr>
+<tr>
+<td>Style</td>
+<td>21 options (see Style Gallery), default: craft-handmade</td>
+</tr>
+<tr>
+<td>Aspect</td>
+<td>Named: landscape (16:9), portrait (9:16), square (1:1). Custom: any W:H ratio (e.g., 3:4, 4:3, 2.35:1)</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>en, zh, ja, etc.</td>
+</tr>
+</tbody></table>
+<h3>Layout Gallery</h3>
+<table>
+<thead>
+<tr>
+<th>Layout</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>linear-progression</code></td>
+<td>Timelines, processes, tutorials</td>
+</tr>
+<tr>
+<td><code>binary-comparison</code></td>
+<td>A vs B, before-after, pros-cons</td>
+</tr>
+<tr>
+<td><code>comparison-matrix</code></td>
+<td>Multi-factor comparisons</td>
+</tr>
+<tr>
+<td><code>hierarchical-layers</code></td>
+<td>Pyramids, priority levels</td>
+</tr>
+<tr>
+<td><code>tree-branching</code></td>
+<td>Categories, taxonomies</td>
+</tr>
+<tr>
+<td><code>hub-spoke</code></td>
+<td>Central concept with related items</td>
+</tr>
+<tr>
+<td><code>structural-breakdown</code></td>
+<td>Exploded views, cross-sections</td>
+</tr>
+<tr>
+<td><code>bento-grid</code></td>
+<td>Multiple topics, overview (default)</td>
+</tr>
+<tr>
+<td><code>iceberg</code></td>
+<td>Surface vs hidden aspects</td>
+</tr>
+<tr>
+<td><code>bridge</code></td>
+<td>Problem-solution</td>
+</tr>
+<tr>
+<td><code>funnel</code></td>
+<td>Conversion, filtering</td>
+</tr>
+<tr>
+<td><code>isometric-map</code></td>
+<td>Spatial relationships</td>
+</tr>
+<tr>
+<td><code>dashboard</code></td>
+<td>Metrics, KPIs</td>
+</tr>
+<tr>
+<td><code>periodic-table</code></td>
+<td>Categorized collections</td>
+</tr>
+<tr>
+<td><code>comic-strip</code></td>
+<td>Narratives, sequences</td>
+</tr>
+<tr>
+<td><code>story-mountain</code></td>
+<td>Plot structure, tension arcs</td>
+</tr>
+<tr>
+<td><code>jigsaw</code></td>
+<td>Interconnected parts</td>
+</tr>
+<tr>
+<td><code>venn-diagram</code></td>
+<td>Overlapping concepts</td>
+</tr>
+<tr>
+<td><code>winding-roadmap</code></td>
+<td>Journey, milestones</td>
+</tr>
+<tr>
+<td><code>circular-flow</code></td>
+<td>Cycles, recurring processes</td>
+</tr>
+<tr>
+<td><code>dense-modules</code></td>
+<td>High-density modules, data-rich guides</td>
+</tr>
+</tbody></table>
+<p>Full definitions: <code>references/layouts/&lt;layout&gt;.md</code></p>
+<h3>Style Gallery</h3>
+<table>
+<thead>
+<tr>
+<th>Style</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>craft-handmade</code></td>
+<td>Hand-drawn, paper craft (default)</td>
+</tr>
+<tr>
+<td><code>claymation</code></td>
+<td>3D clay figures, stop-motion</td>
+</tr>
+<tr>
+<td><code>kawaii</code></td>
+<td>Japanese cute, pastels</td>
+</tr>
+<tr>
+<td><code>storybook-watercolor</code></td>
+<td>Soft painted, whimsical</td>
+</tr>
+<tr>
+<td><code>chalkboard</code></td>
+<td>Chalk on black board</td>
+</tr>
+<tr>
+<td><code>cyberpunk-neon</code></td>
+<td>Neon glow, futuristic</td>
+</tr>
+<tr>
+<td><code>bold-graphic</code></td>
+<td>Comic style, halftone</td>
+</tr>
+<tr>
+<td><code>aged-academia</code></td>
+<td>Vintage science, sepia</td>
+</tr>
+<tr>
+<td><code>corporate-memphis</code></td>
+<td>Flat vector, vibrant</td>
+</tr>
+<tr>
+<td><code>technical-schematic</code></td>
+<td>Blueprint, engineering</td>
+</tr>
+<tr>
+<td><code>origami</code></td>
+<td>Folded paper, geometric</td>
+</tr>
+<tr>
+<td><code>pixel-art</code></td>
+<td>Retro 8-bit</td>
+</tr>
+<tr>
+<td><code>ui-wireframe</code></td>
+<td>Grayscale interface mockup</td>
+</tr>
+<tr>
+<td><code>subway-map</code></td>
+<td>Transit diagram</td>
+</tr>
+<tr>
+<td><code>ikea-manual</code></td>
+<td>Minimal line art</td>
+</tr>
+<tr>
+<td><code>knolling</code></td>
+<td>Organized flat-lay</td>
+</tr>
+<tr>
+<td><code>lego-brick</code></td>
+<td>Toy brick construction</td>
+</tr>
+<tr>
+<td><code>pop-laboratory</code></td>
+<td>Blueprint grid, coordinate markers, lab precision</td>
+</tr>
+<tr>
+<td><code>morandi-journal</code></td>
+<td>Hand-drawn doodle, warm Morandi tones</td>
+</tr>
+<tr>
+<td><code>retro-pop-grid</code></td>
+<td>1970s retro pop art, Swiss grid, thick outlines</td>
+</tr>
+<tr>
+<td><code>hand-drawn-edu</code></td>
+<td>Macaron pastels, hand-drawn wobble, stick figures</td>
+</tr>
+</tbody></table>
+<p>Full definitions: <code>references/styles/&lt;style&gt;.md</code></p>
+<h3>Recommended Combinations</h3>
+<table>
+<thead>
+<tr>
+<th>Content Type</th>
+<th>Layout + Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Timeline/History</td>
+<td><code>linear-progression</code> + <code>craft-handmade</code></td>
+</tr>
+<tr>
+<td>Step-by-step</td>
+<td><code>linear-progression</code> + <code>ikea-manual</code></td>
+</tr>
+<tr>
+<td>A vs B</td>
+<td><code>binary-comparison</code> + <code>corporate-memphis</code></td>
+</tr>
+<tr>
+<td>Hierarchy</td>
+<td><code>hierarchical-layers</code> + <code>craft-handmade</code></td>
+</tr>
+<tr>
+<td>Overlap</td>
+<td><code>venn-diagram</code> + <code>craft-handmade</code></td>
+</tr>
+<tr>
+<td>Conversion</td>
+<td><code>funnel</code> + <code>corporate-memphis</code></td>
+</tr>
+<tr>
+<td>Cycles</td>
+<td><code>circular-flow</code> + <code>craft-handmade</code></td>
+</tr>
+<tr>
+<td>Technical</td>
+<td><code>structural-breakdown</code> + <code>technical-schematic</code></td>
+</tr>
+<tr>
+<td>Metrics</td>
+<td><code>dashboard</code> + <code>corporate-memphis</code></td>
+</tr>
+<tr>
+<td>Educational</td>
+<td><code>bento-grid</code> + <code>chalkboard</code></td>
+</tr>
+<tr>
+<td>Journey</td>
+<td><code>winding-roadmap</code> + <code>storybook-watercolor</code></td>
+</tr>
+<tr>
+<td>Categories</td>
+<td><code>periodic-table</code> + <code>bold-graphic</code></td>
+</tr>
+<tr>
+<td>Product Guide</td>
+<td><code>dense-modules</code> + <code>morandi-journal</code></td>
+</tr>
+<tr>
+<td>Technical Guide</td>
+<td><code>dense-modules</code> + <code>pop-laboratory</code></td>
+</tr>
+<tr>
+<td>Trendy Guide</td>
+<td><code>dense-modules</code> + <code>retro-pop-grid</code></td>
+</tr>
+<tr>
+<td>Educational Diagram</td>
+<td><code>hub-spoke</code> + <code>hand-drawn-edu</code></td>
+</tr>
+<tr>
+<td>Process Tutorial</td>
+<td><code>linear-progression</code> + <code>hand-drawn-edu</code></td>
+</tr>
+</tbody></table>
+<p>Default: <code>bento-grid</code> + <code>craft-handmade</code></p>
+<h3>Keyword Shortcuts</h3>
+<p>When user input contains these keywords, <strong>auto-select</strong> the associated layout and offer associated styles as top recommendations in Step 3. Skip content-based layout inference for matched keywords.</p>
+<p>If a shortcut has <strong>Prompt Notes</strong>, append them to the generated prompt (Step 5) as additional style instructions.</p>
+<table>
+<thead>
+<tr>
+<th>User Keyword</th>
+<th>Layout</th>
+<th>Recommended Styles</th>
+<th>Default Aspect</th>
+<th>Prompt Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>高密度信息大图 / high-density-info</td>
+<td><code>dense-modules</code></td>
+<td><code>morandi-journal</code>, <code>pop-laboratory</code>, <code>retro-pop-grid</code></td>
+<td>portrait</td>
+<td>—</td>
+</tr>
+<tr>
+<td>信息图 / infographic</td>
+<td><code>bento-grid</code></td>
+<td><code>craft-handmade</code></td>
+<td>landscape</td>
+<td>Minimalist: clean canvas, ample whitespace, no complex background textures. Simple cartoon elements and icons only.</td>
+</tr>
+</tbody></table>
+<h3>Output Structure</h3>
+<pre><code>infographic/{topic-slug}/
+├── source-{slug}.{ext}
+├── analysis.md
+├── structured-content.md
+├── prompts/infographic.md
+└── infographic.png
+</code></pre>
+<p>Slug: 2-4 words kebab-case from topic. Conflict: append <code>-YYYYMMDD-HHMMSS</code>.</p>
+<h3>Core Principles</h3>
+<ul>
+<li>Preserve source data faithfully — no summarization or rephrasing (but <strong>strip any credentials, API keys, tokens, or secrets</strong> before including in outputs)</li>
+<li>Define learning objectives before structuring content</li>
+<li>Structure for visual communication (headlines, labels, visual elements)</li>
+</ul>
+<h3>Workflow</h3>
+<h4>Step 1: Analyze Content</h4>
+<p><strong>Load references</strong>: Read <code>references/analysis-framework.md</code> from this skill.</p>
+<ol>
+<li>Save source content (file path or paste → <code>source.md</code> using <code>write_file</code>)<ul>
+<li><strong>Backup rule</strong>: If <code>source.md</code> exists, rename to <code>source-backup-YYYYMMDD-HHMMSS.md</code></li>
+</ul>
+</li>
+<li>Analyze: topic, data type, complexity, tone, audience</li>
+<li>Detect source language and user language</li>
+<li>Extract design instructions from user input</li>
+<li>Save analysis to <code>analysis.md</code><ul>
+<li><strong>Backup rule</strong>: If <code>analysis.md</code> exists, rename to <code>analysis-backup-YYYYMMDD-HHMMSS.md</code></li>
+</ul>
+</li>
+</ol>
+<p>See <code>references/analysis-framework.md</code> for detailed format.</p>
+<h4>Step 2: Generate Structured Content → <code>structured-content.md</code></h4>
+<p>Transform content into infographic structure:</p>
+<ol>
+<li>Title and learning objectives</li>
+<li>Sections with: key concept, content (verbatim), visual element, text labels</li>
+<li>Data points (all statistics/quotes copied exactly)</li>
+<li>Design instructions from user</li>
+</ol>
+<p><strong>Rules</strong>: Markdown only. No new information. Preserve data faithfully. Strip any credentials or secrets from output.</p>
+<p>See <code>references/structured-content-template.md</code> for detailed format.</p>
+<h4>Step 3: Recommend Combinations</h4>
+<p><strong>3.1 Check Keyword Shortcuts first</strong>: If user input matches a keyword from the <strong>Keyword Shortcuts</strong> table, auto-select the associated layout and prioritize associated styles as top recommendations. Skip content-based layout inference.</p>
+<p><strong>3.2 Otherwise</strong>, recommend 3-5 layout×style combinations based on:</p>
+<ul>
+<li>Data structure → matching layout</li>
+<li>Content tone → matching style</li>
+<li>Audience expectations</li>
+<li>User design instructions</li>
+</ul>
+<h4>Step 4: Confirm Options</h4>
+<p>Use the <code>clarify</code> tool to confirm options with the user. Put the independent questions below in one <code>questions</code> array (up to 5); ask separately any question whose options depend on an earlier answer:</p>
+<p><strong>Q1 — Combination</strong>: Present 3+ layout×style combos with rationale. Ask user to pick one.</p>
+<p><strong>Q2 — Aspect</strong>: Ask for aspect ratio preference (landscape/portrait/square or custom W:H).</p>
+<p><strong>Q3 — Language</strong> (only if source ≠ user language): Ask which language the text content should use.</p>
+<h4>Step 5: Generate Prompt → <code>prompts/infographic.md</code></h4>
+<p><strong>Backup rule</strong>: If <code>prompts/infographic.md</code> exists, rename to <code>prompts/infographic-backup-YYYYMMDD-HHMMSS.md</code></p>
+<p><strong>Load references</strong>: Read the selected layout from <code>references/layouts/&lt;layout&gt;.md</code> and style from <code>references/styles/&lt;style&gt;.md</code>.</p>
+<p>Combine:</p>
+<ol>
+<li>Layout definition from <code>references/layouts/&lt;layout&gt;.md</code></li>
+<li>Style definition from <code>references/styles/&lt;style&gt;.md</code></li>
+<li>Base template from <code>references/base-prompt.md</code></li>
+<li>Structured content from Step 2</li>
+<li>All text in confirmed language</li>
+</ol>
+<p><strong>Aspect ratio resolution</strong> for <code>{{ASPECT_RATIO}}</code>:</p>
+<ul>
+<li>Named presets → ratio string: landscape→<code>16:9</code>, portrait→<code>9:16</code>, square→<code>1:1</code></li>
+<li>Custom W:H ratios → use as-is (e.g., <code>3:4</code>, <code>4:3</code>, <code>2.35:1</code>)</li>
+</ul>
+<p>Save the assembled prompt to <code>prompts/infographic.md</code> using <code>write_file</code>.</p>
+<h4>Step 6: Generate Image</h4>
+<p>Use the <code>image_generate</code> tool with the assembled prompt from Step 5.</p>
+<ul>
+<li>Map aspect ratio to image_generate&#39;s format: <code>16:9</code> → <code>landscape</code>, <code>9:16</code> → <code>portrait</code>, <code>1:1</code> → <code>square</code></li>
+<li>For custom ratios, pick the closest named aspect</li>
+<li>On failure, auto-retry once</li>
+<li>Save the resulting image URL/path to the output directory</li>
+</ul>
+<h4>Step 7: Output Summary</h4>
+<p>Report: topic, layout, style, aspect, language, output path, files created.</p>
+<h3>References</h3>
+<ul>
+<li><code>references/analysis-framework.md</code> — Analysis methodology</li>
+<li><code>references/structured-content-template.md</code> — Content format</li>
+<li><code>references/base-prompt.md</code> — Prompt template</li>
+<li><code>references/layouts/&lt;layout&gt;.md</code> — 21 layout definitions</li>
+<li><code>references/styles/&lt;style&gt;.md</code> — 21 style definitions</li>
+</ul>
+<h3>Pitfalls</h3>
+<ol>
+<li><strong>Data integrity is paramount</strong> — never summarize, paraphrase, or alter source statistics. &quot;73% increase&quot; must stay &quot;73% increase&quot;, not &quot;significant increase&quot;.</li>
+<li><strong>Strip secrets</strong> — always scan source content for API keys, tokens, or credentials before including in any output file.</li>
+<li><strong>One message per section</strong> — each infographic section should convey one clear concept. Overloading sections reduces readability.</li>
+<li><strong>Style consistency</strong> — the style definition from the references file must be applied consistently across the entire infographic. Don&#39;t mix styles.</li>
+<li><strong>image_generate aspect ratios</strong> — the tool only supports <code>landscape</code>, <code>portrait</code>, and <code>square</code>. Custom ratios like <code>3:4</code> should map to the nearest option (portrait in that case).</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/baoyu-infographic</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

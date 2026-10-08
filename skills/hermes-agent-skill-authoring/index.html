@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hermes-agent-skill-authoring — Skill Hermes</title>
+<meta name="description" content="Author in-repo SKILL.md files: frontmatter and structure.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>hermes-agent-skill-authoring</h1>
+    <p class="lede">Author in-repo SKILL.md files: frontmatter and structure.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>hermes-agent-skill-authoring</dd>
+      <dt>Keterangan</dt><dd>Author in-repo SKILL.md files: frontmatter and structure.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/hermes-agent-skill-authoring.zip" download>Muat turun ZIP (6.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Authoring Hermes-Agent Skills (in-repo)</h2>
+<h3>Overview</h3>
+<p>There are two places a SKILL.md can live:</p>
+<ol>
+<li><strong>User-local:</strong> <code>~/.hermes/skills/&lt;maybe-category&gt;/&lt;name&gt;/SKILL.md</code> — personal, not shared. Created via <code>skill_manage(action=&#39;create&#39;)</code>.</li>
+<li><strong>In-repo (this skill is about this case):</strong> <code>skills/&lt;category&gt;/&lt;name&gt;/SKILL.md</code> or <code>optional-skills/&lt;category&gt;/&lt;name&gt;/SKILL.md</code> inside the hermes-agent repo — committed, shipped with the package. Use <code>write_file</code> + <code>git add</code>. <code>skill_manage(action=&#39;create&#39;)</code> does NOT target this tree.</li>
+</ol>
+<p>In-repo skills must meet the repo&#39;s <strong>hardline authoring standards</strong> (see AGENTS.md, &quot;Skill authoring standards (HARDLINE)&quot; — that section is the source of truth; this skill is the operational walkthrough). Reviewers reject PRs that violate them, so meeting them up front is cheaper than a salvage pass later.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks you to add a skill &quot;in this branch / repo / commit&quot;</li>
+<li>You&#39;re committing a reusable workflow that should ship with hermes-agent</li>
+<li>You&#39;re editing an existing skill under <code>skills/</code> or <code>optional-skills/</code> (use <code>patch</code> for small edits, <code>write_file</code> for rewrites; <code>skill_manage</code> still works for patch on in-repo skills, but not for <code>create</code>)</li>
+<li>Don&#39;t use for: personal skills in <code>~/.hermes/skills/</code> (just use <code>skill_manage</code>)</li>
+</ul>
+<h3>Decide the Tier First: Bundled vs Optional</h3>
+<ul>
+<li><strong>Bundled (<code>skills/&lt;category&gt;/</code>)</strong> — daily-driver behavior, broadly useful across many user types, low footprint. Hard bar: you can say &quot;a user will load this in 5+ sessions per month&quot; with a straight face.</li>
+<li><strong>Optional (<code>optional-skills/&lt;category&gt;/</code>)</strong> — niche, vertical-specific (blockchain, gaming, finance, one app), recurring-job/task skills, or anything heavy. Installed via <code>hermes skills install official/&lt;category&gt;/&lt;skill&gt;</code>.</li>
+</ul>
+<p><strong>When in doubt, optional.</strong> Promoting later is easy; demoting is churn. &quot;Would be useful to anyone who ever needs this&quot; is an optional-tier argument, not a bundled one.</p>
+<p>Pick the category by what the tool IS, not what it feels like (an AI-agent CLI goes in <code>autonomous-ai-agents/</code> even if it &quot;feels productivity&quot;). Confirm existing categories with <code>search_files(pattern=&#39;*&#39;, target=&#39;files&#39;, path=&#39;skills&#39;)</code> and don&#39;t invent new top-level categories casually.</p>
+<p><strong>No router / index / hub skills.</strong> A skill whose core content is a routing table pointing at sibling skills adds an indirection hop and duplicates the siblings&#39; own <code>When to Use</code> triggers. If the skill would be empty without &quot;load skill X instead&quot; pointers, don&#39;t write it — the catalog and each sibling&#39;s triggers already do that job.</p>
+<h3>Required Frontmatter</h3>
+<p>Validator source of truth: <code>tools/skill_manager_tool.py::_validate_frontmatter</code>. Validator hard requirements:</p>
+<ul>
+<li>Starts with <code>---</code> as the first bytes (no leading blank line).</li>
+<li>Closes with <code>\n---\n</code> before the body.</li>
+<li>Parses as a YAML mapping.</li>
+<li><code>name</code> field present.</li>
+<li><code>description</code> field present (validator ceiling 1024 chars — but see the repo hardline below, which is much stricter).</li>
+<li>Non-empty body after the closing <code>---</code>.</li>
+</ul>
+<p>Repo-standard shape (all fields expected, even where the validator doesn&#39;t enforce them):</p>
+<pre><code class="language-yaml">---
+name: my-skill-name               # lowercase, hyphens, ≤64 chars (MAX_NAME_LENGTH)
+description: Concise capability statement, under sixty chars.
+version: 0.1.0                    # semver; new skills start at 0.1.0
+author: Real Name (github-handle), Hermes Agent
+license: MIT
+platforms: [linux, macos, windows]   # audit, don&#39;t guess — see Platform Gating
+metadata:
+  hermes:
+    tags: [Short, Descriptive, Tags]
+    related_skills: [other-in-repo-skill]
+---
+</code></pre>
+<h4><code>description</code> rules (HARDLINE — the validator&#39;s 1024 is NOT the standard)</h4>
+<ul>
+<li><strong>≤ 60 characters.</strong> One sentence. Ends with a period.</li>
+<li>State the capability, not the implementation, and don&#39;t repeat the skill name.</li>
+<li>No marketing words (&quot;powerful&quot;, &quot;comprehensive&quot;, &quot;seamless&quot;, &quot;advanced&quot;).</li>
+<li>The system prompt skill index truncates at 57 chars + &quot;...&quot; — the trigger/capability must be self-contained in that window.</li>
+<li>If the description contains a <code>:</code>, wrap it in double quotes or YAML parses it as a mapping and the docs generator crashes. Quotes don&#39;t count toward the 60.</li>
+</ul>
+<p>Good: <code>Track named companies for material news with cited digests.</code>
+Bad: <code>Use when a user asks to monitor named competitors or companies for product launches, pricing changes, funding, ...</code> (240 chars — rejected in review)</p>
+<h4><code>author</code> rules</h4>
+<ul>
+<li>Credit the <strong>human first</strong>, then &quot;Hermes Agent&quot; as secondary collaborator: <code>Ben Barclay (benbarclay), Hermes Agent</code>.</li>
+<li>Never <code>author: Hermes Agent</code> alone for contributed skills — credit the human, not the tool, even (especially) when an agent drafted the text.</li>
+<li>Maintainer-authored skills: <code>Teknium (teknium1), Hermes Agent</code>.</li>
+</ul>
+<h4><code>related_skills</code> rules</h4>
+<ul>
+<li>Every entry must resolve to an existing <strong>in-repo</strong> skill in the same tree state as your PR. Do not reference skills that were only planned, live in another PR, or exist only in <code>~/.hermes/skills/</code>.</li>
+<li>Verify each entry: <code>search_files(pattern=&#39;&lt;name&gt;&#39;, target=&#39;files&#39;, path=&#39;skills&#39;)</code> (and <code>optional-skills/</code>).</li>
+</ul>
+<h3>Platform Gating: audit, don&#39;t trust</h3>
+<p><code>platforms:</code> gates loading by host OS. Set it from what the skill&#39;s prose and scripts actually invoke:</p>
+<table>
+<thead>
+<tr>
+<th>Skill uses only…</th>
+<th><code>platforms:</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hermes tools + stdlib Python + cross-platform CLIs</td>
+<td><code>[linux, macos, windows]</code></td>
+</tr>
+<tr>
+<td>bash pipelines, <code>grep</code>/<code>awk</code>/<code>sed</code> chains, heredocs</td>
+<td><code>[linux, macos]</code></td>
+</tr>
+<tr>
+<td><code>osascript</code>, <code>defaults</code>, <code>pmset</code></td>
+<td><code>[macos]</code></td>
+</tr>
+<tr>
+<td><code>apt</code>/<code>systemctl</code>/<code>/proc</code></td>
+<td><code>[linux]</code></td>
+</tr>
+</tbody></table>
+<!-- no-tmp: ok — names the anti-pattern skill authors must avoid -->
+<p>POSIX-only signals to search for in <code>scripts/</code>: <code>fcntl</code>, <code>termios</code>, <code>pty</code>, <code>os.fork</code>, <code>os.killpg</code>, <code>signal.SIGKILL</code>, <code>os.kill(pid, 0)</code> liveness checks, hardcoded <code>/tmp</code> <code>/proc</code> <code>/etc</code>. Default posture: fix cross-platform first (<code>tempfile.gettempdir()</code>, <code>pathlib.Path</code>, <code>psutil.pid_exists</code>); gate narrower only when the dependency is genuinely platform-bound, and say why in <code>## Pitfalls</code>.</p>
+<h3>Size Limits</h3>
+<ul>
+<li>Full SKILL.md: ≤ 100,000 chars enforced (<code>MAX_SKILL_CONTENT_CHARS</code>), but target <strong>~100 lines for a simple skill, ~200 for a complex one</strong>. Peer skills sit at 8-14k chars.</li>
+<li>Bulky or branch-specific material goes in <code>references/*.md</code>, <code>templates/</code>, or <code>scripts/</code> — pointed to from SKILL.md, not inlined.</li>
+<li>Don&#39;t expect the model to inline-write parsers or non-trivial logic every call — ship a helper script in <code>scripts/</code> and reference it by path.</li>
+</ul>
+<h3>Body Structure (modern section order)</h3>
+<pre><code># &lt;Skill&gt; Skill
+2-3 sentence intro: what it does, what it doesn&#39;t do, dependency stance.
+
+## When to Use          — bulleted triggers (+ &quot;Don&#39;t use for:&quot; counter-triggers)
+## Prerequisites        — exact env vars, installs, API key sourcing
+## How to Run           — canonical invocation through the `terminal` tool
+## Quick Reference      — flat command list, no narration
+## Procedure            — numbered steps, each with a checkable completion criterion
+## Pitfalls             — known limits, things that look broken but aren&#39;t
+## Verification         — how to prove the skill worked
+</code></pre>
+<p>Not every section applies to every skill (a pure-procedure task skill may have no Quick Reference), but When to Use + actionable body + Pitfalls + Verification are the minimum. Cut marketing intros, &quot;Setup Check&quot; no-ops, and re-explanations of env vars already in Prerequisites.</p>
+<h4>Reference Hermes tools, not raw shell</h4>
+<p>When the skill needs a capability, name the proper Hermes tool in backticks: <code>terminal</code>, <code>read_file</code>, <code>write_file</code>, <code>patch</code>, <code>search_files</code>, <code>web_search</code>, <code>web_extract</code>, <code>browser_navigate</code>, <code>vision_analyze</code>, <code>delegate_task</code>, <code>cronjob</code>. Do NOT name shell utilities the agent already has wrapped (<code>grep</code> → <code>search_files</code>, <code>cat</code> → <code>read_file</code>, <code>sed</code>/<code>awk</code> → <code>patch</code>, <code>find</code>/<code>ls</code> → <code>search_files target=&#39;files&#39;</code>). A CLI-wrapper skill should frame invocations as <code>terminal(command=&quot;{tool} ...&quot;, timeout=...)</code> — bare shell prose (&quot;run <code>foo --version</code>&quot;) is a review-blocking non-conformance. If the skill depends on an MCP server, name it and document setup in Prerequisites.</p>
+<h4>Never use machine-local paths</h4>
+<p>Write repo-relative paths (<code>skills/...</code>, <code>tools/skill_manager_tool.py</code>). A <code>/home/&lt;you&gt;/...</code> path baked into a committed skill breaks for every other user and is an instant review flag.</p>
+<h3>Writing Quality Principles</h3>
+<p>A skill exists to make the agent&#39;s process more predictable — the agent reliably follows the same useful discipline.</p>
+<ol>
+<li><strong>Optimize for process predictability.</strong> If a line does not change behavior, cut it.</li>
+<li><strong>Choose the right context load.</strong> The description is paid for every turn; details go in the body or linked references.</li>
+<li><strong>End steps with completion criteria.</strong> Checkable and, when it matters, exhaustive: &quot;every modified file accounted for&quot; beats &quot;summarize changes.&quot;</li>
+<li><strong>Co-locate rules with the concept they govern.</strong></li>
+<li><strong>Use strong leading words</strong> (&quot;tight loop,&quot; &quot;root cause,&quot; &quot;regression test&quot;) over long repeated explanations.</li>
+<li><strong>Prune duplication and no-ops.</strong> &quot;Be careful&quot; and &quot;use best practices&quot; don&#39;t change model behavior — replace with a checkable criterion or delete.</li>
+</ol>
+<h3>Tests and Docs (required for repo skills)</h3>
+<ol>
+<li><strong>Tests</strong> live at <code>tests/skills/test_&lt;skill&gt;_skill.py</code> — stdlib + pytest + <code>unittest.mock</code> only, no live network. Run via <code>scripts/run_tests.sh tests/skills/test_&lt;skill&gt;_skill.py -q</code>. (The generic <code>tests/tools/test_skill_manager_tool.py</code> passing proves nothing about YOUR skill.)</li>
+<li><strong>Docs regen:</strong> run <code>python website/scripts/generate-skill-docs.py</code>, then apply scope discipline — the generator rewrites EVERY auto-gen page. <code>git checkout --</code> everything that isn&#39;t yours; the final diff must show only your SKILL.md, your one per-skill docs page, a one-line catalog row, and a one-line <code>website/sidebars.ts</code> insertion (verify with <code>search_files(pattern=&#39;&lt;your-slug&gt;&#39;, path=&#39;website/sidebars.ts&#39;)</code> — exactly one hit, or the page is an orphan).</li>
+<li><strong><code>.env.example</code></strong> (only if the skill needs new env vars): one clearly delimited commented block; touch nothing else in the file.</li>
+</ol>
+<h3>Workflow</h3>
+<ol>
+<li><strong>Survey peers</strong> in the target category with <code>search_files(target=&#39;files&#39;)</code> and read 2-3 peer SKILL.md files to match tone and structure. Prefer extending an existing skill over creating a narrow sibling.</li>
+<li><strong>Decide tier and category</strong> (see above). When in doubt, optional — and ask before pushing rather than defaulting.</li>
+<li><strong>Draft</strong> with <code>write_file</code> to <code>skills/&lt;category&gt;/&lt;name&gt;/SKILL.md</code> (or <code>optional-skills/...</code>).</li>
+<li><strong>Validate locally</strong>:<pre><code class="language-python">import re, pathlib
+from ruamel.yaml import YAML
+content = pathlib.Path(&quot;skills/&lt;category&gt;/&lt;name&gt;/SKILL.md&quot;).read_text()
+assert content.startswith(&quot;---&quot;)
+m = re.search(r&#39;\n---\s*\n&#39;, content[3:])
+fm = YAML(typ=&quot;safe&quot;).load(content[3:m.start()+3])
+assert &quot;name&quot; in fm and &quot;description&quot; in fm
+assert len(fm[&quot;description&quot;]) &lt;= 60, f&quot;description {len(fm[&#39;description&#39;])} chars — hardline is 60&quot;
+assert fm[&quot;description&quot;].endswith(&quot;.&quot;)
+assert &quot;platforms&quot; in fm
+assert len(content) &lt;= 100_000
+</code></pre>
+Also verify every <code>related_skills</code> entry exists in-repo.</li>
+<li><strong>Add tests + regen docs</strong> (previous section).</li>
+<li><strong>Git add + commit</strong> on the active branch; open a PR.</li>
+<li><strong>Note:</strong> the CURRENT session&#39;s skill loader is cached — <code>skill_view</code> / <code>skills_list</code> will not see the new skill until a new session. This is expected, not a bug.</li>
+</ol>
+<h3>Editing Existing In-Repo Skills</h3>
+<ul>
+<li><strong>Small fix:</strong> <code>skill_manage(action=&#39;patch&#39;, ...)</code> works on in-repo skills, as does <code>patch</code>.</li>
+<li><strong>Major rewrite:</strong> <code>write_file</code> the whole SKILL.md.</li>
+<li><strong>Supporting files:</strong> <code>write_file</code> to <code>references/</code>, <code>templates/</code>, or <code>scripts/</code> under the skill dir.</li>
+<li><strong>Always commit</strong> — in-repo skills are source, not runtime state. Re-run the docs generator when frontmatter changed.</li>
+</ul>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><strong>Using <code>skill_manage(action=&#39;create&#39;)</code> for an in-repo skill.</strong> It writes to <code>~/.hermes/skills/</code>, not the repo tree. Use <code>write_file</code>.</li>
+<li><strong>Trusting the validator&#39;s limits as the standard.</strong> The validator allows 1024-char descriptions; review rejects anything over 60. The validator doesn&#39;t check <code>platforms:</code>, author format, tests, or docs — review does.</li>
+<li><strong><code>author: Hermes Agent</code> on a contributed skill.</strong> Credit the human first.</li>
+<li><strong>Leading whitespace before <code>---</code>.</strong> Validation fails on any leading blank line or BOM.</li>
+<li><strong>Description too generic or trigger buried past char 57.</strong></li>
+<li><strong><code>related_skills</code> pointing at skills that don&#39;t exist in-repo</strong> (user-local, planned, or in a sibling PR).</li>
+<li><strong>Duplicating a peer.</strong> Survey the category first; extend rather than sibling.</li>
+<li><strong>Skipping the docs generator or pushing its unrelated drift.</strong> Both directions are wrong: no regen = orphan skill with no docs page; blind regen = a ballooned diff full of other skills&#39; drift.</li>
+<li><strong>Expecting the current session to see the new skill.</strong> The loader is initialized at session start.</li>
+<li><strong>Letting skills accumulate sediment.</strong> When adding a rule, remove the old wording it replaces.</li>
+</ol>
+<h3>Verification Checklist</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Tier decided deliberately (bundled bar: 5+ sessions/month; else <code>optional-skills/</code>)</li>
+<li><input disabled="" type="checkbox"> File at <code>skills/&lt;category&gt;/&lt;name&gt;/SKILL.md</code> or <code>optional-skills/&lt;category&gt;/&lt;name&gt;/SKILL.md</code></li>
+<li><input disabled="" type="checkbox"> Frontmatter starts at byte 0 with <code>---</code>, closes with <code>\n---\n</code></li>
+<li><input disabled="" type="checkbox"> <code>name</code>, <code>description</code>, <code>version</code>, <code>author</code>, <code>license</code>, <code>platforms</code>, <code>metadata.hermes.{tags, related_skills}</code> all present</li>
+<li><input disabled="" type="checkbox"> Description ≤ 60 chars, one sentence, ends with a period, no marketing words</li>
+<li><input disabled="" type="checkbox"> <code>author</code> credits the human contributor first</li>
+<li><input disabled="" type="checkbox"> <code>platforms:</code> audited against actual prose/scripts, not copied from a sibling</li>
+<li><input disabled="" type="checkbox"> Every <code>related_skills</code> entry resolves in-repo</li>
+<li><input disabled="" type="checkbox"> Body follows the modern section order; commands framed through Hermes tools</li>
+<li><input disabled="" type="checkbox"> No machine-local paths anywhere in the file</li>
+<li><input disabled="" type="checkbox"> Each ordered step has a checkable completion criterion</li>
+<li><input disabled="" type="checkbox"> Tests at <code>tests/skills/test_&lt;skill&gt;_skill.py</code> pass under <code>scripts/run_tests.sh</code></li>
+<li><input disabled="" type="checkbox"> Docs regenerated with scope discipline; sidebar has exactly one entry for the slug</li>
+<li><input disabled="" type="checkbox"> <code>git add</code> + commit on the intended branch; PR opened</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/hermes-agent-skill-authoring</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

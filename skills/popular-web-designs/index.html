@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>popular-web-designs — Skill Hermes</title>
+<meta name="description" content="54 real design systems (Stripe, Linear, Vercel) as HTML/CSS.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>popular-web-designs</h1>
+    <p class="lede">54 real design systems (Stripe, Linear, Vercel) as HTML/CSS.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>popular-web-designs</dd>
+      <dt>Keterangan</dt><dd>54 real design systems (Stripe, Linear, Vercel) as HTML/CSS.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium (design systems sourced from VoltAgent/awesome-design-md)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/popular-web-designs.zip" download>Muat turun ZIP (337.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (55)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.5 KB</td></tr>
+<tr><td><code>templates/airbnb.md</code></td><td class="sz">14.5 KB</td></tr>
+<tr><td><code>templates/airtable.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>templates/apple.md</code></td><td class="sz">20.6 KB</td></tr>
+<tr><td><code>templates/bmw.md</code></td><td class="sz">10.3 KB</td></tr>
+<tr><td><code>templates/cal.md</code></td><td class="sz">18.1 KB</td></tr>
+<tr><td><code>templates/claude.md</code></td><td class="sz">20.6 KB</td></tr>
+<tr><td><code>templates/clay.md</code></td><td class="sz">17.7 KB</td></tr>
+<tr><td><code>templates/clickhouse.md</code></td><td class="sz">15.8 KB</td></tr>
+<tr><td><code>templates/cohere.md</code></td><td class="sz">15.2 KB</td></tr>
+<tr><td><code>templates/coinbase.md</code></td><td class="sz">5.6 KB</td></tr>
+<tr><td><code>templates/composio.md</code></td><td class="sz">21.2 KB</td></tr>
+<tr><td><code>templates/cursor.md</code></td><td class="sz">19.4 KB</td></tr>
+<tr><td><code>templates/elevenlabs.md</code></td><td class="sz">15.6 KB</td></tr>
+<tr><td><code>templates/expo.md</code></td><td class="sz">19.0 KB</td></tr>
+<tr><td><code>templates/figma.md</code></td><td class="sz">12.1 KB</td></tr>
+<tr><td><code>templates/framer.md</code></td><td class="sz">17.9 KB</td></tr>
+<tr><td><code>templates/hashicorp.md</code></td><td class="sz">16.0 KB</td></tr>
+<tr><td><code>templates/ibm.md</code></td><td class="sz">19.9 KB</td></tr>
+<tr><td><code>templates/intercom.md</code></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>templates/kraken.md</code></td><td class="sz">5.0 KB</td></tr>
+<tr><td><code>templates/linear.app.md</code></td><td class="sz">22.7 KB</td></tr>
+<tr><td><code>templates/lovable.md</code></td><td class="sz">17.7 KB</td></tr>
+<tr><td><code>templates/minimax.md</code></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>templates/mintlify.md</code></td><td class="sz">17.8 KB</td></tr>
+<tr><td><code>templates/miro.md</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>templates/mistral.ai.md</code></td><td class="sz">16.0 KB</td></tr>
+<tr><td><code>templates/mongodb.md</code></td><td class="sz">15.4 KB</td></tr>
+<tr><td><code>templates/notion.md</code></td><td class="sz">18.6 KB</td></tr>
+<tr><td><code>templates/nvidia.md</code></td><td class="sz">17.4 KB</td></tr>
+<tr><td><code>templates/ollama.md</code></td><td class="sz">15.9 KB</td></tr>
+<tr><td><code>templates/opencode.ai.md</code></td><td class="sz">15.9 KB</td></tr>
+<tr><td><code>templates/pinterest.md</code></td><td class="sz">12.4 KB</td></tr>
+<tr><td><code>templates/posthog.md</code></td><td class="sz">18.9 KB</td></tr>
+<tr><td><code>templates/raycast.md</code></td><td class="sz">18.8 KB</td></tr>
+<tr><td><code>templates/replicate.md</code></td><td class="sz">14.6 KB</td></tr>
+<tr><td><code>templates/resend.md</code></td><td class="sz">18.8 KB</td></tr>
+<tr><td><code>templates/revolut.md</code></td><td class="sz">9.1 KB</td></tr>
+<tr><td><code>templates/runwayml.md</code></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>templates/sanity.md</code></td><td class="sz">21.5 KB</td></tr>
+<tr><td><code>templates/sentry.md</code></td><td class="sz">15.2 KB</td></tr>
+<tr><td><code>templates/spacex.md</code></td><td class="sz">11.8 KB</td></tr>
+<tr><td><code>templates/spotify.md</code></td><td class="sz">13.4 KB</td></tr>
+<tr><td><code>templates/stripe.md</code></td><td class="sz">20.8 KB</td></tr>
+<tr><td><code>templates/supabase.md</code></td><td class="sz">15.2 KB</td></tr>
+<tr><td><code>templates/superhuman.md</code></td><td class="sz">19.3 KB</td></tr>
+<tr><td><code>templates/together.ai.md</code></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>templates/uber.md</code></td><td class="sz">19.0 KB</td></tr>
+<tr><td><code>templates/vercel.md</code></td><td class="sz">19.8 KB</td></tr>
+<tr><td><code>templates/voltagent.md</code></td><td class="sz">26.5 KB</td></tr>
+<tr><td><code>templates/warp.md</code></td><td class="sz">17.0 KB</td></tr>
+<tr><td><code>templates/webflow.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>templates/wise.md</code></td><td class="sz">9.0 KB</td></tr>
+<tr><td><code>templates/x.ai.md</code></td><td class="sz">16.6 KB</td></tr>
+<tr><td><code>templates/zapier.md</code></td><td class="sz">19.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Popular Web Designs</h2>
+<p>54 real-world design systems ready for use when generating HTML/CSS. Each template captures a
+site&#39;s complete visual language: color palette, typography hierarchy, component styles, spacing
+system, shadows, responsive behavior, and practical agent prompts with exact CSS values.</p>
+<h3>Related design skills</h3>
+<ul>
+<li><strong><code>claude-design</code></strong> — use for the design <em>process and taste</em> (scoping a brief,
+producing variants, verifying a local HTML artifact, avoiding AI-design slop).
+Pair it with this skill when the user wants a thoughtfully-designed page styled
+after a known brand: <code>claude-design</code> drives the workflow, this skill supplies
+the visual vocabulary.</li>
+<li><strong><code>design-md</code></strong> — use when the deliverable is a formal DESIGN.md token spec
+file, not a rendered artifact.</li>
+</ul>
+<h3>How to Use</h3>
+<ol>
+<li>Pick a design from the catalog below</li>
+<li>Load it: <code>skill_view(name=&quot;popular-web-designs&quot;, file_path=&quot;templates/&lt;site&gt;.md&quot;)</code></li>
+<li>Use the design tokens and component specs when generating HTML</li>
+<li>Pair with the <code>generative-widgets</code> skill to serve the result via cloudflared tunnel</li>
+</ol>
+<p>Each template includes a <strong>Hermes Implementation Notes</strong> block at the top with:</p>
+<ul>
+<li>CDN font substitute and Google Fonts <code>&lt;link&gt;</code> tag (ready to paste)</li>
+<li>CSS font-family stacks for primary and monospace</li>
+<li>Reminders to use <code>write_file</code> for HTML creation and <code>browser_vision</code> for verification</li>
+</ul>
+<h3>HTML Generation Pattern</h3>
+<pre><code class="language-html">&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;en&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Page Title&lt;/title&gt;
+  &lt;!-- Paste the Google Fonts &lt;link&gt; from the template&#39;s Hermes notes --&gt;
+  &lt;link href=&quot;https://fonts.googleapis.com/css2?family=...&quot; rel=&quot;stylesheet&quot;&gt;
+  &lt;style&gt;
+    /* Apply the template&#39;s color palette as CSS custom properties */
+    :root {
+      --color-bg: #ffffff;
+      --color-text: #171717;
+      --color-accent: #533afd;
+      /* ... more from template Section 2 */
+    }
+    /* Apply typography from template Section 3 */
+    body {
+      font-family: &#39;Inter&#39;, system-ui, sans-serif;
+      color: var(--color-text);
+      background: var(--color-bg);
+    }
+    /* Apply component styles from template Section 4 */
+    /* Apply layout from template Section 5 */
+    /* Apply shadows from template Section 6 */
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;!-- Build using component specs from the template --&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+<p>Write the file with <code>write_file</code>, serve with the <code>generative-widgets</code> workflow (cloudflared tunnel),
+and verify the result with <code>browser_vision</code> to confirm visual accuracy.</p>
+<h3>Font Substitution Reference</h3>
+<p>Most sites use proprietary fonts unavailable via CDN. Each template maps to a Google Fonts
+substitute that preserves the design&#39;s character. Common mappings:</p>
+<table>
+<thead>
+<tr>
+<th>Proprietary Font</th>
+<th>CDN Substitute</th>
+<th>Character</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Geist / Geist Sans</td>
+<td>Geist (on Google Fonts)</td>
+<td>Geometric, compressed tracking</td>
+</tr>
+<tr>
+<td>Geist Mono</td>
+<td>Geist Mono (on Google Fonts)</td>
+<td>Clean monospace, ligatures</td>
+</tr>
+<tr>
+<td>sohne-var (Stripe)</td>
+<td>Source Sans 3</td>
+<td>Light weight elegance</td>
+</tr>
+<tr>
+<td>Berkeley Mono</td>
+<td>JetBrains Mono</td>
+<td>Technical monospace</td>
+</tr>
+<tr>
+<td>Airbnb Cereal VF</td>
+<td>DM Sans</td>
+<td>Rounded, friendly geometric</td>
+</tr>
+<tr>
+<td>Circular (Spotify)</td>
+<td>DM Sans</td>
+<td>Geometric, warm</td>
+</tr>
+<tr>
+<td>figmaSans</td>
+<td>Inter</td>
+<td>Clean humanist</td>
+</tr>
+<tr>
+<td>Pin Sans (Pinterest)</td>
+<td>DM Sans</td>
+<td>Friendly, rounded</td>
+</tr>
+<tr>
+<td>NVIDIA-EMEA</td>
+<td>Inter (or Arial system)</td>
+<td>Industrial, clean</td>
+</tr>
+<tr>
+<td>CoinbaseDisplay/Sans</td>
+<td>DM Sans</td>
+<td>Geometric, trustworthy</td>
+</tr>
+<tr>
+<td>UberMove</td>
+<td>DM Sans</td>
+<td>Bold, tight</td>
+</tr>
+<tr>
+<td>HashiCorp Sans</td>
+<td>Inter</td>
+<td>Enterprise, neutral</td>
+</tr>
+<tr>
+<td>waldenburgNormal (Sanity)</td>
+<td>Space Grotesk</td>
+<td>Geometric, slightly condensed</td>
+</tr>
+<tr>
+<td>IBM Plex Sans/Mono</td>
+<td>IBM Plex Sans/Mono</td>
+<td>Available on Google Fonts</td>
+</tr>
+<tr>
+<td>Rubik (Sentry)</td>
+<td>Rubik</td>
+<td>Available on Google Fonts</td>
+</tr>
+</tbody></table>
+<p>When a template&#39;s CDN font matches the original (Inter, IBM Plex, Rubik, Geist), no
+substitution loss occurs. When a substitute is used (DM Sans for Circular, Source Sans 3
+for sohne-var), follow the template&#39;s weight, size, and letter-spacing values closely —
+those carry more visual identity than the specific font face.</p>
+<h3>Design Catalog</h3>
+<h4>AI &amp; Machine Learning</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>claude.md</code></td>
+<td>Anthropic Claude</td>
+<td>Warm terracotta accent, clean editorial layout</td>
+</tr>
+<tr>
+<td><code>cohere.md</code></td>
+<td>Cohere</td>
+<td>Vibrant gradients, data-rich dashboard aesthetic</td>
+</tr>
+<tr>
+<td><code>elevenlabs.md</code></td>
+<td>ElevenLabs</td>
+<td>Dark cinematic UI, audio-waveform aesthetics</td>
+</tr>
+<tr>
+<td><code>minimax.md</code></td>
+<td>Minimax</td>
+<td>Bold dark interface with neon accents</td>
+</tr>
+<tr>
+<td><code>mistral.ai.md</code></td>
+<td>Mistral AI</td>
+<td>French-engineered minimalism, purple-toned</td>
+</tr>
+<tr>
+<td><code>ollama.md</code></td>
+<td>Ollama</td>
+<td>Terminal-first, monochrome simplicity</td>
+</tr>
+<tr>
+<td><code>opencode.ai.md</code></td>
+<td>OpenCode AI</td>
+<td>Developer-centric dark theme, full monospace</td>
+</tr>
+<tr>
+<td><code>replicate.md</code></td>
+<td>Replicate</td>
+<td>Clean white canvas, code-forward</td>
+</tr>
+<tr>
+<td><code>runwayml.md</code></td>
+<td>RunwayML</td>
+<td>Cinematic dark UI, media-rich layout</td>
+</tr>
+<tr>
+<td><code>together.ai.md</code></td>
+<td>Together AI</td>
+<td>Technical, blueprint-style design</td>
+</tr>
+<tr>
+<td><code>voltagent.md</code></td>
+<td>VoltAgent</td>
+<td>Void-black canvas, emerald accent, terminal-native</td>
+</tr>
+<tr>
+<td><code>x.ai.md</code></td>
+<td>xAI</td>
+<td>Stark monochrome, futuristic minimalism, full monospace</td>
+</tr>
+</tbody></table>
+<h4>Developer Tools &amp; Platforms</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cursor.md</code></td>
+<td>Cursor</td>
+<td>Sleek dark interface, gradient accents</td>
+</tr>
+<tr>
+<td><code>expo.md</code></td>
+<td>Expo</td>
+<td>Dark theme, tight letter-spacing, code-centric</td>
+</tr>
+<tr>
+<td><code>linear.app.md</code></td>
+<td>Linear</td>
+<td>Ultra-minimal dark-mode, precise, purple accent</td>
+</tr>
+<tr>
+<td><code>lovable.md</code></td>
+<td>Lovable</td>
+<td>Playful gradients, friendly dev aesthetic</td>
+</tr>
+<tr>
+<td><code>mintlify.md</code></td>
+<td>Mintlify</td>
+<td>Clean, green-accented, reading-optimized</td>
+</tr>
+<tr>
+<td><code>posthog.md</code></td>
+<td>PostHog</td>
+<td>Playful branding, developer-friendly dark UI</td>
+</tr>
+<tr>
+<td><code>raycast.md</code></td>
+<td>Raycast</td>
+<td>Sleek dark chrome, vibrant gradient accents</td>
+</tr>
+<tr>
+<td><code>resend.md</code></td>
+<td>Resend</td>
+<td>Minimal dark theme, monospace accents</td>
+</tr>
+<tr>
+<td><code>sentry.md</code></td>
+<td>Sentry</td>
+<td>Dark dashboard, data-dense, pink-purple accent</td>
+</tr>
+<tr>
+<td><code>supabase.md</code></td>
+<td>Supabase</td>
+<td>Dark emerald theme, code-first developer tool</td>
+</tr>
+<tr>
+<td><code>superhuman.md</code></td>
+<td>Superhuman</td>
+<td>Premium dark UI, keyboard-first, purple glow</td>
+</tr>
+<tr>
+<td><code>vercel.md</code></td>
+<td>Vercel</td>
+<td>Black and white precision, Geist font system</td>
+</tr>
+<tr>
+<td><code>warp.md</code></td>
+<td>Warp</td>
+<td>Dark IDE-like interface, block-based command UI</td>
+</tr>
+<tr>
+<td><code>zapier.md</code></td>
+<td>Zapier</td>
+<td>Warm orange, friendly illustration-driven</td>
+</tr>
+</tbody></table>
+<h4>Infrastructure &amp; Cloud</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>clickhouse.md</code></td>
+<td>ClickHouse</td>
+<td>Yellow-accented, technical documentation style</td>
+</tr>
+<tr>
+<td><code>composio.md</code></td>
+<td>Composio</td>
+<td>Modern dark with colorful integration icons</td>
+</tr>
+<tr>
+<td><code>hashicorp.md</code></td>
+<td>HashiCorp</td>
+<td>Enterprise-clean, black and white</td>
+</tr>
+<tr>
+<td><code>mongodb.md</code></td>
+<td>MongoDB</td>
+<td>Green leaf branding, developer documentation focus</td>
+</tr>
+<tr>
+<td><code>sanity.md</code></td>
+<td>Sanity</td>
+<td>Red accent, content-first editorial layout</td>
+</tr>
+<tr>
+<td><code>stripe.md</code></td>
+<td>Stripe</td>
+<td>Signature purple gradients, weight-300 elegance</td>
+</tr>
+</tbody></table>
+<h4>Design &amp; Productivity</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>airtable.md</code></td>
+<td>Airtable</td>
+<td>Colorful, friendly, structured data aesthetic</td>
+</tr>
+<tr>
+<td><code>cal.md</code></td>
+<td>Cal.com</td>
+<td>Clean neutral UI, developer-oriented simplicity</td>
+</tr>
+<tr>
+<td><code>clay.md</code></td>
+<td>Clay</td>
+<td>Organic shapes, soft gradients, art-directed layout</td>
+</tr>
+<tr>
+<td><code>figma.md</code></td>
+<td>Figma</td>
+<td>Vibrant multi-color, playful yet professional</td>
+</tr>
+<tr>
+<td><code>framer.md</code></td>
+<td>Framer</td>
+<td>Bold black and blue, motion-first, design-forward</td>
+</tr>
+<tr>
+<td><code>intercom.md</code></td>
+<td>Intercom</td>
+<td>Friendly blue palette, conversational UI patterns</td>
+</tr>
+<tr>
+<td><code>miro.md</code></td>
+<td>Miro</td>
+<td>Bright yellow accent, infinite canvas aesthetic</td>
+</tr>
+<tr>
+<td><code>notion.md</code></td>
+<td>Notion</td>
+<td>Warm minimalism, serif headings, soft surfaces</td>
+</tr>
+<tr>
+<td><code>pinterest.md</code></td>
+<td>Pinterest</td>
+<td>Red accent, masonry grid, image-first layout</td>
+</tr>
+<tr>
+<td><code>webflow.md</code></td>
+<td>Webflow</td>
+<td>Blue-accented, polished marketing site aesthetic</td>
+</tr>
+</tbody></table>
+<h4>Fintech &amp; Crypto</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>coinbase.md</code></td>
+<td>Coinbase</td>
+<td>Clean blue identity, trust-focused, institutional feel</td>
+</tr>
+<tr>
+<td><code>kraken.md</code></td>
+<td>Kraken</td>
+<td>Purple-accented dark UI, data-dense dashboards</td>
+</tr>
+<tr>
+<td><code>revolut.md</code></td>
+<td>Revolut</td>
+<td>Sleek dark interface, gradient cards, fintech precision</td>
+</tr>
+<tr>
+<td><code>wise.md</code></td>
+<td>Wise</td>
+<td>Bright green accent, friendly and clear</td>
+</tr>
+</tbody></table>
+<h4>Enterprise &amp; Consumer</h4>
+<table>
+<thead>
+<tr>
+<th>Template</th>
+<th>Site</th>
+<th>Style</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>airbnb.md</code></td>
+<td>Airbnb</td>
+<td>Warm coral accent, photography-driven, rounded UI</td>
+</tr>
+<tr>
+<td><code>apple.md</code></td>
+<td>Apple</td>
+<td>Premium white space, SF Pro, cinematic imagery</td>
+</tr>
+<tr>
+<td><code>bmw.md</code></td>
+<td>BMW</td>
+<td>Dark premium surfaces, precise engineering aesthetic</td>
+</tr>
+<tr>
+<td><code>ibm.md</code></td>
+<td>IBM</td>
+<td>Carbon design system, structured blue palette</td>
+</tr>
+<tr>
+<td><code>nvidia.md</code></td>
+<td>NVIDIA</td>
+<td>Green-black energy, technical power aesthetic</td>
+</tr>
+<tr>
+<td><code>spacex.md</code></td>
+<td>SpaceX</td>
+<td>Stark black and white, full-bleed imagery, futuristic</td>
+</tr>
+<tr>
+<td><code>spotify.md</code></td>
+<td>Spotify</td>
+<td>Vibrant green on dark, bold type, album-art-driven</td>
+</tr>
+<tr>
+<td><code>uber.md</code></td>
+<td>Uber</td>
+<td>Bold black and white, tight type, urban energy</td>
+</tr>
+</tbody></table>
+<h3>Choosing a Design</h3>
+<p>Match the design to the content:</p>
+<ul>
+<li><strong>Developer tools / dashboards:</strong> Linear, Vercel, Supabase, Raycast, Sentry</li>
+<li><strong>Documentation / content sites:</strong> Mintlify, Notion, Sanity, MongoDB</li>
+<li><strong>Marketing / landing pages:</strong> Stripe, Framer, Apple, SpaceX</li>
+<li><strong>Dark mode UIs:</strong> Linear, Cursor, ElevenLabs, Warp, Superhuman</li>
+<li><strong>Light / clean UIs:</strong> Vercel, Stripe, Notion, Cal.com, Replicate</li>
+<li><strong>Playful / friendly:</strong> PostHog, Figma, Lovable, Zapier, Miro</li>
+<li><strong>Premium / luxury:</strong> Apple, BMW, Stripe, Superhuman, Revolut</li>
+<li><strong>Data-dense / dashboards:</strong> Sentry, Kraken, Cohere, ClickHouse</li>
+<li><strong>Monospace / terminal aesthetic:</strong> Ollama, OpenCode, x.ai, VoltAgent</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/popular-web-designs</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

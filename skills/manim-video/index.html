@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>manim-video — Skill Hermes</title>
+<meta name="description" content="Manim CE animations: 3Blue1Brown math/algo videos.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>manim-video</h1>
+    <p class="lede">Manim CE animations: 3Blue1Brown math/algo videos.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>manim-video</dd>
+      <dt>Keterangan</dt><dd>Manim CE animations: 3Blue1Brown math/algo videos.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>SHL0MS, Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/manim-video.zip" download>Muat turun ZIP (45.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (17)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.9 KB</td></tr>
+<tr><td><code>README.md</code></td><td class="sz">886 B</td></tr>
+<tr><td><code>references/animation-design-thinking.md</code></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>references/animations.md</code></td><td class="sz">8.6 KB</td></tr>
+<tr><td><code>references/camera-and-3d.md</code></td><td class="sz">4.0 KB</td></tr>
+<tr><td><code>references/decorations.md</code></td><td class="sz">4.9 KB</td></tr>
+<tr><td><code>references/equations.md</code></td><td class="sz">5.9 KB</td></tr>
+<tr><td><code>references/graphs-and-data.md</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>references/mobjects.md</code></td><td class="sz">9.5 KB</td></tr>
+<tr><td><code>references/paper-explainer.md</code></td><td class="sz">9.1 KB</td></tr>
+<tr><td><code>references/production-quality.md</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>references/rendering.md</code></td><td class="sz">5.2 KB</td></tr>
+<tr><td><code>references/scene-planning.md</code></td><td class="sz">2.7 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>references/updaters-and-trackers.md</code></td><td class="sz">8.3 KB</td></tr>
+<tr><td><code>references/visual-design.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>scripts/setup.sh</code></td><td class="sz">921 B</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Manim Video Production Pipeline</h2>
+<h3>When to use</h3>
+<p>Use when users request: animated explanations, math animations, concept visualizations, algorithm walkthroughs, technical explainers, 3Blue1Brown style videos, or any programmatic animation with geometric/mathematical content. Creates 3Blue1Brown-style explainer videos, algorithm visualizations, equation derivations, architecture diagrams, and data stories using Manim Community Edition.</p>
+<h3>Creative Standard</h3>
+<p>This is educational cinema. Every frame teaches. Every animation reveals structure.</p>
+<p><strong>Before writing a single line of code</strong>, articulate the narrative arc. What misconception does this correct? What is the &quot;aha moment&quot;? What visual story takes the viewer from confusion to understanding? The user&#39;s prompt is a starting point — interpret it with pedagogical ambition.</p>
+<p><strong>Geometry before algebra.</strong> Show the shape first, the equation second. Visual memory encodes faster than symbolic memory. When the viewer sees the geometric pattern before the formula, the equation feels earned.</p>
+<p><strong>First-render excellence is non-negotiable.</strong> The output must be visually clear and aesthetically cohesive without revision rounds. If something looks cluttered, poorly timed, or like &quot;AI-generated slides,&quot; it is wrong.</p>
+<p><strong>Opacity layering directs attention.</strong> Never show everything at full brightness. Primary elements at 1.0, contextual elements at 0.4, structural elements (axes, grids) at 0.15. The brain processes visual salience in layers.</p>
+<p><strong>Breathing room.</strong> Every animation needs <code>self.wait()</code> after it. The viewer needs time to absorb what just appeared. Never rush from one animation to the next. A 2-second pause after a key reveal is never wasted.</p>
+<p><strong>Cohesive visual language.</strong> All scenes share a color palette, consistent typography sizing, matching animation speeds. A technically correct video where every scene uses random different colors is an aesthetic failure.</p>
+<h3>Prerequisites</h3>
+<p>Run <code>scripts/setup.sh</code> to verify all dependencies. Requires: Python 3.10+, Manim Community Edition v0.20+ (<code>pip install manim</code>), LaTeX (<code>texlive-full</code> on Linux, <code>mactex</code> on macOS), and ffmpeg. Reference docs tested against Manim CE v0.20.1.</p>
+<h3>Modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Input</th>
+<th>Output</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Concept explainer</strong></td>
+<td>Topic/concept</td>
+<td>Animated explanation with geometric intuition</td>
+<td><code>references/scene-planning.md</code></td>
+</tr>
+<tr>
+<td><strong>Equation derivation</strong></td>
+<td>Math expressions</td>
+<td>Step-by-step animated proof</td>
+<td><code>references/equations.md</code></td>
+</tr>
+<tr>
+<td><strong>Algorithm visualization</strong></td>
+<td>Algorithm description</td>
+<td>Step-by-step execution with data structures</td>
+<td><code>references/graphs-and-data.md</code></td>
+</tr>
+<tr>
+<td><strong>Data story</strong></td>
+<td>Data/metrics</td>
+<td>Animated charts, comparisons, counters</td>
+<td><code>references/graphs-and-data.md</code></td>
+</tr>
+<tr>
+<td><strong>Architecture diagram</strong></td>
+<td>System description</td>
+<td>Components building up with connections</td>
+<td><code>references/mobjects.md</code></td>
+</tr>
+<tr>
+<td><strong>Paper explainer</strong></td>
+<td>Research paper</td>
+<td>Key findings and methods animated</td>
+<td><code>references/scene-planning.md</code></td>
+</tr>
+<tr>
+<td><strong>3D visualization</strong></td>
+<td>3D concept</td>
+<td>Rotating surfaces, parametric curves, spatial geometry</td>
+<td><code>references/camera-and-3d.md</code></td>
+</tr>
+</tbody></table>
+<h3>Stack</h3>
+<p>Single Python script per project. No browser, no Node.js, no GPU required.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core</td>
+<td>Manim Community Edition</td>
+<td>Scene rendering, animation engine</td>
+</tr>
+<tr>
+<td>Math</td>
+<td>LaTeX (texlive/MiKTeX)</td>
+<td>Equation rendering via <code>MathTex</code></td>
+</tr>
+<tr>
+<td>Video I/O</td>
+<td>ffmpeg</td>
+<td>Scene stitching, format conversion, audio muxing</td>
+</tr>
+<tr>
+<td>TTS</td>
+<td>ElevenLabs / Qwen3-TTS (optional)</td>
+<td>Narration voiceover</td>
+</tr>
+</tbody></table>
+<h3>Pipeline</h3>
+<pre><code>PLAN --&gt; CODE --&gt; RENDER --&gt; STITCH --&gt; AUDIO (optional) --&gt; REVIEW
+</code></pre>
+<ol>
+<li><strong>PLAN</strong> — Write <code>plan.md</code> with narrative arc, scene list, visual elements, color palette, voiceover script</li>
+<li><strong>CODE</strong> — Write <code>script.py</code> with one class per scene, each independently renderable</li>
+<li><strong>RENDER</strong> — <code>manim -ql script.py Scene1 Scene2 ...</code> for draft, <code>-qh</code> for production</li>
+<li><strong>STITCH</strong> — ffmpeg concat of scene clips into <code>final.mp4</code></li>
+<li><strong>AUDIO</strong> (optional) — Add voiceover and/or background music via ffmpeg. See <code>references/rendering.md</code></li>
+<li><strong>REVIEW</strong> — Render preview stills, verify against plan, adjust</li>
+</ol>
+<h3>Project Structure</h3>
+<pre><code>project-name/
+  plan.md                # Narrative arc, scene breakdown
+  script.py              # All scenes in one file
+  concat.txt             # ffmpeg scene list
+  final.mp4              # Stitched output
+  media/                 # Auto-generated by Manim
+    videos/script/480p15/
+</code></pre>
+<h3>Creative Direction</h3>
+<h4>Color Palettes</h4>
+<table>
+<thead>
+<tr>
+<th>Palette</th>
+<th>Background</th>
+<th>Primary</th>
+<th>Secondary</th>
+<th>Accent</th>
+<th>Use case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Classic 3B1B</strong></td>
+<td><code>#1C1C1C</code></td>
+<td><code>#58C4DD</code> (BLUE)</td>
+<td><code>#83C167</code> (GREEN)</td>
+<td><code>#FFFF00</code> (YELLOW)</td>
+<td>General math/CS</td>
+</tr>
+<tr>
+<td><strong>Warm academic</strong></td>
+<td><code>#2D2B55</code></td>
+<td><code>#FF6B6B</code></td>
+<td><code>#FFD93D</code></td>
+<td><code>#6BCB77</code></td>
+<td>Approachable</td>
+</tr>
+<tr>
+<td><strong>Neon tech</strong></td>
+<td><code>#0A0A0A</code></td>
+<td><code>#00F5FF</code></td>
+<td><code>#FF00FF</code></td>
+<td><code>#39FF14</code></td>
+<td>Systems, architecture</td>
+</tr>
+<tr>
+<td><strong>Monochrome</strong></td>
+<td><code>#1A1A2E</code></td>
+<td><code>#EAEAEA</code></td>
+<td><code>#888888</code></td>
+<td><code>#FFFFFF</code></td>
+<td>Minimalist</td>
+</tr>
+</tbody></table>
+<h4>Animation Speed</h4>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th>run_time</th>
+<th>self.wait() after</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Title/intro appear</td>
+<td>1.5s</td>
+<td>1.0s</td>
+</tr>
+<tr>
+<td>Key equation reveal</td>
+<td>2.0s</td>
+<td>2.0s</td>
+</tr>
+<tr>
+<td>Transform/morph</td>
+<td>1.5s</td>
+<td>1.5s</td>
+</tr>
+<tr>
+<td>Supporting label</td>
+<td>0.8s</td>
+<td>0.5s</td>
+</tr>
+<tr>
+<td>FadeOut cleanup</td>
+<td>0.5s</td>
+<td>0.3s</td>
+</tr>
+<tr>
+<td>&quot;Aha moment&quot; reveal</td>
+<td>2.5s</td>
+<td>3.0s</td>
+</tr>
+</tbody></table>
+<h4>Typography Scale</h4>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Font size</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Title</td>
+<td>48</td>
+<td>Scene titles, opening text</td>
+</tr>
+<tr>
+<td>Heading</td>
+<td>36</td>
+<td>Section headers within a scene</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>30</td>
+<td>Explanatory text</td>
+</tr>
+<tr>
+<td>Label</td>
+<td>24</td>
+<td>Annotations, axis labels</td>
+</tr>
+<tr>
+<td>Caption</td>
+<td>20</td>
+<td>Subtitles, fine print</td>
+</tr>
+</tbody></table>
+<h4>Fonts</h4>
+<p><strong>Use monospace fonts for all text.</strong> Manim&#39;s Pango renderer produces broken kerning with proportional fonts at all sizes. See <code>references/visual-design.md</code> for full recommendations.</p>
+<pre><code class="language-python">MONO = &quot;Menlo&quot;  # define once at top of file
+
+Text(&quot;Fourier Series&quot;, font_size=48, font=MONO, weight=BOLD)  # titles
+Text(&quot;n=1: sin(x)&quot;, font_size=20, font=MONO)                  # labels
+MathTex(r&quot;\nabla L&quot;)                                            # math (uses LaTeX)
+</code></pre>
+<p>Minimum <code>font_size=18</code> for readability.</p>
+<h4>Per-Scene Variation</h4>
+<p>Never use identical config for all scenes. For each scene:</p>
+<ul>
+<li><strong>Different dominant color</strong> from the palette</li>
+<li><strong>Different layout</strong> — don&#39;t always center everything</li>
+<li><strong>Different animation entry</strong> — vary between Write, FadeIn, GrowFromCenter, Create</li>
+<li><strong>Different visual weight</strong> — some scenes dense, others sparse</li>
+</ul>
+<h3>Workflow</h3>
+<h4>Step 1: Plan (plan.md)</h4>
+<p>Before any code, write <code>plan.md</code>. See <code>references/scene-planning.md</code> for the comprehensive template.</p>
+<h4>Step 2: Code (script.py)</h4>
+<p>One class per scene. Every scene is independently renderable.</p>
+<pre><code class="language-python">from manim import *
+
+BG = &quot;#1C1C1C&quot;
+PRIMARY = &quot;#58C4DD&quot;
+SECONDARY = &quot;#83C167&quot;
+ACCENT = &quot;#FFFF00&quot;
+MONO = &quot;Menlo&quot;
+
+class Scene1_Introduction(Scene):
+    def construct(self):
+        self.camera.background_color = BG
+        title = Text(&quot;Why Does This Work?&quot;, font_size=48, color=PRIMARY, weight=BOLD, font=MONO)
+        self.add_subcaption(&quot;Why does this work?&quot;, duration=2)
+        self.play(Write(title), run_time=1.5)
+        self.wait(1.0)
+        self.play(FadeOut(title), run_time=0.5)
+</code></pre>
+<p>Key patterns:</p>
+<ul>
+<li><strong>Subtitles</strong> on every animation: <code>self.add_subcaption(&quot;text&quot;, duration=N)</code> or <code>subcaption=&quot;text&quot;</code> on <code>self.play()</code></li>
+<li><strong>Shared color constants</strong> at file top for cross-scene consistency</li>
+<li><strong><code>self.camera.background_color</code></strong> set in every scene</li>
+<li><strong>Clean exits</strong> — FadeOut all mobjects at scene end: <code>self.play(FadeOut(Group(*self.mobjects)))</code></li>
+</ul>
+<h4>Step 3: Render</h4>
+<pre><code class="language-bash">manim -ql script.py Scene1_Introduction Scene2_CoreConcept  # draft
+manim -qh script.py Scene1_Introduction Scene2_CoreConcept  # production
+</code></pre>
+<h4>Step 4: Stitch</h4>
+<pre><code class="language-bash">cat &gt; concat.txt &lt;&lt; &#39;EOF&#39;
+file &#39;media/videos/script/480p15/Scene1_Introduction.mp4&#39;
+file &#39;media/videos/script/480p15/Scene2_CoreConcept.mp4&#39;
+EOF
+ffmpeg -y -f concat -safe 0 -i concat.txt -c copy final.mp4
+</code></pre>
+<h4>Step 5: Review</h4>
+<pre><code class="language-bash">manim -ql --format=png -s script.py Scene2_CoreConcept  # preview still
+</code></pre>
+<h3>Critical Implementation Notes</h3>
+<h4>Raw Strings for LaTeX</h4>
+<pre><code class="language-python"># WRONG: MathTex(&quot;\frac{1}{2}&quot;)
+# RIGHT:
+MathTex(r&quot;\frac{1}{2}&quot;)
+</code></pre>
+<h4>buff &gt;= 0.5 for Edge Text</h4>
+<pre><code class="language-python">label.to_edge(DOWN, buff=0.5)  # never &lt; 0.5
+</code></pre>
+<h4>FadeOut Before Replacing Text</h4>
+<pre><code class="language-python">self.play(ReplacementTransform(note1, note2))  # not Write(note2) on top
+</code></pre>
+<h4>Never Animate Non-Added Mobjects</h4>
+<pre><code class="language-python">self.play(Create(circle))  # must add first
+self.play(circle.animate.set_color(RED))  # then animate
+</code></pre>
+<h3>Performance Targets</h3>
+<table>
+<thead>
+<tr>
+<th>Quality</th>
+<th>Resolution</th>
+<th>FPS</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-ql</code> (draft)</td>
+<td>854x480</td>
+<td>15</td>
+<td>5-15s/scene</td>
+</tr>
+<tr>
+<td><code>-qm</code> (medium)</td>
+<td>1280x720</td>
+<td>30</td>
+<td>15-60s/scene</td>
+</tr>
+<tr>
+<td><code>-qh</code> (production)</td>
+<td>1920x1080</td>
+<td>60</td>
+<td>30-120s/scene</td>
+</tr>
+</tbody></table>
+<p>Always iterate at <code>-ql</code>. Only render <code>-qh</code> for final output.</p>
+<h3>References</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>references/animations.md</code></td>
+<td>Core animations, rate functions, composition, <code>.animate</code> syntax, timing patterns</td>
+</tr>
+<tr>
+<td><code>references/mobjects.md</code></td>
+<td>Text, shapes, VGroup/Group, positioning, styling, custom mobjects</td>
+</tr>
+<tr>
+<td><code>references/visual-design.md</code></td>
+<td>12 design principles, opacity layering, layout templates, color palettes</td>
+</tr>
+<tr>
+<td><code>references/equations.md</code></td>
+<td>LaTeX in Manim, TransformMatchingTex, derivation patterns</td>
+</tr>
+<tr>
+<td><code>references/graphs-and-data.md</code></td>
+<td>Axes, plotting, BarChart, animated data, algorithm visualization</td>
+</tr>
+<tr>
+<td><code>references/camera-and-3d.md</code></td>
+<td>MovingCameraScene, ThreeDScene, 3D surfaces, camera control</td>
+</tr>
+<tr>
+<td><code>references/scene-planning.md</code></td>
+<td>Narrative arcs, layout templates, scene transitions, planning template</td>
+</tr>
+<tr>
+<td><code>references/rendering.md</code></td>
+<td>CLI reference, quality presets, ffmpeg, voiceover workflow, GIF export</td>
+</tr>
+<tr>
+<td><code>references/troubleshooting.md</code></td>
+<td>LaTeX errors, animation errors, common mistakes, debugging</td>
+</tr>
+<tr>
+<td><code>references/animation-design-thinking.md</code></td>
+<td>When to animate vs show static, decomposition, pacing, narration sync</td>
+</tr>
+<tr>
+<td><code>references/updaters-and-trackers.md</code></td>
+<td>ValueTracker, add_updater, always_redraw, time-based updaters, patterns</td>
+</tr>
+<tr>
+<td><code>references/paper-explainer.md</code></td>
+<td>Turning research papers into animations — workflow, templates, domain patterns</td>
+</tr>
+<tr>
+<td><code>references/decorations.md</code></td>
+<td>SurroundingRectangle, Brace, arrows, DashedLine, Angle, annotation lifecycle</td>
+</tr>
+<tr>
+<td><code>references/production-quality.md</code></td>
+<td>Pre-code, pre-render, post-render checklists, spatial layout, color, tempo</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Creative Divergence (use only when user requests experimental/creative/unique output)</h3>
+<p>If the user asks for creative, experimental, or unconventional explanatory approaches, select a strategy and reason through it BEFORE designing the animation.</p>
+<ul>
+<li><strong>SCAMPER</strong> — when the user wants a fresh take on a standard explanation</li>
+<li><strong>Assumption Reversal</strong> — when the user wants to challenge how something is typically taught</li>
+</ul>
+<h4>SCAMPER Transformation</h4>
+<p>Take a standard mathematical/technical visualization and transform it:</p>
+<ul>
+<li><strong>Substitute</strong>: replace the standard visual metaphor (number line → winding path, matrix → city grid)</li>
+<li><strong>Combine</strong>: merge two explanation approaches (algebraic + geometric simultaneously)</li>
+<li><strong>Reverse</strong>: derive backward — start from the result and deconstruct to axioms</li>
+<li><strong>Modify</strong>: exaggerate a parameter to show why it matters (10x the learning rate, 1000x the sample size)</li>
+<li><strong>Eliminate</strong>: remove all notation — explain purely through animation and spatial relationships</li>
+</ul>
+<h4>Assumption Reversal</h4>
+<ol>
+<li>List what&#39;s &quot;standard&quot; about how this topic is visualized (left-to-right, 2D, discrete steps, formal notation)</li>
+<li>Pick the most fundamental assumption</li>
+<li>Reverse it (right-to-left derivation, 3D embedding of a 2D concept, continuous morphing instead of steps, zero notation)</li>
+<li>Explore what the reversal reveals that the standard approach hides</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/manim-video</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

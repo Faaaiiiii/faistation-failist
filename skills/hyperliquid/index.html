@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hyperliquid — Skill Hermes</title>
+<meta name="description" content="Hyperliquid market data, account history, trade review.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>hyperliquid</h1>
+    <p class="lede">Hyperliquid market data, account history, trade review.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>hyperliquid</dd>
+      <dt>Keterangan</dt><dd>Hyperliquid market data, account history, trade review.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Hugo Sequier (Hugo-SEQUIER), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>blockchain · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/hyperliquid.zip" download>Muat turun ZIP (14.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.8 KB</td></tr>
+<tr><td><code>scripts/hyperliquid_client.py</code></td><td class="sz">58.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Hyperliquid Skill</h2>
+<p>Query Hyperliquid market and account data through the public <code>/info</code> endpoint.
+Read-only — no API key, no signing, no order placement.</p>
+<p>12 commands: <code>dexs</code>, <code>markets</code>, <code>spots</code>, <code>candles</code>, <code>funding</code>, <code>l2</code>, <code>state</code>,
+<code>spot-balances</code>, <code>fills</code>, <code>orders</code>, <code>review</code>, <code>export</code>. Stdlib only
+(<code>urllib</code>, <code>json</code>, <code>argparse</code>).</p>
+<hr>
+<h3>When to Use</h3>
+<ul>
+<li>User asks for Hyperliquid perp or spot market data, candles, funding, or L2 book</li>
+<li>User wants to inspect a wallet&#39;s perp positions, spot balances, fills, or orders</li>
+<li>User wants a post-trade review combining recent fills with market context</li>
+<li>User wants to inspect builder-deployed perp dexs or HIP-3 markets</li>
+<li>User wants a normalized JSON export of candles + funding for backtesting prep</li>
+</ul>
+<hr>
+<h3>Prerequisites</h3>
+<p>Stdlib only — no external packages, no API key.</p>
+<p>The script reads <code>${HERMES_HOME:-~/.hermes}/.env</code> for two optional defaults:</p>
+<ul>
+<li><code>HYPERLIQUID_API_URL</code> — defaults to <code>https://api.hyperliquid.xyz</code>. Set to
+<code>https://api.hyperliquid-testnet.xyz</code> for testnet.</li>
+<li><code>HYPERLIQUID_USER_ADDRESS</code> — default address for <code>state</code>, <code>spot-balances</code>,
+<code>fills</code>, <code>orders</code>, and <code>review</code>. If unset, pass the address as the first
+positional argument.</li>
+</ul>
+<p>A project <code>.env</code> in the current working directory is honored as a dev fallback.</p>
+<p>Helper script: <code>~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py</code></p>
+<hr>
+<h3>How to Run</h3>
+<p>Invoke through the <code>terminal</code> tool:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py &lt;command&gt; [args]
+</code></pre>
+<p>Add <code>--json</code> to any command for machine-readable output.</p>
+<hr>
+<h3>Quick Reference</h3>
+<pre><code class="language-bash">hyperliquid_client.py dexs
+hyperliquid_client.py markets [--dex DEX] [--limit N] [--sort volume|oi|funding_abs|change_abs|name]
+hyperliquid_client.py spots [--limit N]
+hyperliquid_client.py candles &lt;coin&gt; [--interval 1h] [--hours 24] [--limit N]
+hyperliquid_client.py funding &lt;coin&gt; [--hours 72] [--limit N]
+hyperliquid_client.py l2 &lt;coin&gt; [--levels N]
+hyperliquid_client.py state [address] [--dex DEX]
+hyperliquid_client.py spot-balances [address] [--limit N]
+hyperliquid_client.py fills [address] [--hours N] [--limit N] [--aggregate-by-time]
+hyperliquid_client.py orders [address] [--limit N]
+hyperliquid_client.py review [address] [--coin COIN] [--hours N] [--fills N]
+hyperliquid_client.py export &lt;coin&gt; [--interval 1h] [--hours N] [--output PATH]
+</code></pre>
+<p>For <code>state</code>, <code>spot-balances</code>, <code>fills</code>, <code>orders</code>, and <code>review</code>, the address is
+optional when <code>HYPERLIQUID_USER_ADDRESS</code> is set in <code>${HERMES_HOME:-~/.hermes}/.env</code>.</p>
+<hr>
+<h3>Procedure</h3>
+<h4>1. Discover DEXs and Markets</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py dexs
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  markets --limit 15 --sort volume
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  spots --limit 15
+</code></pre>
+<ul>
+<li><code>--dex</code> only applies to perp endpoints; omit for the first perp dex.</li>
+<li>Spot pairs may show as <code>PURR/USDC</code> or aliases like <code>@107</code>.</li>
+<li>HIP-3 markets prefix the coin with the dex, e.g. <code>mydex:BTC</code>.</li>
+</ul>
+<h4>2. Pull Historical Market Data</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  candles BTC --interval 1h --hours 72 --limit 48
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  funding BTC --hours 168 --limit 30
+</code></pre>
+<p>Time-range endpoints paginate. For larger windows, repeat with a later
+<code>startTime</code> or use <code>export</code> (below).</p>
+<h4>3. Inspect Live Order Book</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  l2 BTC --levels 10
+</code></pre>
+<p>Use when asked about book depth, near-term liquidity, or potential market
+impact of a large order.</p>
+<h4>4. Review an Account</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  state 0xabc...
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  spot-balances
+</code></pre>
+<p><code>state</code> returns perp positions; <code>spot-balances</code> returns spot inventory.
+Use these for &quot;how are my positions?&quot;, &quot;what am I holding?&quot;, &quot;how much is
+withdrawable?&quot;.</p>
+<h4>5. Review Fills and Orders</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  fills 0xabc... --hours 72 --limit 25
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  orders --limit 25
+</code></pre>
+<h4>6. Generate a Trade Review</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  review 0xabc... --hours 72 --fills 50
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  review --coin BTC --hours 168
+</code></pre>
+<p>Reports realized PnL, fees, win/loss counts, coin breakdowns, market trend
+and average funding for each traded perp, plus heuristics (fee drag,
+concentration, counter-trend losses).</p>
+<p>For deeper post-trade analysis: start with <code>review</code> to find problem coins
+or windows → pull <code>fills</code> and <code>orders</code> for that period → pull <code>candles</code>
+and <code>funding</code> for each traded coin → judge decision quality separately
+from outcome quality.</p>
+<h4>7. Export a Reusable Dataset</h4>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  export BTC --interval 1h --hours 168 --output ./btc-1h-7d.json
+
+python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  export BTC --interval 15m --hours 72 --end-time-ms 1760000000000
+</code></pre>
+<p>Output JSON contains: schema version, source metadata, exact time window,
+normalized candle rows, normalized funding rows, summary stats. Use
+<code>--end-time-ms</code> for reproducible windows.</p>
+<hr>
+<h3>Pitfalls</h3>
+<ul>
+<li>Public info endpoints are rate-limited. Large historical queries may
+return capped windows; iterate with later <code>startTime</code> values.</li>
+<li><code>fills --hours ...</code> uses <code>userFillsByTime</code>, which only exposes a
+recent rolling window — not full archive history.</li>
+<li><code>historicalOrders</code> returns recent orders only; not a full export.</li>
+<li>The <code>review</code> command is heuristic. It cannot reconstruct intent,
+order placement quality, or true slippage from fills alone.</li>
+<li>The <code>export</code> command writes a normalized dataset, not a backtest
+engine. You still need your own slippage/fill model.</li>
+<li>Spot aliases like <code>@107</code> are valid identifiers even when the UI shows
+a friendlier name.</li>
+<li><code>l2</code> is a point-in-time snapshot, not a time series.</li>
+</ul>
+<hr>
+<h3>Verification</h3>
+<pre><code class="language-bash">python ~/.hermes/skills/blockchain/hyperliquid/scripts/hyperliquid_client.py \
+  markets --limit 5
+</code></pre>
+<p>Should print the top Hyperliquid perp markets by 24h notional volume.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/blockchain/hyperliquid</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

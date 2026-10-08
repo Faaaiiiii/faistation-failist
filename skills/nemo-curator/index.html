@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>nemo-curator — Skill Hermes</title>
+<meta name="description" content="Curate LLM training data: dedupe, filter, PII redaction.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>nemo-curator</h1>
+    <p class="lede">Curate LLM training data: dedupe, filter, PII redaction.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>nemo-curator</dd>
+      <dt>Keterangan</dt><dd>Curate LLM training data: dedupe, filter, PII redaction.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/nemo-curator.zip" download>Muat turun ZIP (6.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.1 KB</td></tr>
+<tr><td><code>references/deduplication.md</code></td><td class="sz">2.1 KB</td></tr>
+<tr><td><code>references/filtering.md</code></td><td class="sz">2.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>NeMo Curator - GPU-Accelerated Data Curation</h2>
+<p>NVIDIA&#39;s toolkit for preparing high-quality training data for LLMs.</p>
+<h3>When to use NeMo Curator</h3>
+<p><strong>Use NeMo Curator when:</strong></p>
+<ul>
+<li>Preparing LLM training data from web scrapes (Common Crawl)</li>
+<li>Need fast deduplication (16× faster than CPU)</li>
+<li>Curating multi-modal datasets (text, images, video, audio)</li>
+<li>Filtering low-quality or toxic content</li>
+<li>Scaling data processing across GPU cluster</li>
+</ul>
+<p><strong>Performance</strong>:</p>
+<ul>
+<li><strong>16× faster</strong> fuzzy deduplication (8TB RedPajama v2)</li>
+<li><strong>40% lower TCO</strong> vs CPU alternatives</li>
+<li><strong>Near-linear scaling</strong> across GPU nodes</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>datatrove</strong>: CPU-based, open-source data processing</li>
+<li><strong>dolma</strong>: Allen AI&#39;s data toolkit</li>
+<li><strong>Ray Data</strong>: General ML data processing (no curation focus)</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># NeMo Curator 1.x installs with uv. Extras use hyphens (PyPI-normalized):
+#   text-cuda12 / text-cpu (and image/video/audio/math variants), or `all`.
+
+# Text curation (CUDA 12)
+uv pip install &quot;nemo-curator[text-cuda12]&quot;
+
+# All modalities
+uv pip install &quot;nemo-curator[all]&quot;
+
+# CPU-only text (slower)
+uv pip install &quot;nemo-curator[text-cpu]&quot;
+</code></pre>
+<h4>Basic text curation pipeline</h4>
+<blockquote>
+<p><strong>Major version rewrite (1.x):</strong> NeMo Curator was rewritten around a <strong>Ray-based
+pipeline/stage architecture</strong>. The old <code>DocumentDataset</code> + <code>nemo_curator.modules.*</code> /
+<code>ScoreFilter</code> / <code>Modify</code> call-the-object-on-a-dataset API from 0.x is gone. In 1.x you
+compose <code>ProcessingStage</code>s into a <code>Pipeline</code> and run it with an executor. The exact
+stage/import surface differs per modality — treat the examples in this skill below as
+<strong>conceptual</strong> (0.x-style) and follow the current
+<a href="https://github.com/NVIDIA-NeMo/Curator/blob/main/tutorials/quickstart.py">quickstart</a>
+and <a href="https://docs.nvidia.com/nemo/curator/latest/get-started/text">text guide</a> for the
+exact 1.x APIs rather than copying imports verbatim.</p>
+</blockquote>
+<p>Shape of a 1.x pipeline (from the upstream quickstart):</p>
+<pre><code class="language-python">from nemo_curator.pipeline import Pipeline
+from nemo_curator.stages.base import ProcessingStage
+from nemo_curator.stages.resources import Resources
+from nemo_curator.backends.xenna import XennaExecutor
+from nemo_curator.core.client import RayClient
+
+# 1. Define/compose stages (load -&gt; filter -&gt; dedupe -&gt; classify -&gt; write).
+#    Each stage declares its own Resources (CPU cores, GPU memory, replicas).
+pipeline = Pipeline(name=&quot;curation&quot;, stages=[...])
+
+# 2. Run it with an executor (Ray-backed).
+client = RayClient()
+client.start()
+pipeline.run(XennaExecutor())
+client.stop()
+</code></pre>
+<p>The 0.x-style snippets in the sections that follow illustrate the <em>concepts</em> (quality
+filtering, exact/fuzzy/semantic dedup, PII redaction, classifier filtering). For runnable
+1.x code, map each concept onto the corresponding stage from the modality guide.</p>
+<h3>Data curation pipeline</h3>
+<h4>Stage 1: Quality filtering</h4>
+<pre><code class="language-python">from nemo_curator.filters import (
+    WordCountFilter,
+    RepeatedLinesFilter,
+    UrlRatioFilter,
+    NonAlphaNumericFilter
+)
+
+# Apply 30+ heuristic filters
+from nemo_curator import ScoreFilter
+
+# Word count filter
+dataset = dataset.filter(WordCountFilter(min_words=50, max_words=100000))
+
+# Remove repetitive content
+dataset = dataset.filter(RepeatedLinesFilter(max_repeated_line_fraction=0.3))
+
+# URL ratio filter
+dataset = dataset.filter(UrlRatioFilter(max_url_ratio=0.2))
+</code></pre>
+<h4>Stage 2: Deduplication</h4>
+<p><strong>Exact deduplication</strong>:</p>
+<pre><code class="language-python">from nemo_curator.modules import ExactDuplicates
+
+# Remove exact duplicates
+deduped = ExactDuplicates(id_field=&quot;id&quot;, text_field=&quot;text&quot;)(dataset)
+</code></pre>
+<p><strong>Fuzzy deduplication</strong> (16× faster on GPU):</p>
+<pre><code class="language-python">from nemo_curator.modules import FuzzyDuplicates
+
+# MinHash + LSH deduplication
+fuzzy_dedup = FuzzyDuplicates(
+    id_field=&quot;id&quot;,
+    text_field=&quot;text&quot;,
+    num_hashes=260,      # MinHash parameters
+    num_buckets=20,
+    hash_method=&quot;md5&quot;
+)
+
+deduped = fuzzy_dedup(dataset)
+</code></pre>
+<p><strong>Semantic deduplication</strong>:</p>
+<pre><code class="language-python">from nemo_curator.modules import SemanticDuplicates
+
+# Embedding-based deduplication
+semantic_dedup = SemanticDuplicates(
+    id_field=&quot;id&quot;,
+    text_field=&quot;text&quot;,
+    embedding_model=&quot;sentence-transformers/all-MiniLM-L6-v2&quot;,
+    threshold=0.8  # Cosine similarity threshold
+)
+
+deduped = semantic_dedup(dataset)
+</code></pre>
+<h4>Stage 3: PII redaction</h4>
+<pre><code class="language-python">from nemo_curator.modules import Modify
+from nemo_curator.modifiers import PIIRedactor
+
+# Redact personally identifiable information
+pii_redactor = PIIRedactor(
+    supported_entities=[&quot;EMAIL_ADDRESS&quot;, &quot;PHONE_NUMBER&quot;, &quot;PERSON&quot;, &quot;LOCATION&quot;],
+    anonymize_action=&quot;replace&quot;  # or &quot;redact&quot;
+)
+
+redacted = Modify(pii_redactor)(dataset)
+</code></pre>
+<h4>Stage 4: Classifier filtering</h4>
+<pre><code class="language-python">from nemo_curator.classifiers import QualityClassifier
+
+# Quality classification
+quality_clf = QualityClassifier(
+    model_path=&quot;nvidia/quality-classifier-deberta&quot;,
+    batch_size=256,
+    device=&quot;cuda&quot;
+)
+
+# Filter low-quality documents
+high_quality = dataset.filter(lambda doc: quality_clf(doc[&quot;text&quot;]) &gt; 0.5)
+</code></pre>
+<h3>GPU acceleration</h3>
+<h4>GPU vs CPU performance</h4>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>CPU (16 cores)</th>
+<th>GPU (A100)</th>
+<th>Speedup</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fuzzy dedup (8TB)</td>
+<td>120 hours</td>
+<td>7.5 hours</td>
+<td>16×</td>
+</tr>
+<tr>
+<td>Exact dedup (1TB)</td>
+<td>8 hours</td>
+<td>0.5 hours</td>
+<td>16×</td>
+</tr>
+<tr>
+<td>Quality filtering</td>
+<td>2 hours</td>
+<td>0.2 hours</td>
+<td>10×</td>
+</tr>
+</tbody></table>
+<h4>Multi-GPU scaling</h4>
+<pre><code class="language-python">from nemo_curator import get_client
+import dask_cuda
+
+# Initialize GPU cluster
+client = get_client(cluster_type=&quot;gpu&quot;, n_workers=8)
+
+# Process with 8 GPUs
+deduped = FuzzyDuplicates(...)(dataset)
+</code></pre>
+<h3>Multi-modal curation</h3>
+<h4>Image curation</h4>
+<pre><code class="language-python">from nemo_curator.image import (
+    AestheticFilter,
+    NSFWFilter,
+    CLIPEmbedder
+)
+
+# Aesthetic scoring
+aesthetic_filter = AestheticFilter(threshold=5.0)
+filtered_images = aesthetic_filter(image_dataset)
+
+# NSFW detection
+nsfw_filter = NSFWFilter(threshold=0.9)
+safe_images = nsfw_filter(filtered_images)
+
+# Generate CLIP embeddings
+clip_embedder = CLIPEmbedder(model=&quot;openai/clip-vit-base-patch32&quot;)
+image_embeddings = clip_embedder(safe_images)
+</code></pre>
+<h4>Video curation</h4>
+<pre><code class="language-python">from nemo_curator.video import (
+    SceneDetector,
+    ClipExtractor,
+    InternVideo2Embedder
+)
+
+# Detect scenes
+scene_detector = SceneDetector(threshold=27.0)
+scenes = scene_detector(video_dataset)
+
+# Extract clips
+clip_extractor = ClipExtractor(min_duration=2.0, max_duration=10.0)
+clips = clip_extractor(scenes)
+
+# Generate embeddings
+video_embedder = InternVideo2Embedder()
+video_embeddings = video_embedder(clips)
+</code></pre>
+<h4>Audio curation</h4>
+<pre><code class="language-python">from nemo_curator.audio import (
+    ASRInference,
+    WERFilter,
+    DurationFilter
+)
+
+# ASR transcription
+asr = ASRInference(model=&quot;nvidia/stt_en_fastconformer_hybrid_large_pc&quot;)
+transcribed = asr(audio_dataset)
+
+# Filter by WER (word error rate)
+wer_filter = WERFilter(max_wer=0.3)
+high_quality_audio = wer_filter(transcribed)
+
+# Duration filtering
+duration_filter = DurationFilter(min_duration=1.0, max_duration=30.0)
+filtered_audio = duration_filter(high_quality_audio)
+</code></pre>
+<h3>Common patterns</h3>
+<h4>Web scrape curation (Common Crawl)</h4>
+<pre><code class="language-python">from nemo_curator import ScoreFilter, Modify
+from nemo_curator.filters import *
+from nemo_curator.modules import *
+from nemo_curator.datasets import DocumentDataset
+
+# Load Common Crawl data
+dataset = DocumentDataset.read_parquet(&quot;common_crawl/*.parquet&quot;)
+
+# Pipeline
+pipeline = [
+    # 1. Quality filtering
+    WordCountFilter(min_words=100, max_words=50000),
+    RepeatedLinesFilter(max_repeated_line_fraction=0.2),
+    SymbolToWordRatioFilter(max_symbol_to_word_ratio=0.3),
+    UrlRatioFilter(max_url_ratio=0.3),
+
+    # 2. Language filtering
+    LanguageIdentificationFilter(target_languages=[&quot;en&quot;]),
+
+    # 3. Deduplication
+    ExactDuplicates(id_field=&quot;id&quot;, text_field=&quot;text&quot;),
+    FuzzyDuplicates(id_field=&quot;id&quot;, text_field=&quot;text&quot;, num_hashes=260),
+
+    # 4. PII redaction
+    PIIRedactor(),
+
+    # 5. NSFW filtering
+    NSFWClassifier(threshold=0.8)
+]
+
+# Execute
+for stage in pipeline:
+    dataset = stage(dataset)
+
+# Save
+dataset.to_parquet(&quot;curated_common_crawl/&quot;)
+</code></pre>
+<h4>Distributed processing</h4>
+<pre><code class="language-python">from nemo_curator import get_client
+from dask_cuda import LocalCUDACluster
+
+# Multi-GPU cluster
+cluster = LocalCUDACluster(n_workers=8)
+client = get_client(cluster=cluster)
+
+# Process large dataset
+dataset = DocumentDataset.read_parquet(&quot;s3://large_dataset/*.parquet&quot;)
+deduped = FuzzyDuplicates(...)(dataset)
+
+# Cleanup
+client.close()
+cluster.close()
+</code></pre>
+<h3>Performance benchmarks</h3>
+<h4>Fuzzy deduplication (8TB RedPajama v2)</h4>
+<ul>
+<li><strong>CPU (256 cores)</strong>: 120 hours</li>
+<li><strong>GPU (8× A100)</strong>: 7.5 hours</li>
+<li><strong>Speedup</strong>: 16×</li>
+</ul>
+<h4>Exact deduplication (1TB)</h4>
+<ul>
+<li><strong>CPU (64 cores)</strong>: 8 hours</li>
+<li><strong>GPU (4× A100)</strong>: 0.5 hours</li>
+<li><strong>Speedup</strong>: 16×</li>
+</ul>
+<h4>Quality filtering (100GB)</h4>
+<ul>
+<li><strong>CPU (32 cores)</strong>: 2 hours</li>
+<li><strong>GPU (2× A100)</strong>: 0.2 hours</li>
+<li><strong>Speedup</strong>: 10×</li>
+</ul>
+<h3>Cost comparison</h3>
+<p><strong>CPU-based curation</strong> (AWS c5.18xlarge × 10):</p>
+<ul>
+<li>Cost: $3.60/hour × 10 = $36/hour</li>
+<li>Time for 8TB: 120 hours</li>
+<li><strong>Total</strong>: $4,320</li>
+</ul>
+<p><strong>GPU-based curation</strong> (AWS p4d.24xlarge × 2):</p>
+<ul>
+<li>Cost: $32.77/hour × 2 = $65.54/hour</li>
+<li>Time for 8TB: 7.5 hours</li>
+<li><strong>Total</strong>: $491.55</li>
+</ul>
+<p><strong>Savings</strong>: 89% reduction ($3,828 saved)</p>
+<h3>Supported data formats</h3>
+<ul>
+<li><strong>Input</strong>: Parquet, JSONL, CSV</li>
+<li><strong>Output</strong>: Parquet (recommended), JSONL</li>
+<li><strong>WebDataset</strong>: TAR archives for multi-modal</li>
+</ul>
+<h3>Use cases</h3>
+<p><strong>Production deployments</strong>:</p>
+<ul>
+<li>NVIDIA used NeMo Curator to prepare Nemotron-4 training data</li>
+<li>Open-source datasets curated: RedPajama v2, The Pile</li>
+</ul>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/filtering.md">Filtering Guide</a></strong> - 30+ quality filters, heuristics</li>
+<li><strong><a href="references/deduplication.md">Deduplication Guide</a></strong> - Exact, fuzzy, semantic methods</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/NVIDIA-NeMo/Curator">https://github.com/NVIDIA-NeMo/Curator</a></li>
+<li><strong>Docs</strong>: <a href="https://docs.nvidia.com/nemo/curator/latest/">https://docs.nvidia.com/nemo/curator/latest/</a></li>
+<li><strong>Version</strong>: 1.2.0 (1.x is a Ray-based pipeline rewrite — see the quickstart before copying 0.x snippets)</li>
+<li><strong>License</strong>: Apache 2.0</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/nemo-curator</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

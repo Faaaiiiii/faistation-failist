@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mono-color — Skill Hermes</title>
+<meta name="description" content="Generate one- or two-ink editorial print poster images.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>mono-color</h1>
+    <p class="lede">Generate one- or two-ink editorial print poster images.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>mono-color</dd>
+      <dt>Keterangan</dt><dd>Generate one- or two-ink editorial print poster images.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Yan Liu (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/mono-color.zip" download>Muat turun ZIP (22.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (11)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.6 KB</td></tr>
+<tr><td><code>design-system/carriers.json</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>design-system/colors.json</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>design-system/compositions.json</code></td><td class="sz">2.3 KB</td></tr>
+<tr><td><code>design-system/imperfections.json</code></td><td class="sz">1.5 KB</td></tr>
+<tr><td><code>design-system/rhythm.json</code></td><td class="sz">2.7 KB</td></tr>
+<tr><td><code>design-system/typography.json</code></td><td class="sz">4.1 KB</td></tr>
+<tr><td><code>LICENSE.txt</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/composition.md</code></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>references/quality-gate.md</code></td><td class="sz">4.3 KB</td></tr>
+<tr><td><code>references/visual-language.md</code></td><td class="sz">10.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Mono-Color Editorial Print Skill</h2>
+<p>Turn any user theme, sentence, or reference photo into an original printed editorial artifact with one stable visual language: adaptive neutral substrate + one or two inks + mechanically reproduced image + typographic tension + concise human voice.</p>
+<p>This skill designs and generates the image; it does not imitate any one reference, copy a source composition, wording, logo, or artwork, and it never uses more than two printing inks.</p>
+<h3>When to Use</h3>
+<p>The user asks for a monochrome editorial poster, duotone print, risograph/zine poster, halftone photo treatment, one-ink or two-ink cover, or names the mono-color style. Chinese trigger vocabulary includes 单色海报、双色印刷、单色调视觉、蓝色/绿色孔版印刷、网点照片、复古或当代编辑排版. Do not trigger merely because a request mentions a color.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>The Hermes <code>image_generate</code> tool (search/describe it via the deferred-tool catalog if not loaded). If image generation is unavailable, deliver prompt-only and say so.</li>
+<li>The <code>design-system/</code> catalogs bundled with this skill (see Quick Reference).</li>
+</ul>
+<h3>Quick Reference</h3>
+<p>Print modes:</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pure one-ink</td>
+<td>User explicitly requests one ink, monochrome, or one named ink without a second color</td>
+</tr>
+<tr>
+<td>Chromatic ink + black</td>
+<td>Quiet, observational, natural, architectural, long-form subjects; chromatic plate carries the image, carbon/charcoal carries text</td>
+</tr>
+<tr>
+<td>Complementary duotone</td>
+<td>General default; dominant plate 70–85%, accent 15–30% with a specific role; fallback pair Cobalt + Terracotta <code>#2148B8</code> + <code>#C65F38</code></td>
+</tr>
+<tr>
+<td>Overprint duotone</td>
+<td>Two plates deliberately overlap; the darker mixed zone is not a third ink</td>
+</tr>
+</tbody></table>
+<p>Catalogs (source of truth — <strong>when an exact value differs, the catalog wins over any prose</strong>; read only the catalog relevant to the current decision):</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>design-system/colors.json</code></td>
+<td>Substrate IDs + exact hex, one-ink palette, approved two-ink pairs</td>
+</tr>
+<tr>
+<td><code>design-system/compositions.json</code></td>
+<td>Layout-family IDs and geometry</td>
+</tr>
+<tr>
+<td><code>design-system/typography.json</code></td>
+<td>Type-hierarchy role IDs</td>
+</tr>
+<tr>
+<td><code>design-system/rhythm.json</code></td>
+<td>Visual tension profiles, focal events, unresolved edges</td>
+</tr>
+<tr>
+<td><code>design-system/imperfections.json</code></td>
+<td>Controlled print-imperfection effect IDs and ranges</td>
+</tr>
+<tr>
+<td><code>design-system/carriers.json</code></td>
+<td>Carrier signals (poster, journal page, cover, etc.)</td>
+</tr>
+</tbody></table>
+<p>References:</p>
+<ul>
+<li><code>references/visual-language.md</code> — full color/space/image-treatment/typography/tone rules</li>
+<li><code>references/composition.md</code> — layout decision flow, layout families, composition grammar, rhythm</li>
+<li><code>references/quality-gate.md</code> — originality firewall, hard avoids, inspection checklist</li>
+</ul>
+<h3>Procedure</h3>
+<ol>
+<li><p><strong>Read the input.</strong> Extract five things:</p>
+<ul>
+<li><strong>Subject:</strong> the one person, object, scene, or idea that must remain recognizable.</li>
+<li><strong>Intent:</strong> poetic observation, announcement, field note, personal statement, cultural poster, or specimen page.</li>
+<li><strong>Words:</strong> preserve exact supplied text verbatim in its original language — never translate or rewrite it. If no text is supplied, invent one English display phrase of 2–8 words and keep it stable across retries. Omit text only on explicit request.</li>
+<li><strong>Image role:</strong> hero photograph, isolated specimen, cropped fragment, texture source, or none.</li>
+<li><strong>Representation:</strong> faithful reproduction (default) or abstract symbol extraction (when the user asks for abstract, artistic, loose, experimental, less realistic, or less photographic treatment).</li>
+</ul>
+<p>For a complex topic, pick one concrete visual metaphor; do not illustrate every point. If the user supplies an image, preserve its identity and factual content — crop/isolate/halftone it, never replace the subject or invent branded details.</p>
+</li>
+<li><p><strong>Resolve the recipe manifest.</strong> Fill every field; do not skip any and do not expose the manifest unless the user asks for process details. Look up IDs and exact values in <code>design-system/</code>.</p>
+<pre><code class="language-yaml">subject: &lt;one recognizable subject&gt;
+intent: &lt;one intent from Input Reading&gt;
+exact_text: &lt;user text, generated 2-8 word phrase, or none&gt;
+text_language: &lt;language of supplied text, otherwise English&gt;
+representation: &lt;faithful reproduction or abstract symbol extraction&gt;
+ratio: &lt;explicit ratio or 3:4&gt;
+carrier: &lt;one carrier ID from design-system/carriers.json or none&gt;
+substrate: &lt;one substrate ID and exact hex from design-system/colors.json&gt;
+mode: &lt;pure one-ink, chromatic + black, complementary duotone, or overprint duotone&gt;
+palette: &lt;one palette ID from design-system/colors.json&gt;
+inks: &lt;the palette&#39;s named ink or approved pair with exact hex values&gt;
+plate_roles: &lt;one explicit role per ink plate&gt;
+layout: &lt;one composition ID from design-system/compositions.json&gt;
+empty_paper: &lt;explicit percentage&gt;
+visual_tension: &lt;relaxed, balanced, or assertive from design-system/rhythm.json&gt;
+focal_event: &lt;one strong visual event from design-system/rhythm.json&gt;
+release_zone: &lt;one deliberately quiet region that gives the focal event room&gt;
+unresolved_edge: &lt;one optional edge behavior from design-system/rhythm.json or none&gt;
+image_treatment: &lt;one mechanical reproduction process&gt;
+type_hierarchy: &lt;one role ID from design-system/typography.json&gt;
+disruption: &lt;one deliberate disruption&gt;
+imperfection_seed: &lt;stable hash derived from the resolved recipe&gt;
+imperfections: &lt;0-2 restrained effect IDs for contemporary work, or 2-3 for tactile/vintage work&gt;
+</code></pre>
+<p>Defaults when the user hasn&#39;t chosen: ratio <code>3:4</code>; substrate Neutral White <code>#FAFAF7</code> (Cool Gray <code>#E9E9E5</code> for architecture/tech/restrained; Pale Beige <code>#F5F1E8</code> only for tactile/archival/nostalgic subjects — never assume beige merely because the work uses halftone or risograph language); mode complementary duotone with Cobalt + Terracotta; empty paper <code>35%</code>; tension <code>relaxed</code> for reflective/leisure/unspecified cultural subjects, <code>balanced</code> for editorial information, <code>assertive</code> only for forceful declarations; disruption = one off-center image crop, or one oversized word when there is no image. Explicit user choices override defaults unless they violate the two-ink limit or the originality firewall. Identical inputs must resolve to the identical manifest — never vary palette, layout, percentages, or process for novelty.</p>
+<p>Resolve generic color words consistently: blue→Cobalt, green→Botanical Green, orange→Terracotta Orange, red→Signal Red, purple→Aubergine, black→Charcoal; green+black→Mint Green + Charcoal; blue+orange→Cobalt + Terracotta. Exact named inks always take precedence.</p>
+</li>
+<li><p><strong>Choose the layout.</strong> Walk the decision flow in <code>references/composition.md</code> top to bottom and take the first match (events→ruled information poster; botanical→archival plate; repeated object→object field; crossing layers→overprint collage; supplied photo→image field or editorial cover; isolated objects→specimen annotation; phrase-as-subject→type-led declaration; essay-like→editorial journal; otherwise editorial cover).</p>
+</li>
+<li><p><strong>Compile the prompt</strong> in five compact paragraphs, in order:</p>
+<ol>
+<li><strong>Canvas and ink:</strong> ratio, exact substrate hex and reason, exact one/two-ink palette hexes, print mode, plate roles, flat front-facing page (no mockup, frame, desk, or shadow).</li>
+<li><strong>Original composition:</strong> layout family, tension profile, one focal event, one release zone, margins (5–9%), empty-paper percentage (25–55%), grid, dominant object scale (45–80% of page) and edge crop, optional unresolved edge, one manual gesture.</li>
+<li><strong>Subject:</strong> what appears; for faithful reproduction, preservation/crop/halftone/paper exposure; for abstract extraction, the 2–4 identity anchors, dominant mass, structural contour, repeated rhythm, and where exposed paper cuts through.</li>
+<li><strong>Typography and words:</strong> hierarchy, type voices, exact short display text, and the explicit overlap/crossing/split/tight alignment between headline and dominant object.</li>
+<li><strong>Material and avoids:</strong> dots, fibers, bleed, misregistration, plus the hard negative constraints from <code>references/quality-gate.md</code>.</li>
+</ol>
+<p>Describe only visible outcomes. Never mention reference artists, studios, sample posters, or &quot;in the style of.&quot;</p>
+</li>
+<li><p><strong>Generate and inspect.</strong> Call <code>image_generate</code> with the compiled prompt. Inspect at full and thumbnail size against the checklist in <code>references/quality-gate.md</code>; regenerate once on failure (extra ink, missing plate roles, empty paper outside 25–55%, unrecognizable subject, no ≥5x type scale jump, garbled text, composition copying a reference, no identifiable focal event). If exact text still renders wrong after one retry, generate a text-light base image and state that typography should be overlaid in a layout tool — never pretend distorted text is correct.</p>
+</li>
+<li><p><strong>Deliver.</strong> Save outputs under <code>./mono-color-output/</code> in the user&#39;s working directory (create it if needed), or another location the user names. Present:</p>
+<ol>
+<li>the generated image (path or rendered);</li>
+<li>the final prompt in a fenced <code>text</code> block;</li>
+<li>a short recipe note: Mode, Ink (exact hexes), Layout, Type (editorial + utility voice), Process, and one Originality sentence naming the structural departures from any supplied reference.</li>
+</ol>
+<p>Stop at prompt-only only when the user explicitly asks or image generation is unavailable.</p>
+</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Never more than two printing inks.</strong> The substrate is not an ink; overprint mixing and density variation are not extra inks. Gradients, rainbow accents, and full-color photography are always out.</li>
+<li><strong>Catalog wins over prose.</strong> When a hex, ID, range, or geometry in <code>design-system/</code> differs from any prose description, use the catalog value.</li>
+<li><strong>Preserve supplied text verbatim</strong> — original language, exact wording, no translation unless asked. Never distort microcopy or factual text with imperfection effects.</li>
+<li><strong>Never copy a source composition, wording, logo, or artwork.</strong> Change at least four structural features from any supplied reference (see the originality firewall). No fake signatures, mastheads, sponsors, URLs, or invented branding.</li>
+<li><strong>Contemporary by default.</strong> Do not add yellowed paper, sepia, distressed borders, or retro props merely because the work uses halftone or limited inks — only when the user asks for vintage/archival mood.</li>
+<li><strong>One focal event, one release zone.</strong> Never center everything, never distribute elements evenly like a template, never fill the quiet zone with decoration.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>Manifest fully resolved, all IDs present in the <code>design-system/</code> catalogs.</li>
+<li>Result uses one intentional white/gray/pale-beige substrate and ≤2 inks with clear plate roles.</li>
+<li>25–55% visibly empty paper; one dominant object at 45–80%; headline visibly crosses or locks to it.</li>
+<li>Type hierarchy shows a 5–12x scale jump with ≤3 type voices.</li>
+<li>Supplied subject and text preserved exactly; ≥4 structural features differ from every supplied reference.</li>
+<li>An image was generated (unless prompt-only was requested) and saved under the output directory, and the recipe note was delivered.</li>
+</ul>
+<h3>Notice</h3>
+<p>Upstream example artwork is not included: <code>examples/</code> in the source repo is all-rights-reserved (see upstream ASSET-LICENSE.md); only MIT-licensed text and design-system catalogs are vendored here. Code and text are MIT (see <code>LICENSE.txt</code>).</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/mono-color</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

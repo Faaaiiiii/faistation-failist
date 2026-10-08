@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scrollcraft — Skill Hermes</title>
+<meta name="description" content="Premium scroll-driven landing pages; scroll = timeline.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>scrollcraft</h1>
+    <p class="lede">Premium scroll-driven landing pages; scroll = timeline.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>scrollcraft</dd>
+      <dt>Keterangan</dt><dd>Premium scroll-driven landing pages; scroll = timeline.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>nateherkai (upstream scroll-craft), ported by Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>web-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/scrollcraft.zip" download>Muat turun ZIP (122.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (22)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.7 KB</td></tr>
+<tr><td><code>engine/scrollcraft.css</code></td><td class="sz">19.3 KB</td></tr>
+<tr><td><code>engine/scrollcraft.js</code></td><td class="sz">55.0 KB</td></tr>
+<tr><td><code>LICENSE.txt</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/assets.md</code></td><td class="sz">12.9 KB</td></tr>
+<tr><td><code>references/device-diag.html</code></td><td class="sz">8.9 KB</td></tr>
+<tr><td><code>references/devices.md</code></td><td class="sz">21.3 KB</td></tr>
+<tr><td><code>references/feel.md</code></td><td class="sz">12.9 KB</td></tr>
+<tr><td><code>references/taste.md</code></td><td class="sz">14.5 KB</td></tr>
+<tr><td><code>references/template.html</code></td><td class="sz">6.3 KB</td></tr>
+<tr><td><code>references/uniqueness.md</code></td><td class="sz">23.0 KB</td></tr>
+<tr><td><code>references/verify.md</code></td><td class="sz">23.3 KB</td></tr>
+<tr><td><code>references/worldflight.md</code></td><td class="sz">15.8 KB</td></tr>
+<tr><td><code>references/worlds.md</code></td><td class="sz">7.9 KB</td></tr>
+<tr><td><code>scripts/doctor.mjs</code></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>scripts/encode.sh</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>scripts/kie.mjs</code></td><td class="sz">7.6 KB</td></tr>
+<tr><td><code>scripts/serve.mjs</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>scripts/shoot.mjs</code></td><td class="sz">32.0 KB</td></tr>
+<tr><td><code>scripts/workspace.mjs</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>scripts/worldflight-assert.mjs</code></td><td class="sz">12.6 KB</td></tr>
+<tr><td><code>templates/FINGERPRINTS.md</code></td><td class="sz">2.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>scrollcraft</h2>
+<p>Scroll is the only input every visitor already knows. This skill treats it as a
+timeline: the wheel is a scrubber, the page is a film with real text on top,
+and each section behaves differently enough that the visitor keeps going.</p>
+<p><strong>What you produce:</strong> an interview brief, a page grammar, a customer-journey
+map, a feeling curve with one engineered peak, a scroll score, one signature
+move, assets, one real HTML page on a token-driven design floor, and a strip of
+screenshots proving it holds up at every scroll position.</p>
+<p>Use for: &quot;scrollytelling&quot;, &quot;scroll animation site&quot;, &quot;a site where scrolling
+plays a video&quot;, &quot;Apple-style landing page&quot;, &quot;3D scroll world&quot;, &quot;make my brand a
+scroll experience&quot;, &quot;this looks like a template&quot;, or any request for a site
+that should feel like an experience rather than a document.</p>
+<h3>What this is not</h3>
+<p>It is not &quot;generate a flythrough and drop text on it.&quot; That produces one device
+applied to a whole page, recognisable at a glance. Four spine rules:</p>
+<ol>
+<li><strong>Variety is the product.</strong> At least four device families, never the same
+device twice in a row. Read <a href="references/devices.md">references/devices.md</a>.</li>
+<li><strong>The world is photographic</strong> unless the brand is genuinely illustrated.
+Clay/low-poly diorama is banned as a default. Read <a href="references/worlds.md">references/worlds.md</a>.</li>
+<li><strong>No continuous chain</strong> unless the brief is literally &quot;one continuous
+journey&quot; (then see <a href="references/worldflight.md">references/worldflight.md</a>).</li>
+<li><strong>A different world is not a different page.</strong> Structure is a separate axis;
+decide it deliberately. Read <a href="references/uniqueness.md">references/uniqueness.md</a>.</li>
+</ol>
+<h3>Step 0: The interview</h3>
+<p><strong>Always ask the user in chat before building anything.</strong> Real questions, asked
+and answered in the conversation, written down — not a brief inferred from the
+brand name. Eight questions in one pass:</p>
+<ol>
+<li><strong>Vibe in three to five words</strong>, plus up to three references from any medium
+(film, album cover, shop, magazine, game — not &quot;sites you like&quot;).</li>
+<li><strong>The scroll journey, section by section, in their words.</strong></li>
+<li><strong>The energy curve</strong> — where calm, where intense.</li>
+<li><strong>How should someone feel while scrolling, stage by stage, and what is the
+ONE moment they should remember?</strong> Becomes the feeling curve and the peak.
+See <a href="references/feel.md">references/feel.md</a>.</li>
+<li><strong>One thing this site should do that no site they have seen does</strong> — the
+seed of the signature move.</li>
+<li><strong>How far from premium-minimal?</strong> Offer the range in
+<a href="references/uniqueness.md">references/uniqueness.md</a> §5: brutalist,
+maximalist, playful, retro, dense, editorial, premium-minimal.</li>
+<li><strong>One unbroken world, or distinct scenes?</strong> The biggest structural fork, and
+it is their call.</li>
+<li><strong>What assets do they already have?</strong> Footage, photos, product shots, brand
+kit. &quot;Nothing&quot; is fine and means a fully generated world.</li>
+</ol>
+<p>Write the answers verbatim into <code>&lt;workspace&gt;/builds/&lt;name&gt;/BRIEF.md</code> (use
+write_file) before any act planning. BRIEF.md must contain the eight answers,
+the feeling curve (one line per act: emotion, then cause), the peak (as the
+sentence a visitor would say to a friend), the completed &quot;It&#39;s the site where
+___&quot; sentence, and any authored silence. If the user is genuinely unreachable
+in a fully autonomous run, self-author BRIEF.md, mark it
+<code>Self-authored, not interviewed</code>, and say so in the report.</p>
+<h3>Bootstrap</h3>
+<p>Run the preflight rather than checking by hand (it catches a stripped ffmpeg
+that reports missing filters as syntax errors):</p>
+<pre><code class="language-bash">node &lt;skill&gt;/scripts/doctor.mjs
+node &lt;skill&gt;/scripts/workspace.mjs --ensure   # prints workspace, seeds registry
+</code></pre>
+<p>Workspace resolution order: <code>SCROLLCRAFT_HOME</code> env var; nearest
+<code>.scrollcraft.json</code> (<code>{ &quot;workspace&quot;: &quot;...&quot; }</code>) walking up from cwd;
+<code>&lt;project root&gt;/scrollcraft</code>. Builds live at <code>&lt;workspace&gt;/builds/&lt;name&gt;/</code>, the
+fingerprint registry at <code>&lt;workspace&gt;/FINGERPRINTS.md</code> (seeded from
+<a href="templates/FINGERPRINTS.md">templates/FINGERPRINTS.md</a>, starts empty — the gate
+stops you repeating <em>yourself</em>).</p>
+<p>Copy <code>engine/scrollcraft.js</code> and <code>engine/scrollcraft.css</code> into the build
+folder. <strong>Never edit the engine per-project.</strong> Theme with tokens; write your
+own markup. Bespoke behaviour is bespoke JS in the page, driven off <code>--sc-p</code>
+and your own <code>data-sc-*</code> attributes.</p>
+<h3>Step 1: The brief, journey first</h3>
+<p>Ask the subject open, in plain prose. Then ask only what Step 0 did not cover:
+what is this and who is it for; the one sentence the page installs; the one
+next action (one label, used everywhere); what they already have; art
+direction from <a href="references/worlds.md">references/worlds.md</a>. Then write the
+<strong>journey</strong>: four to seven beats, each a shift in what the visitor knows or
+feels. Beats are the spine; a section serving no beat is cut. Confirm the
+journey with the user before generating assets — assets are the expensive part.</p>
+<h3>Step 2: Grammar, gate, then score</h3>
+<p>Full detail in <a href="references/uniqueness.md">references/uniqueness.md</a>.</p>
+<ul>
+<li><strong>Pick a grammar.</strong> Eight, mutually exclusive. Choosing filmic one-shot means
+saying in the report why the other seven lost. Nav, hero and close follow
+from the grammar.</li>
+<li><strong>Invent the signature move.</strong> One bespoke interaction coded in the page, not
+a parameter change to a kit device. Interview question 5 is the seed.</li>
+<li><strong>Run the fingerprint gate.</strong> The planned build must differ from every row in
+<code>&lt;workspace&gt;/FINGERPRINTS.md</code> on at least 4 of 6 dimensions: grammar, nav
+treatment, hero device, act-sequence shape, close pattern, signature move.
+If it fails, change the plan, not the log.</li>
+<li><strong>Write the feeling curve before the score table</strong> (method:
+<a href="references/feel.md">references/feel.md</a>). Then assign each beat a device in
+a written table (beat / device / why).</li>
+</ul>
+<p>Checks before building: grammar bans hold; 4+ device families; no device
+twice in a row; at most two <code>scrub</code> acts; no two adjacent acts with the same
+feeling; one peak with the largest span; total page length 8–14
+viewport-heights.</p>
+<h3>Step 3: Assets</h3>
+<p>Full pipeline, prompt scaffolds and model notes: <a href="references/assets.md">references/assets.md</a>.</p>
+<p><strong>Hermes-native paths first:</strong></p>
+<ul>
+<li><strong>User-supplied footage and photos</strong> — no key, no spend, a first-class route.
+Grade and encode them.</li>
+<li><strong>The <code>image_generate</code> tool</strong> for stills: one style preamble reused verbatim
+in every prompt is what makes six images look like one shoot. Inspect every
+asset (vision_analyze) before use; rerolling beats shipping a bad frame.</li>
+</ul>
+<p><strong>Optional upstream path — kie.ai</strong> (vendored verbatim as
+<a href="scripts/kie.mjs">scripts/kie.mjs</a>): photoreal stills and camera-move clips.
+Requires the <code>KIE_AI_API_KEY</code> environment variable (export it in your shell;
+there is no bundled env file in this port). Check balance with
+<code>node &lt;skill&gt;/scripts/kie.mjs probe</code>; a still costs cents, a 5s clip more.</p>
+<pre><code class="language-bash">node &lt;skill&gt;/scripts/kie.mjs still &quot;&lt;style preamble&gt;\n\n&lt;scene&gt;&quot; out/01-hero.png --ar 16:9
+node &lt;skill&gt;/scripts/kie.mjs shot  &quot;&lt;camera move&gt;&quot; out/01-hero.png out/01.mp4 --dur 5
+bash  &lt;skill&gt;/scripts/encode.sh out/01.mp4 assets/01.mp4
+bash  &lt;skill&gt;/scripts/encode.sh out/01.mp4 assets/01-m.mp4 mobile
+</code></pre>
+<p><strong>Encode for scrubbing, not playback.</strong> <code>encode.sh</code> sets a dense GOP because
+seeking walks from the previous keyframe; a normal web encode scrubs like mud.
+It also strips audio.</p>
+<h3>Step 4: Build the page</h3>
+<p>Write real HTML — real <code>&lt;h1&gt;</code>, real <code>&lt;p&gt;</code>, real reading order. The engine reads
+<code>data-sc-*</code> attributes off your markup and drives it; it never generates DOM.
+Start from <a href="references/template.html">references/template.html</a>. Device
+patterns: <a href="references/devices.md">references/devices.md</a>. Spacing, type, depth,
+colour: <a href="references/taste.md">references/taste.md</a> — read it before writing
+markup. Theme by overriding tokens, six values and two fonts:</p>
+<pre><code class="language-css">:root {
+  --sc-canvas: #0A0806;  --sc-surface: #16110E;
+  --sc-ink:    #F5EBDD;  --sc-ink-soft: #A2968A;
+  --sc-accent: #FF5A3D;  --sc-accent-ink: #15110F;
+  --sc-font-display: &quot;Archivo&quot;, system-ui, sans-serif;
+  --sc-font-text:    &quot;Geist&quot;, system-ui, sans-serif;
+}
+</code></pre>
+<h3>Step 5: Verify by scrolling it</h3>
+<p>Not optional. Every scroll position is a different frame; failures live between
+the two you looked at. Full procedure: <a href="references/verify.md">references/verify.md</a>.</p>
+<pre><code class="language-bash">cd &lt;build project&gt; &amp;&amp; npm i playwright-core     # once
+node &lt;skill&gt;/scripts/serve.mjs --root . --port 4500 &amp;
+node &lt;skill&gt;/scripts/shoot.mjs --url http://localhost:4500 --out lab/shots
+node &lt;skill&gt;/scripts/shoot.mjs --url http://localhost:4500 --out lab/mobile --width 390 --height 844
+node &lt;skill&gt;/scripts/shoot.mjs --url http://localhost:4500 --out lab/reduced --reduced-motion
+</code></pre>
+<p>The harness walks each act at six positions, waits for scrub video to settle,
+reports dead scroll, cues that never reach full opacity, and composited
+contrast; it writes a contact sheet. Then read <code>sheet.png</code> yourself
+(vision_analyze) — the harness proves a clip advances, not that the page means
+anything. Run the feel check (<a href="references/feel.md">references/feel.md</a> §6):
+scroll cold, one word per act, diff against BRIEF.md. Where they disagree the
+page is wrong, not the brief.</p>
+<p>A green run does not cover a real phone (video decoder, autoplay policy, Low
+Power Mode). On any reported mobile defect, deploy
+<a href="references/device-diag.html">references/device-diag.html</a> beside the site on
+the first round and let the device answer.</p>
+<h3>Hard rules (ship-blockers)</h3>
+<p>No clay diorama default; no &quot;scroll to explore&quot; cues or animated mouse icons;
+no <code>01 / 06</code> section counters; at most one eyebrow per three sections; no
+visible em dashes; vary the copy anchor; no device twice in a row; never build
+before the interview; one engineered peak, not zero or three; the close
+resolves instead of fading to a footer; curve before devices; one bespoke
+signature move; 4-of-6 fingerprint clearance against every row; never edit the
+engine; no full-frame dark overlay for contrast (scrim only where text sits);
+no text baked into images; no invented statistics; no <code>transition: all</code> or
+animating width/height/top/left (<code>transform</code>/<code>opacity</code>; <code>clip-path</code> for
+wipes); no gradient text or neon glow; no audio on scrub clips; never ship
+without Step 5.</p>
+<h3>Output</h3>
+<p>The build folder including BRIEF.md, then a short report: grammar and why the
+other seven lost, signature move, fingerprint gate result per row, journey,
+feeling curve and peak, feel-check diff, score table, what you generated, what
+you verified with screenshots, and what you could not verify. Append the
+build&#39;s row to <code>&lt;workspace&gt;/FINGERPRINTS.md</code>.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><code>scripts/shoot.mjs</code> needs Playwright (<code>npm install playwright</code> or
+<code>playwright-core</code> plus a Chrome install). Hermes&#39; <code>browser_exec</code> tool is the
+lighter alternative for scroll-screenshot verification: serve the build,
+scroll in steps, capture screenshots, and inspect them yourself.</li>
+<li><code>scripts/kie.mjs</code> needs <code>KIE_AI_API_KEY</code> and paid credit; prefer
+<code>image_generate</code> or user assets when the budget is unclear.</li>
+<li><code>encode.sh</code> and <code>doctor.mjs</code> expect a full ffmpeg build; distro-stripped
+ffmpeg reports missing filters as command syntax errors — run
+<code>scripts/doctor.mjs</code> first.</li>
+<li>Upstream script invocations above are copied from upstream docs and
+unverified by this port beyond <code>node --check</code> syntax validation — trust
+<code>--help</code>/source if drifted.</li>
+<li>The upstream repo ships worked examples and a change log that are not
+vendored in this port; see the upstream repository if you want them.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/web-development/scrollcraft</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

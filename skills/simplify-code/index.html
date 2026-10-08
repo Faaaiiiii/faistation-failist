@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>simplify-code — Skill Hermes</title>
+<meta name="description" content="Parallel 4-agent cleanup of recent code changes.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>simplify-code</h1>
+    <p class="lede">Parallel 4-agent cleanup of recent code changes.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>simplify-code</dd>
+      <dt>Keterangan</dt><dd>Parallel 4-agent cleanup of recent code changes.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (inspired by Claude Code /simplify)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/simplify-code.zip" download>Muat turun ZIP (6.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Simplify Code — Parallel Review &amp; Cleanup</h2>
+<p>Review your recent code changes with four focused reviewers running in
+parallel, aggregate their findings, and apply the fixes worth applying.</p>
+<p><strong>This is a cleanup pass, not a bug hunt.</strong> You are improving the quality of
+code that already works — removing duplication, flattening needless
+complexity, cutting waste, and deepening band-aid fixes. Do not go hunting
+for correctness bugs here; that&#39;s what <code>requesting-code-review</code> is for.</p>
+<p><strong>Core principle:</strong> Four narrow reviewers beat one broad reviewer. Each one
+deeply searches the codebase for a single class of problem — reuse, quality,
+efficiency, altitude — without diluting its attention across all four. They
+run concurrently, so you pay the latency of one review, not four.</p>
+<h3>When to Use</h3>
+<p>Trigger this skill when the user says any of:</p>
+<ul>
+<li>&quot;simplify&quot; / &quot;simplify my changes&quot; / &quot;simplify these changes&quot;</li>
+<li>&quot;review my code&quot; / &quot;review my recent changes&quot; / &quot;clean up my changes&quot;</li>
+<li>&quot;/simplify&quot; (if they&#39;re carrying the Claude Code habit over)</li>
+</ul>
+<p>Optional modifiers the user may add — honor them:</p>
+<ul>
+<li><strong>Focus:</strong> &quot;simplify focus on efficiency&quot; → run only the efficiency reviewer
+(or weight the aggregation toward it). Recognized focuses: <code>reuse</code>,
+<code>quality</code> (also accepts <code>simplification</code>), <code>efficiency</code>, <code>altitude</code>.</li>
+<li><strong>Dry run:</strong> &quot;simplify but don&#39;t change anything&quot; / &quot;just report&quot; → run the
+four reviewers, present findings, apply NOTHING. Ask before applying.</li>
+<li><strong>Scope:</strong> &quot;simplify the last commit&quot; / &quot;simplify staged&quot; / &quot;simplify
+src/foo.py&quot; → narrow the diff source accordingly (see Phase 1).</li>
+</ul>
+<p>Do NOT auto-run this after every edit or tack it onto the end of unrelated
+tasks. It costs four subagents&#39; worth of tokens — invoke it only when the
+user explicitly asks.</p>
+<h3>The Process</h3>
+<h4>Phase 1 — Identify the changes</h4>
+<p>Capture the diff to review. Pick the source by what the user asked for, in
+this default order:</p>
+<pre><code class="language-bash"># 1. Default: uncommitted working-tree changes (tracked files)
+git diff
+
+# 2. If that&#39;s empty, include staged changes
+git diff HEAD
+
+# 3. Scoped variants the user may request:
+git diff --staged                 # &quot;staged changes&quot;
+git diff HEAD~1                    # &quot;the last commit&quot;
+git diff main...HEAD              # &quot;this branch&quot; / &quot;my PR&quot;
+git diff -- src/foo.py            # specific file(s)
+</code></pre>
+<p>If <code>git diff</code> and <code>git diff HEAD</code> are both empty and there&#39;s no git repo or no
+changes, fall back to the files the user explicitly named or that were
+recently created/edited in this session. If you genuinely can&#39;t find any
+changed code, say so and stop — there&#39;s nothing to simplify.</p>
+<p>Capture the full diff text. Note its size: if it&#39;s very large (say &gt;2000
+changed lines), warn the user that four subagents each carrying the full diff
+will be token-heavy, and offer to scope it down (per-directory, per-commit)
+before proceeding.</p>
+<h4>Phase 2 — Launch four reviewers in parallel</h4>
+<p>Use <code>delegate_task</code> <strong>batch mode</strong> — pass all four tasks in one <code>tasks</code>
+array so they run concurrently. Four is the right fan-out for this pattern;
+it&#39;s within the <code>delegation.max_concurrent_children</code> budget on any default
+install.</p>
+<p><strong>No delegation available?</strong> If you can&#39;t call <code>delegate_task</code> in this
+context (you&#39;re a leaf subagent, delegation is disabled, or the budget is
+exhausted), do NOT skip the review or drop angles. Work through all four
+reviewer angles yourself, sequentially, in this context — same search
+standards, same finding format. Then say clearly in your final summary that
+this was a single-pass inline review, not the parallel fan-out, so the user
+knows what actually ran.</p>
+<p>Give <strong>every</strong> reviewer the <strong>complete diff</strong> (not fragments — cross-file
+issues hide in the gaps) plus the absolute repo path so they can search the
+wider codebase. Each reviewer gets <code>terminal</code>, <code>file</code>, and <code>search</code>
+toolsets (so they can <code>git</code>, <code>read_file</code>, and <code>search_files</code>/grep).</p>
+<p>Tell each reviewer to:</p>
+<ul>
+<li>Search the existing codebase for evidence (don&#39;t reason from the diff alone).</li>
+<li><strong>Apply Chesterton&#39;s Fence:</strong> before flagging anything for removal, run
+<code>git blame</code> on the line to understand why it exists. If you can&#39;t determine
+the original purpose, mark it <code>confidence: low</code> — don&#39;t guess.</li>
+<li>Report findings as structured output with the concrete cost, confidence,
+and risk:<pre><code>file:line → problem → cost (what&#39;s duplicated/wasted/harder to maintain) → suggested fix | confidence: high/medium/low | risk: SAFE/CAREFUL/RISKY
+</code></pre>
+The <strong>cost</strong> field forces each finding to justify itself — a finding that
+can&#39;t articulate what the problem actually costs is probably a nit.<ul>
+<li><strong>SAFE</strong> = proven not to affect behavior (unused imports, commented-out
+code, pass-through wrappers). Auto-apply these.</li>
+<li><strong>CAREFUL</strong> = improves without changing semantics (rename local variable,
+flatten nested ternary, extract helper). Apply with test verification.</li>
+<li><strong>RISKY</strong> = may change behavior or breaks public contracts (N+1
+restructuring, public API rename, memory lifecycle change). Flag for
+human review — do NOT auto-apply.</li>
+</ul>
+</li>
+<li>Skip nits and style-only churn. Only flag things that materially improve
+the code.</li>
+</ul>
+<p>Pass these four goals (drop any the user&#39;s focus excludes):</p>
+<p><strong>Reviewer 1 — Code Reuse</strong></p>
+<blockquote>
+<p>Review this diff for code that duplicates functionality already in the
+codebase. Search utility modules, shared helpers, and adjacent files
+(use search_files / grep) for existing functions, constants, or patterns
+the new code could call instead of reimplementing. Flag: new functions
+that duplicate existing ones; hand-rolled logic that an existing utility
+already does (manual string/path manipulation, custom env checks, ad-hoc
+type guards, re-implemented parsing). For each, name the existing thing to
+use and where it lives.</p>
+</blockquote>
+<p><strong>Reviewer 2 — Code Quality</strong></p>
+<blockquote>
+<p>Review this diff for quality problems. Look for: redundant state (values
+that duplicate or could be derived from existing state; caches that don&#39;t
+need to exist); parameter sprawl (new params bolted on where the function
+should have been restructured); copy-paste-with-variation (near-duplicate
+blocks that should share an abstraction); leaky abstractions (exposing
+internals, breaking an existing encapsulation boundary); stringly-typed
+code (raw strings where a constant/enum/registry already exists — check the
+canonical registries before flagging); deeply nested conditionals (ternary
+chains, 3+-level if/else pyramids — flatten with guard clauses, early
+returns, or a lookup table); AI-generated slop patterns (extra
+comments restating obvious code like <code>// increment counter</code> above <code>count++</code>;
+unnecessary defensive null-checks on already-validated inputs; <code>as any</code>
+casts that bypass the type system; patterns inconsistent with the rest of
+the file). For each, give the concrete refactor.</p>
+</blockquote>
+<p><strong>Reviewer 3 — Efficiency</strong></p>
+<blockquote>
+<p>Review this diff for efficiency problems. Look for: unnecessary work
+(redundant computation, repeated file reads, duplicate API calls, N+1
+access patterns); missed concurrency (independent ops run sequentially);
+hot-path bloat (heavy/blocking work on startup or per-request paths);
+TOCTOU anti-patterns (existence pre-checks before an op instead of doing
+the op and handling the error); memory issues (unbounded growth, missing
+cleanup, listener/handle leaks; long-lived callbacks or objects built as
+closures that capture the whole enclosing scope — everything captured
+stays alive as long as the object does, so prefer a small class or
+explicit-fields struct that copies only what it needs); overly broad reads
+(loading whole files when a slice would do); silent failures (empty catch
+blocks, ignored error returns, <code>except: pass</code>, <code>.catch(() =&gt; {})</code> with no
+handling, error propagation gaps — these hide bugs and should at minimum
+log before swallowing). For each, give the concrete fix and why it&#39;s
+faster or safer.</p>
+</blockquote>
+<p><strong>Reviewer 4 — Altitude</strong></p>
+<blockquote>
+<p>Review this diff for changes implemented at the wrong depth — band-aids
+layered on top of shared infrastructure instead of fixes to the
+infrastructure itself. Signs of a too-shallow fix: a special case added to
+a generic code path to handle one caller (an <code>if (caller == X)</code> branch, a
+type check, a magic-value escape hatch); a symptom patched at the call
+site while sibling call sites keep the same flaw; a workaround stacked on
+an earlier workaround; a wrapper added to avoid touching the thing that
+actually needs changing; configuration or flags introduced to route around
+a broken default instead of fixing the default. For each, identify the
+underlying mechanism the change is dodging and describe the deeper fix —
+generalize the shared path, fix the root default, or fix the whole bug
+class — and honestly note when the deeper fix is large enough that it
+should be its own task rather than part of this cleanup. Read the
+surrounding code and <code>git blame</code> first: what looks like a band-aid is
+sometimes a deliberate boundary (compat shims, staged migrations,
+vendored-code isolation). Don&#39;t flag those.</p>
+</blockquote>
+<h4>Phase 3 — Aggregate and apply</h4>
+<p>Wait for all four to return (batch mode returns them together).</p>
+<ol>
+<li><strong>Merge</strong> the findings into one list, deduping where reviewers overlap —
+when two findings target the same line or the same underlying mechanism,
+collapse them into one.</li>
+<li><strong>Discard false positives</strong> — you have the most context; you don&#39;t have to
+argue with a reviewer, just drop weak or wrong suggestions silently.</li>
+<li><strong>Resolve conflicts.</strong> Reviewers can disagree (Reviewer 1: &quot;use existing
+util X&quot;; Reviewer 3: &quot;X is slow, inline it&quot;). Default resolution order:
+<strong>correctness &gt; the user&#39;s stated focus &gt; readability/reuse &gt; micro-perf.</strong>
+Don&#39;t apply a perf &quot;fix&quot; that hurts clarity unless the path is genuinely
+hot. When two suggestions are mutually exclusive and both defensible, pick
+the one that touches less code and note the alternative.</li>
+<li><strong>Apply in risk-tier order:</strong><ul>
+<li><strong>SAFE first</strong> (auto-apply): unused imports, commented-out code,
+pass-through wrappers, redundant type assertions. Run tests after.</li>
+<li><strong>CAREFUL next</strong> (apply with verification, one file at a time): rename
+locals, flatten ternaries, extract helpers, consolidate dupes. Run tests
+after each file. Revert any that break.</li>
+<li><strong>RISKY last</strong> (flag for review — do NOT auto-apply): N+1 restructuring,
+public API changes, concurrency fixes, error-handling changes. Present
+each with risk description and test coverage status. Altitude findings
+usually land here — deepening a fix means touching shared
+infrastructure, so present the deeper fix and let the user decide
+whether to do it now or as a follow-up.
+If the user opted for a dry run, present all three tiers and apply nothing.</li>
+</ul>
+</li>
+<li><strong>Verify</strong> you didn&#39;t break anything: run the project&#39;s targeted tests for
+the touched files (not the full suite), and re-run any linter/type check the
+repo uses. If a fix breaks a test, revert that one fix and report it.</li>
+<li><strong>Summarize</strong> what you changed: a short list of applied fixes grouped by
+reviewer category and risk tier, plus any findings you deliberately skipped
+and why. If you ran inline (no delegation), say so here.</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Don&#39;t fan out wider than 4.</strong> More reviewers means more cost and more
+conflicting suggestions to reconcile, not better coverage. The four
+categories cover the space.</li>
+<li><strong>Give the WHOLE diff to each reviewer.</strong> Splitting the diff across reviewers
+defeats the design — cross-file duplication and N+1s only show up with the
+full picture.</li>
+<li><strong>Reviewers search, they don&#39;t guess.</strong> A reuse finding with no pointer to
+the existing utility (&quot;there&#39;s probably a helper for this&quot;) is noise. Require
+<code>file:line</code> evidence; drop findings that lack it.</li>
+<li><strong>Apply ≠ rewrite.</strong> This is cleanup of the user&#39;s recent changes, not a
+license to refactor the whole module. Keep edits scoped to what the diff
+touched plus the minimal surrounding change a fix requires. Altitude
+findings are the exception that proves the rule: when the right fix is
+deeper than the diff, FLAG it — don&#39;t unilaterally rebuild the shared
+mechanism inside a cleanup pass.</li>
+<li><strong>Don&#39;t drift into bug-hunting.</strong> If a reviewer surfaces a genuine
+correctness bug, report it prominently — but as a separate &quot;found a bug&quot;
+note, not folded into cleanup fixes. Correctness review is a different
+pass with different verification standards.</li>
+<li><strong>Respect project conventions.</strong> If the repo has AGENTS.md / CLAUDE.md /
+HERMES.md or a linter config, fold those rules into the reviewer prompts so
+suggestions match house style instead of fighting it.</li>
+<li><strong>Large diffs blow context.</strong> If the diff is huge, scope it down before
+delegating — four subagents each carrying a 5000-line diff is expensive and
+may truncate.</li>
+<li><strong>Over-trusting dead code tools.</strong> <code>knip</code>, <code>ts-prune</code>, and <code>depcheck</code> flag
+exports that ARE used dynamically (string-based imports, reflection). Always
+grep for the symbol name before removing — a clean tool report is not proof.</li>
+<li><strong>Renaming without checking public contracts.</strong> Export names, API route
+paths, DB column names, and config keys are contracts — even if the name is
+bad, renaming breaks consumers. Tag public-contract changes as RISKY; never
+auto-rename them.</li>
+<li><strong>Removing &quot;unnecessary&quot; error handling.</strong> An empty catch block or ignored
+error might be intentional — the error is expected and benign in that
+context. Flag it, don&#39;t remove it; let the human decide.</li>
+<li><strong>Not every special case is a band-aid.</strong> Compat shims, staged migrations,
+and isolation layers around vendored code look like altitude violations but
+are deliberate design. Check <code>git blame</code> and surrounding comments before
+flagging; when the intent is unclear, mark <code>confidence: low</code>.</li>
+</ul>
+<h3>Related</h3>
+<p>If your install has the <code>subagent-driven-development</code> skill (optional), it
+covers the complementary case: parallel review <em>during</em> implementation, per
+task. This skill is the standalone <em>after-the-fact</em> cleanup pass. Use
+<code>requesting-code-review</code> for the pre-commit security/quality gate — that&#39;s
+the bug hunt; this is the cleanup.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/simplify-code</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

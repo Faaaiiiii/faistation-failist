@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>llama-cpp — Skill Hermes</title>
+<meta name="description" content="llama.cpp local GGUF inference + HF Hub model discovery.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>llama-cpp</h1>
+    <p class="lede">llama.cpp local GGUF inference + HF Hub model discovery.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>llama-cpp</dd>
+      <dt>Keterangan</dt><dd>llama.cpp local GGUF inference + HF Hub model discovery.</dd>
+      <dt>Versi</dt><dd>2.1.2</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/llama-cpp.zip" download>Muat turun ZIP (17.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (7)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.7 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">10.6 KB</td></tr>
+<tr><td><code>references/hub-discovery.md</code></td><td class="sz">5.0 KB</td></tr>
+<tr><td><code>references/optimization.md</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>references/quantization.md</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>references/server.md</code></td><td class="sz">2.8 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">8.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>llama.cpp + GGUF</h2>
+<p>Use this skill for local GGUF inference, quant selection, or Hugging Face repo discovery for llama.cpp.</p>
+<h3>When to use</h3>
+<ul>
+<li>Run local models on CPU, Apple Silicon, CUDA, ROCm, or Intel GPUs</li>
+<li>Find the right GGUF for a specific Hugging Face repo</li>
+<li>Build a <code>llama-server</code> or <code>llama-cli</code> command from the Hub</li>
+<li>Search the Hub for models that already support llama.cpp</li>
+<li>Enumerate available <code>.gguf</code> files and sizes for a repo</li>
+<li>Decide between Q4/Q5/Q6/IQ variants for the user&#39;s RAM or VRAM</li>
+</ul>
+<h3>Model Discovery workflow</h3>
+<p>Prefer URL workflows before asking for <code>hf</code>, Python, or custom scripts.</p>
+<ol>
+<li>Search for candidate repos on the Hub:<ul>
+<li>Base: <code>https://huggingface.co/models?apps=llama.cpp&amp;sort=trending</code></li>
+<li>Add <code>search=&lt;term&gt;</code> for a model family</li>
+<li>Add <code>num_parameters=min:0,max:24B</code> or similar when the user has size constraints</li>
+</ul>
+</li>
+<li>Open the repo with the llama.cpp local-app view:<ul>
+<li><code>https://huggingface.co/&lt;repo&gt;?local-app=llama.cpp</code></li>
+</ul>
+</li>
+<li>Treat the local-app snippet as the source of truth when it is visible:<ul>
+<li>copy the exact <code>llama-server</code> or <code>llama-cli</code> command</li>
+<li>report the recommended quant exactly as HF shows it</li>
+</ul>
+</li>
+<li>Read the same <code>?local-app=llama.cpp</code> URL as page text or HTML and extract the section under <code>Hardware compatibility</code>:<ul>
+<li>prefer its exact quant labels and sizes over generic tables</li>
+<li>keep repo-specific labels such as <code>UD-Q4_K_M</code> or <code>IQ4_NL_XL</code></li>
+<li>if that section is not visible in the fetched page source, say so and fall back to the tree API plus generic quant guidance</li>
+</ul>
+</li>
+<li>Query the tree API to confirm what actually exists:<ul>
+<li><code>https://huggingface.co/api/models/&lt;repo&gt;/tree/main?recursive=true</code></li>
+<li>keep entries where <code>type</code> is <code>file</code> and <code>path</code> ends with <code>.gguf</code></li>
+<li>use <code>path</code> and <code>size</code> as the source of truth for filenames and byte sizes</li>
+<li>separate quantized checkpoints from <code>mmproj-*.gguf</code> projector files and <code>BF16/</code> shard files</li>
+<li>use <code>https://huggingface.co/&lt;repo&gt;/tree/main</code> only as a human fallback</li>
+</ul>
+</li>
+<li>If the local-app snippet is not text-visible, reconstruct the command from the repo plus the chosen quant:<ul>
+<li>shorthand quant selection: <code>llama-server -hf &lt;repo&gt;:&lt;QUANT&gt;</code></li>
+<li>exact-file fallback: <code>llama-server --hf-repo &lt;repo&gt; --hf-file &lt;filename.gguf&gt;</code></li>
+</ul>
+</li>
+<li>Only suggest conversion from Transformers weights if the repo does not already expose GGUF files.</li>
+</ol>
+<h3>Quick start</h3>
+<h4>Install llama.cpp</h4>
+<pre><code class="language-bash"># macOS / Linux (simplest)
+brew install llama.cpp
+</code></pre>
+<pre><code class="language-bash">winget install llama.cpp
+</code></pre>
+<pre><code class="language-bash">git clone https://github.com/ggml-org/llama.cpp
+cd llama.cpp
+cmake -B build
+cmake --build build --config Release
+</code></pre>
+<h4>Run directly from the Hugging Face Hub</h4>
+<pre><code class="language-bash">llama-cli -hf bartowski/Llama-3.2-3B-Instruct-GGUF:Q8_0
+</code></pre>
+<pre><code class="language-bash">llama-server -hf bartowski/Llama-3.2-3B-Instruct-GGUF:Q8_0
+</code></pre>
+<h4>Run an exact GGUF file from the Hub</h4>
+<p>Use this when the tree API shows custom file naming or the exact HF snippet is missing.</p>
+<pre><code class="language-bash">llama-server \
+    --hf-repo microsoft/Phi-3-mini-4k-instruct-gguf \
+    --hf-file Phi-3-mini-4k-instruct-q4.gguf \
+    -c 4096
+</code></pre>
+<h4>OpenAI-compatible server check</h4>
+<pre><code class="language-bash">curl http://localhost:8080/v1/chat/completions \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;messages&quot;: [
+      {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Write a limerick about Python exceptions&quot;}
+    ]
+  }&#39;
+</code></pre>
+<h3>Python bindings (llama-cpp-python)</h3>
+<p><code>pip install llama-cpp-python</code> (CUDA: <code>CMAKE_ARGS=&quot;-DGGML_CUDA=on&quot; pip install llama-cpp-python --force-reinstall --no-cache-dir</code>; Metal: <code>CMAKE_ARGS=&quot;-DGGML_METAL=on&quot; ...</code>).</p>
+<h4>Basic generation</h4>
+<pre><code class="language-python">from llama_cpp import Llama
+
+llm = Llama(
+    model_path=&quot;./model-q4_k_m.gguf&quot;,
+    n_ctx=4096,
+    n_gpu_layers=35,     # 0 for CPU, 99 to offload everything
+    n_threads=8,
+)
+
+out = llm(&quot;What is machine learning?&quot;, max_tokens=256, temperature=0.7)
+print(out[&quot;choices&quot;][0][&quot;text&quot;])
+</code></pre>
+<h4>Chat + streaming</h4>
+<pre><code class="language-python">llm = Llama(
+    model_path=&quot;./model-q4_k_m.gguf&quot;,
+    n_ctx=4096,
+    n_gpu_layers=35,
+    chat_format=&quot;llama-3&quot;,   # or &quot;chatml&quot;, &quot;mistral&quot;, etc.
+)
+
+resp = llm.create_chat_completion(
+    messages=[
+        {&quot;role&quot;: &quot;system&quot;, &quot;content&quot;: &quot;You are a helpful assistant.&quot;},
+        {&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What is Python?&quot;},
+    ],
+    max_tokens=256,
+)
+print(resp[&quot;choices&quot;][0][&quot;message&quot;][&quot;content&quot;])
+
+# Streaming
+for chunk in llm(&quot;Explain quantum computing:&quot;, max_tokens=256, stream=True):
+    print(chunk[&quot;choices&quot;][0][&quot;text&quot;], end=&quot;&quot;, flush=True)
+</code></pre>
+<h4>Embeddings</h4>
+<pre><code class="language-python">llm = Llama(model_path=&quot;./model-q4_k_m.gguf&quot;, embedding=True, n_gpu_layers=35)
+vec = llm.embed(&quot;This is a test sentence.&quot;)
+print(f&quot;Embedding dimension: {len(vec)}&quot;)
+</code></pre>
+<p>You can also load a GGUF straight from the Hub:</p>
+<pre><code class="language-python">llm = Llama.from_pretrained(
+    repo_id=&quot;bartowski/Llama-3.2-3B-Instruct-GGUF&quot;,
+    filename=&quot;*Q4_K_M.gguf&quot;,
+    n_gpu_layers=35,
+)
+</code></pre>
+<h3>Choosing a quant</h3>
+<p>Use the Hub page first, generic heuristics second.</p>
+<ul>
+<li>Prefer the exact quant that HF marks as compatible for the user&#39;s hardware profile.</li>
+<li>For general chat, start with <code>Q4_K_M</code>.</li>
+<li>For code or technical work, prefer <code>Q5_K_M</code> or <code>Q6_K</code> if memory allows.</li>
+<li>For very tight RAM budgets, consider <code>Q3_K_M</code>, <code>IQ</code> variants, or <code>Q2</code> variants only if the user explicitly prioritizes fit over quality.</li>
+<li>For multimodal repos, mention <code>mmproj-*.gguf</code> separately. The projector is not the main model file.</li>
+<li>Do not normalize repo-native labels. If the page says <code>UD-Q4_K_M</code>, report <code>UD-Q4_K_M</code>.</li>
+</ul>
+<h3>Extracting available GGUFs from a repo</h3>
+<p>When the user asks what GGUFs exist, return:</p>
+<ul>
+<li>filename</li>
+<li>file size</li>
+<li>quant label</li>
+<li>whether it is a main model or an auxiliary projector</li>
+</ul>
+<p>Ignore unless requested:</p>
+<ul>
+<li>README</li>
+<li>BF16 shard files</li>
+<li>imatrix blobs or calibration artifacts</li>
+</ul>
+<p>Use the tree API for this step:</p>
+<ul>
+<li><code>https://huggingface.co/api/models/&lt;repo&gt;/tree/main?recursive=true</code></li>
+</ul>
+<p>For a repo like <code>unsloth/Qwen3.6-35B-A3B-GGUF</code>, the local-app page can show quant chips such as <code>UD-Q4_K_M</code>, <code>UD-Q5_K_M</code>, <code>UD-Q6_K</code>, and <code>Q8_0</code>, while the tree API exposes exact file paths such as <code>Qwen3.6-35B-A3B-UD-Q4_K_M.gguf</code> and <code>Qwen3.6-35B-A3B-Q8_0.gguf</code> with byte sizes. Use the tree API to turn a quant label into an exact filename.</p>
+<h3>Search patterns</h3>
+<p>Use these URL shapes directly:</p>
+<pre><code class="language-text">https://huggingface.co/models?apps=llama.cpp&amp;sort=trending
+https://huggingface.co/models?search=&lt;term&gt;&amp;apps=llama.cpp&amp;sort=trending
+https://huggingface.co/models?search=&lt;term&gt;&amp;apps=llama.cpp&amp;num_parameters=min:0,max:24B&amp;sort=trending
+https://huggingface.co/&lt;repo&gt;?local-app=llama.cpp
+https://huggingface.co/api/models/&lt;repo&gt;/tree/main?recursive=true
+https://huggingface.co/&lt;repo&gt;/tree/main
+</code></pre>
+<h3>Output format</h3>
+<p>When answering discovery requests, prefer a compact structured result like:</p>
+<pre><code class="language-text">Repo: &lt;repo&gt;
+Recommended quant from HF: &lt;label&gt; (&lt;size&gt;)
+llama-server: &lt;command&gt;
+Other GGUFs:
+- &lt;filename&gt; - &lt;size&gt;
+- &lt;filename&gt; - &lt;size&gt;
+Source URLs:
+- &lt;local-app URL&gt;
+- &lt;tree API URL&gt;
+</code></pre>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/hub-discovery.md">hub-discovery.md</a></strong> - URL-only Hugging Face workflows, search patterns, GGUF extraction, and command reconstruction</li>
+<li><strong><a href="references/advanced-usage.md">advanced-usage.md</a></strong> — speculative decoding, batched inference, grammar-constrained generation, LoRA, multi-GPU, custom builds, benchmark scripts</li>
+<li><strong><a href="references/quantization.md">quantization.md</a></strong> — quant quality tradeoffs, when to use Q4/Q5/Q6/IQ, model size scaling, imatrix</li>
+<li><strong><a href="references/server.md">server.md</a></strong> — direct-from-Hub server launch, OpenAI API endpoints, Docker deployment, NGINX load balancing, monitoring</li>
+<li><strong><a href="references/optimization.md">optimization.md</a></strong> — CPU threading, BLAS, GPU offload heuristics, batch tuning, benchmarks</li>
+<li><strong><a href="references/troubleshooting.md">troubleshooting.md</a></strong> — install/convert/quantize/inference/server issues, Apple Silicon, debugging</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/ggml-org/llama.cpp">https://github.com/ggml-org/llama.cpp</a></li>
+<li><strong>Hugging Face GGUF + llama.cpp docs</strong>: <a href="https://huggingface.co/docs/hub/gguf-llamacpp">https://huggingface.co/docs/hub/gguf-llamacpp</a></li>
+<li><strong>Hugging Face Local Apps docs</strong>: <a href="https://huggingface.co/docs/hub/main/local-apps">https://huggingface.co/docs/hub/main/local-apps</a></li>
+<li><strong>Hugging Face Local Agents docs</strong>: <a href="https://huggingface.co/docs/hub/agents-local">https://huggingface.co/docs/hub/agents-local</a></li>
+<li><strong>Example local-app page</strong>: <a href="https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF?local-app=llama.cpp">https://huggingface.co/unsloth/Qwen3.6-35B-A3B-GGUF?local-app=llama.cpp</a></li>
+<li><strong>Example tree API</strong>: <a href="https://huggingface.co/api/models/unsloth/Qwen3.6-35B-A3B-GGUF/tree/main?recursive=true">https://huggingface.co/api/models/unsloth/Qwen3.6-35B-A3B-GGUF/tree/main?recursive=true</a></li>
+<li><strong>Example llama.cpp search</strong>: <a href="https://huggingface.co/models?num_parameters=min:0,max:24B&apps=llama.cpp&sort=trending">https://huggingface.co/models?num_parameters=min:0,max:24B&amp;apps=llama.cpp&amp;sort=trending</a></li>
+<li><strong>License</strong>: MIT</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/inference/llama-cpp</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

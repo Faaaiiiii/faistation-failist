@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fitness-nutrition — Skill Hermes</title>
+<meta name="description" content="Workout planning, macros, and body metrics via wger/USDA.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>fitness-nutrition</h1>
+    <p class="lede">Workout planning, macros, and body metrics via wger/USDA.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>fitness-nutrition</dd>
+      <dt>Keterangan</dt><dd>Workout planning, macros, and body metrics via wger/USDA.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hailey Marshall (haileymarshall), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>health · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/fitness-nutrition.zip" download>Muat turun ZIP (9.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.6 KB</td></tr>
+<tr><td><code>references/FORMULAS.md</code></td><td class="sz">3.2 KB</td></tr>
+<tr><td><code>scripts/body_calc.py</code></td><td class="sz">6.3 KB</td></tr>
+<tr><td><code>scripts/nutrition_search.py</code></td><td class="sz">2.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Fitness &amp; Nutrition</h2>
+<p>Expert fitness coach and sports nutritionist skill. Two data sources
+plus offline calculators — everything a gym-goer needs in one place.</p>
+<p><strong>Data sources (all free, no pip dependencies):</strong></p>
+<ul>
+<li><strong>wger</strong> (<a href="https://wger.de/api/v2/">https://wger.de/api/v2/</a>) — open exercise database, 690+ exercises with muscles, equipment, images. Public endpoints need zero authentication.</li>
+<li><strong>USDA FoodData Central</strong> (<a href="https://api.nal.usda.gov/fdc/v1/">https://api.nal.usda.gov/fdc/v1/</a>) — US government nutrition database, 380,000+ foods. <code>DEMO_KEY</code> works instantly; free signup for higher limits.</li>
+</ul>
+<p><strong>Offline calculators (pure stdlib Python):</strong></p>
+<ul>
+<li>BMI, TDEE (Mifflin-St Jeor), one-rep max (Epley/Brzycki/Lombardi), macro splits, body fat % (US Navy method)</li>
+</ul>
+<hr>
+<h3>When to Use</h3>
+<p>Trigger this skill when the user asks about:</p>
+<ul>
+<li>Exercises, workouts, gym routines, muscle groups, workout splits</li>
+<li>Food macros, calories, protein content, meal planning, calorie counting</li>
+<li>Body composition: BMI, body fat, TDEE, caloric surplus/deficit</li>
+<li>One-rep max estimates, training percentages, progressive overload</li>
+<li>Macro ratios for cutting, bulking, or maintenance</li>
+</ul>
+<hr>
+<h3>Procedure</h3>
+<h4>Exercise Lookup (wger API)</h4>
+<p>All wger public endpoints return JSON and require no auth. Always add
+<code>format=json</code> and <code>language=2</code> (English) to exercise queries.</p>
+<p><strong>Step 1 — Identify what the user wants:</strong></p>
+<ul>
+<li>By muscle → use <code>/api/v2/exercise/?muscles={id}&amp;language=2&amp;status=2&amp;format=json</code></li>
+<li>By category → use <code>/api/v2/exercise/?category={id}&amp;language=2&amp;status=2&amp;format=json</code></li>
+<li>By equipment → use <code>/api/v2/exercise/?equipment={id}&amp;language=2&amp;status=2&amp;format=json</code></li>
+<li>By name → use <code>/api/v2/exercise/search/?term={query}&amp;language=english&amp;format=json</code></li>
+<li>Full details → use <code>/api/v2/exerciseinfo/{exercise_id}/?format=json</code></li>
+</ul>
+<p><strong>Step 2 — Reference IDs (so you don&#39;t need extra API calls):</strong></p>
+<p>Exercise categories:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Category</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>8</td>
+<td>Arms</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Legs</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Abs</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Chest</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Back</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Shoulders</td>
+</tr>
+<tr>
+<td>14</td>
+<td>Calves</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Cardio</td>
+</tr>
+</tbody></table>
+<p>Muscles:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Muscle</th>
+<th>ID</th>
+<th>Muscle</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Biceps brachii</td>
+<td>2</td>
+<td>Anterior deltoid</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Serratus anterior</td>
+<td>4</td>
+<td>Pectoralis major</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Obliquus externus</td>
+<td>6</td>
+<td>Gastrocnemius</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Rectus abdominis</td>
+<td>8</td>
+<td>Gluteus maximus</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Trapezius</td>
+<td>10</td>
+<td>Quadriceps femoris</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Biceps femoris</td>
+<td>12</td>
+<td>Latissimus dorsi</td>
+</tr>
+<tr>
+<td>13</td>
+<td>Brachialis</td>
+<td>14</td>
+<td>Triceps brachii</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Soleus</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p>Equipment:</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Equipment</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Barbell</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Dumbbell</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Gym mat</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Swiss Ball</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Pull-up bar</td>
+</tr>
+<tr>
+<td>7</td>
+<td>none (bodyweight)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Bench</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Incline bench</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Kettlebell</td>
+</tr>
+</tbody></table>
+<p><strong>Step 3 — Fetch and present results:</strong></p>
+<pre><code class="language-bash"># Search exercises by name
+QUERY=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$QUERY&quot;)
+curl -s &quot;https://wger.de/api/v2/exercise/search/?term=${ENCODED}&amp;language=english&amp;format=json&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+for s in data.get(&#39;suggestions&#39;,[])[:10]:
+    d=s.get(&#39;data&#39;,{})
+    print(f\&quot;  ID {d.get(&#39;id&#39;,&#39;?&#39;):&gt;4} | {d.get(&#39;name&#39;,&#39;N/A&#39;):&lt;35} | Category: {d.get(&#39;category&#39;,&#39;N/A&#39;)}\&quot;)
+&quot;
+</code></pre>
+<pre><code class="language-bash"># Get full details for a specific exercise
+EXERCISE_ID=&quot;$1&quot;
+curl -s &quot;https://wger.de/api/v2/exerciseinfo/${EXERCISE_ID}/?format=json&quot; \
+  | python -c &quot;
+import json,sys,html,re
+data=json.load(sys.stdin)
+trans=[t for t in data.get(&#39;translations&#39;,[]) if t.get(&#39;language&#39;)==2]
+t=trans[0] if trans else data.get(&#39;translations&#39;,[{}])[0]
+desc=re.sub(&#39;&lt;[^&gt;]+&gt;&#39;,&#39;&#39;,html.unescape(t.get(&#39;description&#39;,&#39;N/A&#39;)))
+print(f\&quot;Exercise  : {t.get(&#39;name&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;Category  : {data.get(&#39;category&#39;,{}).get(&#39;name&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;Primary   : {&#39;, &#39;.join(m.get(&#39;name_en&#39;,&#39;&#39;) for m in data.get(&#39;muscles&#39;,[])) or &#39;N/A&#39;}\&quot;)
+print(f\&quot;Secondary : {&#39;, &#39;.join(m.get(&#39;name_en&#39;,&#39;&#39;) for m in data.get(&#39;muscles_secondary&#39;,[])) or &#39;none&#39;}\&quot;)
+print(f\&quot;Equipment : {&#39;, &#39;.join(e.get(&#39;name&#39;,&#39;&#39;) for e in data.get(&#39;equipment&#39;,[])) or &#39;bodyweight&#39;}\&quot;)
+print(f\&quot;How to    : {desc[:500]}\&quot;)
+imgs=data.get(&#39;images&#39;,[])
+if imgs: print(f\&quot;Image     : {imgs[0].get(&#39;image&#39;,&#39;&#39;)}\&quot;)
+&quot;
+</code></pre>
+<pre><code class="language-bash"># List exercises filtering by muscle, category, or equipment
+# Combine filters as needed: ?muscles=4&amp;equipment=1&amp;language=2&amp;status=2
+FILTER=&quot;$1&quot;  # e.g. &quot;muscles=4&quot; or &quot;category=11&quot; or &quot;equipment=3&quot;
+curl -s &quot;https://wger.de/api/v2/exercise/?${FILTER}&amp;language=2&amp;status=2&amp;limit=20&amp;format=json&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+print(f&#39;Found {data.get(\&quot;count\&quot;,0)} exercises.&#39;)
+for ex in data.get(&#39;results&#39;,[]):
+    print(f\&quot;  ID {ex[&#39;id&#39;]:&gt;4} | muscles: {ex.get(&#39;muscles&#39;,[])} | equipment: {ex.get(&#39;equipment&#39;,[])}\&quot;)
+&quot;
+</code></pre>
+<h4>Nutrition Lookup (USDA FoodData Central)</h4>
+<p>Uses <code>USDA_API_KEY</code> env var if set, otherwise falls back to <code>DEMO_KEY</code>.
+DEMO_KEY = 30 requests/hour. Free signup key = 1,000 requests/hour.</p>
+<pre><code class="language-bash"># Search foods by name
+FOOD=&quot;$1&quot;
+API_KEY=&quot;${USDA_API_KEY:-DEMO_KEY}&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$FOOD&quot;)
+curl -s &quot;https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${API_KEY}&amp;query=${ENCODED}&amp;pageSize=5&amp;dataType=Foundation,SR%20Legacy&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+foods=data.get(&#39;foods&#39;,[])
+if not foods: print(&#39;No foods found.&#39;); sys.exit()
+for f in foods:
+    n={x[&#39;nutrientName&#39;]:x.get(&#39;value&#39;,&#39;?&#39;) for x in f.get(&#39;foodNutrients&#39;,[])}
+    cal=n.get(&#39;Energy&#39;,&#39;?&#39;); prot=n.get(&#39;Protein&#39;,&#39;?&#39;)
+    fat=n.get(&#39;Total lipid (fat)&#39;,&#39;?&#39;); carb=n.get(&#39;Carbohydrate, by difference&#39;,&#39;?&#39;)
+    print(f\&quot;{f.get(&#39;description&#39;,&#39;N/A&#39;)}\&quot;)
+    print(f\&quot;  Per 100g: {cal} kcal | {prot}g protein | {fat}g fat | {carb}g carbs\&quot;)
+    print(f\&quot;  FDC ID: {f.get(&#39;fdcId&#39;,&#39;N/A&#39;)}\&quot;)
+    print()
+&quot;
+</code></pre>
+<pre><code class="language-bash"># Detailed nutrient profile by FDC ID
+FDC_ID=&quot;$1&quot;
+API_KEY=&quot;${USDA_API_KEY:-DEMO_KEY}&quot;
+curl -s &quot;https://api.nal.usda.gov/fdc/v1/food/${FDC_ID}?api_key=${API_KEY}&quot; \
+  | python -c &quot;
+import json,sys
+d=json.load(sys.stdin)
+print(f\&quot;Food: {d.get(&#39;description&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;{&#39;Nutrient&#39;:&lt;40} {&#39;Amount&#39;:&gt;8} {&#39;Unit&#39;}\&quot;)
+print(&#39;-&#39;*56)
+for x in sorted(d.get(&#39;foodNutrients&#39;,[]),key=lambda x:x.get(&#39;nutrient&#39;,{}).get(&#39;rank&#39;,9999)):
+    nut=x.get(&#39;nutrient&#39;,{}); amt=x.get(&#39;amount&#39;,0)
+    if amt and float(amt)&gt;0:
+        print(f\&quot;  {nut.get(&#39;name&#39;,&#39;&#39;):&lt;38} {amt:&gt;8} {nut.get(&#39;unitName&#39;,&#39;&#39;)}\&quot;)
+&quot;
+</code></pre>
+<h4>Offline Calculators</h4>
+<p>Use the helper scripts in <code>scripts/</code> for batch operations,
+or run inline for single calculations:</p>
+<ul>
+<li><code>python scripts/body_calc.py bmi &lt;weight_kg&gt; &lt;height_cm&gt;</code></li>
+<li><code>python scripts/body_calc.py tdee &lt;weight_kg&gt; &lt;height_cm&gt; &lt;age&gt; &lt;M|F&gt; &lt;activity 1-5&gt;</code></li>
+<li><code>python scripts/body_calc.py 1rm &lt;weight&gt; &lt;reps&gt;</code></li>
+<li><code>python scripts/body_calc.py macros &lt;tdee_kcal&gt; &lt;cut|maintain|bulk&gt;</code></li>
+<li><code>python scripts/body_calc.py bodyfat &lt;M|F&gt; &lt;neck_cm&gt; &lt;waist_cm&gt; [hip_cm] &lt;height_cm&gt;</code></li>
+</ul>
+<p>See <code>references/FORMULAS.md</code> for the science behind each formula.</p>
+<hr>
+<h3>Pitfalls</h3>
+<ul>
+<li>wger exercise endpoint returns <strong>all languages by default</strong> — always add <code>language=2</code> for English</li>
+<li>wger includes <strong>unverified user submissions</strong> — add <code>status=2</code> to only get approved exercises</li>
+<li>USDA <code>DEMO_KEY</code> has <strong>30 req/hour</strong> — add <code>sleep 2</code> between batch requests or get a free key</li>
+<li>USDA data is <strong>per 100g</strong> — remind users to scale to their actual portion size</li>
+<li>BMI does not distinguish muscle from fat — high BMI in muscular people is not necessarily unhealthy</li>
+<li>Body fat formulas are <strong>estimates</strong> (±3-5%) — recommend DEXA scans for precision</li>
+<li>1RM formulas lose accuracy above 10 reps — use sets of 3-5 for best estimates</li>
+<li>wger&#39;s <code>exercise/search</code> endpoint uses <code>term</code> not <code>query</code> as the parameter name</li>
+</ul>
+<hr>
+<h3>Verification</h3>
+<p>After running exercise search: confirm results include exercise names, muscle groups, and equipment.
+After nutrition lookup: confirm per-100g macros are returned with kcal, protein, fat, carbs.
+After calculators: sanity-check outputs (e.g. TDEE should be 1500-3500 for most adults).</p>
+<hr>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Source</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Search exercises by name</td>
+<td>wger</td>
+<td><code>GET /api/v2/exercise/search/?term=&amp;language=english</code></td>
+</tr>
+<tr>
+<td>Exercise details</td>
+<td>wger</td>
+<td><code>GET /api/v2/exerciseinfo/{id}/</code></td>
+</tr>
+<tr>
+<td>Filter by muscle</td>
+<td>wger</td>
+<td><code>GET /api/v2/exercise/?muscles={id}&amp;language=2&amp;status=2</code></td>
+</tr>
+<tr>
+<td>Filter by equipment</td>
+<td>wger</td>
+<td><code>GET /api/v2/exercise/?equipment={id}&amp;language=2&amp;status=2</code></td>
+</tr>
+<tr>
+<td>List categories</td>
+<td>wger</td>
+<td><code>GET /api/v2/exercisecategory/</code></td>
+</tr>
+<tr>
+<td>List muscles</td>
+<td>wger</td>
+<td><code>GET /api/v2/muscle/</code></td>
+</tr>
+<tr>
+<td>Search foods</td>
+<td>USDA</td>
+<td><code>GET /fdc/v1/foods/search?query=&amp;dataType=Foundation,SR Legacy</code></td>
+</tr>
+<tr>
+<td>Food details</td>
+<td>USDA</td>
+<td><code>GET /fdc/v1/food/{fdcId}</code></td>
+</tr>
+<tr>
+<td>BMI / TDEE / 1RM / macros</td>
+<td>offline</td>
+<td><code>python scripts/body_calc.py</code></td>
+</tr>
+</tbody></table>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/health/fitness-nutrition</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

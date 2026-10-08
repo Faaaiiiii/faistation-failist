@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>grounded-citations — Skill Hermes</title>
+<meta name="description" content="Ground answers and documents in cited, verifiable sources.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>grounded-citations</h1>
+    <p class="lede">Ground answers and documents in cited, verifiable sources.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>grounded-citations</dd>
+      <dt>Keterangan</dt><dd>Ground answers and documents in cited, verifiable sources.</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/grounded-citations.zip" download>Muat turun ZIP (17.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.4 KB</td></tr>
+<tr><td><code>references/citation-formats.md</code></td><td class="sz">2.4 KB</td></tr>
+<tr><td><code>references/grounding-rationale.md</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>scripts/_hermes_home.py</code></td><td class="sz">836 B</td></tr>
+<tr><td><code>scripts/sources.py</code></td><td class="sz">25.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Grounded Citations</h2>
+<p>Every claim taken from an outside source gets an inline numbered citation and a
+<code>Sources:</code> list, Perplexity-style. A ledger script owns the <code>url → [n]</code> mapping
+so the numbers and URLs come from retrieval, never from memory — the model only
+ever emits small integers it was handed.</p>
+<p>For high-stakes work the same ledger doubles as a fact-checking chain: verbatim
+quotes are attached to each source (rejected unless they literally appear in
+the fetched page text), claims from model knowledge are flagged <code>[unverified]</code>,
+and <code>verify --evidence</code> fails any draft whose cited sources carry no evidence.</p>
+<p>This skill covers answers in chat, written documents (markdown, PDF, docx,
+slides), and research reports. It does not cover academic BibTeX pipelines —
+for conference papers use the <code>arxiv</code> skill, which this skill
+feeds (see <code>references/citation-formats.md</code>).</p>
+<h3>When to Use</h3>
+<p>Use whenever an answer or artifact rests on information you fetched rather than
+knew:</p>
+<ul>
+<li>Research, comparisons, news summaries, &quot;what is the current state of X&quot;</li>
+<li>Any deliverable you write to disk that quotes, paraphrases, or reports
+outside facts — reports, briefs, docs, decks, wiki pages</li>
+<li>Fact-finding where the user will want to check your work</li>
+<li>Multi-source synthesis where conflicting sources must be attributed</li>
+</ul>
+<p>Skip inline citations when the retrieval is incidental to another task — a
+quick syntax/version lookup mid-coding, casual conversation, creative writing.
+Mention a URL only if the user would plausibly want the link.</p>
+<h3>Prerequisites</h3>
+<p>None beyond the standard toolset. <code>scripts/sources.py</code> is stdlib-only Python 3.
+Retrieval comes from whatever is configured: <code>web_search</code>, <code>web_extract</code>,
+<code>browser_navigate</code>, or <code>terminal</code> (curl, CLIs).</p>
+<p>Ledger location: <code>$HERMES_HOME/cache/citations/ledger.json</code> (profile-aware).
+Override per task with <code>--ledger &lt;path&gt;</code> or <code>HERMES_CITATION_LEDGER</code>.</p>
+<h3>How to Run</h3>
+<pre><code class="language-bash">S=~/.hermes/skills/research/grounded-citations/scripts/sources.py
+
+python &quot;$S&quot; reset                                  # start a clean ledger
+python &quot;$S&quot; add https://example.com/a --title &quot;A&quot;  # prints: [1]
+python &quot;$S&quot; add https://example.com/b --title &quot;B&quot;  # prints: [2]
+python &quot;$S&quot; list                                   # ledger table
+python &quot;$S&quot; render                                 # Sources: block
+python &quot;$S&quot; verify draft.md                        # catch bad citations
+</code></pre>
+<p><code>add</code> is idempotent and URL-normalized: the same page always returns the same
+id within a ledger, so ids stay stable across many search/extract rounds.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Fresh ledger for a new task</td>
+<td><code>sources.py reset</code></td>
+</tr>
+<tr>
+<td>Register a source, get its id</td>
+<td><code>sources.py add &lt;url&gt; [--title T]</code></td>
+</tr>
+<tr>
+<td>Register several at once</td>
+<td><code>sources.py add &lt;url1&gt; &lt;url2&gt; ...</code></td>
+</tr>
+<tr>
+<td>Register from JSON tool output</td>
+<td><code>sources.py ingest results.json</code></td>
+</tr>
+<tr>
+<td>Attach verbatim evidence to a source</td>
+<td><code>sources.py quote &lt;id&gt; --text &quot;exact wording&quot; --from page.txt</code></td>
+</tr>
+<tr>
+<td>Show ledger</td>
+<td><code>sources.py list [--json]</code></td>
+</tr>
+<tr>
+<td>Render the Sources block</td>
+<td><code>sources.py render [--style markdown|plain|footnotes|bibtex|evidence] [--only 1,3]</code></td>
+</tr>
+<tr>
+<td>Render only what a draft cites</td>
+<td><code>sources.py render --cited-in draft.md</code></td>
+</tr>
+<tr>
+<td>Rewrite a draft&#39;s Sources block in place</td>
+<td><code>sources.py render --replace-in draft.md</code></td>
+</tr>
+<tr>
+<td>Check a draft&#39;s citations</td>
+<td><code>sources.py verify draft.md [--strict] [--min-coverage 0.6] [--evidence]</code></td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<p>① <strong>Reset the ledger</strong> at the start of a task that will produce a grounded
+answer or document. Skip the reset when continuing work whose ids are already
+in a draft — reusing the ledger keeps the numbering stable.</p>
+<p>② <strong>Register every source at retrieval time.</strong> After each <code>web_search</code> /
+<code>web_extract</code> / <code>browser_navigate</code> / fetch, pass the URLs to <code>sources.py add</code>
+(or pipe the raw JSON through <code>sources.py ingest</code>). Do this <em>before</em> writing
+prose. Registering later, from memory, is the failure mode this skill exists to
+prevent.</p>
+<p>③ <strong>Write cite-while-drafting.</strong> Place the bracketed id(s) immediately after
+each sentence the source supports:</p>
+<pre><code>Ice floats because it is less dense than liquid water.[1][2]
+</code></pre>
+<ul>
+<li>No space before the bracket; each id in its own brackets.</li>
+<li>Max 3 ids per sentence. Cite per sentence, not one dump at the end.</li>
+<li>Only ids the ledger returned. Never invent an id or a URL.</li>
+<li>Claims from your own knowledge get no citation.</li>
+<li>Conflicting sources: present both readings, each with its own id.</li>
+<li>Quote exact figures, dates, and names as the source states them; flag gaps
+explicitly (&quot;no source found for X&quot;) instead of smoothing them over.</li>
+</ul>
+<p>④ <strong>Append the Sources block</strong> with <code>sources.py render --cited-in &lt;draft&gt;</code> so
+the id → URL mapping is generated mechanically from the ledger, not retyped.
+For non-markdown targets pick the matching <code>--style</code> and follow
+<code>references/citation-formats.md</code> for placement (footnotes in docx, endnotes in
+PDF/LaTeX, a Sources slide in decks, per-page source lists in wiki output).</p>
+<p>⑤ <strong>Verify before delivering</strong> — <code>sources.py verify &lt;draft&gt;</code> exits non-zero on
+unknown ids, on a Sources block that disagrees with the ledger, or (with
+<code>--min-coverage</code>) on prose that is too thinly cited. Fix and re-run.</p>
+<p>⑥ <strong>Chat answers</strong> follow the same steps with the draft in your reply: register
+sources, cite inline, end with the rendered <code>Sources:</code> list. For a short answer
+you may render the block from <code>sources.py render --only &lt;ids&gt;</code> instead of
+writing to a file.</p>
+<h3>Multi-Platform Sweeps</h3>
+<p>&quot;What are people saying about X&quot; / &quot;research X across the web&quot; is not one
+<code>web_search</code>. Fan out across source types, collect in parallel, then synthesise
+with every claim attributed to the platform it came from:</p>
+<table>
+<thead>
+<tr>
+<th>Source type</th>
+<th>Route</th>
+<th>What it adds</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Open web</td>
+<td><code>web_search</code> → <code>web_extract</code></td>
+<td>official docs, articles, announcements</td>
+</tr>
+<tr>
+<td>Community discussion</td>
+<td><code>reddit-reading</code> (<code>search</code>, <code>thread</code>)</td>
+<td>real user experience, complaints, workarounds</td>
+</tr>
+<tr>
+<td>Blogs / releases / changelogs</td>
+<td><code>rss-feeds</code> (<code>read</code>, <code>discover</code>)</td>
+<td>dated primary posts, version history</td>
+</tr>
+<tr>
+<td>Video</td>
+<td><code>youtube-content</code></td>
+<td>walkthroughs, demos, talks</td>
+</tr>
+<tr>
+<td>Code</td>
+<td><code>terminal</code> with <code>gh search repos</code> / <code>gh search issues</code></td>
+<td>implementations, open bugs</td>
+</tr>
+<tr>
+<td>X/Twitter</td>
+<td><code>xurl</code> (needs API access)</td>
+<td>announcements, developer chatter</td>
+</tr>
+</tbody></table>
+<p>The <code>reddit-reading</code> and <code>rss-feeds</code> skills are optional. If absent, install with
+<code>hermes skills install official/social-media/reddit-reading</code> or
+<code>hermes skills install official/research/rss-feeds</code> before using them.</p>
+<p>Register every URL from every route in the ledger as it arrives (step ②). Keep
+opinion and measurement apart: a Reddit thread is evidence that users <em>report</em>
+something, not that it is true; pair it with a primary source or label it as
+sentiment. Report per-platform coverage gaps (&quot;Reddit search returned nothing
+newer than March&quot;) rather than silently narrowing to what worked.</p>
+<h3>Fact-Checking Mode</h3>
+<p>For work where the reader must be able to check the chain — medical, legal,
+financial, safety, disputed claims, or when the user asks for fact-checking —
+upgrade from citations to evidence:</p>
+<p>① <strong>Attach a verbatim quote per source.</strong> After extracting a page, save its
+text to a file and attach the sentence(s) that carry each claim:</p>
+<pre><code class="language-bash">python &quot;$S&quot; quote 1 --text &quot;Ice is about 9% less dense than liquid water.&quot; --from page1.txt
+</code></pre>
+<p>The quote is rejected unless it appears verbatim in the evidence text
+(insensitive to whitespace, case, and markdown markup — inline links like
+<code>_[ERAP1](https://…)_</code> in extracted text match the plain prose a reader sees),
+so a paraphrase or misremembered figure cannot masquerade as evidence.
+Copy-paste from the fetched text; never retype. Quote the sentence as the
+reader sees it — the matcher sees through the extractor&#39;s markup for you, so
+you don&#39;t have to reproduce link syntax or escaped asterisks in your quote.</p>
+<p>② <strong>Flag model-knowledge claims with <code>[unverified]</code>.</strong> A load-bearing claim
+you could not source gets an explicit marker instead of a citation:</p>
+<pre><code>The refactor likely predates the 2.0 release.[unverified]
+</code></pre>
+<p><code>verify --min-coverage</code> counts <code>[unverified]</code> sentences as covered — the goal
+is declared provenance for every claim, not a citation on every sentence.
+If a key claim can be checked, check it; <code>[unverified]</code> is for what genuinely
+cannot be, and a fact-check deliverable dominated by <code>[unverified]</code> markers
+should say so in its summary.</p>
+<p>③ <strong>Cross-check disputed facts against a second independent source.</strong> When two
+sources disagree, cite both readings with their own ids and quotes, and say
+which you weight and why. One source is reporting; two independent sources are
+corroboration.</p>
+<p>④ <strong>Verify with the evidence gate and render the evidence block:</strong></p>
+<pre><code class="language-bash">python &quot;$S&quot; verify report.md --evidence --min-coverage 0.5
+python &quot;$S&quot; render --style evidence --replace-in report.md
+</code></pre>
+<p><code>--evidence</code> fails the draft if any cited source has no attached quote. The
+<code>evidence</code> render style prints each source&#39;s quotes beneath its URL, so the
+deliverable shows claim → source → exact supporting text with nothing taken on
+faith. Use <code>--replace-in &lt;draft&gt;</code> to rewrite an existing Sources block in place
+(idempotent — safe to re-run after attaching more quotes); <code>--cited-in</code> prints
+to stdout instead. Both emit the heading <code>## Sources</code> (<code>--style plain</code> emits
+<code>Sources:</code>).</p>
+<p><strong>What <code>--min-coverage</code> counts.</strong> Coverage is
+<code>sentences with declared provenance / prose sentences</code>. A prose sentence is a
+non-empty line fragment of 4+ words after the Sources block, headings (<code>#</code>),
+table rows (<code>|</code>), and fenced code are dropped; blockquote markers are stripped.
+Provenance is declared by either a <code>[n]</code> citation or an <code>[unverified]</code> marker,
+so a sentence carrying both counts once. Run <code>verify</code> without a threshold first
+and read the <code>info: stats:</code> line to see the counts before picking a number.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Registering after writing.</strong> The ledger must be populated from tool output,
+not reconstructed from the draft — that reintroduces exactly the hallucinated
+-URL risk the numbering removes.</li>
+<li><strong>Renumbering mid-task.</strong> Never hand-edit ids in a draft. Ids are ledger
+identities; if a draft cites <code>[4]</code>, <code>[4]</code> must stay that source. Run <code>reset</code>
+only between tasks.</li>
+<li><strong>Retyping URLs into the Sources block.</strong> Always <code>render</code>. A hand-typed URL
+is an unverified claim.</li>
+<li><strong>Citing a search snippet as if you read the page.</strong> A <code>web_search</code>
+description supports only what it literally says. Cite the extracted page
+when the claim needs the body — <code>web_extract</code> it first.</li>
+<li><strong>Over-citing.</strong> Three ids on a sentence is the ceiling; a citation on every
+clause makes text unreadable and hides which source carries the load.</li>
+<li><strong>Citing the ledger in code/config artifacts.</strong> Source comments belong in
+prose deliverables and doc headers, not inside generated code.</li>
+<li><strong>Parallel subagents.</strong> Each subagent has its own working directory; point
+them all at one ledger with <code>--ledger</code> (or <code>HERMES_CITATION_LEDGER</code>) if their
+outputs get merged, otherwise their ids will collide.</li>
+<li><strong>Quoting from a snippet instead of the page.</strong> Evidence quotes must come
+from the extracted page text, not a search-result description — <code>web_extract</code>
+first, save the text, then <code>quote --from</code> that file.</li>
+<li><strong>Paraphrasing into <code>quote --text</code>.</strong> The verbatim check will reject it; the
+fix is to find the actual sentence, not to reword until something matches.</li>
+<li><strong>Using <code>[unverified]</code> as an escape hatch.</strong> It marks the rare claim that
+genuinely cannot be sourced; if most sentences carry it, the task needed more
+retrieval, not more markers.</li>
+<li><strong>Hand-editing the Sources block.</strong> Use <code>render --replace-in &lt;draft&gt;</code>; slicing
+the file yourself risks a stale or duplicated block that <code>verify</code> then flags.</li>
+</ul>
+<h3>Verification</h3>
+<pre><code class="language-bash">python &quot;$S&quot; verify report.md --strict --min-coverage 0.5
+</code></pre>
+<p>Green means: every <code>[n]</code> in the draft exists in the ledger, the Sources block
+lists exactly the cited ids with the ledger&#39;s URLs, and the cited share of
+source-bearing sentences meets the threshold. Read the warnings even when the
+exit code is 0 — uncited registered sources usually mean a claim lost its
+attribution during editing.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/research/grounded-citations</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

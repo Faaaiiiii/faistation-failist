@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>memento-flashcards — Skill Hermes</title>
+<meta name="description" content="Spaced-repetition flashcards: create, review, quiz, export.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>memento-flashcards</h1>
+    <p class="lede">Spaced-repetition flashcards: create, review, quiz, export.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>memento-flashcards</dd>
+      <dt>Keterangan</dt><dd>Spaced-repetition flashcards: create, review, quiz, export.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Memento AI</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/memento-flashcards.zip" download>Muat turun ZIP (9.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.3 KB</td></tr>
+<tr><td><code>scripts/memento_cards.py</code></td><td class="sz">11.2 KB</td></tr>
+<tr><td><code>scripts/youtube_quiz.py</code></td><td class="sz">2.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Memento Flashcards — Spaced-Repetition Flashcard Skill</h2>
+<h3>Overview</h3>
+<p>Memento gives you a local, file-based flashcard system with spaced-repetition scheduling.
+Users can chat with their flashcards by answering in free text and having the agent grade the response before scheduling the next review.
+Use it whenever the user wants to:</p>
+<ul>
+<li><strong>Remember a fact</strong> — turn any statement into a Q/A flashcard</li>
+<li><strong>Study with spaced repetition</strong> — review due cards with adaptive intervals and agent-graded free-text answers</li>
+<li><strong>Quiz from a YouTube video</strong> — fetch a transcript and generate a 5-question quiz</li>
+<li><strong>Manage decks</strong> — organise cards into collections, export/import CSV</li>
+</ul>
+<p>All card data lives in a single JSON file. No external API keys are required — you (the agent) generate flashcard content and quiz questions directly.</p>
+<p>User-facing response style for Memento Flashcards:</p>
+<ul>
+<li>Use plain text only. Do not use Markdown formatting in replies to the user.</li>
+<li>Keep review and quiz feedback brief and neutral. Avoid extra praise, pep, or long explanations.</li>
+</ul>
+<h3>When to Use</h3>
+<p>Use this skill when the user wants to:</p>
+<ul>
+<li>Save facts as flashcards for later review</li>
+<li>Review due cards with spaced repetition</li>
+<li>Generate a quiz from a YouTube video transcript</li>
+<li>Import, export, inspect, or delete flashcard data</li>
+</ul>
+<p>Do not use this skill for general Q&amp;A, coding help, or non-memory tasks.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>User intent</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;Remember that X&quot; / &quot;save this as a flashcard&quot;</td>
+<td>Generate a Q/A card, call <code>memento_cards.py add</code></td>
+</tr>
+<tr>
+<td>Sends a fact without mentioning flashcards</td>
+<td>Ask &quot;Want me to save this as a Memento flashcard?&quot; — only create if confirmed</td>
+</tr>
+<tr>
+<td>&quot;Create a flashcard&quot;</td>
+<td>Ask for Q, A, collection; call <code>memento_cards.py add</code></td>
+</tr>
+<tr>
+<td>&quot;Review my cards&quot;</td>
+<td>Call <code>memento_cards.py due</code>, present cards one-by-one</td>
+</tr>
+<tr>
+<td>&quot;Quiz me on [YouTube URL]&quot;</td>
+<td>Call <code>youtube_quiz.py fetch VIDEO_ID</code>, generate 5 questions, call <code>memento_cards.py add-quiz</code></td>
+</tr>
+<tr>
+<td>&quot;Export my cards&quot;</td>
+<td>Call <code>memento_cards.py export --output PATH</code></td>
+</tr>
+<tr>
+<td>&quot;Import cards from CSV&quot;</td>
+<td>Call <code>memento_cards.py import --file PATH --collection NAME</code></td>
+</tr>
+<tr>
+<td>&quot;Show my stats&quot;</td>
+<td>Call <code>memento_cards.py stats</code></td>
+</tr>
+<tr>
+<td>&quot;Delete a card&quot;</td>
+<td>Call <code>memento_cards.py delete --id ID</code></td>
+</tr>
+<tr>
+<td>&quot;Delete a collection&quot;</td>
+<td>Call <code>memento_cards.py delete-collection --collection NAME</code></td>
+</tr>
+</tbody></table>
+<h3>Card Storage</h3>
+<p>Cards are stored in a JSON file at:</p>
+<pre><code>~/.hermes/skills/productivity/memento-flashcards/data/cards.json
+</code></pre>
+<p><strong>Never edit this file directly.</strong> Always use <code>memento_cards.py</code> subcommands. The script handles atomic writes (write to temp file, then rename) to prevent corruption.</p>
+<p>The file is created automatically on first use.</p>
+<h3>Procedure</h3>
+<h4>Creating Cards from Facts</h4>
+<h4>Activation Rules</h4>
+<p>Not every factual statement should become a flashcard. Use this three-tier check:</p>
+<ol>
+<li><strong>Explicit intent</strong> — the user mentions &quot;memento&quot;, &quot;flashcard&quot;, &quot;remember this&quot;, &quot;save this card&quot;, &quot;add a card&quot;, or similar phrasing that clearly requests a flashcard → <strong>create the card directly</strong>, no confirmation needed.</li>
+<li><strong>Implicit intent</strong> — the user sends a factual statement without mentioning flashcards (e.g. &quot;The speed of light is 299,792 km/s&quot;) → <strong>ask first</strong>: &quot;Want me to save this as a Memento flashcard?&quot; Only create the card if the user confirms.</li>
+<li><strong>No intent</strong> — the message is a coding task, a question, instructions, normal conversation, or anything that is clearly not a fact to memorize → <strong>do NOT activate this skill at all</strong>. Let other skills or default behavior handle it.</li>
+</ol>
+<p>When activation is confirmed (tier 1 directly, tier 2 after confirmation), generate a flashcard:</p>
+<p><strong>Step 1:</strong> Turn the statement into a Q/A pair. Use this format internally:</p>
+<pre><code>Turn the factual statement into a front-back pair.
+Return exactly two lines:
+Q: &lt;question text&gt;
+A: &lt;answer text&gt;
+
+Statement: &quot;{statement}&quot;
+</code></pre>
+<p>Rules:</p>
+<ul>
+<li>The question should test recall of the key fact</li>
+<li>The answer should be concise and direct</li>
+</ul>
+<p><strong>Step 2:</strong> Call the script to store the card:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py add \
+  --question &quot;What year did World War 2 end?&quot; \
+  --answer &quot;1945&quot; \
+  --collection &quot;History&quot;
+</code></pre>
+<p>If the user doesn&#39;t specify a collection, use <code>&quot;General&quot;</code> as the default.</p>
+<p>The script outputs JSON confirming the created card.</p>
+<h4>Manual Card Creation</h4>
+<p>When the user explicitly asks to create a flashcard, ask them for:</p>
+<ol>
+<li>The question (front of card)</li>
+<li>The answer (back of card)</li>
+<li>The collection name (optional — default to <code>&quot;General&quot;</code>)</li>
+</ol>
+<p>Then call <code>memento_cards.py add</code> as above.</p>
+<h4>Reviewing Due Cards</h4>
+<p>When the user wants to review, fetch all due cards:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py due
+</code></pre>
+<p>This returns a JSON array of cards where <code>next_review_at &lt;= now</code>. If a collection filter is needed:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py due --collection &quot;History&quot;
+</code></pre>
+<p><strong>Review flow (free-text grading):</strong></p>
+<p>Here is an example of the EXACT interaction pattern you must follow. The user answers, you grade them, tell them the correct answer, then rate the card.</p>
+<p><strong>Example interaction:</strong></p>
+<blockquote>
+<p><strong>Agent:</strong> What year did the Berlin Wall fall?</p>
+<p><strong>User:</strong> 1991</p>
+<p><strong>Agent:</strong> Not quite. The Berlin Wall fell in 1989. Next review is tomorrow.
+<em>(agent calls: memento_cards.py rate --id ABC --rating hard --user-answer &quot;1991&quot;)</em></p>
+<p>Next question: Who was the first person to walk on the moon?</p>
+</blockquote>
+<p><strong>The rules:</strong></p>
+<ol>
+<li>Show only the question. Wait for the user to answer.</li>
+<li>After receiving their answer, compare it to the expected answer and grade it:<ul>
+<li><strong>correct</strong> → user got the key fact right (even if worded differently)</li>
+<li><strong>partial</strong> → right track but missing the core detail</li>
+<li><strong>incorrect</strong> → wrong or off-topic</li>
+</ul>
+</li>
+<li><strong>You MUST tell the user the correct answer and how they did.</strong> Keep it short and plain-text. Use this format:<ul>
+<li>correct: &quot;Correct. Answer: {answer}. Next review in 7 days.&quot;</li>
+<li>partial: &quot;Close. Answer: {answer}. {what they missed}. Next review in 3 days.&quot;</li>
+<li>incorrect: &quot;Not quite. Answer: {answer}. Next review tomorrow.&quot;</li>
+</ul>
+</li>
+<li>Then call the rate command: correct→easy, partial→good, incorrect→hard.</li>
+<li>Then show the next question.</li>
+</ol>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py rate \
+  --id CARD_ID --rating easy --user-answer &quot;what the user said&quot;
+</code></pre>
+<p><strong>Never skip step 3.</strong> The user must always see the correct answer and feedback before you move on.</p>
+<p>If no cards are due, tell the user: &quot;No cards due for review right now. Check back later!&quot;</p>
+<p><strong>Retire override:</strong> At any point the user can say &quot;retire this card&quot; to permanently remove it from reviews. Use <code>--rating retire</code> for this.</p>
+<h4>Spaced Repetition Algorithm</h4>
+<p>The rating determines the next review interval:</p>
+<table>
+<thead>
+<tr>
+<th>Rating</th>
+<th>Interval</th>
+<th>ease_streak</th>
+<th>Status change</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>hard</strong></td>
+<td>+1 day</td>
+<td>reset to 0</td>
+<td>stays learning</td>
+</tr>
+<tr>
+<td><strong>good</strong></td>
+<td>+3 days</td>
+<td>reset to 0</td>
+<td>stays learning</td>
+</tr>
+<tr>
+<td><strong>easy</strong></td>
+<td>+7 days</td>
+<td>+1</td>
+<td>if ease_streak &gt;= 3 → retired</td>
+</tr>
+<tr>
+<td><strong>retire</strong></td>
+<td>permanent</td>
+<td>reset to 0</td>
+<td>→ retired</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>learning</strong>: card is actively in rotation</li>
+<li><strong>retired</strong>: card won&#39;t appear in reviews (user has mastered it or manually retired it)</li>
+<li>Three consecutive &quot;easy&quot; ratings automatically retire a card</li>
+</ul>
+<h4>YouTube Quiz Generation</h4>
+<p>When the user sends a YouTube URL and wants a quiz:</p>
+<p><strong>Step 1:</strong> Extract the video ID from the URL (e.g. <code>dQw4w9WgXcQ</code> from <code>https://www.youtube.com/watch?v=dQw4w9WgXcQ</code>).</p>
+<p><strong>Step 2:</strong> Fetch the transcript:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/youtube_quiz.py fetch VIDEO_ID
+</code></pre>
+<p>This returns <code>{&quot;title&quot;: &quot;...&quot;, &quot;transcript&quot;: &quot;...&quot;}</code> or an error.</p>
+<p>If the script reports <code>missing_dependency</code>, use <code>terminal</code> with a PM-prepared
+Hermes checkout to prepare the declared <code>youtube</code> extra, then reactivate:</p>
+<pre><code class="language-bash">python -c &quot;import pm; pm.sync_venv([&#39;youtube&#39;], explicit=True)&quot;
+source ./activate
+python -c &quot;import youtube_transcript_api; print(youtube_transcript_api.__file__)&quot;
+</code></pre>
+<p>Follow the isolated development-home setup in
+<a href="https://hermes-agent.nousresearch.com/docs/reference/package-management#developer-workflow">Package Management</a>
+before preparation. Retry <code>youtube_quiz.py</code> with that Python and the actual
+skill directory returned by <code>skill_view</code>. For a remote or sandbox terminal,
+prepare an independent helper environment on that host. Never pip-install into
+Hermes&#39;s selected environment.</p>
+<p><strong>Step 3:</strong> Generate 5 quiz questions from the transcript. Use these rules:</p>
+<pre><code>You are creating a 5-question quiz for a podcast episode.
+Return ONLY a JSON array with exactly 5 objects.
+Each object must contain keys &#39;question&#39; and &#39;answer&#39;.
+
+Selection criteria:
+- Prioritize important, surprising, or foundational facts.
+- Skip filler, obvious details, and facts that require heavy context.
+- Never return true/false questions.
+- Never ask only for a date.
+
+Question rules:
+- Each question must test exactly one discrete fact.
+- Use clear, unambiguous wording.
+- Prefer What, Who, How many, Which.
+- Avoid open-ended Describe or Explain prompts.
+
+Answer rules:
+- Each answer must be under 240 characters.
+- Lead with the answer itself, not preamble.
+- Add only minimal clarifying detail if needed.
+</code></pre>
+<p>Use the first 15,000 characters of the transcript as context. Generate the questions yourself (you are the LLM).</p>
+<p><strong>Step 4:</strong> Validate the output is valid JSON with exactly 5 items, each having non-empty <code>question</code> and <code>answer</code> strings. If validation fails, retry once.</p>
+<p><strong>Step 5:</strong> Store quiz cards:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py add-quiz \
+  --video-id &quot;VIDEO_ID&quot; \
+  --questions &#39;[{&quot;question&quot;:&quot;...&quot;,&quot;answer&quot;:&quot;...&quot;},...]&#39; \
+  --collection &quot;Quiz - Episode Title&quot;
+</code></pre>
+<p>The script deduplicates by <code>video_id</code> — if cards for that video already exist, it skips creation and reports the existing cards.</p>
+<p><strong>Step 6:</strong> Present questions one-by-one using the same free-text grading flow:</p>
+<ol>
+<li>Show &quot;Question 1/5: ...&quot; and wait for the user&#39;s answer. Never include the answer or any hint about revealing it.</li>
+<li>Wait for the user to answer in their own words</li>
+<li>Grade their answer using the grading prompt (see &quot;Reviewing Due Cards&quot; section)</li>
+<li><strong>IMPORTANT: You MUST reply to the user with feedback before doing anything else.</strong> Show the grade, the correct answer, and when the card is next due. Do NOT silently skip to the next question. Keep it short and plain-text. Example: &quot;Not quite. Answer: {answer}. Next review tomorrow.&quot;</li>
+<li><strong>After showing feedback</strong>, call the rate command and then show the next question in the same message:</li>
+</ol>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py rate \
+  --id CARD_ID --rating easy --user-answer &quot;what the user said&quot;
+</code></pre>
+<ol start="6">
+<li>Repeat. Every answer MUST receive visible feedback before the next question.</li>
+</ol>
+<h4>Export/Import CSV</h4>
+<p><strong>Export:</strong></p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py export \
+  --output ~/flashcards.csv
+</code></pre>
+<p>Produces a 3-column CSV: <code>question,answer,collection</code> (no header row).</p>
+<p><strong>Import:</strong></p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py import \
+  --file ~/flashcards.csv \
+  --collection &quot;Imported&quot;
+</code></pre>
+<p>Reads a CSV with columns: question, answer, and optionally collection (column 3). If the collection column is missing, uses the <code>--collection</code> argument.</p>
+<h4>Statistics</h4>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py stats
+</code></pre>
+<p>Returns JSON with:</p>
+<ul>
+<li><code>total</code>: total card count</li>
+<li><code>learning</code>: cards in active rotation</li>
+<li><code>retired</code>: mastered cards</li>
+<li><code>due_now</code>: cards due for review right now</li>
+<li><code>collections</code>: breakdown by collection name</li>
+</ul>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Never edit <code>cards.json</code> directly</strong> — always use the script subcommands to avoid corruption</li>
+<li><strong>Transcript failures</strong> — some YouTube videos have no English transcript or have transcripts disabled; inform the user and suggest another video</li>
+<li><strong>Optional dependency</strong> — <code>youtube_quiz.py</code> needs <code>youtube-transcript-api</code>; use the PM preparation and interpreter check above if missing.</li>
+<li><strong>Large imports</strong> — CSV imports with thousands of rows work fine but the JSON output may be verbose; summarize the result for the user</li>
+<li><strong>Video ID extraction</strong> — support both <code>youtube.com/watch?v=ID</code> and <code>youtu.be/ID</code> URL formats</li>
+</ul>
+<h3>Verification</h3>
+<p>Verify the helper scripts directly:</p>
+<pre><code class="language-bash">python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py stats
+python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py add --question &quot;Capital of France?&quot; --answer &quot;Paris&quot; --collection &quot;General&quot;
+python3 ~/.hermes/skills/productivity/memento-flashcards/scripts/memento_cards.py due
+</code></pre>
+<p>If you are testing from the repo checkout, run:</p>
+<pre><code class="language-bash">scripts/run_tests.sh tests/skills/test_memento_cards.py tests/skills/test_youtube_quiz.py -q
+</code></pre>
+<p>Agent-level verification:</p>
+<ul>
+<li>Start a review and confirm feedback is plain text, brief, and always includes the correct answer before the next card</li>
+<li>Run a YouTube quiz flow and confirm each answer receives visible feedback before the next question</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/productivity/memento-flashcards</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

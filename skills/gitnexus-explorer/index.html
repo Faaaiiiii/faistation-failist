@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>gitnexus-explorer — Skill Hermes</title>
+<meta name="description" content="Serve an interactive codebase knowledge graph web UI.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>gitnexus-explorer</h1>
+    <p class="lede">Serve an interactive codebase knowledge graph web UI.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>gitnexus-explorer</dd>
+      <dt>Keterangan</dt><dd>Serve an interactive codebase knowledge graph web UI.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/gitnexus-explorer.zip" download>Muat turun ZIP (4.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>scripts/proxy.mjs</code></td><td class="sz">2.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>GitNexus Explorer</h2>
+<p>Index any codebase into a knowledge graph and serve an interactive web UI for exploring
+symbols, call chains, clusters, and execution flows. Tunneled via Cloudflare for remote access.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User wants to visually explore a codebase&#39;s architecture</li>
+<li>User asks for a knowledge graph / dependency graph of a repo</li>
+<li>User wants to share an interactive codebase explorer with someone</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>Node.js</strong> (v18+) — required for GitNexus and the proxy</li>
+<li><strong>git</strong> — repo must have a <code>.git</code> directory</li>
+<li><strong>cloudflared</strong> — for tunneling (auto-installed to ~/.local/bin if missing)</li>
+</ul>
+<h3>Size Warning</h3>
+<p>The web UI renders all nodes in the browser. Repos under ~5,000 files work well. Large
+repos (30k+ nodes) will be sluggish or crash the browser tab. The CLI/MCP tools work
+at any scale — only the web visualization has this limit.</p>
+<h3>Steps</h3>
+<h4>1. Clone and Build GitNexus (one-time setup)</h4>
+<pre><code class="language-bash">GITNEXUS_DIR=&quot;${GITNEXUS_DIR:-$HOME/.local/share/gitnexus}&quot;
+
+if [ ! -d &quot;$GITNEXUS_DIR/gitnexus-web/dist&quot; ]; then
+  git clone https://github.com/abhigyanpatwari/GitNexus.git &quot;$GITNEXUS_DIR&quot;
+  cd &quot;$GITNEXUS_DIR/gitnexus-shared&quot; &amp;&amp; npm install &amp;&amp; npm run build
+  cd &quot;$GITNEXUS_DIR/gitnexus-web&quot; &amp;&amp; npm install
+fi
+</code></pre>
+<h4>2. Patch the Web UI for Remote Access</h4>
+<p>The web UI defaults to <code>localhost:4747</code> for API calls. Patch it to use same-origin
+so it works through a tunnel/proxy:</p>
+<p><strong>File: <code>$GITNEXUS_DIR/gitnexus-web/src/config/ui-constants.ts</code></strong>
+Change:</p>
+<pre><code class="language-typescript">export const DEFAULT_BACKEND_URL = &#39;http://localhost:4747&#39;;
+</code></pre>
+<p>To:</p>
+<pre><code class="language-typescript">export const DEFAULT_BACKEND_URL = typeof window !== &#39;undefined&#39; &amp;&amp; window.location.hostname !== &#39;localhost&#39; ? window.location.origin : &#39;http://localhost:4747&#39;;
+</code></pre>
+<p><strong>File: <code>$GITNEXUS_DIR/gitnexus-web/vite.config.ts</code></strong>
+Add <code>allowedHosts: true</code> inside the <code>server: { }</code> block (only needed if running dev
+mode instead of production build):</p>
+<pre><code class="language-typescript">server: {
+    allowedHosts: true,
+    // ... existing config
+},
+</code></pre>
+<p>Then build the production bundle:</p>
+<pre><code class="language-bash">cd &quot;$GITNEXUS_DIR/gitnexus-web&quot; &amp;&amp; npx vite build
+</code></pre>
+<h4>3. Index the Target Repo</h4>
+<pre><code class="language-bash">cd /path/to/target-repo
+npx gitnexus analyze --skip-agents-md
+rm -rf .claude/    # remove Claude Code-specific artifacts
+</code></pre>
+<p>Add <code>--embeddings</code> for semantic search (slower — minutes instead of seconds).</p>
+<p>The index lives in <code>.gitnexus/</code> inside the repo (auto-gitignored).</p>
+<h4>4. Create the Proxy Script</h4>
+<p>Write this to a file (e.g., <code>$GITNEXUS_DIR/proxy.mjs</code>). It serves the production
+web UI and proxies <code>/api/*</code> to the GitNexus backend — same origin, no CORS issues,
+no sudo, no nginx.</p>
+<pre><code class="language-javascript">import http from &#39;node:http&#39;;
+import fs from &#39;node:fs&#39;;
+import path from &#39;node:path&#39;;
+
+const API_PORT = parseInt(process.env.API_PORT || &#39;4747&#39;);
+const DIST_DIR = process.argv[2] || &#39;./dist&#39;;
+const PORT = parseInt(process.argv[3] || &#39;8888&#39;);
+
+const MIME = {
+  &#39;.html&#39;: &#39;text/html&#39;, &#39;.js&#39;: &#39;application/javascript&#39;, &#39;.css&#39;: &#39;text/css&#39;,
+  &#39;.json&#39;: &#39;application/json&#39;, &#39;.png&#39;: &#39;image/png&#39;, &#39;.svg&#39;: &#39;image/svg+xml&#39;,
+  &#39;.ico&#39;: &#39;image/x-icon&#39;, &#39;.woff2&#39;: &#39;font/woff2&#39;, &#39;.woff&#39;: &#39;font/woff&#39;,
+  &#39;.wasm&#39;: &#39;application/wasm&#39;,
+};
+
+function proxyToApi(req, res) {
+  const opts = {
+    hostname: &#39;127.0.0.1&#39;, port: API_PORT,
+    path: req.url, method: req.method, headers: req.headers,
+  };
+  const proxy = http.request(opts, (upstream) =&gt; {
+    res.writeHead(upstream.statusCode, upstream.headers);
+    upstream.pipe(res, { end: true });
+  });
+  proxy.on(&#39;error&#39;, () =&gt; { res.writeHead(502); res.end(&#39;Backend unavailable&#39;); });
+  req.pipe(proxy, { end: true });
+}
+
+function serveStatic(req, res) {
+  let filePath = path.join(DIST_DIR, req.url === &#39;/&#39; ? &#39;index.html&#39; : req.url.split(&#39;?&#39;)[0]);
+  if (!fs.existsSync(filePath)) filePath = path.join(DIST_DIR, &#39;index.html&#39;);
+  const ext = path.extname(filePath);
+  const mime = MIME[ext] || &#39;application/octet-stream&#39;;
+  try {
+    const data = fs.readFileSync(filePath);
+    res.writeHead(200, { &#39;Content-Type&#39;: mime, &#39;Cache-Control&#39;: &#39;public, max-age=3600&#39; });
+    res.end(data);
+  } catch { res.writeHead(404); res.end(&#39;Not found&#39;); }
+}
+
+http.createServer((req, res) =&gt; {
+  if (req.url.startsWith(&#39;/api&#39;)) proxyToApi(req, res);
+  else serveStatic(req, res);
+}).listen(PORT, () =&gt; console.log(`GitNexus proxy on http://localhost:${PORT}`));
+</code></pre>
+<h4>5. Start the Services</h4>
+<pre><code class="language-bash"># Terminal 1: GitNexus backend API
+npx gitnexus serve &amp;
+
+# Terminal 2: Proxy (web UI + API on one port)
+node &quot;$GITNEXUS_DIR/proxy.mjs&quot; &quot;$GITNEXUS_DIR/gitnexus-web/dist&quot; 8888 &amp;
+</code></pre>
+<p>Verify: <code>curl -s http://localhost:8888/api/repos</code> should return the indexed repo(s).</p>
+<h4>6. Tunnel with Cloudflare (optional — for remote access)</h4>
+<pre><code class="language-bash"># Install cloudflared if needed (no sudo)
+if ! command -v cloudflared &amp;&gt;/dev/null; then
+  mkdir -p ~/.local/bin
+  curl -sL https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
+    -o ~/.local/bin/cloudflared
+  chmod +x ~/.local/bin/cloudflared
+  export PATH=&quot;$HOME/.local/bin:$PATH&quot;
+fi
+
+# Start tunnel (--config /dev/null avoids conflicts with existing named tunnels)
+cloudflared tunnel --config /dev/null --url http://localhost:8888 --no-autoupdate --protocol http2
+</code></pre>
+<p>The tunnel URL (e.g., <code>https://random-words.trycloudflare.com</code>) is printed to stderr.
+Share it — anyone with the link can explore the graph.</p>
+<h4>7. Cleanup</h4>
+<pre><code class="language-bash"># Stop services
+pkill -f &quot;gitnexus serve&quot;
+pkill -f &quot;proxy.mjs&quot;
+pkill -f cloudflared
+
+# Remove index from the target repo
+cd /path/to/target-repo
+npx gitnexus clean
+rm -rf .claude/
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li><p><strong><code>--config /dev/null</code> is required for cloudflared</strong> if the user has an existing
+named tunnel config at <code>~/.cloudflared/config.yml</code>. Without it, the catch-all
+ingress rule in the config returns 404 for all quick tunnel requests.</p>
+</li>
+<li><p><strong>Production build is mandatory for tunneling.</strong> The Vite dev server blocks
+non-localhost hosts by default (<code>allowedHosts</code>). The production build + Node
+proxy avoids this entirely.</p>
+</li>
+<li><p><strong>The web UI does NOT create <code>.claude/</code> or <code>CLAUDE.md</code>.</strong> Those are created by
+<code>npx gitnexus analyze</code>. Use <code>--skip-agents-md</code> to suppress the markdown files,
+then <code>rm -rf .claude/</code> for the rest. These are Claude Code integrations that
+hermes-agent users don&#39;t need.</p>
+</li>
+<li><p><strong>Browser memory limit.</strong> The web UI loads the entire graph into browser memory.
+Repos with 5k+ files may be sluggish. 30k+ files will likely crash the tab.</p>
+</li>
+<li><p><strong>Embeddings are optional.</strong> <code>--embeddings</code> enables semantic search but takes
+minutes on large repos. Skip it for quick exploration; add it if you want
+natural language queries via the AI chat panel.</p>
+</li>
+<li><p><strong>Multiple repos.</strong> <code>gitnexus serve</code> serves ALL indexed repos. Index several
+repos, start serve once, and the web UI lets you switch between them.</p>
+</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/gitnexus-explorer</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

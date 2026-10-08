@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>songwriting-and-ai-music — Skill Hermes</title>
+<meta name="description" content="Songwriting craft and Suno AI music prompts.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>songwriting-and-ai-music</h1>
+    <p class="lede">Songwriting craft and Suno AI music prompts.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>songwriting-and-ai-music</dd>
+      <dt>Keterangan</dt><dd>Songwriting craft and Suno AI music prompts.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/songwriting-and-ai-music.zip" download>Muat turun ZIP (5.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Songwriting &amp; AI Music Generation</h2>
+<p>Everything here is a GUIDELINE, not a rule. Art breaks rules on purpose.
+Use what serves the song. Ignore what doesn&#39;t.</p>
+<hr>
+<h3>1. Song Structure (Pick One or Invent Your Own)</h3>
+<p>Common skeletons — mix, modify, or throw out as needed:</p>
+<pre><code>ABABCB  Verse/Chorus/Verse/Chorus/Bridge/Chorus    (most pop/rock)
+AABA    Verse/Verse/Bridge/Verse (refrain-based)    (jazz standards, ballads)
+ABAB    Verse/Chorus alternating                    (simple, direct)
+AAA     Verse/Verse/Verse (strophic, no chorus)     (folk, storytelling)
+</code></pre>
+<p>The six building blocks:</p>
+<ul>
+<li>Intro      — set the mood, pull the listener in</li>
+<li>Verse      — the story, the details, the world-building</li>
+<li>Pre-Chorus — optional tension ramp before the payoff</li>
+<li>Chorus     — the emotional core, the part people remember</li>
+<li>Bridge     — a detour, a shift in perspective or key</li>
+<li>Outro      — the farewell, can echo or subvert the rest</li>
+</ul>
+<p>You don&#39;t need all of these. Some great songs are just one section
+that evolves. Structure serves the emotion, not the other way around.</p>
+<hr>
+<h3>2. Rhyme, Meter, and Sound</h3>
+<p>RHYME TYPES (from tight to loose):</p>
+<ul>
+<li>Perfect: lean/mean</li>
+<li>Family: crate/braid</li>
+<li>Assonance: had/glass (same vowels, different endings)</li>
+<li>Consonance: scene/when (different vowels, similar endings)</li>
+<li>Near/slant: enough to suggest connection without locking it down</li>
+</ul>
+<p>Mix them. All perfect rhymes can sound like a nursery rhyme.
+All slant rhymes can sound lazy. The blend is where it lives.</p>
+<p>INTERNAL RHYME: Rhyming within a line, not just at the ends.
+  &quot;We pruned the lies from bleeding trees / Distilled the storm
+   from entropy&quot; — &quot;lies/flies,&quot; &quot;trees/entropy&quot; create internal echoes.</p>
+<p>METER: The rhythm of stressed vs unstressed syllables.</p>
+<ul>
+<li>Matching syllable counts between parallel lines helps singability</li>
+<li>The STRESSED syllables matter more than total count</li>
+<li>Say it out loud. If you stumble, the meter needs work.</li>
+<li>Intentionally breaking meter can create emphasis or surprise</li>
+</ul>
+<hr>
+<h3>3. Emotional Arc and Dynamics</h3>
+<p>Think of a song as a journey, not a flat road.</p>
+<p>ENERGY MAPPING (rough idea, not prescription):
+  Intro: 2-3  |  Verse: 5-6  |  Pre-Chorus: 7
+  Chorus: 8-9  |  Bridge: varies  |  Final Chorus: 9-10</p>
+<p>The most powerful dynamic trick: CONTRAST.</p>
+<ul>
+<li>Whisper before a scream hits harder than just screaming</li>
+<li>Sparse before dense. Slow before fast. Low before high.</li>
+<li>The drop only works because of the buildup</li>
+<li>Silence is an instrument</li>
+</ul>
+<p>&quot;Whisper to roar to whisper&quot; — start intimate, build to full power,
+strip back to vulnerability. Works for ballads, epics, anthems.</p>
+<hr>
+<h3>4. Writing Lyrics That Work</h3>
+<p>SHOW, DON&#39;T TELL (usually):</p>
+<ul>
+<li>&quot;I was sad&quot; = flat</li>
+<li>&quot;Your hoodie&#39;s still on the hook by the door&quot; = alive</li>
+<li>But sometimes &quot;I give my life&quot; said plainly IS the power</li>
+</ul>
+<p>THE HOOK:</p>
+<ul>
+<li>The line people remember, hum, repeat</li>
+<li>Usually the title or core phrase</li>
+<li>Works best when melody + lyric + emotion all align</li>
+<li>Place it where it lands hardest (often first/last line of chorus)</li>
+</ul>
+<p>PROSODY — lyrics and music supporting each other:</p>
+<ul>
+<li>Stable feelings (resolution, peace) pair with settled melodies,
+perfect rhymes, resolved chords</li>
+<li>Unstable feelings (longing, doubt) pair with wandering melodies,
+near-rhymes, unresolved chords</li>
+<li>Verse melody typically sits lower, chorus goes higher</li>
+<li>But flip this if it serves the song</li>
+</ul>
+<p>AVOID (unless you&#39;re doing it on purpose):</p>
+<ul>
+<li>Cliches on autopilot (&quot;heart of gold&quot; without earning it)</li>
+<li>Forcing word order to hit a rhyme (&quot;Yoda-speak&quot;)</li>
+<li>Same energy in every section (flat dynamics)</li>
+<li>Treating your first draft as sacred — revision is creation</li>
+</ul>
+<hr>
+<h3>5. Parody and Adaptation</h3>
+<p>When rewriting an existing song with new lyrics:</p>
+<p>THE SKELETON: Map the original&#39;s structure first.</p>
+<ul>
+<li>Count syllables per line</li>
+<li>Mark the rhyme scheme (ABAB, AABB, etc.)</li>
+<li>Identify which syllables are STRESSED</li>
+<li>Note where held/sustained notes fall</li>
+</ul>
+<p>FITTING NEW WORDS:</p>
+<ul>
+<li>Match stressed syllables to the same beats as the original</li>
+<li>Total syllable count can flex by 1-2 unstressed syllables</li>
+<li>On long held notes, try to match the VOWEL SOUND of the original
+(if original holds &quot;LOOOVE&quot; with an &quot;oo&quot; vowel, &quot;FOOOD&quot; fits
+ better than &quot;LIFE&quot;)</li>
+<li>Monosyllabic swaps in key spots keep rhythm intact
+(Crime -&gt; Code, Snake -&gt; Noose)</li>
+<li>Sing your new words over the original — if you stumble, revise</li>
+</ul>
+<p>CONCEPT:</p>
+<ul>
+<li>Pick a concept strong enough to sustain the whole song</li>
+<li>Start from the title/hook and build outward</li>
+<li>Generate lots of raw material (puns, phrases, images) FIRST,
+then fit the best ones into the structure</li>
+<li>If you need a specific line somewhere, reverse-engineer the
+rhyme scheme backward to set it up</li>
+</ul>
+<p>KEEP SOME ORIGINALS: Leaving a few original lines or structures
+intact adds recognizability and lets the audience feel the connection.</p>
+<hr>
+<h3>6. Suno AI Prompt Engineering</h3>
+<h4>Style/Genre Description Field</h4>
+<p>FORMULA (adapt as needed):
+  Genre + Mood + Era + Instruments + Vocal Style + Production + Dynamics</p>
+<pre><code>BAD:  &quot;sad rock song&quot;
+GOOD: &quot;Cinematic orchestral spy thriller, 1960s Cold War era, smoky
+       sultry female vocalist, big band jazz, brass section with
+       trumpets and french horns, sweeping strings, minor key,
+       vintage analog warmth&quot;
+</code></pre>
+<p>DESCRIBE THE JOURNEY, not just the genre:</p>
+<pre><code>&quot;Begins as a haunting whisper over sparse piano. Gradually layers
+ in muted brass. Builds through the chorus with full orchestra.
+ Second verse erupts with raw belting intensity. Outro strips back
+ to a lone piano and a fragile whisper fading to silence.&quot;
+</code></pre>
+<p>TIPS:</p>
+<ul>
+<li>V4.5+ supports up to 1,000 chars in Style field — use them</li>
+<li>NO artist names or trademarks. Describe the sound instead.
+&quot;1960s Cold War spy thriller brass&quot; not &quot;James Bond style&quot;
+&quot;90s grunge&quot; not &quot;Nirvana-style&quot;</li>
+<li>Specify BPM and key when you have a preference</li>
+<li>Use Exclude Styles field for what you DON&#39;T want</li>
+<li>Unexpected genre combos can be gold: &quot;bossa nova trap&quot;,
+&quot;Appalachian gothic&quot;, &quot;chiptune jazz&quot;</li>
+<li>Build a vocal PERSONA, not just a gender:
+&quot;A weathered torch singer with a smoky alto, slight rasp,
+ who starts vulnerable and builds to devastating power&quot;</li>
+</ul>
+<h4>Metatags (place in [brackets] inside lyrics field)</h4>
+<p>STRUCTURE:
+  [Intro] [Verse] [Verse 1] [Pre-Chorus] [Chorus]
+  [Post-Chorus] [Hook] [Bridge] [Interlude]
+  [Instrumental] [Instrumental Break] [Guitar Solo]
+  [Breakdown] [Build-up] [Outro] [Silence] [End]</p>
+<p>VOCAL PERFORMANCE:
+  [Whispered] [Spoken Word] [Belted] [Falsetto] [Powerful]
+  [Soulful] [Raspy] [Breathy] [Smooth] [Gritty]
+  [Staccato] [Legato] [Vibrato] [Melismatic]
+  [Harmonies] [Choir] [Harmonized Chorus]</p>
+<p>DYNAMICS:
+  [High Energy] [Low Energy] [Building Energy] [Explosive]
+  [Emotional Climax] [Gradual swell] [Orchestral swell]
+  [Quiet arrangement] [Falling tension] [Slow Down]</p>
+<p>GENDER:
+  [Female Vocals] [Male Vocals]</p>
+<p>ATMOSPHERE:
+  [Melancholic] [Euphoric] [Nostalgic] [Aggressive]
+  [Dreamy] [Intimate] [Dark Atmosphere]</p>
+<p>SFX:
+  [Vinyl Crackle] [Rain] [Applause] [Static] [Thunder]</p>
+<p>Put tags in BOTH style field AND lyrics for reinforcement.
+Keep to 5-8 tags per section max — too many confuses the AI.
+Don&#39;t contradict yourself ([Calm] + [Aggressive] in same section).</p>
+<h4>Custom Mode</h4>
+<ul>
+<li>Always use Custom Mode for serious work (separate Style + Lyrics)</li>
+<li>Lyrics field limit: <del>3,000 chars (</del>40-60 lines)</li>
+<li>Always add structural tags — without them Suno defaults to
+flat verse/chorus/verse with no emotional arc</li>
+</ul>
+<hr>
+<h3>7. Phonetic Tricks for AI Singers</h3>
+<p>AI vocalists don&#39;t read — they pronounce. Help them:</p>
+<p>PHONETIC RESPELLING:</p>
+<ul>
+<li>Spell words as they SOUND: &quot;through&quot; -&gt; &quot;thru&quot;</li>
+<li>Proper nouns are highest failure rate — test early</li>
+<li>&quot;Nous&quot; -&gt; &quot;Noose&quot; (forces correct pronunciation)</li>
+<li>Hyphenate to guide syllables: &quot;Re-search&quot;, &quot;bio-engineering&quot;</li>
+</ul>
+<p>DELIVERY CONTROL:</p>
+<ul>
+<li>ALL CAPS = louder, more intense</li>
+<li>Vowel extension: &quot;lo-o-o-ove&quot; = sustained/melisma</li>
+<li>Ellipses: &quot;I... need... you&quot; = dramatic pauses</li>
+<li>Hyphenated stretch: &quot;ne-e-ed&quot; = emotional stretch</li>
+</ul>
+<p>ALWAYS:</p>
+<ul>
+<li>Spell out numbers: &quot;24/7&quot; -&gt; &quot;twenty four seven&quot;</li>
+<li>Space acronyms: &quot;AI&quot; -&gt; &quot;A I&quot; or &quot;A-I&quot;</li>
+<li>Test proper nouns/unusual words in a short 30-second clip first</li>
+<li>Once generated, pronunciation is baked in — fix in lyrics BEFORE</li>
+</ul>
+<hr>
+<h3>8. Workflow</h3>
+<ol>
+<li>Write the concept/hook first — what&#39;s the emotional core?</li>
+<li>If adapting, map the original structure (syllables, rhyme, stress)</li>
+<li>Generate raw material — brainstorm freely before structuring</li>
+<li>Draft lyrics into the structure</li>
+<li>Read/sing aloud — catch stumbles, fix meter</li>
+<li>Build the Suno style description — paint the dynamic journey</li>
+<li>Add metatags to lyrics for performance direction</li>
+<li>Generate 3-5 variations minimum — treat them like recording takes</li>
+<li>Pick the best, use Extend/Continue to build on promising sections</li>
+<li>If something great happens by accident, keep it</li>
+</ol>
+<p>EXPECT: ~3-5 generations per 1 good result. Revision is normal.
+Style can drift in extensions — restate genre/mood when extending.</p>
+<hr>
+<h3>9. Lessons Learned</h3>
+<ul>
+<li>Describing the dynamic ARC in the style field matters way more
+than just listing genres. &quot;Whisper to roar to whisper&quot; gives
+Suno a performance map.</li>
+<li>Keeping some original lines intact in a parody adds recognizability
+and emotional weight — the audience feels the ghost of the original.</li>
+<li>The bridge slot in a song is where you can transform imagery.
+Swap the original&#39;s specific references for your theme&#39;s metaphors
+while keeping the emotional function (reflection, shift, revelation).</li>
+<li>Monosyllabic word swaps in hooks/tags are the cleanest way to
+maintain rhythm while changing meaning.</li>
+<li>A strong vocal persona description in the style field makes a
+bigger difference than any single metatag.</li>
+<li>Don&#39;t be precious about rules. If a line breaks meter but hits
+harder, keep it. The feeling is what matters. Craft serves art,
+not the other way around.</li>
+</ul>
+<hr>
+<h3>10. Local / Open-Source Music Generation</h3>
+<p>For local, GPU-based generation instead of Suno, two optional skills
+cover this (heavy dependencies, so not installed by default):</p>
+<ul>
+<li><strong>heartmula</strong> — full songs with vocals from lyrics + tags
+(open-source Suno alternative, 8-16GB VRAM):
+<code>hermes skills install official/creative/heartmula</code></li>
+<li><strong>audiocraft</strong> — Meta&#39;s MusicGen (instrumental text-to-music) and
+AudioGen (sound effects):
+<code>hermes skills install official/creative/audiocraft-audio-generation</code></li>
+</ul>
+<p>The lyric-writing and prompting craft in this skill applies to
+heartmula too — its input format is lyrics with bracketed structure
+tags plus comma-separated style tags.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/songwriting-and-ai-music</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

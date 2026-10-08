@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>unsloth — Skill Hermes</title>
+<meta name="description" content="Unsloth: 2-5x faster LoRA/QLoRA fine-tuning, less VRAM.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>unsloth</h1>
+    <p class="lede">Unsloth: 2-5x faster LoRA/QLoRA fine-tuning, less VRAM.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>unsloth</dd>
+      <dt>Keterangan</dt><dd>Unsloth: 2-5x faster LoRA/QLoRA fine-tuning, less VRAM.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/unsloth.zip" download>Muat turun ZIP (488.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>references/index.md</code></td><td class="sz">98 B</td></tr>
+<tr><td><code>references/llms-full.md</code></td><td class="sz">1.03 MB</td></tr>
+<tr><td><code>references/llms-txt.md</code></td><td class="sz">794.0 KB</td></tr>
+<tr><td><code>references/llms.md</code></td><td class="sz">12.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Unsloth Skill</h2>
+<p>Assistance with unsloth development, generated from official documentation.</p>
+<h3>When to Use This Skill</h3>
+<p>This skill should be triggered when:</p>
+<ul>
+<li>Working with unsloth</li>
+<li>Asking about unsloth features or APIs</li>
+<li>Implementing unsloth solutions</li>
+<li>Debugging unsloth code</li>
+<li>Learning unsloth best practices</li>
+</ul>
+<h3>Quick Reference</h3>
+<h4>Common Patterns</h4>
+<p><em>Quick reference patterns will be added as you use the skill.</em></p>
+<h3>Reference Files</h3>
+<p>This skill includes full documentation in <code>references/</code>:</p>
+<ul>
+<li><strong>llms-txt.md</strong> - Llms-Txt documentation</li>
+</ul>
+<p>Use <code>view</code> to read specific reference files when detailed information is needed.</p>
+<h3>Working with This Skill</h3>
+<h4>For Beginners</h4>
+<p>Start with the getting_started or tutorials reference files for foundational concepts.</p>
+<h4>For Specific Features</h4>
+<p>Use the appropriate category reference file (api, guides, etc.) for detailed information.</p>
+<h4>For Code Examples</h4>
+<p>The quick reference section above contains common patterns extracted from the official docs.</p>
+<h3>Resources</h3>
+<h4>references/</h4>
+<p>Organized documentation extracted from official sources. These files contain:</p>
+<ul>
+<li>Detailed explanations</li>
+<li>Code examples with language annotations</li>
+<li>Links to original documentation</li>
+<li>Table of contents for quick navigation</li>
+</ul>
+<h4>scripts/</h4>
+<p>Add helper scripts here for common automation tasks.</p>
+<h4>assets/</h4>
+<p>Add templates, boilerplate, or example projects here.</p>
+<h3>Notes</h3>
+<ul>
+<li>This skill was automatically generated from official documentation</li>
+<li>Reference files preserve the structure and examples from source docs</li>
+<li>Code examples include language detection for better syntax highlighting</li>
+<li>Quick reference patterns are extracted from common usage examples in the docs</li>
+</ul>
+<h3>Updating</h3>
+<p>To refresh this skill with updated documentation:</p>
+<ol>
+<li>Re-run the scraper with the same configuration</li>
+<li>The skill will be rebuilt with the latest information</li>
+</ol>
+<!-- Trigger re-upload 1763621536 -->
+
+
+
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/training/unsloth</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>publish-site — Skill Hermes</title>
+<meta name="description" content="Versioned site deploys to GitHub/Cloudflare/Netlify Pages.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>publish-site</h1>
+    <p class="lede">Versioned site deploys to GitHub/Cloudflare/Netlify Pages.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>publish-site</dd>
+      <dt>Keterangan</dt><dd>Versioned site deploys to GitHub/Cloudflare/Netlify Pages.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>web-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/publish-site.zip" download>Muat turun ZIP (3.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Publish Site</h2>
+<p>Take a website, dashboard, or web app the user built (or you built for them) and put it online on infrastructure the user owns — GitHub Pages by default, Cloudflare Pages or Netlify when they need more. The discipline: preview locally for sign-off, version every deploy with a git tag, deploy through a provider ladder, verify the live URL with a real HTTP check, and keep rollback one command away.</p>
+<p>This skill covers static sites and SPA build output (plain HTML/CSS/JS, or the <code>dist/</code>/<code>build/</code> folder from Vite/Next-export/Astro/etc.). It does not cover server-side runtimes — for throwaway serverless deploys with zero account setup, use the <code>cloudflare-temporary-deploy</code> optional skill instead.</p>
+<h3>When to Use</h3>
+<p>Load this skill when the user asks to:</p>
+<ul>
+<li><strong>Put a site online</strong> — &quot;publish this&quot;, &quot;host this somewhere&quot;, &quot;give me a link I can share&quot;</li>
+<li><strong>Deploy a dashboard, report, portfolio, docs site, or prototype</strong> you just generated</li>
+<li><strong>Update an already-published site</strong> with new content (redeploy = new version)</li>
+<li><strong>Roll back</strong> a bad deploy to the previous version</li>
+<li><strong>Pick a host</strong> — they don&#39;t care where, they just want a URL</li>
+</ul>
+<h3>Prerequisites</h3>
+<p>At least ONE authenticated provider CLI (check in this order):</p>
+<ul>
+<li><strong>GitHub Pages (default):</strong> <code>gh auth status</code> succeeds. Needs <code>git</code> too.</li>
+<li><strong>Cloudflare Pages:</strong> <code>wrangler whoami</code> succeeds (or <code>CLOUDFLARE_API_TOKEN</code> is set). Install: <code>npm i -g wrangler</code> or use <code>npx wrangler@latest</code>.</li>
+<li><strong>Netlify (fallback):</strong> <code>netlify status</code> succeeds. Install: <code>npm i -g netlify-cli</code>.</li>
+</ul>
+<p>Plus:</p>
+<ul>
+<li>A directory of static output to publish (site root or a <code>dist/</code>/<code>build/</code> folder). If the project needs a build step, run it first and publish the output directory, never the source.</li>
+<li>For local preview sharing: <code>cloudflared</code> (optional — <code>python3 -m http.server</code> covers local-only preview).</li>
+</ul>
+<h3>How to Run</h3>
+<p>All commands below run via the <code>terminal</code> tool from the site&#39;s project directory. The pipeline is always the same five moves:</p>
+<ol>
+<li>Build → 2. Preview for sign-off → 3. Commit + tag (version-before-deploy) → 4. Deploy via the provider ladder → 5. Verify the live URL with <code>curl</code> and report it.</li>
+</ol>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Local preview</td>
+<td><code>python3 -m http.server 8080 --directory dist</code></td>
+</tr>
+<tr>
+<td>Shareable preview</td>
+<td><code>cloudflared tunnel --url http://localhost:8080</code></td>
+</tr>
+<tr>
+<td>Version a deploy</td>
+<td><code>git add -A &amp;&amp; git commit -m &quot;deploy: &lt;what&gt;&quot; &amp;&amp; git tag deploy-YYYYMMDD-HHMM</code></td>
+</tr>
+<tr>
+<td>GitHub Pages (branch mode)</td>
+<td><code>git subtree push --prefix dist origin gh-pages</code></td>
+</tr>
+<tr>
+<td>Enable Pages on repo</td>
+<td><code>gh api repos/{owner}/{repo}/pages -X POST -f &#39;source[branch]=gh-pages&#39; -f &#39;source[path]=/&#39;</code></td>
+</tr>
+<tr>
+<td>Cloudflare Pages</td>
+<td><code>npx wrangler@latest pages deploy dist --project-name &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>Netlify</td>
+<td><code>netlify deploy --prod --dir dist</code></td>
+</tr>
+<tr>
+<td>Rollback</td>
+<td><code>git checkout &lt;previous-tag&gt; -- . &amp;&amp; redeploy</code> (or provider dashboard)</td>
+</tr>
+<tr>
+<td>Verify live</td>
+<td><code>curl -sS -o /dev/null -w &#39;%{http_code}&#39; &lt;url&gt;</code> → expect <code>200</code></td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<h4>1. Build and preview locally</h4>
+<p>Build if needed (<code>npm run build</code>, etc.) and identify the output directory. Serve it:</p>
+<pre><code class="language-bash">python3 -m http.server 8080 --directory dist
+</code></pre>
+<p>For a shareable preview link (user on another machine, or you want their sign-off before going live), open a quick tunnel in a background <code>terminal</code> session:</p>
+<pre><code class="language-bash">cloudflared tunnel --url http://localhost:8080
+</code></pre>
+<p>Give the user the <code>https://*.trycloudflare.com</code> URL and get sign-off before deploying. Kill the tunnel afterwards.</p>
+<h4>2. Version before deploy — no exceptions</h4>
+<p>Every deploy must come from a git commit, so every deploy is reproducible and rollback is trivial.</p>
+<pre><code class="language-bash">git init 2&gt;/dev/null; git add -A
+git commit -m &quot;deploy: &lt;short description&gt;&quot;
+git tag &quot;deploy-$(date +%Y%m%d-%H%M)&quot;
+</code></pre>
+<p>If the project already has a repo, just commit + tag. Never deploy uncommitted files.</p>
+<h4>3. Deploy — provider ladder</h4>
+<p><strong>Rung 1 — GitHub Pages (default: free, zero extra accounts if <code>gh</code> is authed):</strong></p>
+<pre><code class="language-bash">gh repo create &lt;name&gt; --public --source . --push   # skip if repo exists
+git subtree push --prefix dist origin gh-pages      # publish build output
+gh api &quot;repos/{owner}/&lt;name&gt;/pages&quot; -X POST \
+  -f &#39;source[branch]=gh-pages&#39; -f &#39;source[path]=/&#39;  # first time only
+</code></pre>
+<p>Site appears at <code>https://&lt;owner&gt;.github.io/&lt;name&gt;/</code>. If the site is the repo root (no build dir), push <code>main</code> and set Pages source to <code>main</code> instead of using subtree. For build-step projects that will redeploy often, prefer the official <code>actions/deploy-pages</code> workflow so pushes auto-publish.</p>
+<p><strong>Rung 2 — Cloudflare Pages (when the user wants a custom domain, redirects/headers, or Functions):</strong></p>
+<pre><code class="language-bash">npx wrangler@latest pages deploy dist --project-name &lt;name&gt;
+</code></pre>
+<p>First run creates the project and prints the <code>https://&lt;name&gt;.pages.dev</code> URL. Custom domains attach via the Cloudflare dashboard (Pages → project → Custom domains).</p>
+<p><strong>Rung 3 — Netlify (fallback, or when the user already lives there):</strong></p>
+<pre><code class="language-bash">netlify deploy --prod --dir dist
+</code></pre>
+<p><code>netlify deploy --dir dist</code> (no <code>--prod</code>) gives a draft URL — useful as a second preview stage.</p>
+<h4>4. Rollback</h4>
+<p>Rollback = redeploy a previous tag. Never hand-edit live output.</p>
+<pre><code class="language-bash">git checkout deploy-&lt;previous&gt; -- .   # or: git checkout deploy-&lt;previous&gt;; rebuild
+# then rerun the same deploy command from step 3
+</code></pre>
+<p>Cloudflare Pages and Netlify also keep per-deploy history in their dashboards (&quot;Rollback to this deploy&quot;), which is faster when the CLI isn&#39;t handy.</p>
+<h4>5. Secrets and environment variables</h4>
+<ul>
+<li><strong>NEVER commit secrets, API keys, or <code>.env</code> files</strong> — they&#39;d be public on Pages hosting. Check with <code>git status</code> before the first commit and keep <code>.env*</code> in <code>.gitignore</code>.</li>
+<li>Runtime env vars belong in the provider&#39;s dashboard: Cloudflare Pages → Settings → Environment variables; Netlify → Site settings → Environment variables. GitHub Pages is static-only — no server env; anything embedded in the bundle is public by definition. Warn the user if their build inlines a key.</li>
+</ul>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>SPA routes 404 on GitHub Pages.</strong> Pages has no rewrite rules. Copy <code>index.html</code> to <code>404.html</code> in the output dir (<code>cp dist/index.html dist/404.html</code>) so client-side routing recovers. Cloudflare Pages and Netlify handle SPAs via <code>_redirects</code> (<code>/* /index.html 200</code>).</li>
+<li><strong>GitHub Pages build lag.</strong> The site can take 1–10 minutes to appear after the first enable, and ~1 minute per subsequent push. Don&#39;t declare failure on the first 404 — poll <code>curl</code> a few times before investigating.</li>
+<li><strong>Case-sensitive paths.</strong> Pages hosts are case-sensitive Linux; a site that worked on macOS/Windows can 404 on assets referenced as <code>Logo.PNG</code> but committed as <code>logo.png</code>. Grep the HTML for mismatched casing when an asset 404s.</li>
+<li><strong>Project-page base path.</strong> <code>https://&lt;owner&gt;.github.io/&lt;name&gt;/</code> serves under <code>/&lt;name&gt;/</code> — absolute asset URLs like <code>/app.js</code> break. Use relative paths or set the build tool&#39;s base (<code>vite build --base=/&lt;name&gt;/</code>).</li>
+<li><strong><code>wrangler</code> auth flow needs a browser.</strong> <code>wrangler login</code> opens OAuth; in a headless session prefer <code>CLOUDFLARE_API_TOKEN</code> (user creates it at dash.cloudflare.com → API Tokens) and never echo the token into logs.</li>
+<li><strong>DNS propagation on custom domains.</strong> New CNAMEs can take minutes to hours. Verify against the provider&#39;s default URL (<code>*.pages.dev</code>, <code>*.netlify.app</code>, <code>*.github.io</code>) first, then check the custom domain separately — don&#39;t conflate the two failures.</li>
+<li><strong>Deploying source instead of build output.</strong> Publishing the repo root when the real site lives in <code>dist/</code> yields a directory listing or raw JSX. Always confirm the output dir contains an <code>index.html</code>.</li>
+</ul>
+<h3>Verification</h3>
+<p>Do NOT report success from the deploy log alone. Before telling the user anything:</p>
+<ol>
+<li><code>curl -sS -o /dev/null -w &#39;%{http_code}&#39; &lt;live-url&gt;</code> returns <code>200</code> (retry over ~2 minutes for a first GitHub Pages deploy).</li>
+<li><code>curl -sS &lt;live-url&gt; | head -30</code> shows the expected <code>index.html</code> content — optionally confirm markup with <code>web_extract</code> on the live URL.</li>
+<li>For SPAs, also curl one deep route (e.g. <code>/about</code>) and confirm it returns <code>200</code>, not <code>404</code>.</li>
+<li><code>git tag --list &#39;deploy-*&#39;</code> shows the tag for this deploy.</li>
+</ol>
+<p>Then report the live URL to the user, along with the deploy tag they can roll back to.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/web-development/publish-site</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

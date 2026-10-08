@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>kanban-video-orchestrator — Skill Hermes</title>
+<meta name="description" content="Plan and run multi-agent video production pipelines.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>kanban-video-orchestrator</h1>
+    <p class="lede">Plan and run multi-agent video production pipelines.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>kanban-video-orchestrator</dd>
+      <dt>Keterangan</dt><dd>Plan and run multi-agent video production pipelines.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>[SHL0MS, alt-glitch]</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/kanban-video-orchestrator.zip" download>Muat turun ZIP (42.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (12)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.5 KB</td></tr>
+<tr><td><code>assets/brief.md.tmpl</code></td><td class="sz">2.1 KB</td></tr>
+<tr><td><code>assets/setup.sh.tmpl</code></td><td class="sz">8.2 KB</td></tr>
+<tr><td><code>assets/soul.md.tmpl</code></td><td class="sz">631 B</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">10.1 KB</td></tr>
+<tr><td><code>references/intake.md</code></td><td class="sz">7.8 KB</td></tr>
+<tr><td><code>references/kanban-setup.md</code></td><td class="sz">11.1 KB</td></tr>
+<tr><td><code>references/monitoring.md</code></td><td class="sz">7.3 KB</td></tr>
+<tr><td><code>references/role-archetypes.md</code></td><td class="sz">12.4 KB</td></tr>
+<tr><td><code>references/tool-matrix.md</code></td><td class="sz">13.4 KB</td></tr>
+<tr><td><code>scripts/bootstrap_pipeline.py</code></td><td class="sz">18.2 KB</td></tr>
+<tr><td><code>scripts/monitor.py</code></td><td class="sz">6.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Kanban Video Orchestrator</h2>
+<p>Wrap any video request — from a 15-second product teaser to a 5-minute narrative
+short to a music video to an ASCII loop — in a Hermes Kanban pipeline that
+decomposes the work to specialized agent profiles.</p>
+<p>This skill does <strong>not</strong> render anything itself. It is a meta-pipeline that:</p>
+<ol>
+<li><strong>Scopes</strong> the request through targeted discovery</li>
+<li><strong>Designs</strong> an appropriate team (which roles, which tools per role) based on the style</li>
+<li><strong>Generates</strong> a setup script that creates Hermes profiles, project workspace, and the initial kanban task</li>
+<li><strong>Hands off</strong> to the director profile, which decomposes via the kanban</li>
+<li><strong>Monitors</strong> execution, helps intervene when tasks stall or fail</li>
+</ol>
+<p>The actual rendering happens inside the kanban once it&#39;s running, via whichever
+existing skills + tools fit the scenes — <code>ascii-video</code>, <code>manim-video</code>, <code>p5js</code>,
+<code>comfyui</code>, <code>touchdesigner-mcp</code>, <code>songwriting-and-ai-music</code>,
+<code>heartmula</code>, external APIs, or plain Python with PIL + ffmpeg.</p>
+<h3>When NOT to use this skill</h3>
+<ul>
+<li>The video is one continuous procedural project that needs no specialists. Just write the code directly.</li>
+<li>The user wants a quick one-shot conversion (e.g. &quot;convert this mp4 to a GIF&quot;) — use ffmpeg directly.</li>
+<li>The output is a static image, GIF, or audio-only artifact — use the matching specific skill (<code>ascii-art</code>, <code>gifs</code>, <code>meme-generation</code>, <code>songwriting-and-ai-music</code>).</li>
+<li>The work fits a single existing skill cleanly (e.g. a pure ASCII video — just use <code>ascii-video</code>).</li>
+</ul>
+<h3>Workflow</h3>
+<pre><code>DISCOVER  →  BRIEF  →  TEAM DESIGN  →  SETUP  →  EXECUTE  →  MONITOR
+</code></pre>
+<h4>Step 1 — Discover (ask the right questions)</h4>
+<p>The discovery process is <strong>adaptive</strong>: ask only what is actually needed. Always
+start with three questions to identify the broad shape:</p>
+<ul>
+<li><strong>What is the video?</strong> (one-sentence brief)</li>
+<li><strong>How long?</strong> (5-30s teaser / 30-90s short / 90s-3min explainer / 3-10min film / longer)</li>
+<li><strong>What aspect ratio + target platform?</strong> (1:1 / 9:16 / 16:9; X, IG, YouTube, internal, etc.)</li>
+</ul>
+<p>From the answer, classify the style category. The style determines which
+follow-up questions to ask. <strong>Do not ask all questions at once.</strong> Ask 2-4 at a
+time, listen, then proceed. Make reasonable assumptions whenever the user
+implies an answer.</p>
+<p>For complete intake patterns and per-style question banks, see
+<strong><a href="references/intake.md">references/intake.md</a></strong>.</p>
+<h4>Step 2 — Brief</h4>
+<p>Once enough is known, produce a structured <code>brief.md</code> using the template in
+<code>assets/brief.md.tmpl</code>. Stages:</p>
+<ol>
+<li><strong>Concept</strong> — the one-sentence pitch + emotional north star</li>
+<li><strong>Scope</strong> — duration, aspect, platform, deadline</li>
+<li><strong>Style</strong> — visual references, brand constraints, tone</li>
+<li><strong>Scenes</strong> — beat-by-beat breakdown (durations, content, target tool)</li>
+<li><strong>Audio</strong> — narration / music / SFX / silent (per scene if needed)</li>
+<li><strong>Deliverables</strong> — file format, resolution, optional alternates (vertical cut, GIF, etc.)</li>
+</ol>
+<p>Show the brief to the user for confirmation before designing the team. <strong>The
+brief is the contract</strong> — every downstream task references it.</p>
+<h4>Step 3 — Team design</h4>
+<p>Pick role archetypes from the library that fit this video. <strong>Compose, don&#39;t
+clone.</strong> Most videos need 4-7 profiles. The director is always present; the
+rest are picked by what the brief actually requires.</p>
+<p>For the role library and per-style team compositions, see
+<strong><a href="references/role-archetypes.md">references/role-archetypes.md</a></strong>.</p>
+<p>For mapping role → which Hermes skills + toolsets it loads, see
+<strong><a href="references/tool-matrix.md">references/tool-matrix.md</a></strong>.</p>
+<h4>Step 4 — Setup</h4>
+<p>Generate a setup script (<code>setup.sh</code>) and run it. The script:</p>
+<ol>
+<li>Creates the project workspace (<code>~/projects/video-pipeline/&lt;slug&gt;/</code>)</li>
+<li>Copies any provided assets into <code>taste/</code>, <code>audio/</code>, <code>assets/</code></li>
+<li>Creates each Hermes profile via <code>hermes profile create --clone</code></li>
+<li>Writes per-profile <code>SOUL.md</code> (personality + role definition)</li>
+<li>Configures profile YAML (toolsets, always_load skills, cwd)</li>
+<li>Writes <code>brief.md</code>, <code>TEAM.md</code>, and <code>taste/</code> content</li>
+<li>Fires the initial <code>hermes kanban create</code> task assigned to the director</li>
+</ol>
+<p>Use <code>scripts/bootstrap_pipeline.py</code> to generate setup.sh from a brief +
+team-design JSON. See <strong><a href="references/kanban-setup.md">references/kanban-setup.md</a></strong>
+for the setup script structure, profile config patterns, and the critical
+&quot;shared workspace&quot; rule.</p>
+<h4>Step 5 — Execute</h4>
+<p>Run <code>setup.sh</code>. Then provide the user with monitoring commands:</p>
+<pre><code class="language-bash">hermes kanban watch --tenant &lt;project-tenant&gt;     # live events
+hermes kanban list  --tenant &lt;project-tenant&gt;     # board snapshot
+hermes dashboard                                   # visual board UI
+</code></pre>
+<p>The director profile takes over from here, decomposing the work and routing
+tasks to specialist profiles via the kanban toolset.</p>
+<h4>Step 6 — Monitor and intervene</h4>
+<p>Stay engaged — the kanban runs autonomously but a stuck task or bad output
+needs human (or AI) judgment.</p>
+<p>Monitoring patterns: poll <code>kanban list</code> periodically, inspect any RUNNING task
+that exceeds its expected duration with <code>kanban show &lt;id&gt;</code>, and check
+heartbeats. When a worker&#39;s output fails review, the standard interventions are:</p>
+<ol>
+<li>Comment on the worker&#39;s task with specific feedback (<code>kanban_comment</code>)</li>
+<li>Create a re-run task with the original as parent</li>
+<li>Adjust the brief&#39;s scope and let the director re-decompose</li>
+</ol>
+<p>For diagnostic patterns, intervention recipes, and the &quot;task is stuck&quot;
+playbook, see <strong><a href="references/monitoring.md">references/monitoring.md</a></strong>.</p>
+<h3>Reference: worked examples</h3>
+<p>Six concrete pipelines covering very different video styles — narrative film,
+product/marketing, music video, math/algorithm explainer, ASCII video, real-time
+installation — showing how the same workflow yields very different teams and
+task graphs. See <strong><a href="references/examples.md">references/examples.md</a></strong>.</p>
+<h3>Critical rules</h3>
+<ol>
+<li><p><strong>Discovery before action.</strong> Never start generating a brief or team without
+asking at least the three baseline questions. A bad brief cascades through
+the entire pipeline.</p>
+</li>
+<li><p><strong>Match the team to the video.</strong> Don&#39;t reuse the same 4-profile setup for
+every job. A music video that doesn&#39;t have a beat-analysis profile will
+misfire. A narrative film that doesn&#39;t have a writer profile will produce
+incoherent scenes. See <code>references/role-archetypes.md</code>.</p>
+</li>
+<li><p><strong>One workspace per project.</strong> All profiles for a given video share the same
+<code>dir:</code> workspace. Tasks pass artifacts via shared filesystem and structured
+handoffs. <strong>Every</strong> <code>kanban_create</code> call passes
+<code>workspace_kind=&quot;dir&quot;</code> + <code>workspace_path=&quot;&lt;absolute project path&gt;&quot;</code>.</p>
+</li>
+<li><p><strong>Tenant every project.</strong> Use a project-specific tenant
+(<code>--tenant &lt;project-slug&gt;</code>). Keeps the dashboard scoped and prevents
+cross-pollination with other ongoing kanbans.</p>
+</li>
+<li><p><strong>Respect existing skills.</strong> When a scene fits an existing skill, the
+relevant renderer should load that skill via <code>--skill &lt;name&gt;</code> on its task
+or <code>always_load</code> in its profile. Do not re-derive what a skill already
+provides.</p>
+</li>
+<li><p><strong>The director never executes.</strong> Even with the full <code>kanban + terminal + file</code> toolset, the director&#39;s <code>SOUL.md</code> rules forbid it from executing
+work itself. It decomposes and routes only — every concrete task becomes
+a <code>hermes kanban create</code> call to a specialist profile. The kanban
+orchestration guidance auto-injected into every kanban worker&#39;s system
+prompt spells this out further.</p>
+</li>
+<li><p><strong>Don&#39;t over-decompose.</strong> A 30-second product video does NOT need 20 tasks.
+Aim for the smallest task graph that still parallelizes well and exposes the
+right human-review gates.</p>
+</li>
+<li><p><strong>Verify API keys BEFORE firing.</strong> External APIs (TTS, image-gen,
+image-to-video) need keys in <code>${HERMES_HOME:-~/.hermes}/.env</code> or the user&#39;s secret store.
+A worker that hits a missing-key error wastes a task slot. The setup
+script&#39;s <code>check_key</code> helper aborts cleanly if a required key is missing.</p>
+</li>
+</ol>
+<h3>File map</h3>
+<pre><code>SKILL.md                            ← this file (workflow + rules)
+references/
+  intake.md                         ← discovery question banks per style
+  role-archetypes.md                ← role library (writer, designer, animator, …)
+  tool-matrix.md                    ← skill + toolset mapping per role
+  kanban-setup.md                   ← setup script structure &amp; profile config
+  monitoring.md                     ← watch + intervene patterns
+  examples.md                       ← six worked pipelines
+assets/
+  brief.md.tmpl                     ← brief skeleton
+  setup.sh.tmpl                     ← setup script skeleton
+  soul.md.tmpl                      ← profile personality skeleton
+scripts/
+  bootstrap_pipeline.py             ← generate setup.sh from brief + team JSON
+  monitor.py                        ← polling + intervention helpers
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/kanban-video-orchestrator</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

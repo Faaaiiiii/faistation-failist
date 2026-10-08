@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>qdrant — Skill Hermes</title>
+<meta name="description" content="Vector search engine for production RAG systems.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>qdrant</h1>
+    <p class="lede">Vector search engine for production RAG systems.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>qdrant</dd>
+      <dt>Keterangan</dt><dd>Vector search engine for production RAG systems.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/qdrant.zip" download>Muat turun ZIP (12.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.5 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">14.6 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">12.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Qdrant - Vector Similarity Search Engine</h2>
+<p>High-performance vector database written in Rust for production RAG and semantic search.</p>
+<h3>When to use Qdrant</h3>
+<p><strong>Use Qdrant when:</strong></p>
+<ul>
+<li>Building production RAG systems requiring low latency</li>
+<li>Need hybrid search (vectors + metadata filtering)</li>
+<li>Require horizontal scaling with sharding/replication</li>
+<li>Want on-premise deployment with full data control</li>
+<li>Need multi-vector storage per record (dense + sparse)</li>
+<li>Building real-time recommendation systems</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Rust-powered</strong>: Memory-safe, high performance</li>
+<li><strong>Rich filtering</strong>: Filter by any payload field during search</li>
+<li><strong>Multiple vectors</strong>: Dense, sparse, multi-dense per point</li>
+<li><strong>Quantization</strong>: Scalar, product, binary for memory efficiency</li>
+<li><strong>Distributed</strong>: Raft consensus, sharding, replication</li>
+<li><strong>REST + gRPC</strong>: Both APIs with full feature parity</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>Chroma</strong>: Simpler setup, embedded use cases</li>
+<li><strong>FAISS</strong>: Maximum raw speed, research/batch processing</li>
+<li><strong>Pinecone</strong>: Fully managed, zero ops preferred</li>
+<li><strong>Weaviate</strong>: GraphQL preference, built-in vectorizers</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># Python client
+pip install qdrant-client
+
+# Docker (recommended for development)
+docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
+
+# Docker with persistent storage
+docker run -p 6333:6333 -p 6334:6334 \
+    -v $(pwd)/qdrant_storage:/qdrant/storage \
+    qdrant/qdrant
+</code></pre>
+<h4>Basic usage</h4>
+<pre><code class="language-python">from qdrant_client import QdrantClient
+from qdrant_client.models import Distance, VectorParams, PointStruct
+
+# Connect to Qdrant
+client = QdrantClient(host=&quot;localhost&quot;, port=6333)
+
+# Create collection
+client.create_collection(
+    collection_name=&quot;documents&quot;,
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE)
+)
+
+# Insert vectors with payload
+client.upsert(
+    collection_name=&quot;documents&quot;,
+    points=[
+        PointStruct(
+            id=1,
+            vector=[0.1, 0.2, ...],  # 384-dim vector
+            payload={&quot;title&quot;: &quot;Doc 1&quot;, &quot;category&quot;: &quot;tech&quot;}
+        ),
+        PointStruct(
+            id=2,
+            vector=[0.3, 0.4, ...],
+            payload={&quot;title&quot;: &quot;Doc 2&quot;, &quot;category&quot;: &quot;science&quot;}
+        )
+    ]
+)
+
+# Search with filtering (query_points is the current API; client.search is removed in qdrant-client 1.14+)
+response = client.query_points(
+    collection_name=&quot;documents&quot;,
+    query=[0.15, 0.25, ...],
+    query_filter={
+        &quot;must&quot;: [{&quot;key&quot;: &quot;category&quot;, &quot;match&quot;: {&quot;value&quot;: &quot;tech&quot;}}]
+    },
+    limit=10
+)
+
+for point in response.points:
+    print(f&quot;ID: {point.id}, Score: {point.score}, Payload: {point.payload}&quot;)
+</code></pre>
+<h3>Core concepts</h3>
+<h4>Points - Basic data unit</h4>
+<pre><code class="language-python">from qdrant_client.models import PointStruct
+
+# Point = ID + Vector(s) + Payload
+point = PointStruct(
+    id=123,                              # Integer or UUID string
+    vector=[0.1, 0.2, 0.3, ...],        # Dense vector
+    payload={                            # Arbitrary JSON metadata
+        &quot;title&quot;: &quot;Document title&quot;,
+        &quot;category&quot;: &quot;tech&quot;,
+        &quot;timestamp&quot;: 1699900000,
+        &quot;tags&quot;: [&quot;python&quot;, &quot;ml&quot;]
+    }
+)
+
+# Batch upsert (recommended)
+client.upsert(
+    collection_name=&quot;documents&quot;,
+    points=[point1, point2, point3],
+    wait=True  # Wait for indexing
+)
+</code></pre>
+<h4>Collections - Vector containers</h4>
+<pre><code class="language-python">from qdrant_client.models import VectorParams, Distance, HnswConfigDiff
+
+# Create with HNSW configuration
+client.create_collection(
+    collection_name=&quot;documents&quot;,
+    vectors_config=VectorParams(
+        size=384,                        # Vector dimensions
+        distance=Distance.COSINE         # COSINE, EUCLID, DOT, MANHATTAN
+    ),
+    hnsw_config=HnswConfigDiff(
+        m=16,                            # Connections per node (default 16)
+        ef_construct=100,                # Build-time accuracy (default 100)
+        full_scan_threshold=10000        # Switch to brute force below this
+    ),
+    on_disk_payload=True                 # Store payload on disk
+)
+
+# Collection info
+info = client.get_collection(&quot;documents&quot;)
+print(f&quot;Points: {info.points_count}, Vectors: {info.vectors_count}&quot;)
+</code></pre>
+<h4>Distance metrics</h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Use Case</th>
+<th>Range</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>COSINE</code></td>
+<td>Text embeddings, normalized vectors</td>
+<td>0 to 2</td>
+</tr>
+<tr>
+<td><code>EUCLID</code></td>
+<td>Spatial data, image features</td>
+<td>0 to ∞</td>
+</tr>
+<tr>
+<td><code>DOT</code></td>
+<td>Recommendations, unnormalized</td>
+<td>-∞ to ∞</td>
+</tr>
+<tr>
+<td><code>MANHATTAN</code></td>
+<td>Sparse features, discrete data</td>
+<td>0 to ∞</td>
+</tr>
+</tbody></table>
+<h3>Search operations</h3>
+<h4>Basic search</h4>
+<pre><code class="language-python"># Simple nearest neighbor search (returns a QueryResponse; use .points)
+response = client.query_points(
+    collection_name=&quot;documents&quot;,
+    query=[0.1, 0.2, ...],
+    limit=10,
+    with_payload=True,
+    with_vectors=False  # Don&#39;t return vectors (faster)
+)
+results = response.points
+</code></pre>
+<h4>Filtered search</h4>
+<pre><code class="language-python">from qdrant_client.models import Filter, FieldCondition, MatchValue, Range
+
+# Complex filtering
+response = client.query_points(
+    collection_name=&quot;documents&quot;,
+    query=query_embedding,
+    query_filter=Filter(
+        must=[
+            FieldCondition(key=&quot;category&quot;, match=MatchValue(value=&quot;tech&quot;)),
+            FieldCondition(key=&quot;timestamp&quot;, range=Range(gte=1699000000))
+        ],
+        must_not=[
+            FieldCondition(key=&quot;status&quot;, match=MatchValue(value=&quot;archived&quot;))
+        ]
+    ),
+    limit=10
+).points
+
+# Shorthand filter syntax
+response = client.query_points(
+    collection_name=&quot;documents&quot;,
+    query=query_embedding,
+    query_filter={
+        &quot;must&quot;: [
+            {&quot;key&quot;: &quot;category&quot;, &quot;match&quot;: {&quot;value&quot;: &quot;tech&quot;}},
+            {&quot;key&quot;: &quot;price&quot;, &quot;range&quot;: {&quot;gte&quot;: 10, &quot;lte&quot;: 100}}
+        ]
+    },
+    limit=10
+).points
+</code></pre>
+<h4>Batch search</h4>
+<pre><code class="language-python">from qdrant_client.models import QueryRequest
+
+# Multiple queries in one request (search_batch is replaced by query_batch_points)
+responses = client.query_batch_points(
+    collection_name=&quot;documents&quot;,
+    requests=[
+        QueryRequest(query=[0.1, ...], limit=5),
+        QueryRequest(query=[0.2, ...], limit=5, filter={&quot;must&quot;: [...]}),
+        QueryRequest(query=[0.3, ...], limit=10)
+    ]
+)
+# Each element is a QueryResponse; use .points
+for resp in responses:
+    for point in resp.points:
+        print(point.id, point.score)
+</code></pre>
+<h3>RAG integration</h3>
+<h4>With sentence-transformers</h4>
+<pre><code class="language-python">from sentence_transformers import SentenceTransformer
+from qdrant_client import QdrantClient
+from qdrant_client.models import VectorParams, Distance, PointStruct
+
+# Initialize
+encoder = SentenceTransformer(&quot;all-MiniLM-L6-v2&quot;)
+client = QdrantClient(host=&quot;localhost&quot;, port=6333)
+
+# Create collection
+client.create_collection(
+    collection_name=&quot;knowledge_base&quot;,
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE)
+)
+
+# Index documents
+documents = [
+    {&quot;id&quot;: 1, &quot;text&quot;: &quot;Python is a programming language&quot;, &quot;source&quot;: &quot;wiki&quot;},
+    {&quot;id&quot;: 2, &quot;text&quot;: &quot;Machine learning uses algorithms&quot;, &quot;source&quot;: &quot;textbook&quot;},
+]
+
+points = [
+    PointStruct(
+        id=doc[&quot;id&quot;],
+        vector=encoder.encode(doc[&quot;text&quot;]).tolist(),
+        payload={&quot;text&quot;: doc[&quot;text&quot;], &quot;source&quot;: doc[&quot;source&quot;]}
+    )
+    for doc in documents
+]
+client.upsert(collection_name=&quot;knowledge_base&quot;, points=points)
+
+# RAG retrieval
+def retrieve(query: str, top_k: int = 5) -&gt; list[dict]:
+    query_vector = encoder.encode(query).tolist()
+    response = client.query_points(
+        collection_name=&quot;knowledge_base&quot;,
+        query=query_vector,
+        limit=top_k
+    )
+    return [{&quot;text&quot;: r.payload[&quot;text&quot;], &quot;score&quot;: r.score} for r in response.points]
+
+# Use in RAG pipeline
+context = retrieve(&quot;What is Python?&quot;)
+prompt = f&quot;Context: {context}\n\nQuestion: What is Python?&quot;
+</code></pre>
+<h4>With LangChain</h4>
+<pre><code class="language-python">from langchain_community.vectorstores import Qdrant
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+embeddings = HuggingFaceEmbeddings(model_name=&quot;all-MiniLM-L6-v2&quot;)
+vectorstore = Qdrant.from_documents(documents, embeddings, url=&quot;http://localhost:6333&quot;, collection_name=&quot;docs&quot;)
+retriever = vectorstore.as_retriever(search_kwargs={&quot;k&quot;: 5})
+</code></pre>
+<h4>With LlamaIndex</h4>
+<pre><code class="language-python">from llama_index.vector_stores.qdrant import QdrantVectorStore
+from llama_index.core import VectorStoreIndex, StorageContext
+
+vector_store = QdrantVectorStore(client=client, collection_name=&quot;llama_docs&quot;)
+storage_context = StorageContext.from_defaults(vector_store=vector_store)
+index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+query_engine = index.as_query_engine()
+</code></pre>
+<h3>Multi-vector support</h3>
+<h4>Named vectors (different embedding models)</h4>
+<pre><code class="language-python">from qdrant_client.models import VectorParams, Distance
+
+# Collection with multiple vector types
+client.create_collection(
+    collection_name=&quot;hybrid_search&quot;,
+    vectors_config={
+        &quot;dense&quot;: VectorParams(size=384, distance=Distance.COSINE),
+        &quot;sparse&quot;: VectorParams(size=30000, distance=Distance.DOT)
+    }
+)
+
+# Insert with named vectors
+client.upsert(
+    collection_name=&quot;hybrid_search&quot;,
+    points=[
+        PointStruct(
+            id=1,
+            vector={
+                &quot;dense&quot;: dense_embedding,
+                &quot;sparse&quot;: sparse_embedding
+            },
+            payload={&quot;text&quot;: &quot;document text&quot;}
+        )
+    ]
+)
+
+# Search specific named vector (pass the vector name via `using`)
+response = client.query_points(
+    collection_name=&quot;hybrid_search&quot;,
+    query=query_dense,
+    using=&quot;dense&quot;,  # Specify which named vector to search
+    limit=10
+)
+results = response.points
+</code></pre>
+<h4>Sparse vectors (BM25, SPLADE)</h4>
+<pre><code class="language-python">from qdrant_client.models import SparseVectorParams, SparseIndexParams, SparseVector
+
+# Collection with sparse vectors
+client.create_collection(
+    collection_name=&quot;sparse_search&quot;,
+    vectors_config={},
+    sparse_vectors_config={&quot;text&quot;: SparseVectorParams(index=SparseIndexParams(on_disk=False))}
+)
+
+# Insert sparse vector
+client.upsert(
+    collection_name=&quot;sparse_search&quot;,
+    points=[PointStruct(id=1, vector={&quot;text&quot;: SparseVector(indices=[1, 5, 100], values=[0.5, 0.8, 0.2])}, payload={&quot;text&quot;: &quot;document&quot;})]
+)
+</code></pre>
+<h3>Quantization (memory optimization)</h3>
+<pre><code class="language-python">from qdrant_client.models import ScalarQuantization, ScalarQuantizationConfig, ScalarType
+
+# Scalar quantization (4x memory reduction)
+client.create_collection(
+    collection_name=&quot;quantized&quot;,
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+    quantization_config=ScalarQuantization(
+        scalar=ScalarQuantizationConfig(
+            type=ScalarType.INT8,
+            quantile=0.99,        # Clip outliers
+            always_ram=True      # Keep quantized in RAM
+        )
+    )
+)
+
+# Search with rescoring
+response = client.query_points(
+    collection_name=&quot;quantized&quot;,
+    query=query,
+    search_params={&quot;quantization&quot;: {&quot;rescore&quot;: True}},  # Rescore top results
+    limit=10
+)
+results = response.points
+</code></pre>
+<h3>Payload indexing</h3>
+<pre><code class="language-python">from qdrant_client.models import PayloadSchemaType
+
+# Create payload index for faster filtering
+client.create_payload_index(
+    collection_name=&quot;documents&quot;,
+    field_name=&quot;category&quot;,
+    field_schema=PayloadSchemaType.KEYWORD
+)
+
+client.create_payload_index(
+    collection_name=&quot;documents&quot;,
+    field_name=&quot;timestamp&quot;,
+    field_schema=PayloadSchemaType.INTEGER
+)
+
+# Index types: KEYWORD, INTEGER, FLOAT, GEO, TEXT (full-text), BOOL
+</code></pre>
+<h3>Production deployment</h3>
+<h4>Qdrant Cloud</h4>
+<pre><code class="language-python">from qdrant_client import QdrantClient
+
+# Connect to Qdrant Cloud
+client = QdrantClient(
+    url=&quot;https://your-cluster.cloud.qdrant.io&quot;,
+    api_key=&quot;your-api-key&quot;
+)
+</code></pre>
+<h4>Performance tuning</h4>
+<pre><code class="language-python"># Optimize for search speed (higher recall)
+client.update_collection(
+    collection_name=&quot;documents&quot;,
+    hnsw_config=HnswConfigDiff(ef_construct=200, m=32)
+)
+
+# Optimize for indexing speed (bulk loads)
+client.update_collection(
+    collection_name=&quot;documents&quot;,
+    optimizer_config={&quot;indexing_threshold&quot;: 20000}
+)
+</code></pre>
+<h3>Best practices</h3>
+<ol>
+<li><strong>Batch operations</strong> - Use batch upsert/search for efficiency</li>
+<li><strong>Payload indexing</strong> - Index fields used in filters</li>
+<li><strong>Quantization</strong> - Enable for large collections (&gt;1M vectors)</li>
+<li><strong>Sharding</strong> - Use for collections &gt;10M vectors</li>
+<li><strong>On-disk storage</strong> - Enable <code>on_disk_payload</code> for large payloads</li>
+<li><strong>Connection pooling</strong> - Reuse client instances</li>
+</ol>
+<h3>Common issues</h3>
+<p><strong>Slow search with filters:</strong></p>
+<pre><code class="language-python"># Create payload index for filtered fields
+client.create_payload_index(
+    collection_name=&quot;docs&quot;,
+    field_name=&quot;category&quot;,
+    field_schema=PayloadSchemaType.KEYWORD
+)
+</code></pre>
+<p><strong>Out of memory:</strong></p>
+<pre><code class="language-python"># Enable quantization and on-disk storage
+client.create_collection(
+    collection_name=&quot;large_collection&quot;,
+    vectors_config=VectorParams(size=384, distance=Distance.COSINE),
+    quantization_config=ScalarQuantization(...),
+    on_disk_payload=True
+)
+</code></pre>
+<p><strong>Connection issues:</strong></p>
+<pre><code class="language-python"># Use timeout and retry
+client = QdrantClient(
+    host=&quot;localhost&quot;,
+    port=6333,
+    timeout=30,
+    prefer_grpc=True  # gRPC for better performance
+)
+</code></pre>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Distributed mode, hybrid search, recommendations</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues, debugging, performance tuning</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/qdrant/qdrant">https://github.com/qdrant/qdrant</a> (22k+ stars)</li>
+<li><strong>Docs</strong>: <a href="https://qdrant.tech/documentation/">https://qdrant.tech/documentation/</a></li>
+<li><strong>Python Client</strong>: <a href="https://github.com/qdrant/qdrant-client">https://github.com/qdrant/qdrant-client</a></li>
+<li><strong>Cloud</strong>: <a href="https://cloud.qdrant.io">https://cloud.qdrant.io</a></li>
+<li><strong>Version</strong>: 1.14.0+</li>
+<li><strong>License</strong>: Apache 2.0</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/qdrant</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

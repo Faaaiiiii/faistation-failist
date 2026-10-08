@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3-statement-model — Skill Hermes</title>
+<meta name="description" content="Build integrated IS/BS/CF financial workbooks in Excel.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>3-statement-model</h1>
+    <p class="lede">Build integrated IS/BS/CF financial workbooks in Excel.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>3-statement-model</dd>
+      <dt>Keterangan</dt><dd>Build integrated IS/BS/CF financial workbooks in Excel.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anthropic (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>Apache-2.0</dd>
+      <dt>Kategori</dt><dd>finance · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/3-statement-model.zip" download>Muat turun ZIP (14.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">21.1 KB</td></tr>
+<tr><td><code>references/formatting.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>references/formulas.md</code></td><td class="sz">7.7 KB</td></tr>
+<tr><td><code>references/sec-filings.md</code></td><td class="sz">4.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h3>Environment</h3>
+<p>This skill assumes <strong>headless openpyxl</strong> — you are producing an .xlsx file on disk.
+Follow the <code>excel-author</code> skill&#39;s conventions for cell coloring, formulas, named ranges, and sensitivity tables.
+Recalculate before delivery: <code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>.</p>
+<h2>3-Statement Financial Model Template Completion</h2>
+<p>Complete and populate integrated financial model templates with proper linkages between Income Statement, Balance Sheet, and Cash Flow Statement.</p>
+<h3>⚠️ CRITICAL PRINCIPLES — Read Before Populating Any Template</h3>
+<p><strong>Formulas over hardcodes (non-negotiable):</strong></p>
+<ul>
+<li>Every projection cell, roll-forward, linkage, and subtotal MUST be an Excel formula — never a pre-computed value</li>
+<li>When using Python/openpyxl: write formula strings (<code>ws[&quot;D15&quot;] = &quot;=D14*(1+Assumptions!$B$5)&quot;</code>), NOT computed results (<code>ws[&quot;D15&quot;] = 12500</code>)</li>
+<li>The ONLY cells that should contain hardcoded numbers are: (1) historical actuals, (2) assumption drivers in the Assumptions tab</li>
+<li>If you find yourself computing a value in Python and writing the result to a cell — STOP. Write the formula instead.</li>
+<li>Why: the model must flex when scenarios toggle or assumptions change. Hardcodes break every downstream integrity check silently.</li>
+</ul>
+<p><strong>Verify step-by-step with the user:</strong></p>
+<ol>
+<li><strong>After mapping the template</strong> → show the user which tabs/sections you&#39;ve identified and confirm before touching any cells</li>
+<li><strong>After populating historicals</strong> → show the user the historical block and confirm values/periods match source data</li>
+<li><strong>After building IS projections</strong> → run the subtotal checks, show the user the projected IS, confirm before moving to BS</li>
+<li><strong>After building BS</strong> → show the user the balance check (Assets = L+E) for every period, confirm before moving to CF</li>
+<li><strong>After building CF</strong> → show the user the cash tie-out (CF ending cash = BS cash), confirm before finalizing</li>
+<li><strong>Do NOT populate the entire model end-to-end and present it complete</strong> — break at each statement, show the work, catch errors early</li>
+</ol>
+<h3>Formatting — Professional Blue/Grey Palette (Default unless template/user specifies otherwise)</h3>
+<p><strong>Keep colors minimal.</strong> Use only blues and greys for cell fills. Do NOT introduce greens, yellows, oranges, or multiple accent colors — a clean model uses restraint.</p>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Fill</th>
+<th>Font</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Section headers (IS / BS / CF titles)</td>
+<td>Dark blue <code>#1F4E79</code></td>
+<td>White bold</td>
+</tr>
+<tr>
+<td>Column headers (FY2024A, FY2025E, etc.)</td>
+<td>Light blue <code>#D9E1F2</code></td>
+<td>Black bold</td>
+</tr>
+<tr>
+<td>Input cells (historicals, assumption drivers)</td>
+<td>Light grey <code>#F2F2F2</code> or white</td>
+<td>Blue <code>#0000FF</code></td>
+</tr>
+<tr>
+<td>Formula cells</td>
+<td>White</td>
+<td>Black</td>
+</tr>
+<tr>
+<td>Cross-tab links</td>
+<td>White</td>
+<td>Green <code>#008000</code></td>
+</tr>
+<tr>
+<td>Check rows / key totals</td>
+<td>Medium blue <code>#BDD7EE</code></td>
+<td>Black bold</td>
+</tr>
+</tbody></table>
+<p><strong>That&#39;s 3 blues + 1 grey + white.</strong> If the template has its own color scheme, follow the template instead.</p>
+<p>Font color signals <em>what</em> a cell is (input/formula/link). Fill color signals <em>where</em> you are (header/data/check).</p>
+<h3>Model Structure</h3>
+<h4>Identifying Template Tab Organization</h4>
+<p>Templates vary in their tab naming conventions and organization. Before populating, review all tabs to understand the template&#39;s structure. Below are common tab names and their typical contents:</p>
+<table>
+<thead>
+<tr>
+<th>Common Tab Names</th>
+<th>Contents to Look For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>IS, P&amp;L, Income Statement</td>
+<td>Income Statement</td>
+</tr>
+<tr>
+<td>BS, Balance Sheet</td>
+<td>Balance Sheet</td>
+</tr>
+<tr>
+<td>CF, CFS, Cash Flow</td>
+<td>Cash Flow Statement</td>
+</tr>
+<tr>
+<td>WC, Working Capital</td>
+<td>Working Capital Schedule</td>
+</tr>
+<tr>
+<td>DA, D&amp;A, Depreciation, PP&amp;E</td>
+<td>Depreciation &amp; Amortization Schedule</td>
+</tr>
+<tr>
+<td>Debt, Debt Schedule</td>
+<td>Debt Schedule</td>
+</tr>
+<tr>
+<td>NOL, Tax, DTA</td>
+<td>Net Operating Loss Schedule</td>
+</tr>
+<tr>
+<td>Assumptions, Inputs, Drivers</td>
+<td>Driver assumptions and inputs</td>
+</tr>
+<tr>
+<td>Checks, Audit, Validation</td>
+<td>Error-checking dashboard</td>
+</tr>
+</tbody></table>
+<p><strong>Template Review Checklist</strong></p>
+<ul>
+<li>Identify which tabs exist in the template (not all templates include every schedule)</li>
+<li>Note any template-specific tabs not listed above</li>
+<li>Understand tab dependencies (e.g., which schedules feed into the main statements)</li>
+<li>Locate input cells vs. formula cells on each tab</li>
+</ul>
+<h4>Understanding Template Structure</h4>
+<p>Before populating a template, familiarize yourself with its existing layout to ensure data is entered in the correct locations and formulas remain intact.</p>
+<p><strong>Identifying Row Structure</strong></p>
+<ul>
+<li>Locate the model title at top of each tab</li>
+<li>Identify section headers and their visual separation</li>
+<li>Find the units row indicating $ millions, %, x, etc.</li>
+<li>Note column headers distinguishing Actuals vs. Estimates periods</li>
+<li>Confirm period labels (e.g., FY2024A, FY2025E)</li>
+<li>Identify input cells vs. formula cells (typically distinguished by font color)</li>
+</ul>
+<p><strong>Identifying Column Structure</strong></p>
+<ul>
+<li>Confirm line item labels in leftmost column</li>
+<li>Verify historical years precede projection years</li>
+<li>Note the visual border separating historical from projected periods</li>
+<li>Check for consistent column order across all tabs</li>
+</ul>
+<p><strong>Working with Named Ranges</strong>
+Templates often use named ranges for key inputs and outputs. Before entering data:</p>
+<ul>
+<li>Review existing named ranges in the template (Formulas → Name Manager in Excel)</li>
+<li>Common named ranges include: Revenue growth rates, cost percentages, key outputs (Net Income, EBITDA, Total Debt, Cash), scenario selector cell</li>
+<li>Ensure inputs are entered in cells that feed into these named ranges</li>
+</ul>
+<h4>Projection Period</h4>
+<ul>
+<li>Templates typically project 5 years forward from last historical year</li>
+<li>Verify historical (A) vs. projected (E) columns are clearly separated</li>
+<li>Confirm columns use fiscal year notation (e.g., FY2024A, FY2025E)</li>
+</ul>
+<h3>Margin Analysis</h3>
+<p><strong>Note: The following margin analysis should only be performed if prompted by the user or if the template explicitly requires it. If no prompt is given, skip this section.</strong></p>
+<p>Calculate and display profitability margins on the Income Statement (IS) tab to track operational efficiency and enable peer comparison.</p>
+<h4>Core Margins to Include</h4>
+<table>
+<thead>
+<tr>
+<th>Margin</th>
+<th>Formula</th>
+<th>What It Measures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gross Margin</td>
+<td>Gross Profit / Revenue</td>
+<td>Pricing power, production efficiency</td>
+</tr>
+<tr>
+<td>EBITDA Margin</td>
+<td>EBITDA / Revenue</td>
+<td>Core operating profitability</td>
+</tr>
+<tr>
+<td>EBIT Margin</td>
+<td>EBIT / Revenue</td>
+<td>Operating profitability after D&amp;A</td>
+</tr>
+<tr>
+<td>Net Income Margin</td>
+<td>Net Income / Revenue</td>
+<td>Bottom-line profitability</td>
+</tr>
+</tbody></table>
+<h4>Income Statement Layout with Margins</h4>
+<p>Display margin percentages directly below each profit line item:</p>
+<ul>
+<li>Gross Margin % below Gross Profit</li>
+<li>EBIT Margin % below EBIT</li>
+<li>EBITDA Margin % below EBITDA</li>
+<li>Net Income Margin % below Net Income</li>
+</ul>
+<h3>Credit Metrics</h3>
+<p><strong>Note: The following Credit analysis should only be performed if prompted by the user or if the template explicitly requires it. If no prompt is given, skip this section.</strong></p>
+<p>Calculate and display credit/leverage metrics on the Balance Sheet (BS) tab to assess financial health, debt capacity, and covenant compliance.</p>
+<h4>Core Credit Metrics to Include</h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Formula</th>
+<th>What It Measures</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Total Debt / EBITDA</td>
+<td>Total Debt / LTM EBITDA</td>
+<td>Leverage multiple</td>
+</tr>
+<tr>
+<td>Net Debt / EBITDA</td>
+<td>(Total Debt - Cash) / LTM EBITDA</td>
+<td>Leverage net of cash</td>
+</tr>
+<tr>
+<td>Interest Coverage</td>
+<td>EBITDA / Interest Expense</td>
+<td>Ability to service debt</td>
+</tr>
+<tr>
+<td>Debt / Total Cap</td>
+<td>Total Debt / (Total Debt + Equity)</td>
+<td>Capital structure</td>
+</tr>
+<tr>
+<td>Debt / Equity</td>
+<td>Total Debt / Total Equity</td>
+<td>Financial leverage</td>
+</tr>
+<tr>
+<td>Current Ratio</td>
+<td>Current Assets / Current Liabilities</td>
+<td>Short-term liquidity</td>
+</tr>
+<tr>
+<td>Quick Ratio</td>
+<td>(Current Assets - Inventory) / Current Liabilities</td>
+<td>Immediate liquidity</td>
+</tr>
+</tbody></table>
+<h4>Credit Metric Hierarchy Checks</h4>
+<p>Validate that Upside shows strongest credit profile:</p>
+<ul>
+<li>Leverage: Upside &lt; Base &lt; Downside (lower is better)</li>
+<li>Coverage: Upside &gt; Base &gt; Downside (higher is better)</li>
+<li>Liquidity: Upside &gt; Base &gt; Downside (higher is better)</li>
+</ul>
+<h4>Covenant Compliance Tracking</h4>
+<p>If debt covenants are known, add explicit compliance checks comparing actual metrics to covenant thresholds.</p>
+<h3>Scenario Analysis (Base / Upside / Downside)</h3>
+<p>Use a scenario toggle (dropdown) in the Assumptions tab with CHOOSE or INDEX/MATCH formulas.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Base Case</td>
+<td>Management guidance or consensus estimates</td>
+</tr>
+<tr>
+<td>Upside Case</td>
+<td>Above-guidance growth, margin expansion</td>
+</tr>
+<tr>
+<td>Downside Case</td>
+<td>Below-trend growth, margin compression</td>
+</tr>
+</tbody></table>
+<p><strong>Key Drivers to Sensitize</strong>: Revenue growth, Gross margin, SG&amp;A %, DSO/DIO/DPO, CapEx %, Interest rate, Tax rate.</p>
+<p><strong>Scenario Audit Checks</strong>: Toggle switches all statements, BS balances in all scenarios, Cash ties out, Hierarchy holds (Upside &gt; Base &gt; Downside for NI, EBITDA, FCF, margins).</p>
+<h3>SEC Filings Data Extraction</h3>
+<p>If the template specifically requires pulling data from SEC filings (10-K, 10-Q), see <a href="references/sec-filings.md">references/sec-filings.md</a> for detailed extraction guidance. This reference is only needed when populating templates with public company data from regulatory filings.</p>
+<h3>Completing Model Templates</h3>
+<p>This section provides general guidance for completing any 3-statement financial model template while preserving existing formulas and ensuring data integrity.</p>
+<h4>Step 1: Analyze the Template Structure</h4>
+<p>Before entering any data, thoroughly review the template to understand its architecture:</p>
+<p><strong>Identify Input vs. Formula Cells</strong></p>
+<ul>
+<li>Look for visual cues (font color, cell shading) that distinguish input cells from formula cells</li>
+<li>Common conventions: Blue font = inputs, Black font = formulas, Green font = links to other sheets</li>
+<li>Use Excel&#39;s Trace Precedents/Dependents (Formulas → Trace Precedents) to understand cell relationships</li>
+<li>Check for named ranges that may control key inputs (Formulas → Name Manager)</li>
+</ul>
+<p><strong>Map the Template&#39;s Flow</strong></p>
+<ul>
+<li>Identify which tabs feed into others (e.g., Assumptions → IS → BS → CF)</li>
+<li>Note any supporting schedules and their linkages to main statements</li>
+<li>Document the template&#39;s specific line items and structure before populating</li>
+</ul>
+<h4>Step 2: Filling in Data Without Breaking Formulas</h4>
+<p><strong>Golden Rules for Data Entry</strong></p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Only edit input cells</td>
+<td>Never overwrite cells containing formulas unless intentionally replacing the formula</td>
+</tr>
+<tr>
+<td>Preserve cell references</td>
+<td>When copying data, use Paste Values (Ctrl+Shift+V) to avoid overwriting formulas with source formatting</td>
+</tr>
+<tr>
+<td>Match the template&#39;s units</td>
+<td>Verify if template uses thousands, millions, or actual values before entering data</td>
+</tr>
+<tr>
+<td>Respect sign conventions</td>
+<td>Follow the template&#39;s existing sign convention (e.g., expenses as positive or negative)</td>
+</tr>
+<tr>
+<td>Check for circular references</td>
+<td>If the template uses iterative calculations, ensure Enable Iterative Calculation is turned on</td>
+</tr>
+</tbody></table>
+<p><strong>Safe Data Entry Process</strong></p>
+<ol>
+<li>Identify the exact cells designated for input (usually highlighted or labeled)</li>
+<li>Enter historical data first, then verify formulas are calculating correctly for those periods</li>
+<li>Enter assumption drivers that feed forecast calculations</li>
+<li>Review calculated outputs to confirm formulas are working as intended</li>
+<li>If a formula cell must be modified, document the original formula before making changes</li>
+</ol>
+<p><strong>Handling Pre-Built Formulas</strong></p>
+<ul>
+<li>If formulas reference cells you haven&#39;t populated yet, expect temporary errors (#REF!, #DIV/0!) until all inputs are complete</li>
+<li>When formulas produce unexpected results, trace precedents to identify missing or incorrect inputs</li>
+<li>Never delete rows/columns without checking for formula dependencies across all tabs</li>
+</ul>
+<h4>Step 3: Validating Formulas</h4>
+<p><strong>Formula Integrity Checks</strong></p>
+<p>Before relying on template outputs, validate that formulas are functioning correctly:</p>
+<table>
+<thead>
+<tr>
+<th>Check Type</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Trace precedents</td>
+<td>Select a formula cell → Formulas → Trace Precedents to verify it references correct inputs</td>
+</tr>
+<tr>
+<td>Trace dependents</td>
+<td>Verify key inputs flow to expected output cells</td>
+</tr>
+<tr>
+<td>Evaluate formula</td>
+<td>Use Formulas → Evaluate Formula to step through complex calculations</td>
+</tr>
+<tr>
+<td>Check for hardcodes</td>
+<td>Projection formulas should reference assumptions, not contain hardcoded values</td>
+</tr>
+<tr>
+<td>Test with known values</td>
+<td>Input simple test values to verify formulas produce expected results</td>
+</tr>
+<tr>
+<td>Cross-tab consistency</td>
+<td>Ensure the same formula logic applies across all projection periods</td>
+</tr>
+</tbody></table>
+<p><strong>Common Formula Issues to Watch For</strong></p>
+<ul>
+<li>Mixed absolute/relative references causing incorrect results when copied across periods</li>
+<li>Broken links to external files or deleted ranges (#REF! errors)</li>
+<li>Division by zero in early periods before revenue ramps (#DIV/0! errors)</li>
+<li>Circular reference warnings (may be intentional for interest calculations)</li>
+<li>Inconsistent formulas across projection columns (use Ctrl+\ to find differences)</li>
+</ul>
+<p><strong>Validating Cross-Tab Linkages</strong></p>
+<ul>
+<li>Confirm values that appear on multiple tabs are linked (not duplicated)</li>
+<li>Verify schedule totals tie to corresponding line items on main statements</li>
+<li>Check that period labels align across all tabs</li>
+</ul>
+<h4>Step 4: Quality Checks by Sheet</h4>
+<p>Perform these validation checks on each sheet after populating the template:</p>
+<p><strong>Income Statement (IS) Quality Checks</strong></p>
+<ul>
+<li>Revenue figures match source data for historical periods</li>
+<li>All expense line items sum to reported totals</li>
+<li>Subtotals (Gross Profit, EBIT, EBT, Net Income) calculate correctly</li>
+<li>Tax calculation logic is appropriate (handles losses correctly)</li>
+<li>Forecast drivers reference assumptions tab (no hardcodes)</li>
+<li>Period-over-period changes are directionally reasonable</li>
+</ul>
+<p><strong>Balance Sheet (BS) Quality Checks</strong></p>
+<ul>
+<li>Assets = Liabilities + Equity for every period (primary check)</li>
+<li>Cash balance matches Cash Flow Statement ending cash</li>
+<li>Working capital accounts tie to supporting schedules (if applicable)</li>
+<li>Retained Earnings rolls forward correctly: Prior RE + Net Income - Dividends +/- Adjustments = Ending RE</li>
+<li>Debt balances tie to debt schedule (if applicable)</li>
+<li>All balance sheet items have appropriate signs (assets positive, most liabilities positive)</li>
+</ul>
+<p><strong>Cash Flow Statement (CF) Quality Checks</strong></p>
+<ul>
+<li>Net Income at top of CFO matches Income Statement Net Income</li>
+<li>Non-cash add-backs (D&amp;A, SBC, etc.) tie to their source schedules/statements</li>
+<li>Working capital changes have correct signs (increase in asset = use of cash = negative)</li>
+<li>CapEx ties to PP&amp;E schedule or fixed asset roll-forward</li>
+<li>Financing activities tie to changes in debt and equity accounts on BS</li>
+<li>Ending Cash matches Balance Sheet Cash</li>
+<li>Beginning Cash equals prior period Ending Cash</li>
+</ul>
+<p><strong>Supporting Schedule Quality Checks</strong></p>
+<ul>
+<li>Opening balances equal prior period closing balances</li>
+<li>Roll-forward logic is complete (Beginning + Additions - Deductions = Ending)</li>
+<li>Schedule totals tie to main statement line items</li>
+<li>Assumptions used in calculations match Assumptions tab</li>
+</ul>
+<h4>Step 5: Cross-Statement Integrity Checks</h4>
+<p>After validating individual sheets, confirm the three statements are properly integrated:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Formula</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Balance Sheet Balance</td>
+<td>Assets - Liabilities - Equity</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Cash Tie-Out</td>
+<td>CF Ending Cash - BS Cash</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Net Income Link</td>
+<td>IS Net Income - CF Starting Net Income</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Retained Earnings</td>
+<td>Prior RE + NI - Dividends - BS Ending RE</td>
+<td>= 0 (adjust for SBC/other items as needed)</td>
+</tr>
+</tbody></table>
+<h4>Step 6: Final Review</h4>
+<p>Before considering the model complete:</p>
+<ul>
+<li>Toggle through all scenarios (if applicable) to verify checks pass in each case</li>
+<li>Review all #REF!, #DIV/0!, #VALUE!, and #NAME? errors and resolve or document</li>
+<li>Confirm all input cells have been populated (search for placeholder values)</li>
+<li>Verify units are consistent across all tabs</li>
+<li>Save a clean version before making any additional modifications</li>
+</ul>
+<h3>Model Validation and Audit</h3>
+<p>This section consolidates all validation checks and audit procedures for completed templates.</p>
+<h4>Core Linkages (Must Always Hold)</h4>
+<p>See <a href="references/formulas.md">references/formulas.md</a> for all formula details.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Formula</th>
+<th>Expected Result</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Balance Sheet Balance</td>
+<td>Assets - Liabilities - Equity</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Cash Tie-Out</td>
+<td>CF Ending Cash - BS Cash</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Cash Monthly vs Annual</td>
+<td>Closing Cash (Monthly) - Closing Cash (Annual)</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Net Income Link</td>
+<td>IS Net Income - CF Starting Net Income</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Retained Earnings</td>
+<td>Prior RE + NI + SBC - Dividends - BS Ending RE</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Equity Financing</td>
+<td>ΔCommon Stock/APIC (BS) - Equity Issuance (CFF)</td>
+<td>= 0</td>
+</tr>
+<tr>
+<td>Year 0 Equity</td>
+<td>Equity Raised (Year 0) - Beginning Equity Capital (Year 1)</td>
+<td>= 0</td>
+</tr>
+</tbody></table>
+<h4>Sign Convention Reference</h4>
+<table>
+<thead>
+<tr>
+<th>Statement</th>
+<th>Item</th>
+<th>Sign Convention</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>CFO</td>
+<td>D&amp;A, SBC</td>
+<td>Positive (add-back)</td>
+</tr>
+<tr>
+<td>CFO</td>
+<td>ΔAR (increase)</td>
+<td>Negative (use of cash)</td>
+</tr>
+<tr>
+<td>CFO</td>
+<td>ΔAP (increase)</td>
+<td>Positive (source of cash)</td>
+</tr>
+<tr>
+<td>CFI</td>
+<td>CapEx</td>
+<td>Negative</td>
+</tr>
+<tr>
+<td>CFF</td>
+<td>Debt issuance</td>
+<td>Positive</td>
+</tr>
+<tr>
+<td>CFF</td>
+<td>Debt repayments</td>
+<td>Negative</td>
+</tr>
+<tr>
+<td>CFF</td>
+<td>Dividends</td>
+<td>Negative</td>
+</tr>
+</tbody></table>
+<h4>Circular Reference Handling</h4>
+<p>Interest expense creates circularity: Interest → Net Income → Cash → Debt Balance → Interest</p>
+<p>Enable iterative calculation in Excel: File → Options → Formulas → Enable iterative calculation. Set maximum iterations to 100, maximum change to 0.001. Add a circuit breaker toggle in Assumptions tab.</p>
+<h4>Check Categories</h4>
+<p><strong>Section 1: Currency Consistency</strong></p>
+<ul>
+<li>Currency identified and documented in Assumptions</li>
+<li>All tabs use consistent currency symbol and scale</li>
+<li>Units row matches model currency</li>
+</ul>
+<p><strong>Section 2: Balance Sheet Integrity</strong></p>
+<ul>
+<li>Assets = Liabilities + Equity (for each period)</li>
+<li>Formula: Assets - Liabilities - Equity (must = 0)</li>
+</ul>
+<p><strong>Section 3: Cash Flow Integrity</strong></p>
+<ul>
+<li>Cash ties to BS (CF Ending Cash = BS Cash)</li>
+<li>Cash Monthly vs Annual: Closing Cash (Monthly) = Closing Cash (Annual)</li>
+<li>NI ties to IS (CF Net Income = IS Net Income)</li>
+<li>D&amp;A ties to schedule</li>
+<li>SBC ties to IS</li>
+<li>ΔAR, ΔInventory, ΔAP tie to WC schedule</li>
+<li>CapEx ties to DA schedule</li>
+</ul>
+<p><strong>Section 4: Retained Earnings</strong></p>
+<ul>
+<li>RE roll-forward check: Prior RE + NI + SBC - Dividends = Ending RE</li>
+<li>Show component breakdown for debugging</li>
+</ul>
+<p><strong>Section 5: Working Capital</strong></p>
+<ul>
+<li>AR, Inventory, AP tie to BS</li>
+<li>DSO, DIO, DPO reasonability checks (flag if outside normal ranges)</li>
+</ul>
+<p><strong>Section 6: Debt Schedule</strong></p>
+<ul>
+<li>Total Debt ties to BS (Current + LT Debt)</li>
+<li>Interest calculation ties to IS</li>
+</ul>
+<p><strong>Section 6b: Equity Financing</strong></p>
+<ul>
+<li>Equity issuance proceeds tie to BS Common Stock/APIC increase</li>
+<li>Cash increase from equity = Equity account increase (must balance)</li>
+<li>Equity Raise Tie-Out: ΔCommon Stock/APIC (BS) = Equity Issuance (CFF) (must = 0)</li>
+<li>Year 0 Equity Tie-Out: Equity Raised (Year 0) = Beginning Equity Capital (Year 1)</li>
+</ul>
+<p><strong>Section 6c: NOL Schedule</strong></p>
+<ul>
+<li>Beginning NOL (Year 1 / Formation) = 0 (new business starts with zero NOL)</li>
+<li>NOL increases only when EBT &lt; 0 (losses must be realized to generate NOL)</li>
+<li>DTA ties to BS (NOL Schedule DTA = BS Deferred Tax Asset)</li>
+<li>NOL utilization ≤ 80% of EBT (post-2017 federal limitation)</li>
+<li>NOL balance is non-negative (cannot utilize more than available)</li>
+<li>NOL generated only when EBT &lt; 0</li>
+<li>Tax expense = 0 when taxable income ≤ 0</li>
+</ul>
+<p><strong>Section 7: Scenario Hierarchy</strong></p>
+<ul>
+<li>Absolute metrics: Upside &gt; Base &gt; Downside (NI, EBITDA, FCF)</li>
+<li>Margins: Upside &gt; Base &gt; Downside (GM%, EBITDA%, NI%)</li>
+<li>Credit metrics: Upside &lt; Base &lt; Downside for leverage (inverted)</li>
+</ul>
+<p><strong>Section 8: Formula Integrity</strong></p>
+<ul>
+<li>COGS, S&amp;M, G&amp;A, R&amp;D, SBC driven by % of Revenue (no hardcodes)</li>
+<li>Consistent formulas across projection years</li>
+<li>No #REF!, #DIV/0!, #VALUE! errors</li>
+</ul>
+<p><strong>Section 9: Credit Metric Thresholds</strong></p>
+<ul>
+<li>Flag metrics as Green/Yellow/Red based on covenant thresholds</li>
+<li>Summary of any red flags</li>
+</ul>
+<h4>Master Check Formula</h4>
+<p>Aggregate all section statuses into a single master check:</p>
+<ul>
+<li>If all sections pass → &quot;✓ ALL CHECKS PASS&quot;</li>
+<li>If any section fails → &quot;✗ ERRORS DETECTED - REVIEW BELOW&quot;</li>
+</ul>
+<h4>Quick Debug Workflow</h4>
+<p>When Master Status shows errors:</p>
+<ol>
+<li>Scroll to find red-highlighted sections</li>
+<li>Identify which check category has failures</li>
+<li>Navigate to source tab to investigate</li>
+<li>Fix the underlying issue</li>
+<li>Return to Checks tab to verify resolution</li>
+</ol>
+<h3>Data sources — MCP first, web fallback</h3>
+<p>Many passages below say &quot;use the S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;. Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:</p>
+<ul>
+<li><strong>If you have any structured financial-data MCP configured</strong> (Hermes supports MCP — see <code>native-mcp</code> skill), prefer it for point-in-time comps, precedent transactions, and filings.</li>
+<li><strong>Otherwise</strong>, fall back to:<ul>
+<li><code>web_search</code> / <code>web_extract</code> against SEC EDGAR (<code>https://www.sec.gov/cgi-bin/browse-edgar</code>) for US filings</li>
+<li>Company IR pages for press releases, earnings decks</li>
+<li><code>browser_navigate</code> for interactive data portals</li>
+<li>User-provided data (explicitly ask when the context doesn&#39;t have it)</li>
+</ul>
+</li>
+<li><strong>Never fabricate</strong>. If a multiple, precedent, or filing number can&#39;t be sourced, flag the cell as <code>[UNSOURCED]</code> and surface it to the user.</li>
+</ul>
+<h3>Attribution</h3>
+<p>This skill is adapted from Anthropic&#39;s Claude for Financial Services plugin suite (Apache-2.0). The Office-JS / Cowork live-Excel paths have been removed; this version targets headless openpyxl via the <code>excel-author</code> skill&#39;s conventions. Original: <a href="https://github.com/anthropics/financial-services">https://github.com/anthropics/financial-services</a></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/finance/3-statement-model</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

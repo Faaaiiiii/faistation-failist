@@ -1,0 +1,692 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>concept-diagrams — Skill Hermes</title>
+<meta name="description" content="Generate flat, minimal educational SVG visuals as HTML.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>concept-diagrams</h1>
+    <p class="lede">Generate flat, minimal educational SVG visuals as HTML.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>concept-diagrams</dd>
+      <dt>Keterangan</dt><dd>Generate flat, minimal educational SVG visuals as HTML.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>v1k22 (original PR), ported into hermes-agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/concept-diagrams.zip" download>Muat turun ZIP (60.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (20)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.1 KB</td></tr>
+<tr><td><code>examples/apartment-floor-plan-conversion.md</code></td><td class="sz">9.0 KB</td></tr>
+<tr><td><code>examples/automated-password-reset-flow.md</code></td><td class="sz">14.9 KB</td></tr>
+<tr><td><code>examples/autonomous-llm-research-agent-flow.md</code></td><td class="sz">12.3 KB</td></tr>
+<tr><td><code>examples/banana-journey-tree-to-smoothie.md</code></td><td class="sz">6.0 KB</td></tr>
+<tr><td><code>examples/commercial-aircraft-structure.md</code></td><td class="sz">7.3 KB</td></tr>
+<tr><td><code>examples/cpu-ooo-microarchitecture.md</code></td><td class="sz">9.4 KB</td></tr>
+<tr><td><code>examples/electricity-grid-flow.md</code></td><td class="sz">6.7 KB</td></tr>
+<tr><td><code>examples/feature-film-production-pipeline.md</code></td><td class="sz">8.4 KB</td></tr>
+<tr><td><code>examples/hospital-emergency-department-flow.md</code></td><td class="sz">7.7 KB</td></tr>
+<tr><td><code>examples/ml-benchmark-grouped-bar-chart.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>examples/place-order-uml-sequence.md</code></td><td class="sz">19.6 KB</td></tr>
+<tr><td><code>examples/smart-city-infrastructure.md</code></td><td class="sz">6.9 KB</td></tr>
+<tr><td><code>examples/smartphone-layer-anatomy.md</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>examples/sn2-reaction-mechanism.md</code></td><td class="sz">8.0 KB</td></tr>
+<tr><td><code>examples/wind-turbine-structure.md</code></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>references/dashboard-patterns.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/infrastructure-patterns.md</code></td><td class="sz">5.2 KB</td></tr>
+<tr><td><code>references/physical-shape-cookbook.md</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>templates/template.html</code></td><td class="sz">6.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Concept Diagrams</h2>
+<p>Generate production-quality SVG diagrams with a unified flat, minimal design system. Output is a single self-contained HTML file that renders identically in any modern browser, with automatic light/dark mode.</p>
+<h3>Scope</h3>
+<p><strong>Best suited for:</strong></p>
+<ul>
+<li>Physics setups, chemistry mechanisms, math curves, biology</li>
+<li>Physical objects (aircraft, turbines, smartphones, mechanical watches, cells)</li>
+<li>Anatomy, cross-sections, exploded layer views</li>
+<li>Floor plans, architectural conversions</li>
+<li>Narrative journeys (lifecycle of X, process of Y)</li>
+<li>Hub-spoke system integrations (smart city, IoT networks, electricity grids)</li>
+<li>Educational / textbook-style visuals in any domain</li>
+<li>Quantitative charts (grouped bars, energy profiles)</li>
+</ul>
+<p><strong>Look elsewhere first for:</strong></p>
+<ul>
+<li>Dedicated software / cloud infrastructure architecture with a dark tech aesthetic (consider <code>architecture-diagram</code> if available)</li>
+<li>Hand-drawn whiteboard sketches (consider <code>excalidraw</code> if available)</li>
+<li>Animated explainers or video output (consider an animation skill)</li>
+</ul>
+<p>If a more specialized skill is available for the subject, prefer that. If none fits, this skill can serve as a general-purpose SVG diagram fallback — the output will carry the clean educational aesthetic described below, which is a reasonable default for almost any subject.</p>
+<h3>Workflow</h3>
+<ol>
+<li>Decide on the diagram type (see Diagram Types below).</li>
+<li>Lay out components using the Design System rules.</li>
+<li>Write the full HTML page using <code>templates/template.html</code> as the wrapper — paste your SVG where the template says <code>&lt;!-- PASTE SVG HERE --&gt;</code>.</li>
+<li>Save as a standalone <code>.html</code> file (for example <code>~/my-diagram.html</code> or <code>./my-diagram.html</code>).</li>
+<li>User opens it directly in a browser — no server, no dependencies.</li>
+</ol>
+<p>Optional: if the user wants a browsable gallery of multiple diagrams, see &quot;Local Preview Server&quot; at the bottom.</p>
+<p>Load the HTML template:</p>
+<pre><code>skill_view(name=&quot;concept-diagrams&quot;, file_path=&quot;templates/template.html&quot;)
+</code></pre>
+<p>The template embeds the full CSS design system (<code>c-*</code> color classes, text classes, light/dark variables, arrow marker styles). The SVG you generate relies on these classes being present on the hosting page.</p>
+<hr>
+<h3>Design System</h3>
+<h4>Philosophy</h4>
+<ul>
+<li><strong>Flat</strong>: no gradients, drop shadows, blur, glow, or neon effects.</li>
+<li><strong>Minimal</strong>: show the essential. No decorative icons inside boxes.</li>
+<li><strong>Consistent</strong>: same colors, spacing, typography, and stroke widths across every diagram.</li>
+<li><strong>Dark-mode ready</strong>: all colors auto-adapt via CSS classes — no per-mode SVG.</li>
+</ul>
+<h4>Color Palette</h4>
+<p>9 color ramps, each with 7 stops. Put the class name on a <code>&lt;g&gt;</code> or shape element; the template CSS handles both modes.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>50 (lightest)</th>
+<th>100</th>
+<th>200</th>
+<th>400</th>
+<th>600</th>
+<th>800</th>
+<th>900 (darkest)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>c-purple</code></td>
+<td>#EEEDFE</td>
+<td>#CECBF6</td>
+<td>#AFA9EC</td>
+<td>#7F77DD</td>
+<td>#534AB7</td>
+<td>#3C3489</td>
+<td>#26215C</td>
+</tr>
+<tr>
+<td><code>c-teal</code></td>
+<td>#E1F5EE</td>
+<td>#9FE1CB</td>
+<td>#5DCAA5</td>
+<td>#1D9E75</td>
+<td>#0F6E56</td>
+<td>#085041</td>
+<td>#04342C</td>
+</tr>
+<tr>
+<td><code>c-coral</code></td>
+<td>#FAECE7</td>
+<td>#F5C4B3</td>
+<td>#F0997B</td>
+<td>#D85A30</td>
+<td>#993C1D</td>
+<td>#712B13</td>
+<td>#4A1B0C</td>
+</tr>
+<tr>
+<td><code>c-pink</code></td>
+<td>#FBEAF0</td>
+<td>#F4C0D1</td>
+<td>#ED93B1</td>
+<td>#D4537E</td>
+<td>#993556</td>
+<td>#72243E</td>
+<td>#4B1528</td>
+</tr>
+<tr>
+<td><code>c-gray</code></td>
+<td>#F1EFE8</td>
+<td>#D3D1C7</td>
+<td>#B4B2A9</td>
+<td>#888780</td>
+<td>#5F5E5A</td>
+<td>#444441</td>
+<td>#2C2C2A</td>
+</tr>
+<tr>
+<td><code>c-blue</code></td>
+<td>#E6F1FB</td>
+<td>#B5D4F4</td>
+<td>#85B7EB</td>
+<td>#378ADD</td>
+<td>#185FA5</td>
+<td>#0C447C</td>
+<td>#042C53</td>
+</tr>
+<tr>
+<td><code>c-green</code></td>
+<td>#EAF3DE</td>
+<td>#C0DD97</td>
+<td>#97C459</td>
+<td>#639922</td>
+<td>#3B6D11</td>
+<td>#27500A</td>
+<td>#173404</td>
+</tr>
+<tr>
+<td><code>c-amber</code></td>
+<td>#FAEEDA</td>
+<td>#FAC775</td>
+<td>#EF9F27</td>
+<td>#BA7517</td>
+<td>#854F0B</td>
+<td>#633806</td>
+<td>#412402</td>
+</tr>
+<tr>
+<td><code>c-red</code></td>
+<td>#FCEBEB</td>
+<td>#F7C1C1</td>
+<td>#F09595</td>
+<td>#E24B4A</td>
+<td>#A32D2D</td>
+<td>#791F1F</td>
+<td>#501313</td>
+</tr>
+</tbody></table>
+<h5>Color Assignment Rules</h5>
+<p>Color encodes <strong>meaning</strong>, not sequence. Never cycle through colors like a rainbow.</p>
+<ul>
+<li>Group nodes by <strong>category</strong> — all nodes of the same type share one color.</li>
+<li>Use <code>c-gray</code> for neutral/structural nodes (start, end, generic steps, users).</li>
+<li>Use <strong>2-3 colors per diagram</strong>, not 6+.</li>
+<li>Prefer <code>c-purple</code>, <code>c-teal</code>, <code>c-coral</code>, <code>c-pink</code> for general categories.</li>
+<li>Reserve <code>c-blue</code>, <code>c-green</code>, <code>c-amber</code>, <code>c-red</code> for semantic meaning (info, success, warning, error).</li>
+</ul>
+<p>Light/dark stop mapping (handled by the template CSS — just use the class):</p>
+<ul>
+<li>Light mode: 50 fill + 600 stroke + 800 title / 600 subtitle</li>
+<li>Dark mode:  800 fill + 200 stroke + 100 title / 200 subtitle</li>
+</ul>
+<h4>Typography</h4>
+<p>Only two font sizes. No exceptions.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Size</th>
+<th>Weight</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>th</code></td>
+<td>14px</td>
+<td>500</td>
+<td>Node titles, region labels</td>
+</tr>
+<tr>
+<td><code>ts</code></td>
+<td>12px</td>
+<td>400</td>
+<td>Subtitles, descriptions, arrow labels</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>14px</td>
+<td>400</td>
+<td>General text</td>
+</tr>
+</tbody></table>
+<ul>
+<li><strong>Sentence case always.</strong> Never Title Case, never ALL CAPS.</li>
+<li>Every <code>&lt;text&gt;</code> MUST carry a class (<code>t</code>, <code>ts</code>, or <code>th</code>). No unclassed text.</li>
+<li><code>dominant-baseline=&quot;central&quot;</code> on all text inside boxes.</li>
+<li><code>text-anchor=&quot;middle&quot;</code> for centered text in boxes.</li>
+</ul>
+<p><strong>Width estimation (approx):</strong></p>
+<ul>
+<li>14px weight 500: ~8px per character</li>
+<li>12px weight 400: ~6.5px per character</li>
+<li>Always verify: <code>box_width &gt;= (char_count × px_per_char) + 48</code> (24px padding each side)</li>
+</ul>
+<h4>Spacing &amp; Layout</h4>
+<ul>
+<li><strong>ViewBox</strong>: <code>viewBox=&quot;0 0 680 H&quot;</code> where H = content height + 40px buffer.</li>
+<li><strong>Safe area</strong>: x=40 to x=640, y=40 to y=(H-40).</li>
+<li><strong>Between boxes</strong>: 60px minimum gap.</li>
+<li><strong>Inside boxes</strong>: 24px horizontal padding, 12px vertical padding.</li>
+<li><strong>Arrowhead gap</strong>: 10px between arrowhead and box edge.</li>
+<li><strong>Single-line box</strong>: 44px height.</li>
+<li><strong>Two-line box</strong>: 56px height, 18px between title and subtitle baselines.</li>
+<li><strong>Container padding</strong>: 20px minimum inside every container.</li>
+<li><strong>Max nesting</strong>: 2-3 levels deep. Deeper gets unreadable at 680px width.</li>
+</ul>
+<h4>Stroke &amp; Shape</h4>
+<ul>
+<li><strong>Stroke width</strong>: 0.5px on all node borders. Not 1px, not 2px.</li>
+<li><strong>Rect rounding</strong>: <code>rx=&quot;8&quot;</code> for nodes, <code>rx=&quot;12&quot;</code> for inner containers, <code>rx=&quot;16&quot;</code> to <code>rx=&quot;20&quot;</code> for outer containers.</li>
+<li><strong>Connector paths</strong>: MUST have <code>fill=&quot;none&quot;</code>. SVG defaults to <code>fill: black</code> otherwise.</li>
+</ul>
+<h4>Arrow Marker</h4>
+<p>Include this <code>&lt;defs&gt;</code> block at the start of <strong>every</strong> SVG:</p>
+<pre><code class="language-xml">&lt;defs&gt;
+  &lt;marker id=&quot;arrow&quot; viewBox=&quot;0 0 10 10&quot; refX=&quot;8&quot; refY=&quot;5&quot;
+          markerWidth=&quot;6&quot; markerHeight=&quot;6&quot; orient=&quot;auto-start-reverse&quot;&gt;
+    &lt;path d=&quot;M2 1L8 5L2 9&quot; fill=&quot;none&quot; stroke=&quot;context-stroke&quot;
+          stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+  &lt;/marker&gt;
+&lt;/defs&gt;
+</code></pre>
+<p>Use <code>marker-end=&quot;url(#arrow)&quot;</code> on lines. The arrowhead inherits the line color via <code>context-stroke</code>.</p>
+<h4>CSS Classes (Provided by the Template)</h4>
+<p>The template page provides:</p>
+<ul>
+<li>Text: <code>.t</code>, <code>.ts</code>, <code>.th</code></li>
+<li>Neutral: <code>.box</code>, <code>.arr</code>, <code>.leader</code>, <code>.node</code></li>
+<li>Color ramps: <code>.c-purple</code>, <code>.c-teal</code>, <code>.c-coral</code>, <code>.c-pink</code>, <code>.c-gray</code>, <code>.c-blue</code>, <code>.c-green</code>, <code>.c-amber</code>, <code>.c-red</code> (all with automatic light/dark mode)</li>
+</ul>
+<p>You do <strong>not</strong> need to redefine these — just apply them in your SVG. The template file contains the full CSS definitions.</p>
+<hr>
+<h3>SVG Boilerplate</h3>
+<p>Every SVG inside the template page starts with this exact structure:</p>
+<pre><code class="language-xml">&lt;svg width=&quot;100%&quot; viewBox=&quot;0 0 680 {HEIGHT}&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
+  &lt;defs&gt;
+    &lt;marker id=&quot;arrow&quot; viewBox=&quot;0 0 10 10&quot; refX=&quot;8&quot; refY=&quot;5&quot;
+            markerWidth=&quot;6&quot; markerHeight=&quot;6&quot; orient=&quot;auto-start-reverse&quot;&gt;
+      &lt;path d=&quot;M2 1L8 5L2 9&quot; fill=&quot;none&quot; stroke=&quot;context-stroke&quot;
+            stroke-width=&quot;1.5&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;/&gt;
+    &lt;/marker&gt;
+  &lt;/defs&gt;
+
+  &lt;!-- Diagram content here --&gt;
+
+&lt;/svg&gt;
+</code></pre>
+<p>Replace <code>{HEIGHT}</code> with the actual computed height (last element bottom + 40px).</p>
+<h4>Node Patterns</h4>
+<p><strong>Single-line node (44px):</strong></p>
+<pre><code class="language-xml">&lt;g class=&quot;node c-blue&quot;&gt;
+  &lt;rect x=&quot;100&quot; y=&quot;20&quot; width=&quot;180&quot; height=&quot;44&quot; rx=&quot;8&quot; stroke-width=&quot;0.5&quot;/&gt;
+  &lt;text class=&quot;th&quot; x=&quot;190&quot; y=&quot;42&quot; text-anchor=&quot;middle&quot; dominant-baseline=&quot;central&quot;&gt;Service name&lt;/text&gt;
+&lt;/g&gt;
+</code></pre>
+<p><strong>Two-line node (56px):</strong></p>
+<pre><code class="language-xml">&lt;g class=&quot;node c-teal&quot;&gt;
+  &lt;rect x=&quot;100&quot; y=&quot;20&quot; width=&quot;200&quot; height=&quot;56&quot; rx=&quot;8&quot; stroke-width=&quot;0.5&quot;/&gt;
+  &lt;text class=&quot;th&quot; x=&quot;200&quot; y=&quot;38&quot; text-anchor=&quot;middle&quot; dominant-baseline=&quot;central&quot;&gt;Service name&lt;/text&gt;
+  &lt;text class=&quot;ts&quot; x=&quot;200&quot; y=&quot;56&quot; text-anchor=&quot;middle&quot; dominant-baseline=&quot;central&quot;&gt;Short description&lt;/text&gt;
+&lt;/g&gt;
+</code></pre>
+<p><strong>Connector (no label):</strong></p>
+<pre><code class="language-xml">&lt;line x1=&quot;200&quot; y1=&quot;76&quot; x2=&quot;200&quot; y2=&quot;120&quot; class=&quot;arr&quot; marker-end=&quot;url(#arrow)&quot;/&gt;
+</code></pre>
+<p><strong>Container (dashed or solid):</strong></p>
+<pre><code class="language-xml">&lt;g class=&quot;c-purple&quot;&gt;
+  &lt;rect x=&quot;40&quot; y=&quot;92&quot; width=&quot;600&quot; height=&quot;300&quot; rx=&quot;16&quot; stroke-width=&quot;0.5&quot;/&gt;
+  &lt;text class=&quot;th&quot; x=&quot;66&quot; y=&quot;116&quot;&gt;Container label&lt;/text&gt;
+  &lt;text class=&quot;ts&quot; x=&quot;66&quot; y=&quot;134&quot;&gt;Subtitle info&lt;/text&gt;
+&lt;/g&gt;
+</code></pre>
+<hr>
+<h3>Diagram Types</h3>
+<p>Choose the layout that fits the subject:</p>
+<ol>
+<li><strong>Flowchart</strong> — CI/CD pipelines, request lifecycles, approval workflows, data processing. Single-direction flow (top-down or left-right). Max 4-5 nodes per row.</li>
+<li><strong>Structural / Containment</strong> — Cloud infrastructure nesting, system architecture with layers. Large outer containers with inner regions. Dashed rects for logical groupings.</li>
+<li><strong>API / Endpoint Map</strong> — REST routes, GraphQL schemas. Tree from root, branching to resource groups, each containing endpoint nodes.</li>
+<li><strong>Microservice Topology</strong> — Service mesh, event-driven systems. Services as nodes, arrows for communication patterns, message queues between.</li>
+<li><strong>Data Flow</strong> — ETL pipelines, streaming architectures. Left-to-right flow from sources through processing to sinks.</li>
+<li><strong>Physical / Structural</strong> — Vehicles, buildings, hardware, anatomy. Use shapes that match the physical form — <code>&lt;path&gt;</code> for curved bodies, <code>&lt;polygon&gt;</code> for tapered shapes, <code>&lt;ellipse&gt;</code>/<code>&lt;circle&gt;</code> for cylindrical parts, nested <code>&lt;rect&gt;</code> for compartments. See <code>references/physical-shape-cookbook.md</code>.</li>
+<li><strong>Infrastructure / Systems Integration</strong> — Smart cities, IoT networks, multi-domain systems. Hub-spoke layout with central platform connecting subsystems. Semantic line styles (<code>.data-line</code>, <code>.power-line</code>, <code>.water-pipe</code>, <code>.road</code>). See <code>references/infrastructure-patterns.md</code>.</li>
+<li><strong>UI / Dashboard Mockups</strong> — Admin panels, monitoring dashboards. Screen frame with nested chart/gauge/indicator elements. See <code>references/dashboard-patterns.md</code>.</li>
+</ol>
+<p>For physical, infrastructure, and dashboard diagrams, load the matching reference file before generating — each one provides ready-made CSS classes and shape primitives.</p>
+<hr>
+<h3>Validation Checklist</h3>
+<p>Before finalizing any SVG, verify ALL of the following:</p>
+<ol>
+<li>Every <code>&lt;text&gt;</code> has class <code>t</code>, <code>ts</code>, or <code>th</code>.</li>
+<li>Every <code>&lt;text&gt;</code> inside a box has <code>dominant-baseline=&quot;central&quot;</code>.</li>
+<li>Every connector <code>&lt;path&gt;</code> or <code>&lt;line&gt;</code> used as arrow has <code>fill=&quot;none&quot;</code>.</li>
+<li>No arrow line crosses through an unrelated box.</li>
+<li><code>box_width &gt;= (longest_label_chars × 8) + 48</code> for 14px text.</li>
+<li><code>box_width &gt;= (longest_label_chars × 6.5) + 48</code> for 12px text.</li>
+<li>ViewBox height = bottom-most element + 40px.</li>
+<li>All content stays within x=40 to x=640.</li>
+<li>Color classes (<code>c-*</code>) are on <code>&lt;g&gt;</code> or shape elements, never on <code>&lt;path&gt;</code> connectors.</li>
+<li>Arrow <code>&lt;defs&gt;</code> block is present.</li>
+<li>No gradients, shadows, blur, or glow effects.</li>
+<li>Stroke width is 0.5px on all node borders.</li>
+</ol>
+<hr>
+<h3>Output &amp; Preview</h3>
+<h4>Default: standalone HTML file</h4>
+<p>Write a single <code>.html</code> file the user can open directly. No server, no dependencies, works offline. Pattern:</p>
+<pre><code class="language-python"># 1. Load the template
+template = skill_view(&quot;concept-diagrams&quot;, &quot;templates/template.html&quot;)
+
+# 2. Fill in title, subtitle, and paste your SVG
+html = template.replace(
+    &quot;&lt;!-- DIAGRAM TITLE HERE --&gt;&quot;, &quot;SN2 reaction mechanism&quot;
+).replace(
+    &quot;&lt;!-- OPTIONAL SUBTITLE HERE --&gt;&quot;, &quot;Bimolecular nucleophilic substitution&quot;
+).replace(
+    &quot;&lt;!-- PASTE SVG HERE --&gt;&quot;, svg_content
+)
+
+# 3. Write to a user-chosen path (or ./ by default)
+write_file(&quot;./sn2-mechanism.html&quot;, html)
+</code></pre>
+<p>Tell the user how to open it:</p>
+<pre><code># macOS
+open ./sn2-mechanism.html
+# Linux
+xdg-open ./sn2-mechanism.html
+</code></pre>
+<h4>Optional: local preview server (multi-diagram gallery)</h4>
+<p>Only use this when the user explicitly wants a browsable gallery of multiple diagrams.</p>
+<p><strong>Rules:</strong></p>
+<ul>
+<li>Bind to <code>127.0.0.1</code> only. Never <code>0.0.0.0</code>. Exposing diagrams on all network interfaces is a security hazard on shared networks.</li>
+<li>Pick a free port (do NOT hard-code one) and tell the user the chosen URL.</li>
+<li>The server is optional and opt-in — prefer the standalone HTML file first.</li>
+</ul>
+<p>Recommended pattern (lets the OS pick a free ephemeral port):</p>
+<pre><code class="language-bash"># Put each diagram in its own folder under .diagrams/
+mkdir -p .diagrams/sn2-mechanism
+# ...write .diagrams/sn2-mechanism/index.html...
+
+# Serve on loopback only, free port
+cd .diagrams &amp;&amp; python -c &quot;
+import http.server, socketserver
+with socketserver.TCPServer((&#39;127.0.0.1&#39;, 0), http.server.SimpleHTTPRequestHandler) as s:
+    print(f&#39;Serving at http://127.0.0.1:{s.server_address[1]}/&#39;)
+    s.serve_forever()
+&quot; &amp;
+</code></pre>
+<p>If the user insists on a fixed port, use <code>127.0.0.1:&lt;port&gt;</code> — still never <code>0.0.0.0</code>. Document how to stop the server (<code>kill %1</code> or <code>pkill -f &quot;http.server&quot;</code>).</p>
+<hr>
+<h3>Examples Reference</h3>
+<p>The <code>examples/</code> directory ships 15 complete, tested diagrams. Browse them for working patterns before writing a new diagram of a similar type:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Type</th>
+<th>Demonstrates</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>hospital-emergency-department-flow.md</code></td>
+<td>Flowchart</td>
+<td>Priority routing with semantic colors</td>
+</tr>
+<tr>
+<td><code>feature-film-production-pipeline.md</code></td>
+<td>Flowchart</td>
+<td>Phased workflow, horizontal sub-flows</td>
+</tr>
+<tr>
+<td><code>automated-password-reset-flow.md</code></td>
+<td>Flowchart</td>
+<td>Auth flow with error branches</td>
+</tr>
+<tr>
+<td><code>autonomous-llm-research-agent-flow.md</code></td>
+<td>Flowchart</td>
+<td>Loop-back arrows, decision branches</td>
+</tr>
+<tr>
+<td><code>place-order-uml-sequence.md</code></td>
+<td>Sequence</td>
+<td>UML sequence diagram style</td>
+</tr>
+<tr>
+<td><code>commercial-aircraft-structure.md</code></td>
+<td>Physical</td>
+<td>Paths, polygons, ellipses for realistic shapes</td>
+</tr>
+<tr>
+<td><code>wind-turbine-structure.md</code></td>
+<td>Physical cross-section</td>
+<td>Underground/above-ground separation, color coding</td>
+</tr>
+<tr>
+<td><code>smartphone-layer-anatomy.md</code></td>
+<td>Exploded view</td>
+<td>Alternating left/right labels, layered components</td>
+</tr>
+<tr>
+<td><code>apartment-floor-plan-conversion.md</code></td>
+<td>Floor plan</td>
+<td>Walls, doors, proposed changes in dotted red</td>
+</tr>
+<tr>
+<td><code>banana-journey-tree-to-smoothie.md</code></td>
+<td>Narrative journey</td>
+<td>Winding path, progressive state changes</td>
+</tr>
+<tr>
+<td><code>cpu-ooo-microarchitecture.md</code></td>
+<td>Hardware pipeline</td>
+<td>Fan-out, memory hierarchy sidebar</td>
+</tr>
+<tr>
+<td><code>sn2-reaction-mechanism.md</code></td>
+<td>Chemistry</td>
+<td>Molecules, curved arrows, energy profile</td>
+</tr>
+<tr>
+<td><code>smart-city-infrastructure.md</code></td>
+<td>Hub-spoke</td>
+<td>Semantic line styles per system</td>
+</tr>
+<tr>
+<td><code>electricity-grid-flow.md</code></td>
+<td>Multi-stage flow</td>
+<td>Voltage hierarchy, flow markers</td>
+</tr>
+<tr>
+<td><code>ml-benchmark-grouped-bar-chart.md</code></td>
+<td>Chart</td>
+<td>Grouped bars, dual axis</td>
+</tr>
+</tbody></table>
+<p>Load any example with:</p>
+<pre><code>skill_view(name=&quot;concept-diagrams&quot;, file_path=&quot;examples/&lt;filename&gt;&quot;)
+</code></pre>
+<hr>
+<h3>Quick Reference: What to Use When</h3>
+<table>
+<thead>
+<tr>
+<th>User says</th>
+<th>Diagram type</th>
+<th>Suggested colors</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;show the pipeline&quot;</td>
+<td>Flowchart</td>
+<td>gray start/end, purple steps, red errors, teal deploy</td>
+</tr>
+<tr>
+<td>&quot;draw the data flow&quot;</td>
+<td>Data pipeline (left-right)</td>
+<td>gray sources, purple processing, teal sinks</td>
+</tr>
+<tr>
+<td>&quot;visualize the system&quot;</td>
+<td>Structural (containment)</td>
+<td>purple container, teal services, coral data</td>
+</tr>
+<tr>
+<td>&quot;map the endpoints&quot;</td>
+<td>API tree</td>
+<td>purple root, one ramp per resource group</td>
+</tr>
+<tr>
+<td>&quot;show the services&quot;</td>
+<td>Microservice topology</td>
+<td>gray ingress, teal services, purple bus, coral workers</td>
+</tr>
+<tr>
+<td>&quot;draw the aircraft/vehicle&quot;</td>
+<td>Physical</td>
+<td>paths, polygons, ellipses for realistic shapes</td>
+</tr>
+<tr>
+<td>&quot;smart city / IoT&quot;</td>
+<td>Hub-spoke integration</td>
+<td>semantic line styles per subsystem</td>
+</tr>
+<tr>
+<td>&quot;show the dashboard&quot;</td>
+<td>UI mockup</td>
+<td>dark screen, chart colors: teal, purple, coral for alerts</td>
+</tr>
+<tr>
+<td>&quot;power grid / electricity&quot;</td>
+<td>Multi-stage flow</td>
+<td>voltage hierarchy (HV/MV/LV line weights)</td>
+</tr>
+<tr>
+<td>&quot;wind turbine / turbine&quot;</td>
+<td>Physical cross-section</td>
+<td>foundation + tower cutaway + nacelle color-coded</td>
+</tr>
+<tr>
+<td>&quot;journey of X / lifecycle&quot;</td>
+<td>Narrative journey</td>
+<td>winding path, progressive state changes</td>
+</tr>
+<tr>
+<td>&quot;layers of X / exploded&quot;</td>
+<td>Exploded layer view</td>
+<td>vertical stack, alternating labels</td>
+</tr>
+<tr>
+<td>&quot;CPU / pipeline&quot;</td>
+<td>Hardware pipeline</td>
+<td>vertical stages, fan-out to execution ports</td>
+</tr>
+<tr>
+<td>&quot;floor plan / apartment&quot;</td>
+<td>Floor plan</td>
+<td>walls, doors, proposed changes in dotted red</td>
+</tr>
+<tr>
+<td>&quot;reaction mechanism&quot;</td>
+<td>Chemistry</td>
+<td>atoms, bonds, curved arrows, transition state, energy profile</td>
+</tr>
+</tbody></table>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/concept-diagrams</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

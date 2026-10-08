@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>lambda-labs — Skill Hermes</title>
+<meta name="description" content="On-demand GPU cloud instances for ML training.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>lambda-labs</h1>
+    <p class="lede">On-demand GPU cloud instances for ML training.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>lambda-labs</dd>
+      <dt>Keterangan</dt><dd>On-demand GPU cloud instances for ML training.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/lambda-labs.zip" download>Muat turun ZIP (14.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.7 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">14.8 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">11.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Lambda Labs GPU Cloud</h2>
+<p>Guide to running ML workloads on Lambda Labs GPU cloud with on-demand instances and 1-Click Clusters.</p>
+<h3>When to use Lambda Labs</h3>
+<p><strong>Use Lambda Labs when:</strong></p>
+<ul>
+<li>Need dedicated GPU instances with full SSH access</li>
+<li>Running long training jobs (hours to days)</li>
+<li>Want simple pricing with no egress fees</li>
+<li>Need persistent storage across sessions</li>
+<li>Require high-performance multi-node clusters (16-512 GPUs)</li>
+<li>Want pre-installed ML stack (Lambda Stack with PyTorch, CUDA, NCCL)</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>GPU variety</strong>: B200, H100, GH200, A100, A10, A6000, V100</li>
+<li><strong>Lambda Stack</strong>: Pre-installed PyTorch, TensorFlow, CUDA, cuDNN, NCCL</li>
+<li><strong>Persistent filesystems</strong>: Keep data across instance restarts</li>
+<li><strong>1-Click Clusters</strong>: 16-512 GPU Slurm clusters with InfiniBand</li>
+<li><strong>Simple pricing</strong>: Pay-per-minute, no egress fees</li>
+<li><strong>Global regions</strong>: 12+ regions worldwide</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>Modal</strong>: For serverless, auto-scaling workloads</li>
+<li><strong>SkyPilot</strong>: For multi-cloud orchestration and cost optimization</li>
+<li><strong>RunPod</strong>: For cheaper spot instances and serverless endpoints</li>
+<li><strong>Vast.ai</strong>: For GPU marketplace with lowest prices</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Account setup</h4>
+<ol>
+<li>Create account at <a href="https://lambda.ai">https://lambda.ai</a></li>
+<li>Add payment method</li>
+<li>Generate API key from dashboard</li>
+<li>Add SSH key (required before launching instances)</li>
+</ol>
+<h4>Launch via console</h4>
+<ol>
+<li>Go to <a href="https://cloud.lambda.ai/instances">https://cloud.lambda.ai/instances</a></li>
+<li>Click &quot;Launch instance&quot;</li>
+<li>Select GPU type and region</li>
+<li>Choose SSH key</li>
+<li>Optionally attach filesystem</li>
+<li>Launch and wait 3-15 minutes</li>
+</ol>
+<h4>Connect via SSH</h4>
+<pre><code class="language-bash"># Get instance IP from console
+ssh ubuntu@&lt;INSTANCE-IP&gt;
+
+# Or with specific key
+ssh -i ~/.ssh/lambda_key ubuntu@&lt;INSTANCE-IP&gt;
+</code></pre>
+<h3>GPU instances</h3>
+<h4>Available GPUs</h4>
+<table>
+<thead>
+<tr>
+<th>GPU</th>
+<th>VRAM</th>
+<th>Price/GPU/hr</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B200 SXM6</td>
+<td>180 GB</td>
+<td>$4.99</td>
+<td>Largest models, fastest training</td>
+</tr>
+<tr>
+<td>H100 SXM</td>
+<td>80 GB</td>
+<td>$2.99-3.29</td>
+<td>Large model training</td>
+</tr>
+<tr>
+<td>H100 PCIe</td>
+<td>80 GB</td>
+<td>$2.49</td>
+<td>Cost-effective H100</td>
+</tr>
+<tr>
+<td>GH200</td>
+<td>96 GB</td>
+<td>$1.49</td>
+<td>Single-GPU large models</td>
+</tr>
+<tr>
+<td>A100 80GB</td>
+<td>80 GB</td>
+<td>$1.79</td>
+<td>Production training</td>
+</tr>
+<tr>
+<td>A100 40GB</td>
+<td>40 GB</td>
+<td>$1.29</td>
+<td>Standard training</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>24 GB</td>
+<td>$0.75</td>
+<td>Inference, fine-tuning</td>
+</tr>
+<tr>
+<td>A6000</td>
+<td>48 GB</td>
+<td>$0.80</td>
+<td>Good VRAM/price ratio</td>
+</tr>
+<tr>
+<td>V100</td>
+<td>16 GB</td>
+<td>$0.55</td>
+<td>Budget training</td>
+</tr>
+</tbody></table>
+<h4>Instance configurations</h4>
+<pre><code>8x GPU: Best for distributed training (DDP, FSDP)
+4x GPU: Large models, multi-GPU training
+2x GPU: Medium workloads
+1x GPU: Fine-tuning, inference, development
+</code></pre>
+<h4>Launch times</h4>
+<ul>
+<li>Single-GPU: 3-5 minutes</li>
+<li>Multi-GPU: 10-15 minutes</li>
+</ul>
+<h3>Lambda Stack</h3>
+<p>All instances come with Lambda Stack pre-installed:</p>
+<pre><code class="language-bash"># Included software
+- Ubuntu 22.04 LTS
+- NVIDIA drivers (latest)
+- CUDA 12.x
+- cuDNN 8.x
+- NCCL (for multi-GPU)
+- PyTorch (latest)
+- TensorFlow (latest)
+- JAX
+- JupyterLab
+</code></pre>
+<h4>Verify installation</h4>
+<pre><code class="language-bash"># Check GPU
+nvidia-smi
+
+# Check PyTorch
+python -c &quot;import torch; print(torch.cuda.is_available())&quot;
+
+# Check CUDA version
+nvcc --version
+</code></pre>
+<h3>Python API</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash">pip install lambda-cloud-client
+</code></pre>
+<h4>Authentication</h4>
+<pre><code class="language-python">import os
+import lambda_cloud_client
+
+# Configure with API key
+configuration = lambda_cloud_client.Configuration(
+    host=&quot;https://cloud.lambdalabs.com/api/v1&quot;,
+    access_token=os.environ[&quot;LAMBDA_API_KEY&quot;]
+)
+</code></pre>
+<h4>List available instances</h4>
+<pre><code class="language-python">with lambda_cloud_client.ApiClient(configuration) as api_client:
+    api = lambda_cloud_client.DefaultApi(api_client)
+
+    # Get available instance types
+    types = api.instance_types()
+    for name, info in types.data.items():
+        print(f&quot;{name}: {info.instance_type.description}&quot;)
+</code></pre>
+<h4>Launch instance</h4>
+<pre><code class="language-python">from lambda_cloud_client.models import LaunchInstanceRequest
+
+request = LaunchInstanceRequest(
+    region_name=&quot;us-west-1&quot;,
+    instance_type_name=&quot;gpu_1x_h100_sxm5&quot;,
+    ssh_key_names=[&quot;my-ssh-key&quot;],
+    file_system_names=[&quot;my-filesystem&quot;],  # Optional
+    name=&quot;training-job&quot;
+)
+
+response = api.launch_instance(request)
+instance_id = response.data.instance_ids[0]
+print(f&quot;Launched: {instance_id}&quot;)
+</code></pre>
+<h4>List running instances</h4>
+<pre><code class="language-python">instances = api.list_instances()
+for instance in instances.data:
+    print(f&quot;{instance.name}: {instance.ip} ({instance.status})&quot;)
+</code></pre>
+<h4>Terminate instance</h4>
+<pre><code class="language-python">from lambda_cloud_client.models import TerminateInstanceRequest
+
+request = TerminateInstanceRequest(
+    instance_ids=[instance_id]
+)
+api.terminate_instance(request)
+</code></pre>
+<h4>SSH key management</h4>
+<pre><code class="language-python">from lambda_cloud_client.models import AddSshKeyRequest
+
+# Add SSH key
+request = AddSshKeyRequest(
+    name=&quot;my-key&quot;,
+    public_key=&quot;ssh-rsa AAAA...&quot;
+)
+api.add_ssh_key(request)
+
+# List keys
+keys = api.list_ssh_keys()
+
+# Delete key
+api.delete_ssh_key(key_id)
+</code></pre>
+<h3>CLI with curl</h3>
+<h4>List instance types</h4>
+<pre><code class="language-bash">curl -u $LAMBDA_API_KEY: \
+  https://cloud.lambdalabs.com/api/v1/instance-types | jq
+</code></pre>
+<h4>Launch instance</h4>
+<pre><code class="language-bash">curl -u $LAMBDA_API_KEY: \
+  -X POST https://cloud.lambdalabs.com/api/v1/instance-operations/launch \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;region_name&quot;: &quot;us-west-1&quot;,
+    &quot;instance_type_name&quot;: &quot;gpu_1x_h100_sxm5&quot;,
+    &quot;ssh_key_names&quot;: [&quot;my-key&quot;]
+  }&#39; | jq
+</code></pre>
+<h4>Terminate instance</h4>
+<pre><code class="language-bash">curl -u $LAMBDA_API_KEY: \
+  -X POST https://cloud.lambdalabs.com/api/v1/instance-operations/terminate \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;instance_ids&quot;: [&quot;&lt;INSTANCE-ID&gt;&quot;]}&#39; | jq
+</code></pre>
+<h3>Persistent storage</h3>
+<h4>Filesystems</h4>
+<p>Filesystems persist data across instance restarts:</p>
+<pre><code class="language-bash"># Mount location
+/lambda/nfs/&lt;FILESYSTEM_NAME&gt;
+
+# Example: save checkpoints
+python train.py --checkpoint-dir /lambda/nfs/my-storage/checkpoints
+</code></pre>
+<h4>Create filesystem</h4>
+<ol>
+<li>Go to Storage in Lambda console</li>
+<li>Click &quot;Create filesystem&quot;</li>
+<li>Select region (must match instance region)</li>
+<li>Name and create</li>
+</ol>
+<h4>Attach to instance</h4>
+<p>Filesystems must be attached at instance launch time:</p>
+<ul>
+<li>Via console: Select filesystem when launching</li>
+<li>Via API: Include <code>file_system_names</code> in launch request</li>
+</ul>
+<h4>Best practices</h4>
+<pre><code class="language-bash"># Store on filesystem (persists)
+/lambda/nfs/storage/
+  ├── datasets/
+  ├── checkpoints/
+  ├── models/
+  └── outputs/
+
+# Local SSD (faster, ephemeral)
+~/ (instance home)
+  └── working/  # Temporary files
+</code></pre>
+<h3>SSH configuration</h3>
+<h4>Add SSH key</h4>
+<pre><code class="language-bash"># Generate key locally
+ssh-keygen -t ed25519 -f ~/.ssh/lambda_key
+
+# Add public key to Lambda console
+# Or via API
+</code></pre>
+<h4>Multiple keys</h4>
+<pre><code class="language-bash"># On instance, add more keys
+echo &#39;ssh-rsa AAAA...&#39; &gt;&gt; ~/.ssh/authorized_keys
+</code></pre>
+<h4>Import from GitHub</h4>
+<pre><code class="language-bash"># On instance
+ssh-import-id gh:username
+</code></pre>
+<h4>SSH tunneling</h4>
+<pre><code class="language-bash"># Forward Jupyter
+ssh -L 8888:localhost:8888 ubuntu@&lt;IP&gt;
+
+# Forward TensorBoard
+ssh -L 6006:localhost:6006 ubuntu@&lt;IP&gt;
+
+# Multiple ports
+ssh -L 8888:localhost:8888 -L 6006:localhost:6006 ubuntu@&lt;IP&gt;
+</code></pre>
+<h3>JupyterLab</h3>
+<h4>Launch from console</h4>
+<ol>
+<li>Go to Instances page</li>
+<li>Click &quot;Launch&quot; in Cloud IDE column</li>
+<li>JupyterLab opens in browser</li>
+</ol>
+<h4>Manual access</h4>
+<pre><code class="language-bash"># On instance
+jupyter lab --ip=0.0.0.0 --port=8888
+
+# From local machine with tunnel
+ssh -L 8888:localhost:8888 ubuntu@&lt;IP&gt;
+# Open http://localhost:8888
+</code></pre>
+<h3>Training workflows</h3>
+<h4>Single-GPU training</h4>
+<pre><code class="language-bash"># SSH to instance
+ssh ubuntu@&lt;IP&gt;
+
+# Clone repo
+git clone https://github.com/user/project
+cd project
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Train
+python train.py --epochs 100 --checkpoint-dir /lambda/nfs/storage/checkpoints
+</code></pre>
+<h4>Multi-GPU training (single node)</h4>
+<pre><code class="language-python"># train_ddp.py
+import torch
+import torch.distributed as dist
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+def main():
+    dist.init_process_group(&quot;nccl&quot;)
+    rank = dist.get_rank()
+    device = rank % torch.cuda.device_count()
+
+    model = MyModel().to(device)
+    model = DDP(model, device_ids=[device])
+
+    # Training loop...
+
+if __name__ == &quot;__main__&quot;:
+    main()
+</code></pre>
+<pre><code class="language-bash"># Launch with torchrun (8 GPUs)
+torchrun --nproc_per_node=8 train_ddp.py
+</code></pre>
+<h4>Checkpoint to filesystem</h4>
+<pre><code class="language-python">import os
+
+checkpoint_dir = &quot;/lambda/nfs/my-storage/checkpoints&quot;
+os.makedirs(checkpoint_dir, exist_ok=True)
+
+# Save checkpoint
+torch.save({
+    &#39;epoch&#39;: epoch,
+    &#39;model_state_dict&#39;: model.state_dict(),
+    &#39;optimizer_state_dict&#39;: optimizer.state_dict(),
+    &#39;loss&#39;: loss,
+}, f&quot;{checkpoint_dir}/checkpoint_{epoch}.pt&quot;)
+</code></pre>
+<h3>1-Click Clusters</h3>
+<h4>Overview</h4>
+<p>High-performance Slurm clusters with:</p>
+<ul>
+<li>16-512 NVIDIA H100 or B200 GPUs</li>
+<li>NVIDIA Quantum-2 400 Gb/s InfiniBand</li>
+<li>GPUDirect RDMA at 3200 Gb/s</li>
+<li>Pre-installed distributed ML stack</li>
+</ul>
+<h4>Included software</h4>
+<ul>
+<li>Ubuntu 22.04 LTS + Lambda Stack</li>
+<li>NCCL, Open MPI</li>
+<li>PyTorch with DDP and FSDP</li>
+<li>TensorFlow</li>
+<li>OFED drivers</li>
+</ul>
+<h4>Storage</h4>
+<ul>
+<li>24 TB NVMe per compute node (ephemeral)</li>
+<li>Lambda filesystems for persistent data</li>
+</ul>
+<h4>Multi-node training</h4>
+<pre><code class="language-bash"># On Slurm cluster
+srun --nodes=4 --ntasks-per-node=8 --gpus-per-node=8 \
+  torchrun --nnodes=4 --nproc_per_node=8 \
+  --rdzv_backend=c10d --rdzv_endpoint=$MASTER_ADDR:29500 \
+  train.py
+</code></pre>
+<h3>Networking</h3>
+<h4>Bandwidth</h4>
+<ul>
+<li>Inter-instance (same region): up to 200 Gbps</li>
+<li>Internet outbound: 20 Gbps max</li>
+</ul>
+<h4>Firewall</h4>
+<ul>
+<li>Default: Only port 22 (SSH) open</li>
+<li>Configure additional ports in Lambda console</li>
+<li>ICMP traffic allowed by default</li>
+</ul>
+<h4>Private IPs</h4>
+<pre><code class="language-bash"># Find private IP
+ip addr show | grep &#39;inet &#39;
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Fine-tuning LLM</h4>
+<pre><code class="language-bash"># 1. Launch 8x H100 instance with filesystem
+
+# 2. SSH and setup
+ssh ubuntu@&lt;IP&gt;
+pip install transformers accelerate peft
+
+# 3. Download model to filesystem
+python -c &quot;
+from transformers import AutoModelForCausalLM
+model = AutoModelForCausalLM.from_pretrained(&#39;meta-llama/Llama-2-7b-hf&#39;)
+model.save_pretrained(&#39;/lambda/nfs/storage/models/llama-2-7b&#39;)
+&quot;
+
+# 4. Fine-tune with checkpoints on filesystem
+accelerate launch --num_processes 8 train.py \
+  --model_path /lambda/nfs/storage/models/llama-2-7b \
+  --output_dir /lambda/nfs/storage/outputs \
+  --checkpoint_dir /lambda/nfs/storage/checkpoints
+</code></pre>
+<h4>Workflow 2: Batch inference</h4>
+<pre><code class="language-bash"># 1. Launch A10 instance (cost-effective for inference)
+
+# 2. Run inference
+python inference.py \
+  --model /lambda/nfs/storage/models/fine-tuned \
+  --input /lambda/nfs/storage/data/inputs.jsonl \
+  --output /lambda/nfs/storage/data/outputs.jsonl
+</code></pre>
+<h3>Cost optimization</h3>
+<h4>Choose right GPU</h4>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Recommended GPU</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LLM fine-tuning (7B)</td>
+<td>A100 40GB</td>
+</tr>
+<tr>
+<td>LLM fine-tuning (70B)</td>
+<td>8x H100</td>
+</tr>
+<tr>
+<td>Inference</td>
+<td>A10, A6000</td>
+</tr>
+<tr>
+<td>Development</td>
+<td>V100, A10</td>
+</tr>
+<tr>
+<td>Maximum performance</td>
+<td>B200</td>
+</tr>
+</tbody></table>
+<h4>Reduce costs</h4>
+<ol>
+<li><strong>Use filesystems</strong>: Avoid re-downloading data</li>
+<li><strong>Checkpoint frequently</strong>: Resume interrupted training</li>
+<li><strong>Right-size</strong>: Don&#39;t over-provision GPUs</li>
+<li><strong>Terminate idle</strong>: No auto-stop, manually terminate</li>
+</ol>
+<h4>Monitor usage</h4>
+<ul>
+<li>Dashboard shows real-time GPU utilization</li>
+<li>API for programmatic monitoring</li>
+</ul>
+<h3>Common issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Instance won&#39;t launch</td>
+<td>Check region availability, try different GPU</td>
+</tr>
+<tr>
+<td>SSH connection refused</td>
+<td>Wait for instance to initialize (3-15 min)</td>
+</tr>
+<tr>
+<td>Data lost after terminate</td>
+<td>Use persistent filesystems</td>
+</tr>
+<tr>
+<td>Slow data transfer</td>
+<td>Use filesystem in same region</td>
+</tr>
+<tr>
+<td>GPU not detected</td>
+<td>Reboot instance, check drivers</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Multi-node training, API automation</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues and solutions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://docs.lambda.ai">https://docs.lambda.ai</a></li>
+<li><strong>Console</strong>: <a href="https://cloud.lambda.ai">https://cloud.lambda.ai</a></li>
+<li><strong>Pricing</strong>: <a href="https://lambda.ai/instances">https://lambda.ai/instances</a></li>
+<li><strong>Support</strong>: <a href="https://support.lambdalabs.com">https://support.lambdalabs.com</a></li>
+<li><strong>Blog</strong>: <a href="https://lambda.ai/blog">https://lambda.ai/blog</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/lambda-labs</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

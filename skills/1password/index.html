@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1password — Skill Hermes</title>
+<meta name="description" content="Set up op CLI, sign in, and read or inject secrets.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>1password</h1>
+    <p class="lede">Set up op CLI, sign in, and read or inject secrets.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>1password</dd>
+      <dt>Keterangan</dt><dd>Set up op CLI, sign in, and read or inject secrets.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>arceus77-7, enhanced by Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>security · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/1password.zip" download>Muat turun ZIP (3.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.6 KB</td></tr>
+<tr><td><code>references/cli-examples.md</code></td><td class="sz">599 B</td></tr>
+<tr><td><code>references/get-started.md</code></td><td class="sz">527 B</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>1Password CLI</h2>
+<p>Use this skill when the user wants secrets managed through 1Password instead of plaintext env vars or files.</p>
+<h3>Requirements</h3>
+<ul>
+<li>1Password account</li>
+<li>1Password CLI (<code>op</code>) installed</li>
+<li>One of: desktop app integration, service account token (<code>OP_SERVICE_ACCOUNT_TOKEN</code>), or Connect server</li>
+<li><code>tmux</code> available for stable authenticated sessions during Hermes terminal calls (desktop app flow only)</li>
+</ul>
+<h3>When to Use</h3>
+<ul>
+<li>Install or configure 1Password CLI</li>
+<li>Sign in with <code>op signin</code></li>
+<li>Read secret references like <code>op://Vault/Item/field</code></li>
+<li>Inject secrets into config/templates using <code>op inject</code></li>
+<li>Run commands with secret env vars via <code>op run</code></li>
+</ul>
+<h3>Authentication Methods</h3>
+<h4>Service Account (recommended for Hermes)</h4>
+<p>Set <code>OP_SERVICE_ACCOUNT_TOKEN</code> in <code>${HERMES_HOME:-~/.hermes}/.env</code> (the skill will prompt for this on first load).
+No desktop app needed. Supports <code>op read</code>, <code>op inject</code>, <code>op run</code>.</p>
+<pre><code class="language-bash">export OP_SERVICE_ACCOUNT_TOKEN=&quot;your-token-here&quot;
+op whoami  # verify — should show Type: SERVICE_ACCOUNT
+</code></pre>
+<h4>Desktop App Integration (interactive)</h4>
+<ol>
+<li>Enable in 1Password desktop app: Settings → Developer → Integrate with 1Password CLI</li>
+<li>Ensure app is unlocked</li>
+<li>Run <code>op signin</code> and approve the biometric prompt</li>
+</ol>
+<h4>Connect Server (self-hosted)</h4>
+<pre><code class="language-bash">export OP_CONNECT_HOST=&quot;http://localhost:8080&quot;
+export OP_CONNECT_TOKEN=&quot;your-connect-token&quot;
+</code></pre>
+<h3>Setup</h3>
+<ol>
+<li>Install CLI:</li>
+</ol>
+<pre><code class="language-bash"># macOS
+brew install 1password-cli
+
+# Linux (official package/install docs)
+# See references/get-started.md for distro-specific links.
+
+# Windows (winget)
+winget install AgileBits.1Password.CLI
+</code></pre>
+<ol start="2">
+<li>Verify:</li>
+</ol>
+<pre><code class="language-bash">op --version
+</code></pre>
+<ol start="3">
+<li>Choose an auth method above and configure it.</li>
+</ol>
+<h3>Hermes Execution Pattern (desktop app flow)</h3>
+<p>Hermes terminal commands are non-interactive by default and can lose auth context between calls.
+For reliable <code>op</code> use with desktop app integration, run sign-in and secret operations inside a dedicated tmux session.</p>
+<p>Note: This is NOT needed when using <code>OP_SERVICE_ACCOUNT_TOKEN</code> — the token persists across terminal calls automatically.</p>
+<pre><code class="language-bash">SOCKET_DIR=&quot;${TMPDIR:-${HERMES_HOME:-$HOME/.hermes}/cache/scratch}/hermes-tmux-sockets&quot;
+mkdir -p &quot;$SOCKET_DIR&quot;
+SOCKET=&quot;$SOCKET_DIR/hermes-op.sock&quot;
+SESSION=&quot;op-auth-$(date +%Y%m%d-%H%M%S)&quot;
+
+tmux -S &quot;$SOCKET&quot; new -d -s &quot;$SESSION&quot; -n shell
+
+# Sign in (approve in desktop app when prompted)
+tmux -S &quot;$SOCKET&quot; send-keys -t &quot;$SESSION&quot;:0.0 -- &quot;eval \&quot;\$(op signin --account my.1password.com)\&quot;&quot; Enter
+
+# Verify auth
+tmux -S &quot;$SOCKET&quot; send-keys -t &quot;$SESSION&quot;:0.0 -- &quot;op whoami&quot; Enter
+
+# Example read
+tmux -S &quot;$SOCKET&quot; send-keys -t &quot;$SESSION&quot;:0.0 -- &quot;op read &#39;op://Private/Npmjs/one-time password?attribute=otp&#39;&quot; Enter
+
+# Capture output when needed
+tmux -S &quot;$SOCKET&quot; capture-pane -p -J -t &quot;$SESSION&quot;:0.0 -S -200
+
+# Cleanup
+tmux -S &quot;$SOCKET&quot; kill-session -t &quot;$SESSION&quot;
+</code></pre>
+<h3>Common Operations</h3>
+<h4>Read a secret</h4>
+<pre><code class="language-bash">op read &quot;op://app-prod/db/password&quot;
+</code></pre>
+<h4>Get OTP</h4>
+<pre><code class="language-bash">op read &quot;op://app-prod/npm/one-time password?attribute=otp&quot;
+</code></pre>
+<h4>Inject into template</h4>
+<pre><code class="language-bash">echo &quot;db_password: {{ op://app-prod/db/password }}&quot; | op inject
+</code></pre>
+<h4>Run a command with secret env var</h4>
+<pre><code class="language-bash">export DB_PASSWORD=&quot;op://app-prod/db/password&quot;  # example op:// reference, resolved by `op run`
+op run -- sh -c &#39;[ -n &quot;$DB_PASSWORD&quot; ] &amp;&amp; echo &quot;DB_PASSWORD is set&quot; || echo &quot;DB_PASSWORD missing&quot;&#39;
+</code></pre>
+<h3>Guardrails</h3>
+<ul>
+<li>Never print raw secrets back to user unless they explicitly request the value.</li>
+<li>Prefer <code>op run</code> / <code>op inject</code> instead of writing secrets into files.</li>
+<li>If command fails with &quot;account is not signed in&quot;, run <code>op signin</code> again in the same tmux session.</li>
+<li>If desktop app integration is unavailable (headless/CI), use service account token flow.</li>
+</ul>
+<h3>CI / Headless note</h3>
+<p>For non-interactive use, authenticate with <code>OP_SERVICE_ACCOUNT_TOKEN</code> and avoid interactive <code>op signin</code>.
+Service accounts require CLI v2.18.0+.</p>
+<h3>References</h3>
+<ul>
+<li><code>references/get-started.md</code></li>
+<li><code>references/cli-examples.md</code></li>
+<li><a href="https://developer.1password.com/docs/cli/">https://developer.1password.com/docs/cli/</a></li>
+<li><a href="https://developer.1password.com/docs/service-accounts/">https://developer.1password.com/docs/service-accounts/</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/security/1password</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

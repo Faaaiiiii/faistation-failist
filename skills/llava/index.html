@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>llava — Skill Hermes</title>
+<meta name="description" content="Vision-language chat: VQA, captioning, image dialogue.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>llava</h1>
+    <p class="lede">Vision-language chat: VQA, captioning, image dialogue.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>llava</dd>
+      <dt>Keterangan</dt><dd>Vision-language chat: VQA, captioning, image dialogue.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/llava.zip" download>Muat turun ZIP (5.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.4 KB</td></tr>
+<tr><td><code>references/training.md</code></td><td class="sz">4.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>LLaVA - Large Language and Vision Assistant</h2>
+<p>Open-source vision-language model for conversational image understanding.</p>
+<h3>When to use LLaVA</h3>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Building vision-language chatbots</li>
+<li>Visual question answering (VQA)</li>
+<li>Image description and captioning</li>
+<li>Multi-turn image conversations</li>
+<li>Visual instruction following</li>
+<li>Document understanding with images</li>
+</ul>
+<p><strong>Metrics</strong>:</p>
+<ul>
+<li><strong>23,000+ GitHub stars</strong></li>
+<li>GPT-4V level capabilities (targeted)</li>
+<li>Apache 2.0 License</li>
+<li>Multiple model sizes (7B-34B params)</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>GPT-4V</strong>: Highest quality, API-based</li>
+<li><strong>CLIP</strong>: Simple zero-shot classification</li>
+<li><strong>BLIP-2</strong>: Better for captioning only</li>
+<li><strong>Flamingo</strong>: Research, not open-source</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># Clone repository
+git clone https://github.com/haotian-liu/LLaVA
+cd LLaVA
+
+# Install
+pip install -e .
+</code></pre>
+<h4>Basic usage</h4>
+<pre><code class="language-python">from llava.model.builder import load_pretrained_model
+from llava.mm_utils import get_model_name_from_path, process_images, tokenizer_image_token
+from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN
+from llava.conversation import conv_templates
+from PIL import Image
+import torch
+
+# Load model
+model_path = &quot;liuhaotian/llava-v1.5-7b&quot;
+tokenizer, model, image_processor, context_len = load_pretrained_model(
+    model_path=model_path,
+    model_base=None,
+    model_name=get_model_name_from_path(model_path)
+)
+
+# Load image
+image = Image.open(&quot;image.jpg&quot;)
+image_tensor = process_images([image], image_processor, model.config)
+image_tensor = image_tensor.to(model.device, dtype=torch.float16)
+
+# Create conversation
+conv = conv_templates[&quot;llava_v1&quot;].copy()
+conv.append_message(conv.roles[0], DEFAULT_IMAGE_TOKEN + &quot;\nWhat is in this image?&quot;)
+conv.append_message(conv.roles[1], None)
+prompt = conv.get_prompt()
+
+# Generate response
+input_ids = tokenizer_image_token(prompt, tokenizer, IMAGE_TOKEN_INDEX, return_tensors=&#39;pt&#39;).unsqueeze(0).to(model.device)
+
+with torch.inference_mode():
+    output_ids = model.generate(
+        input_ids,
+        images=image_tensor,
+        do_sample=True,
+        temperature=0.2,
+        max_new_tokens=512
+    )
+
+response = tokenizer.decode(output_ids[0], skip_special_tokens=True).strip()
+print(response)
+</code></pre>
+<h3>Available models</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Parameters</th>
+<th>VRAM</th>
+<th>Quality</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LLaVA-v1.5-7B</td>
+<td>7B</td>
+<td>~14 GB</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>LLaVA-v1.5-13B</td>
+<td>13B</td>
+<td>~28 GB</td>
+<td>Better</td>
+</tr>
+<tr>
+<td>LLaVA-v1.6-34B</td>
+<td>34B</td>
+<td>~70 GB</td>
+<td>Best</td>
+</tr>
+</tbody></table>
+<pre><code class="language-python"># Load different models
+model_7b = &quot;liuhaotian/llava-v1.5-7b&quot;
+model_13b = &quot;liuhaotian/llava-v1.5-13b&quot;
+model_34b = &quot;liuhaotian/llava-v1.6-34b&quot;
+
+# 4-bit quantization for lower VRAM
+load_4bit = True  # Reduces VRAM by ~4×
+</code></pre>
+<h3>CLI usage</h3>
+<pre><code class="language-bash"># Single image query
+python -m llava.serve.cli \
+    --model-path liuhaotian/llava-v1.5-7b \
+    --image-file image.jpg \
+    --query &quot;What is in this image?&quot;
+
+# Multi-turn conversation
+python -m llava.serve.cli \
+    --model-path liuhaotian/llava-v1.5-7b \
+    --image-file image.jpg
+# Then type questions interactively
+</code></pre>
+<h3>Web UI (Gradio)</h3>
+<pre><code class="language-bash"># Launch Gradio interface
+python -m llava.serve.gradio_web_server \
+    --model-path liuhaotian/llava-v1.5-7b \
+    --load-4bit  # Optional: reduce VRAM
+
+# Access at http://localhost:7860
+</code></pre>
+<h3>Multi-turn conversations</h3>
+<pre><code class="language-python"># Initialize conversation
+conv = conv_templates[&quot;llava_v1&quot;].copy()
+
+# Turn 1
+conv.append_message(conv.roles[0], DEFAULT_IMAGE_TOKEN + &quot;\nWhat is in this image?&quot;)
+conv.append_message(conv.roles[1], None)
+response1 = generate(conv, model, image)  # &quot;A dog playing in a park&quot;
+
+# Turn 2
+conv.messages[-1][1] = response1  # Add previous response
+conv.append_message(conv.roles[0], &quot;What breed is the dog?&quot;)
+conv.append_message(conv.roles[1], None)
+response2 = generate(conv, model, image)  # &quot;Golden Retriever&quot;
+
+# Turn 3
+conv.messages[-1][1] = response2
+conv.append_message(conv.roles[0], &quot;What time of day is it?&quot;)
+conv.append_message(conv.roles[1], None)
+response3 = generate(conv, model, image)
+</code></pre>
+<h3>Common tasks</h3>
+<h4>Image captioning</h4>
+<pre><code class="language-python">question = &quot;Describe this image in detail.&quot;
+response = ask(model, image, question)
+</code></pre>
+<h4>Visual question answering</h4>
+<pre><code class="language-python">question = &quot;How many people are in the image?&quot;
+response = ask(model, image, question)
+</code></pre>
+<h4>Object detection (textual)</h4>
+<pre><code class="language-python">question = &quot;List all the objects you can see in this image.&quot;
+response = ask(model, image, question)
+</code></pre>
+<h4>Scene understanding</h4>
+<pre><code class="language-python">question = &quot;What is happening in this scene?&quot;
+response = ask(model, image, question)
+</code></pre>
+<h4>Document understanding</h4>
+<pre><code class="language-python">question = &quot;What is the main topic of this document?&quot;
+response = ask(model, document_image, question)
+</code></pre>
+<h3>Training custom model</h3>
+<pre><code class="language-bash"># Stage 1: Feature alignment (558K image-caption pairs)
+bash scripts/v1_5/pretrain.sh
+
+# Stage 2: Visual instruction tuning (150K instruction data)
+bash scripts/v1_5/finetune.sh
+</code></pre>
+<h3>Quantization (reduce VRAM)</h3>
+<pre><code class="language-python"># 4-bit quantization
+tokenizer, model, image_processor, context_len = load_pretrained_model(
+    model_path=&quot;liuhaotian/llava-v1.5-13b&quot;,
+    model_base=None,
+    model_name=get_model_name_from_path(&quot;liuhaotian/llava-v1.5-13b&quot;),
+    load_4bit=True  # Reduces VRAM ~4×
+)
+
+# 8-bit quantization
+load_8bit=True  # Reduces VRAM ~2×
+</code></pre>
+<h3>Best practices</h3>
+<ol>
+<li><strong>Start with 7B model</strong> - Good quality, manageable VRAM</li>
+<li><strong>Use 4-bit quantization</strong> - Reduces VRAM significantly</li>
+<li><strong>GPU required</strong> - CPU inference extremely slow</li>
+<li><strong>Clear prompts</strong> - Specific questions get better answers</li>
+<li><strong>Multi-turn conversations</strong> - Maintain conversation context</li>
+<li><strong>Temperature 0.2-0.7</strong> - Balance creativity/consistency</li>
+<li><strong>max_new_tokens 512-1024</strong> - For detailed responses</li>
+<li><strong>Batch processing</strong> - Process multiple images sequentially</li>
+</ol>
+<h3>Performance</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>VRAM (FP16)</th>
+<th>VRAM (4-bit)</th>
+<th>Speed (tokens/s)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>7B</td>
+<td>~14 GB</td>
+<td>~4 GB</td>
+<td>~20</td>
+</tr>
+<tr>
+<td>13B</td>
+<td>~28 GB</td>
+<td>~8 GB</td>
+<td>~12</td>
+</tr>
+<tr>
+<td>34B</td>
+<td>~70 GB</td>
+<td>~18 GB</td>
+<td>~5</td>
+</tr>
+</tbody></table>
+<p><em>On A100 GPU</em></p>
+<h3>Benchmarks</h3>
+<p>LLaVA achieves competitive scores on:</p>
+<ul>
+<li><strong>VQAv2</strong>: 78.5%</li>
+<li><strong>GQA</strong>: 62.0%</li>
+<li><strong>MM-Vet</strong>: 35.4%</li>
+<li><strong>MMBench</strong>: 64.3%</li>
+</ul>
+<h3>Limitations</h3>
+<ol>
+<li><strong>Hallucinations</strong> - May describe things not in image</li>
+<li><strong>Spatial reasoning</strong> - Struggles with precise locations</li>
+<li><strong>Small text</strong> - Difficulty reading fine print</li>
+<li><strong>Object counting</strong> - Imprecise for many objects</li>
+<li><strong>VRAM requirements</strong> - Need powerful GPU</li>
+<li><strong>Inference speed</strong> - Slower than CLIP</li>
+</ol>
+<h3>Integration with frameworks</h3>
+<h4>LangChain</h4>
+<pre><code class="language-python">from langchain.llms.base import LLM
+
+class LLaVALLM(LLM):
+    def _call(self, prompt, stop=None):
+        # Custom LLaVA inference
+        return response
+
+llm = LLaVALLM()
+</code></pre>
+<h4>Gradio App</h4>
+<pre><code class="language-python">import gradio as gr
+
+def chat(image, text, history):
+    response = ask_llava(model, image, text)
+    return response
+
+demo = gr.ChatInterface(
+    chat,
+    additional_inputs=[gr.Image(type=&quot;pil&quot;)],
+    title=&quot;LLaVA Chat&quot;
+)
+demo.launch()
+</code></pre>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/haotian-liu/LLaVA">https://github.com/haotian-liu/LLaVA</a> ⭐ 23,000+</li>
+<li><strong>Paper</strong>: <a href="https://arxiv.org/abs/2304.08485">https://arxiv.org/abs/2304.08485</a></li>
+<li><strong>Demo</strong>: <a href="https://llava.hliu.cc">https://llava.hliu.cc</a></li>
+<li><strong>Models</strong>: <a href="https://huggingface.co/liuhaotian">https://huggingface.co/liuhaotian</a></li>
+<li><strong>License</strong>: Apache 2.0</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/llava</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

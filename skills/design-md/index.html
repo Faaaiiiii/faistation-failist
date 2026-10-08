@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>design-md — Skill Hermes</title>
+<meta name="description" content="Author/validate/export Google&#39;s DESIGN.md token spec files.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>design-md</h1>
+    <p class="lede">Author/validate/export Google&#39;s DESIGN.md token spec files.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>design-md</dd>
+      <dt>Keterangan</dt><dd>Author/validate/export Google&#39;s DESIGN.md token spec files.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/design-md.zip" download>Muat turun ZIP (5.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.3 KB</td></tr>
+<tr><td><code>templates/starter.md</code></td><td class="sz">2.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>DESIGN.md Skill</h2>
+<p>DESIGN.md is Google&#39;s open spec (Apache-2.0, <code>google-labs-code/design.md</code>) for
+describing a visual identity to coding agents. One file combines:</p>
+<ul>
+<li><strong>YAML front matter</strong> — machine-readable design tokens (normative values)</li>
+<li><strong>Markdown body</strong> — human-readable rationale, organized into canonical sections</li>
+</ul>
+<p>Tokens give exact values. Prose tells agents <em>why</em> those values exist and how to
+apply them. The CLI (<code>npx @google/design.md</code>) lints structure + WCAG contrast,
+diffs versions for regressions, and exports to Tailwind or W3C DTCG JSON.</p>
+<h3>When to use this skill</h3>
+<ul>
+<li>User asks for a DESIGN.md file, design tokens, or a design system spec</li>
+<li>User wants consistent UI/brand across multiple projects or tools</li>
+<li>User pastes an existing DESIGN.md and asks to lint, diff, export, or extend it</li>
+<li>User asks to port a style guide into a format agents can consume</li>
+<li>User wants contrast / WCAG accessibility validation on their color palette</li>
+</ul>
+<p>For purely visual inspiration or layout examples, use <code>popular-web-designs</code>
+instead. For <em>process and taste</em> when designing a one-off HTML artifact
+from scratch (prototype, deck, landing page, component lab), use
+<code>claude-design</code>. This skill is for the <em>formal spec file</em> itself.</p>
+<h3>File anatomy</h3>
+<pre><code class="language-md">---
+version: alpha
+name: Heritage
+description: Architectural minimalism meets journalistic gravitas.
+colors:
+  primary: &quot;#1A1C1E&quot;
+  secondary: &quot;#6C7278&quot;
+  tertiary: &quot;#B8422E&quot;
+  neutral: &quot;#F7F5F2&quot;
+typography:
+  h1:
+    fontFamily: Public Sans
+    fontSize: 3rem
+    fontWeight: 700
+    lineHeight: 1.1
+    letterSpacing: &quot;-0.02em&quot;
+  body-md:
+    fontFamily: Public Sans
+    fontSize: 1rem
+rounded:
+  sm: 4px
+  md: 8px
+  lg: 16px
+spacing:
+  sm: 8px
+  md: 16px
+  lg: 24px
+components:
+  button-primary:
+    backgroundColor: &quot;{colors.tertiary}&quot;
+    textColor: &quot;#FFFFFF&quot;
+    rounded: &quot;{rounded.sm}&quot;
+    padding: 12px
+  button-primary-hover:
+    backgroundColor: &quot;{colors.primary}&quot;
+---
+
+## Overview
+
+Architectural Minimalism meets Journalistic Gravitas...
+
+## Colors
+
+- **Primary (#1A1C1E):** Deep ink for headlines and core text.
+- **Tertiary (#B8422E):** &quot;Boston Clay&quot; — the sole driver for interaction.
+
+## Typography
+
+Public Sans for everything except small all-caps labels...
+
+## Components
+
+`button-primary` is the only high-emphasis action on a page...
+</code></pre>
+<h3>Token types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Color</td>
+<td>any CSS color (hex, <code>rgb()</code>, <code>oklch()</code>, named)</td>
+<td><code>&quot;#1A1C1E&quot;</code>, <code>&quot;oklch(62% 0.18 250)&quot;</code></td>
+</tr>
+<tr>
+<td>Dimension</td>
+<td>number + unit (<code>px</code>, <code>em</code>, <code>rem</code>)</td>
+<td><code>48px</code>, <code>-0.02em</code></td>
+</tr>
+<tr>
+<td>Token reference</td>
+<td><code>{path.to.token}</code></td>
+<td><code>{colors.primary}</code></td>
+</tr>
+<tr>
+<td>Typography</td>
+<td>object with <code>fontFamily</code>, <code>fontSize</code>, <code>fontWeight</code>, <code>lineHeight</code>, <code>letterSpacing</code>, <code>fontFeature</code>, <code>fontVariation</code></td>
+<td>see above</td>
+</tr>
+</tbody></table>
+<p>Component property whitelist: <code>backgroundColor</code>, <code>textColor</code>, <code>typography</code>,
+<code>rounded</code>, <code>padding</code>, <code>size</code>, <code>height</code>, <code>width</code>. Variants (hover, active,
+pressed) are <strong>separate component entries</strong> with related key names
+(<code>button-primary-hover</code>), not nested.</p>
+<h3>Canonical section order</h3>
+<p>Sections are optional, but present ones should appear in this order. The
+linter flags out-of-order sections (<code>section-order</code>, warning) and duplicate
+headings — consumers per the spec reject duplicates, so fix both before
+returning the file.</p>
+<ol>
+<li>Overview (alias: Brand &amp; Style)</li>
+<li>Colors</li>
+<li>Typography</li>
+<li>Layout (alias: Layout &amp; Spacing)</li>
+<li>Elevation &amp; Depth (alias: Elevation)</li>
+<li>Shapes</li>
+<li>Components</li>
+<li>Do&#39;s and Don&#39;ts</li>
+</ol>
+<p>Unknown sections are preserved, not errored. Unknown token names are accepted
+if the value type is valid. Unknown component properties produce a warning.</p>
+<h3>Workflow: authoring a new DESIGN.md</h3>
+<ol>
+<li><strong>Ask the user</strong> (or infer) the brand tone, accent color, and typography
+direction. If they provided a site, image, or vibe, translate it to the
+token shape above.</li>
+<li><strong>Write <code>DESIGN.md</code></strong> in their project root using <code>write_file</code>. Always
+include <code>name:</code> and <code>colors:</code>; other sections optional but encouraged.</li>
+<li><strong>Use token references</strong> (<code>{colors.primary}</code>) in the <code>components:</code> section
+instead of re-typing hex values. Keeps the palette single-source.</li>
+<li><strong>Lint it</strong> (see below). Fix any broken references or WCAG failures
+before returning.</li>
+<li><strong>If the user has an existing project</strong>, also write Tailwind or DTCG
+exports next to the file (<code>tailwind.theme.json</code>, <code>tokens.json</code>).</li>
+</ol>
+<h3>Workflow: lint / diff / export</h3>
+<p>The CLI is <code>@google/design.md</code> (Node). Use <code>npx</code> — no global install needed.</p>
+<pre><code class="language-bash"># Validate structure + token references + WCAG contrast
+npx -y @google/design.md lint DESIGN.md
+
+# Compare two versions, fail on regression (exit 1 = regression)
+npx -y @google/design.md diff DESIGN.md DESIGN-v2.md
+
+# Export to Tailwind v3 theme JSON (`tailwind` is a back-compat alias)
+npx -y @google/design.md export --format json-tailwind DESIGN.md &gt; tailwind.theme.json
+
+# Export to a Tailwind v4 CSS @theme block (--color-*, --text-*, --radius-*, ...)
+npx -y @google/design.md export --format css-tailwind DESIGN.md &gt; theme.css
+
+# Export to W3C DTCG (Design Tokens Format Module) JSON
+npx -y @google/design.md export --format dtcg DESIGN.md &gt; tokens.json
+
+# Print the spec itself — useful when injecting into an agent prompt
+npx -y @google/design.md spec --rules-only --format json
+</code></pre>
+<p>All commands accept <code>-</code> for stdin. <code>lint</code> returns exit 1 on errors (warnings
+alone exit 0). <code>export</code> exits 0 on a successful export regardless of lint
+findings in the source — run <code>lint</code> separately to gate on those. Output is
+JSON by default; parse it if you need to report findings structurally.</p>
+<p>On Windows, the <code>design.md</code> bin name can collide with the <code>.md</code> file
+association (silent no-op or the file opens in an editor). Use the dot-free
+alias: <code>npx -y -p @google/design.md designmd lint DESIGN.md</code>.</p>
+<h4>Lint rule reference (the 9 rules, as of CLI 0.3.0)</h4>
+<ul>
+<li><code>broken-ref</code> (error) — <code>{colors.missing}</code> points at a non-existent token</li>
+<li><code>contrast-ratio</code> (warning) — component <code>textColor</code> vs <code>backgroundColor</code>
+below WCAG AA (4.5:1)</li>
+<li><code>missing-primary</code> (warning) — colors defined but no <code>primary</code> token</li>
+<li><code>missing-typography</code> (warning) — colors defined but no typography tokens</li>
+<li><code>orphaned-tokens</code> (warning) — color tokens never referenced by a component</li>
+<li><code>section-order</code> (warning) — sections out of the canonical order</li>
+<li><code>unknown-key</code> (warning) — top-level YAML key that looks like a typo of a
+schema key (<code>colours:</code> → <code>colors:</code>); custom extension keys stay silent</li>
+<li><code>token-summary</code>, <code>missing-sections</code> (info) — counts and absent optional
+sections</li>
+</ul>
+<p>When the user cares about accessibility, call this out explicitly in your
+summary — WCAG findings are the most load-bearing reason to use the CLI.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Don&#39;t nest component variants.</strong> <code>button-primary.hover</code> is wrong;
+<code>button-primary-hover</code> as a sibling key is right.</li>
+<li><strong>Hex colors must be quoted strings.</strong> YAML will otherwise choke on <code>#</code> or
+truncate values like <code>#1A1C1E</code> oddly.</li>
+<li><strong>Negative dimensions need quotes too.</strong> <code>letterSpacing: -0.02em</code> parses as
+a YAML flow — write <code>letterSpacing: &quot;-0.02em&quot;</code>.</li>
+<li><strong>Section order matters even though the linter only warns.</strong> If the user
+gives you prose in a random order, reorder it to match the canonical list
+before saving — spec-compliant consumers expect it.</li>
+<li><strong>Typography sub-property typos are silently dropped.</strong> As of CLI 0.3.0 a
+typo like <code>fontwight:</code> produces no finding and the value vanishes from
+exports — double-check sub-property names against the schema
+(<code>fontFamily</code>, <code>fontSize</code>, <code>fontWeight</code>, <code>lineHeight</code>, <code>letterSpacing</code>,
+<code>fontFeature</code>, <code>fontVariation</code>).</li>
+<li><strong><code>version: alpha</code> is the current spec version</strong> (as of Jul 2026, CLI
+0.3.0). The spec is marked alpha — watch for breaking changes.</li>
+<li><strong>Token references resolve by dotted path.</strong> <code>{colors.primary}</code> works;
+<code>{primary}</code> does not.</li>
+</ul>
+<h3>Spec source of truth</h3>
+<ul>
+<li>Repo: <a href="https://github.com/google-labs-code/design.md">https://github.com/google-labs-code/design.md</a> (Apache-2.0)</li>
+<li>CLI: <code>@google/design.md</code> on npm</li>
+<li>License of generated DESIGN.md files: whatever the user&#39;s project uses;
+the spec itself is Apache-2.0.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/design-md</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

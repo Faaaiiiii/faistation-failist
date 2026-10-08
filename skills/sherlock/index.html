@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sherlock — Skill Hermes</title>
+<meta name="description" content="Find accounts for a username across 400+ platforms.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>sherlock</h1>
+    <p class="lede">Find accounts for a username across 400+ platforms.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>sherlock</dd>
+      <dt>Keterangan</dt><dd>Find accounts for a username across 400+ platforms.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>unmodeled-tyler</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>security · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/sherlock.zip" download>Muat turun ZIP (2.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.9 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Sherlock OSINT Username Search</h2>
+<p>Hunt down social media accounts by username across 400+ social networks using the <a href="https://github.com/sherlock-project/sherlock">Sherlock Project</a>.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks to find accounts associated with a username</li>
+<li>User wants to check username availability across platforms</li>
+<li>User is conducting OSINT or reconnaissance research</li>
+<li>User asks &quot;where is this username registered?&quot; or similar</li>
+</ul>
+<h3>Requirements</h3>
+<ul>
+<li>Sherlock CLI installed: <code>pipx install sherlock-project</code> or <code>pip install sherlock-project</code></li>
+<li>Alternatively: Docker available (<code>docker run -it --rm sherlock/sherlock</code>)</li>
+<li>Network access to query social platforms</li>
+</ul>
+<h3>Procedure</h3>
+<h4>1. Check if Sherlock is Installed</h4>
+<p><strong>Before doing anything else</strong>, verify sherlock is available:</p>
+<pre><code class="language-bash">sherlock --version
+</code></pre>
+<p>If the command fails:</p>
+<ul>
+<li>Offer to install: <code>pipx install sherlock-project</code> (recommended) or <code>pip install sherlock-project</code></li>
+<li><strong>Do NOT</strong> try multiple installation methods — pick one and proceed</li>
+<li>If installation fails, inform the user and stop</li>
+</ul>
+<h4>2. Extract Username</h4>
+<p><strong>Extract the username directly from the user&#39;s message if clearly stated.</strong></p>
+<p>Examples where you should <strong>NOT</strong> use clarify:</p>
+<ul>
+<li>&quot;Find accounts for nasa&quot; → username is <code>nasa</code></li>
+<li>&quot;Search for johndoe123&quot; → username is <code>johndoe123</code></li>
+<li>&quot;Check if alice exists on social media&quot; → username is <code>alice</code></li>
+<li>&quot;Look up user bob on social networks&quot; → username is <code>bob</code></li>
+</ul>
+<p><strong>Only use clarify if:</strong></p>
+<ul>
+<li>Multiple potential usernames mentioned (&quot;search for alice or bob&quot;)</li>
+<li>Ambiguous phrasing (&quot;search for my username&quot; without specifying)</li>
+<li>No username mentioned at all (&quot;do an OSINT search&quot;)</li>
+</ul>
+<p>When extracting, take the <strong>exact</strong> username as stated — preserve case, numbers, underscores, etc.</p>
+<h4>3. Build Command</h4>
+<p><strong>Default command</strong> (use this unless user specifically requests otherwise):</p>
+<pre><code class="language-bash">sherlock --print-found --no-color &quot;&lt;username&gt;&quot; --timeout 90
+</code></pre>
+<p><strong>Optional flags</strong> (only add if user explicitly requests):</p>
+<ul>
+<li><code>--nsfw</code> — Include NSFW sites (only if user asks)</li>
+<li><code>--tor</code> — Route through Tor (only if user asks for anonymity)</li>
+</ul>
+<p><strong>Do NOT ask about options via clarify</strong> — just run the default search. Users can request specific options if needed.</p>
+<h4>4. Execute Search</h4>
+<p>Run via the <code>terminal</code> tool. The command typically takes 30-120 seconds depending on network conditions and site count.</p>
+<p><strong>Example terminal call:</strong></p>
+<pre><code class="language-json">{
+  &quot;command&quot;: &quot;sherlock --print-found --no-color \&quot;target_username\&quot;&quot;,
+  &quot;timeout&quot;: 180
+}
+</code></pre>
+<h4>5. Parse and Present Results</h4>
+<p>Sherlock outputs found accounts in a simple format. Parse the output and present:</p>
+<ol>
+<li><strong>Summary line:</strong> &quot;Found X accounts for username &#39;Y&#39;&quot;</li>
+<li><strong>Categorized links:</strong> Group by platform type if helpful (social, professional, forums, etc.)</li>
+<li><strong>Output file location:</strong> Sherlock saves results to <code>&lt;username&gt;.txt</code> by default</li>
+</ol>
+<p><strong>Example output parsing:</strong></p>
+<pre><code>[+] Instagram: https://instagram.com/username
+[+] Twitter: https://twitter.com/username
+[+] GitHub: https://github.com/username
+</code></pre>
+<p>Present findings as clickable links when possible.</p>
+<h3>Pitfalls</h3>
+<h4>No Results Found</h4>
+<p>If Sherlock finds no accounts, this is often correct — the username may not be registered on checked platforms. Suggest:</p>
+<ul>
+<li>Checking spelling/variation</li>
+<li>Trying similar usernames with <code>?</code> wildcard: <code>sherlock &quot;user?name&quot;</code></li>
+<li>The user may have privacy settings or deleted accounts</li>
+</ul>
+<h4>Timeout Issues</h4>
+<p>Some sites are slow or block automated requests. Use <code>--timeout 120</code> to increase wait time, or <code>--site</code> to limit scope.</p>
+<h4>Tor Configuration</h4>
+<p><code>--tor</code> requires Tor daemon running. If user wants anonymity but Tor isn&#39;t available, suggest:</p>
+<ul>
+<li>Installing Tor service</li>
+<li>Using <code>--proxy</code> with an alternative proxy</li>
+</ul>
+<h4>False Positives</h4>
+<p>Some sites always return &quot;found&quot; due to their response structure. Cross-reference unexpected results with manual checks.</p>
+<h4>Rate Limiting</h4>
+<p>Aggressive searches may trigger rate limits. For bulk username searches, add delays between calls or use <code>--local</code> with cached data.</p>
+<h3>Installation</h3>
+<h4>pipx (recommended)</h4>
+<pre><code class="language-bash">pipx install sherlock-project
+</code></pre>
+<h4>pip</h4>
+<pre><code class="language-bash">pip install sherlock-project
+</code></pre>
+<h4>Docker</h4>
+<pre><code class="language-bash">docker pull sherlock/sherlock
+docker run -it --rm sherlock/sherlock &lt;username&gt;
+</code></pre>
+<h4>Linux packages</h4>
+<p>Available on Debian 13+, Ubuntu 22.10+, Homebrew, Kali, BlackArch.</p>
+<h3>Ethical Use</h3>
+<p>This tool is for legitimate OSINT and research purposes only. Remind users:</p>
+<ul>
+<li>Only search usernames they own or have permission to investigate</li>
+<li>Respect platform terms of service</li>
+<li>Do not use for harassment, stalking, or illegal activities</li>
+<li>Consider privacy implications before sharing results</li>
+</ul>
+<h3>Verification</h3>
+<p>After running sherlock, verify:</p>
+<ol>
+<li>Output lists found sites with URLs</li>
+<li><code>&lt;username&gt;.txt</code> file created (default output) if using file output</li>
+<li>If <code>--print-found</code> used, output should only contain <code>[+]</code> lines for matches</li>
+</ol>
+<h3>Example Interaction</h3>
+<p><strong>User:</strong> &quot;Can you check if the username &#39;johndoe123&#39; exists on social media?&quot;</p>
+<p><strong>Agent procedure:</strong></p>
+<ol>
+<li>Check <code>sherlock --version</code> (verify installed)</li>
+<li>Username provided — proceed directly</li>
+<li>Run: <code>sherlock --print-found --no-color &quot;johndoe123&quot; --timeout 90</code></li>
+<li>Parse output and present links</li>
+</ol>
+<p><strong>Response format:</strong></p>
+<blockquote>
+<p>Found 12 accounts for username &#39;johndoe123&#39;:</p>
+<p>• <a href="https://twitter.com/johndoe123">https://twitter.com/johndoe123</a>
+• <a href="https://github.com/johndoe123">https://github.com/johndoe123</a>
+• <a href="https://instagram.com/johndoe123">https://instagram.com/johndoe123</a>
+• [... additional links]</p>
+<p>Results saved to: johndoe123.txt</p>
+</blockquote>
+<hr>
+<p><strong>User:</strong> &quot;Search for username &#39;alice&#39; including NSFW sites&quot;</p>
+<p><strong>Agent procedure:</strong></p>
+<ol>
+<li>Check sherlock installed</li>
+<li>Username + NSFW flag both provided</li>
+<li>Run: <code>sherlock --print-found --no-color --nsfw &quot;alice&quot; --timeout 90</code></li>
+<li>Present results</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/security/sherlock</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

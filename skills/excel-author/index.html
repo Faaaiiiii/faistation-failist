@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>excel-author — Skill Hermes</title>
+<meta name="description" content="Build auditable financial workbooks headless via openpyxl.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>excel-author</h1>
+    <p class="lede">Build auditable financial workbooks headless via openpyxl.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>excel-author</dd>
+      <dt>Keterangan</dt><dd>Build auditable financial workbooks headless via openpyxl.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anthropic (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>Apache-2.0</dd>
+      <dt>Kategori</dt><dd>finance · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/excel-author.zip" download>Muat turun ZIP (5.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.6 KB</td></tr>
+<tr><td><code>scripts/recalc.py</code></td><td class="sz">2.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>excel-author</h2>
+<p>Produce an .xlsx file on disk using <code>openpyxl</code>. Follow the banker-grade conventions below so the model is auditable, flexible, and reviewable by someone other than the person who built it.</p>
+<p>Adapted from Anthropic&#39;s <code>xlsx-author</code> and <code>audit-xls</code> skills in the <a href="https://github.com/anthropics/financial-services">anthropics/financial-services</a> repo. The MCP / Office-JS / Cowork-specific branches of the originals are dropped — this skill assumes headless Python.</p>
+<h3>Output contract</h3>
+<ul>
+<li>Write to <code>./out/&lt;name&gt;.xlsx</code>. Create <code>./out/</code> if it does not exist.</li>
+<li>Return the relative path in your final message so downstream tools can pick it up.</li>
+<li>One logical model per file. Do not append to an existing workbook unless explicitly asked.</li>
+</ul>
+<h3>Setup</h3>
+<pre><code class="language-bash">pip install &quot;openpyxl&gt;=3.0&quot;
+</code></pre>
+<h3>Core conventions (non-negotiable)</h3>
+<h4>Blue / black / green cell color</h4>
+<ul>
+<li><strong>Blue</strong> (<code>Font(color=&quot;0000FF&quot;)</code>) — hardcoded input a human entered. Revenue drivers, WACC inputs, terminal growth, market data.</li>
+<li><strong>Black</strong> (default) — formula. Every derived cell is a live Excel formula.</li>
+<li><strong>Green</strong> (<code>Font(color=&quot;006100&quot;)</code>) — link to another sheet or external file.</li>
+</ul>
+<p>A reviewer can then scan the sheet and immediately see what&#39;s an assumption vs. what&#39;s computed.</p>
+<h4>Formulas over hardcodes</h4>
+<p>Every calculation cell MUST be a formula string, never a number computed in Python and pasted as a value.</p>
+<pre><code class="language-python"># WRONG — silent bug waiting to happen
+ws[&quot;D20&quot;] = revenue_prior_year * (1 + growth)
+
+# CORRECT — flexes when the user changes the assumption
+ws[&quot;D20&quot;] = &quot;=D19*(1+$B$8)&quot;
+</code></pre>
+<p>The only hardcoded numbers permitted:</p>
+<ol>
+<li>Raw historical inputs (actual revenues, reported EBITDA, etc.)</li>
+<li>Assumption drivers the user is meant to flex (growth rates, WACC inputs, terminal g)</li>
+<li>Current market data (share price, debt balance) — with a cell comment documenting source + date</li>
+</ol>
+<p>If you catch yourself computing a value in Python and writing the result, stop.</p>
+<h4>Named ranges for cross-sheet references</h4>
+<p>Use named ranges for any figure referenced from another sheet, a deck, or a memo.</p>
+<pre><code class="language-python">from openpyxl.workbook.defined_name import DefinedName
+wb.defined_names[&quot;WACC&quot;] = DefinedName(&quot;WACC&quot;, attr_text=&quot;Inputs!$C$8&quot;)
+# then elsewhere:
+calc[&quot;D30&quot;] = &quot;=D29/WACC&quot;
+</code></pre>
+<h4>Balance checks tab</h4>
+<p>Include a <code>Checks</code> tab that ties everything and surfaces TRUE/FALSE:</p>
+<ul>
+<li>Balance sheet balances (assets = liabilities + equity)</li>
+<li>Cash flow ties to period-over-period cash change on the BS</li>
+<li>Sum-of-parts ties to consolidated totals</li>
+<li>No rogue hardcodes inside calc ranges</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-python">checks = wb.create_sheet(&quot;Checks&quot;)
+checks[&quot;A2&quot;] = &quot;BS balances&quot;
+checks[&quot;B2&quot;] = &quot;=IS!D20-IS!D21-IS!D22&quot;
+checks[&quot;C2&quot;] = &quot;=ABS(B2)&lt;0.01&quot;  # TRUE/FALSE
+</code></pre>
+<h4>Cell comments on every hardcoded input</h4>
+<p>Add the comment AS you create the cell, not later.</p>
+<pre><code class="language-python">from openpyxl.comments import Comment
+ws[&quot;C2&quot;] = 1_250_000_000
+ws[&quot;C2&quot;].font = Font(color=&quot;0000FF&quot;)
+ws[&quot;C2&quot;].comment = Comment(&quot;Source: 10-K FY2024, p.47, revenue line&quot;, &quot;analyst&quot;)
+</code></pre>
+<p>Format: <code>Source: [System/Document], [Date], [Reference], [URL if applicable]</code>.</p>
+<p>Never defer sourcing. Never write <code>TODO: add source</code>.</p>
+<h3>Skeleton: typical financial model</h3>
+<pre><code class="language-python">from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.comments import Comment
+from openpyxl.utils import get_column_letter
+from pathlib import Path
+
+BLUE = Font(color=&quot;0000FF&quot;)
+BLACK = Font(color=&quot;000000&quot;)
+GREEN = Font(color=&quot;006100&quot;)
+BOLD = Font(bold=True)
+HEADER_FILL = PatternFill(&quot;solid&quot;, fgColor=&quot;1F4E79&quot;)
+HEADER_FONT = Font(color=&quot;FFFFFF&quot;, bold=True)
+
+wb = Workbook()
+
+# --- Inputs tab ---
+inp = wb.active
+inp.title = &quot;Inputs&quot;
+inp[&quot;A1&quot;] = &quot;MARKET DATA &amp; KEY INPUTS&quot;
+inp[&quot;A1&quot;].font = HEADER_FONT
+inp[&quot;A1&quot;].fill = HEADER_FILL
+inp.merge_cells(&quot;A1:C1&quot;)
+
+inp[&quot;B3&quot;] = &quot;Revenue FY2024&quot;
+inp[&quot;C3&quot;] = 1_250_000_000
+inp[&quot;C3&quot;].font = BLUE
+inp[&quot;C3&quot;].comment = Comment(&quot;Source: 10-K FY2024 p.47&quot;, &quot;model&quot;)
+
+inp[&quot;B4&quot;] = &quot;Growth Rate&quot;
+inp[&quot;C4&quot;] = 0.12
+inp[&quot;C4&quot;].font = BLUE
+
+# --- Calc tab ---
+calc = wb.create_sheet(&quot;DCF&quot;)
+calc[&quot;B2&quot;] = &quot;Projected Revenue&quot;
+calc[&quot;C2&quot;] = &quot;=Inputs!C3*(1+Inputs!C4)&quot;   # formula, black
+
+# --- Checks tab ---
+chk = wb.create_sheet(&quot;Checks&quot;)
+chk[&quot;A2&quot;] = &quot;BS balances&quot;
+chk[&quot;B2&quot;] = &quot;=ABS(BS!D20-BS!D21-BS!D22)&lt;0.01&quot;
+
+Path(&quot;./out&quot;).mkdir(exist_ok=True)
+wb.save(&quot;./out/model.xlsx&quot;)
+</code></pre>
+<h3>Section headers with merged cells</h3>
+<p>openpyxl quirk: when you merge, set the value on the top-left cell and style the full range separately.</p>
+<pre><code class="language-python">ws[&quot;A7&quot;] = &quot;CASH FLOW PROJECTION&quot;
+ws[&quot;A7&quot;].font = HEADER_FONT
+ws.merge_cells(&quot;A7:H7&quot;)
+for col in range(1, 9):  # A..H
+    ws.cell(row=7, column=col).fill = HEADER_FILL
+</code></pre>
+<h3>Sensitivity tables</h3>
+<p>Build with loops, not hardcoded formulas per cell. Rules:</p>
+<ul>
+<li><strong>Odd number of rows/cols</strong> (5×5 or 7×7) — guarantees a true center cell.</li>
+<li><strong>Center cell = base case.</strong> The middle row/col header must equal the model&#39;s actual WACC and terminal g so the center output equals the base-case implied share price. That&#39;s the sanity check.</li>
+<li><strong>Highlight the center cell</strong> with medium-blue fill (<code>&quot;BDD7EE&quot;</code>) and bold.</li>
+<li>Populate every cell with a full recalculation formula — never an approximation.</li>
+</ul>
+<pre><code class="language-python"># 5x5 WACC (rows) x terminal growth (cols) sensitivity
+wacc_axis = [0.08, 0.085, 0.09, 0.095, 0.10]        # center row = base 9.0%
+term_axis = [0.02, 0.025, 0.03, 0.035, 0.04]        # center col = base 3.0%
+
+start_row = 40
+ws.cell(row=start_row, column=1).value = &quot;Implied Share Price ($)&quot;
+ws.cell(row=start_row, column=1).font = BOLD
+
+for j, g in enumerate(term_axis):
+    ws.cell(row=start_row+1, column=2+j).value = g
+    ws.cell(row=start_row+1, column=2+j).font = BLUE
+
+for i, w in enumerate(wacc_axis):
+    r = start_row + 2 + i
+    ws.cell(row=r, column=1).value = w
+    ws.cell(row=r, column=1).font = BLUE
+    for j, g in enumerate(term_axis):
+        c = 2 + j
+        # Full DCF recalc formula (simplified for illustration).
+        # In a real model this references the full projection block.
+        ws.cell(row=r, column=c).value = (
+            f&quot;=SUMPRODUCT(FCF_range,1/(1+{w})^year_offset) + &quot;
+            f&quot;FCF_terminal*(1+{g})/({w}-{g})/(1+{w})^terminal_year&quot;
+        )
+
+# Highlight center cell (base case)
+center = ws.cell(row=start_row+2+len(wacc_axis)//2,
+                 column=2+len(term_axis)//2)
+center.fill = PatternFill(&quot;solid&quot;, fgColor=&quot;BDD7EE&quot;)
+center.font = BOLD
+</code></pre>
+<h3>Recalculating before delivery</h3>
+<p>openpyxl writes formula strings but does not compute them. Excel recalculates on open, but downstream consumers (auto-check scripts, CI) need computed values.</p>
+<p>Run LibreOffice or a dedicated recalc step before delivery:</p>
+<pre><code class="language-bash"># LibreOffice headless recalc
+libreoffice --headless --calc --convert-to xlsx ./out/model.xlsx --outdir ./out/
+</code></pre>
+<p>Or use a Python recalc helper (see <code>scripts/recalc.py</code> in this skill).</p>
+<h3>Model layout planning</h3>
+<p>Before writing any formula:</p>
+<ol>
+<li>Define ALL section row positions</li>
+<li>Write ALL headers and labels</li>
+<li>Write ALL section dividers and blank rows</li>
+<li>THEN write formulas using the locked row positions</li>
+</ol>
+<p>This prevents the cascading-formula-breakage pattern where inserting a header row after formulas are written shifts every downstream reference.</p>
+<h3>Verify step-by-step with the user</h3>
+<p>For large models (DCFs, 3-statement, LBO), stop and show the user intermediate artifacts before continuing. Catching a wrong margin assumption before you&#39;ve built downstream sensitivity tables saves an hour.</p>
+<p>Checkpoint pattern:</p>
+<ul>
+<li>After Inputs block → show raw inputs, confirm before projecting</li>
+<li>After Revenue projections → confirm top line + growth</li>
+<li>After FCF build → confirm the full schedule</li>
+<li>After WACC → confirm inputs</li>
+<li>After valuation → confirm the equity bridge</li>
+<li>THEN build sensitivity tables</li>
+</ul>
+<h3>When NOT to use this skill</h3>
+<ul>
+<li>Users in a live Excel session with an Office MCP available — drive their live workbook instead.</li>
+<li>Pure tabular data export with no formulas — <code>csv</code> or <code>pandas.to_excel</code> is simpler.</li>
+<li>Dashboards / charts with heavy interactivity — use a real BI tool.</li>
+</ul>
+<h3>Attribution</h3>
+<p>Conventions (blue/black/green, formulas-over-hardcodes, named ranges, sensitivity rules) adapted from Anthropic&#39;s Claude for Financial Services plugin suite, Apache-2.0 licensed. Original: <a href="https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/financial-analysis/skills/xlsx-author">https://github.com/anthropics/financial-services/tree/main/plugins/vertical-plugins/financial-analysis/skills/xlsx-author</a></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/finance/excel-author</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

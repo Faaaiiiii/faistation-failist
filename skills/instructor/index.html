@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>instructor — Skill Hermes</title>
+<meta name="description" content="Structured LLM outputs validated with Pydantic.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>instructor</h1>
+    <p class="lede">Structured LLM outputs validated with Pydantic.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>instructor</dd>
+      <dt>Keterangan</dt><dd>Structured LLM outputs validated with Pydantic.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/instructor.zip" download>Muat turun ZIP (11.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.3 KB</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">2.3 KB</td></tr>
+<tr><td><code>references/providers.md</code></td><td class="sz">1.3 KB</td></tr>
+<tr><td><code>references/validation.md</code></td><td class="sz">14.9 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Instructor: Structured LLM Outputs</h2>
+<h3>When to Use This Skill</h3>
+<p>Use Instructor when you need to:</p>
+<ul>
+<li><strong>Extract structured data</strong> from LLM responses reliably</li>
+<li><strong>Validate outputs</strong> against Pydantic schemas automatically</li>
+<li><strong>Retry failed extractions</strong> with automatic error handling</li>
+<li><strong>Parse complex JSON</strong> with type safety and validation</li>
+<li><strong>Stream partial results</strong> for real-time processing</li>
+<li><strong>Support multiple LLM providers</strong> with consistent API</li>
+</ul>
+<p><strong>GitHub Stars</strong>: 15,000+ | <strong>Battle-tested</strong>: 100,000+ developers</p>
+<h3>Installation</h3>
+<pre><code class="language-bash"># Base installation
+pip install instructor
+
+# With specific providers
+pip install &quot;instructor[anthropic]&quot;  # Anthropic Claude
+pip install &quot;instructor[openai]&quot;     # OpenAI
+pip install &quot;instructor[all]&quot;        # All providers
+</code></pre>
+<h3>Quick Start</h3>
+<h4>Basic Example: Extract User Data</h4>
+<pre><code class="language-python">import instructor
+from pydantic import BaseModel
+from anthropic import Anthropic
+
+# Define output structure
+class User(BaseModel):
+    name: str
+    age: int
+    email: str
+
+# Create instructor client
+client = instructor.from_anthropic(Anthropic())
+
+# Extract structured data
+user = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;John Doe is 30 years old. His email is john@example.com&quot;
+    }],
+    response_model=User
+)
+
+print(user.name)   # &quot;John Doe&quot;
+print(user.age)    # 30
+print(user.email)  # &quot;john@example.com&quot;
+</code></pre>
+<h4>With OpenAI</h4>
+<pre><code class="language-python">from openai import OpenAI
+
+client = instructor.from_openai(OpenAI())
+
+user = client.chat.completions.create(
+    model=&quot;gpt-4o-mini&quot;,
+    response_model=User,
+    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Extract: Alice, 25, alice@email.com&quot;}]
+)
+</code></pre>
+<h3>Core Concepts</h3>
+<h4>1. Response Models (Pydantic)</h4>
+<p>Response models define the structure and validation rules for LLM outputs.</p>
+<h5>Basic Model</h5>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class Article(BaseModel):
+    title: str = Field(description=&quot;Article title&quot;)
+    author: str = Field(description=&quot;Author name&quot;)
+    word_count: int = Field(description=&quot;Number of words&quot;, gt=0)
+    tags: list[str] = Field(description=&quot;List of relevant tags&quot;)
+
+article = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;Analyze this article: [article text]&quot;
+    }],
+    response_model=Article
+)
+</code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Type safety with Python type hints</li>
+<li>Automatic validation (word_count &gt; 0)</li>
+<li>Self-documenting with Field descriptions</li>
+<li>IDE autocomplete support</li>
+</ul>
+<h5>Nested Models</h5>
+<pre><code class="language-python">class Address(BaseModel):
+    street: str
+    city: str
+    country: str
+
+class Person(BaseModel):
+    name: str
+    age: int
+    address: Address  # Nested model
+
+person = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;John lives at 123 Main St, Boston, USA&quot;
+    }],
+    response_model=Person
+)
+
+print(person.address.city)  # &quot;Boston&quot;
+</code></pre>
+<h5>Optional Fields</h5>
+<pre><code class="language-python">from typing import Optional
+
+class Product(BaseModel):
+    name: str
+    price: float
+    discount: Optional[float] = None  # Optional
+    description: str = Field(default=&quot;No description&quot;)  # Default value
+
+# LLM doesn&#39;t need to provide discount or description
+</code></pre>
+<h5>Enums for Constraints</h5>
+<pre><code class="language-python">from enum import Enum
+
+class Sentiment(str, Enum):
+    POSITIVE = &quot;positive&quot;
+    NEGATIVE = &quot;negative&quot;
+    NEUTRAL = &quot;neutral&quot;
+
+class Review(BaseModel):
+    text: str
+    sentiment: Sentiment  # Only these 3 values allowed
+
+review = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;This product is amazing!&quot;
+    }],
+    response_model=Review
+)
+
+print(review.sentiment)  # Sentiment.POSITIVE
+</code></pre>
+<h4>2. Validation</h4>
+<p>Pydantic validates LLM outputs automatically. If validation fails, Instructor retries.</p>
+<h5>Built-in Validators</h5>
+<pre><code class="language-python">from pydantic import Field, EmailStr, HttpUrl
+
+class Contact(BaseModel):
+    name: str = Field(min_length=2, max_length=100)
+    age: int = Field(ge=0, le=120)  # 0 &lt;= age &lt;= 120
+    email: EmailStr  # Validates email format
+    website: HttpUrl  # Validates URL format
+
+# If LLM provides invalid data, Instructor retries automatically
+</code></pre>
+<h5>Custom Validators</h5>
+<pre><code class="language-python">from pydantic import field_validator
+
+class Event(BaseModel):
+    name: str
+    date: str
+    attendees: int
+
+    @field_validator(&#39;date&#39;)
+    def validate_date(cls, v):
+        &quot;&quot;&quot;Ensure date is in YYYY-MM-DD format.&quot;&quot;&quot;
+        import re
+        if not re.match(r&#39;\d{4}-\d{2}-\d{2}&#39;, v):
+            raise ValueError(&#39;Date must be YYYY-MM-DD format&#39;)
+        return v
+
+    @field_validator(&#39;attendees&#39;)
+    def validate_attendees(cls, v):
+        &quot;&quot;&quot;Ensure positive attendees.&quot;&quot;&quot;
+        if v &lt; 1:
+            raise ValueError(&#39;Must have at least 1 attendee&#39;)
+        return v
+</code></pre>
+<h5>Model-Level Validation</h5>
+<pre><code class="language-python">from pydantic import model_validator
+
+class DateRange(BaseModel):
+    start_date: str
+    end_date: str
+
+    @model_validator(mode=&#39;after&#39;)
+    def check_dates(self):
+        &quot;&quot;&quot;Ensure end_date is after start_date.&quot;&quot;&quot;
+        from datetime import datetime
+        start = datetime.strptime(self.start_date, &#39;%Y-%m-%d&#39;)
+        end = datetime.strptime(self.end_date, &#39;%Y-%m-%d&#39;)
+
+        if end &lt; start:
+            raise ValueError(&#39;end_date must be after start_date&#39;)
+        return self
+</code></pre>
+<h4>3. Automatic Retrying</h4>
+<p>Instructor retries automatically when validation fails, providing error feedback to the LLM.</p>
+<pre><code class="language-python"># Retries up to 3 times if validation fails
+user = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;Extract user from: John, age unknown&quot;
+    }],
+    response_model=User,
+    max_retries=3  # Default is 3
+)
+
+# If age can&#39;t be extracted, Instructor tells the LLM:
+# &quot;Validation error: age - field required&quot;
+# LLM tries again with better extraction
+</code></pre>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>LLM generates output</li>
+<li>Pydantic validates</li>
+<li>If invalid: Error message sent back to LLM</li>
+<li>LLM tries again with error feedback</li>
+<li>Repeats up to max_retries</li>
+</ol>
+<h4>4. Streaming</h4>
+<p>Stream partial results for real-time processing.</p>
+<h5>Streaming Partial Objects</h5>
+<pre><code class="language-python">from instructor import Partial
+
+class Story(BaseModel):
+    title: str
+    content: str
+    tags: list[str]
+
+# Stream partial updates as LLM generates
+for partial_story in client.messages.create_partial(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;Write a short sci-fi story&quot;
+    }],
+    response_model=Story
+):
+    print(f&quot;Title: {partial_story.title}&quot;)
+    print(f&quot;Content so far: {partial_story.content[:100]}...&quot;)
+    # Update UI in real-time
+</code></pre>
+<h5>Streaming Iterables</h5>
+<pre><code class="language-python">class Task(BaseModel):
+    title: str
+    priority: str
+
+# Stream list items as they&#39;re generated
+tasks = client.messages.create_iterable(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;Generate 10 project tasks&quot;
+    }],
+    response_model=Task
+)
+
+for task in tasks:
+    print(f&quot;- {task.title} ({task.priority})&quot;)
+    # Process each task as it arrives
+</code></pre>
+<h3>Provider Configuration</h3>
+<h4>Anthropic Claude</h4>
+<pre><code class="language-python">import instructor
+from anthropic import Anthropic
+
+client = instructor.from_anthropic(
+    Anthropic(api_key=&quot;your-api-key&quot;)
+)
+
+# Use with Claude models
+response = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[...],
+    response_model=YourModel
+)
+</code></pre>
+<h4>OpenAI</h4>
+<pre><code class="language-python">from openai import OpenAI
+
+client = instructor.from_openai(
+    OpenAI(api_key=&quot;your-api-key&quot;)
+)
+
+response = client.chat.completions.create(
+    model=&quot;gpt-4o-mini&quot;,
+    response_model=YourModel,
+    messages=[...]
+)
+</code></pre>
+<h4>Local Models (Ollama)</h4>
+<pre><code class="language-python">from openai import OpenAI
+
+# Point to local Ollama server
+client = instructor.from_openai(
+    OpenAI(
+        base_url=&quot;http://localhost:11434/v1&quot;,
+        api_key=&quot;ollama&quot;  # Required but ignored
+    ),
+    mode=instructor.Mode.JSON
+)
+
+response = client.chat.completions.create(
+    model=&quot;llama3.1&quot;,
+    response_model=YourModel,
+    messages=[...]
+)
+</code></pre>
+<h3>Common Patterns</h3>
+<h4>Pattern 1: Data Extraction from Text</h4>
+<pre><code class="language-python">class CompanyInfo(BaseModel):
+    name: str
+    founded_year: int
+    industry: str
+    employees: int
+    headquarters: str
+
+text = &quot;&quot;&quot;
+Tesla, Inc. was founded in 2003. It operates in the automotive and energy
+industry with approximately 140,000 employees. The company is headquartered
+in Austin, Texas.
+&quot;&quot;&quot;
+
+company = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: f&quot;Extract company information from: {text}&quot;
+    }],
+    response_model=CompanyInfo
+)
+</code></pre>
+<h4>Pattern 2: Classification</h4>
+<pre><code class="language-python">class Category(str, Enum):
+    TECHNOLOGY = &quot;technology&quot;
+    FINANCE = &quot;finance&quot;
+    HEALTHCARE = &quot;healthcare&quot;
+    EDUCATION = &quot;education&quot;
+    OTHER = &quot;other&quot;
+
+class ArticleClassification(BaseModel):
+    category: Category
+    confidence: float = Field(ge=0.0, le=1.0)
+    keywords: list[str]
+
+classification = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: &quot;Classify this article: [article text]&quot;
+    }],
+    response_model=ArticleClassification
+)
+</code></pre>
+<h4>Pattern 3: Multi-Entity Extraction</h4>
+<pre><code class="language-python">class Person(BaseModel):
+    name: str
+    role: str
+
+class Organization(BaseModel):
+    name: str
+    industry: str
+
+class Entities(BaseModel):
+    people: list[Person]
+    organizations: list[Organization]
+    locations: list[str]
+
+text = &quot;Tim Cook, CEO of Apple, announced at the event in Cupertino...&quot;
+
+entities = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: f&quot;Extract all entities from: {text}&quot;
+    }],
+    response_model=Entities
+)
+
+for person in entities.people:
+    print(f&quot;{person.name} - {person.role}&quot;)
+</code></pre>
+<h4>Pattern 4: Structured Analysis</h4>
+<pre><code class="language-python">class SentimentAnalysis(BaseModel):
+    overall_sentiment: Sentiment
+    positive_aspects: list[str]
+    negative_aspects: list[str]
+    suggestions: list[str]
+    score: float = Field(ge=-1.0, le=1.0)
+
+review = &quot;The product works well but setup was confusing...&quot;
+
+analysis = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[{
+        &quot;role&quot;: &quot;user&quot;,
+        &quot;content&quot;: f&quot;Analyze this review: {review}&quot;
+    }],
+    response_model=SentimentAnalysis
+)
+</code></pre>
+<h4>Pattern 5: Batch Processing</h4>
+<pre><code class="language-python">def extract_person(text: str) -&gt; Person:
+    return client.messages.create(
+        model=&quot;claude-sonnet-4-5-20250929&quot;,
+        max_tokens=1024,
+        messages=[{
+            &quot;role&quot;: &quot;user&quot;,
+            &quot;content&quot;: f&quot;Extract person from: {text}&quot;
+        }],
+        response_model=Person
+    )
+
+texts = [
+    &quot;John Doe is a 30-year-old engineer&quot;,
+    &quot;Jane Smith, 25, works in marketing&quot;,
+    &quot;Bob Johnson, age 40, software developer&quot;
+]
+
+people = [extract_person(text) for text in texts]
+</code></pre>
+<h3>Advanced Features</h3>
+<h4>Union Types</h4>
+<pre><code class="language-python">from typing import Union
+
+class TextContent(BaseModel):
+    type: str = &quot;text&quot;
+    content: str
+
+class ImageContent(BaseModel):
+    type: str = &quot;image&quot;
+    url: HttpUrl
+    caption: str
+
+class Post(BaseModel):
+    title: str
+    content: Union[TextContent, ImageContent]  # Either type
+
+# LLM chooses appropriate type based on content
+</code></pre>
+<h4>Dynamic Models</h4>
+<pre><code class="language-python">from pydantic import create_model
+
+# Create model at runtime
+DynamicUser = create_model(
+    &#39;User&#39;,
+    name=(str, ...),
+    age=(int, Field(ge=0)),
+    email=(EmailStr, ...)
+)
+
+user = client.messages.create(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    max_tokens=1024,
+    messages=[...],
+    response_model=DynamicUser
+)
+</code></pre>
+<h4>Custom Modes</h4>
+<pre><code class="language-python"># For providers without native structured outputs
+client = instructor.from_anthropic(
+    Anthropic(),
+    mode=instructor.Mode.JSON  # JSON mode
+)
+
+# Available modes:
+# - Mode.ANTHROPIC_TOOLS (recommended for Claude)
+# - Mode.JSON (fallback)
+# - Mode.TOOLS (OpenAI tools)
+</code></pre>
+<h4>Context Management</h4>
+<pre><code class="language-python"># Single-use client
+with instructor.from_anthropic(Anthropic()) as client:
+    result = client.messages.create(
+        model=&quot;claude-sonnet-4-5-20250929&quot;,
+        max_tokens=1024,
+        messages=[...],
+        response_model=YourModel
+    )
+    # Client closed automatically
+</code></pre>
+<h3>Error Handling</h3>
+<h4>Handling Validation Errors</h4>
+<pre><code class="language-python">from pydantic import ValidationError
+
+try:
+    user = client.messages.create(
+        model=&quot;claude-sonnet-4-5-20250929&quot;,
+        max_tokens=1024,
+        messages=[...],
+        response_model=User,
+        max_retries=3
+    )
+except ValidationError as e:
+    print(f&quot;Failed after retries: {e}&quot;)
+    # Handle gracefully
+
+except Exception as e:
+    print(f&quot;API error: {e}&quot;)
+</code></pre>
+<h4>Custom Error Messages</h4>
+<pre><code class="language-python">class ValidatedUser(BaseModel):
+    name: str = Field(description=&quot;Full name, 2-100 characters&quot;)
+    age: int = Field(description=&quot;Age between 0 and 120&quot;, ge=0, le=120)
+    email: EmailStr = Field(description=&quot;Valid email address&quot;)
+
+    class Config:
+        # Custom error messages
+        json_schema_extra = {
+            &quot;examples&quot;: [
+                {
+                    &quot;name&quot;: &quot;John Doe&quot;,
+                    &quot;age&quot;: 30,
+                    &quot;email&quot;: &quot;john@example.com&quot;
+                }
+            ]
+        }
+</code></pre>
+<h3>Best Practices</h3>
+<h4>1. Clear Field Descriptions</h4>
+<pre><code class="language-python"># ❌ Bad: Vague
+class Product(BaseModel):
+    name: str
+    price: float
+
+# ✅ Good: Descriptive
+class Product(BaseModel):
+    name: str = Field(description=&quot;Product name from the text&quot;)
+    price: float = Field(description=&quot;Price in USD, without currency symbol&quot;)
+</code></pre>
+<h4>2. Use Appropriate Validation</h4>
+<pre><code class="language-python"># ✅ Good: Constrain values
+class Rating(BaseModel):
+    score: int = Field(ge=1, le=5, description=&quot;Rating from 1 to 5 stars&quot;)
+    review: str = Field(min_length=10, description=&quot;Review text, at least 10 chars&quot;)
+</code></pre>
+<h4>3. Provide Examples in Prompts</h4>
+<pre><code class="language-python">messages = [{
+    &quot;role&quot;: &quot;user&quot;,
+    &quot;content&quot;: &quot;&quot;&quot;Extract person info from: &quot;John, 30, engineer&quot;
+
+Example format:
+{
+  &quot;name&quot;: &quot;John Doe&quot;,
+  &quot;age&quot;: 30,
+  &quot;occupation&quot;: &quot;engineer&quot;
+}&quot;&quot;&quot;
+}]
+</code></pre>
+<h4>4. Use Enums for Fixed Categories</h4>
+<pre><code class="language-python"># ✅ Good: Enum ensures valid values
+class Status(str, Enum):
+    PENDING = &quot;pending&quot;
+    APPROVED = &quot;approved&quot;
+    REJECTED = &quot;rejected&quot;
+
+class Application(BaseModel):
+    status: Status  # LLM must choose from enum
+</code></pre>
+<h4>5. Handle Missing Data Gracefully</h4>
+<pre><code class="language-python">class PartialData(BaseModel):
+    required_field: str
+    optional_field: Optional[str] = None
+    default_field: str = &quot;default_value&quot;
+
+# LLM only needs to provide required_field
+</code></pre>
+<h3>Comparison to Alternatives</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Instructor</th>
+<th>Manual JSON</th>
+<th>LangChain</th>
+<th>DSPy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Type Safety</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>⚠️ Partial</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Auto Validation</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>⚠️ Limited</td>
+</tr>
+<tr>
+<td>Auto Retry</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Streaming</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Multi-Provider</td>
+<td>✅ Yes</td>
+<td>⚠️ Manual</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Learning Curve</td>
+<td>Low</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+</tbody></table>
+<p><strong>When to choose Instructor:</strong></p>
+<ul>
+<li>Need structured, validated outputs</li>
+<li>Want type safety and IDE support</li>
+<li>Require automatic retries</li>
+<li>Building data extraction systems</li>
+</ul>
+<p><strong>When to choose alternatives:</strong></p>
+<ul>
+<li>DSPy: Need prompt optimization</li>
+<li>LangChain: Building complex chains</li>
+<li>Manual: Simple, one-off extractions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://python.useinstructor.com">https://python.useinstructor.com</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/jxnl/instructor">https://github.com/jxnl/instructor</a> (15k+ stars)</li>
+<li><strong>Cookbook</strong>: <a href="https://python.useinstructor.com/examples">https://python.useinstructor.com/examples</a></li>
+<li><strong>Discord</strong>: Community support available</li>
+</ul>
+<h3>See Also</h3>
+<ul>
+<li><code>references/validation.md</code> - Advanced validation patterns</li>
+<li><code>references/providers.md</code> - Provider-specific configuration</li>
+<li><code>references/examples.md</code> - Real-world use cases</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/instructor</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

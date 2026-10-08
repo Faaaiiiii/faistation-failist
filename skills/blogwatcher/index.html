@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>blogwatcher — Skill Hermes</title>
+<meta name="description" content="Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>blogwatcher</h1>
+    <p class="lede">Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>blogwatcher</dd>
+      <dt>Keterangan</dt><dd>Monitor blogs and RSS/Atom feeds via blogwatcher-cli tool.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>JulienTant (fork of Hyaxia/blogwatcher)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/blogwatcher.zip" download>Muat turun ZIP (2.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Blogwatcher</h2>
+<p>Track blog and RSS/Atom feed updates with the <code>blogwatcher-cli</code> tool. Supports automatic feed discovery, HTML scraping fallback, OPML import, and read/unread article management.</p>
+<h3>Working with Hermes tools (read this first)</h3>
+<p><code>blogwatcher-cli</code> is the feed database; Hermes tools do the automation around it:</p>
+<ul>
+<li><strong>Recurring watch — use the cronjob tool&#39;s <code>monitor</code> field, not a bare schedule.</strong> <code>monitor</code> runs a script each tick and only wakes the agent when output changes: set it to a script that runs <code>blogwatcher-cli scan &gt;/dev/null 2&gt;&amp;1 &amp;&amp; blogwatcher-cli articles</code> (deterministic output; new articles = changed output = agent wakes with the diff injected). Unchanged ticks cost zero LLM calls. Set <code>deliver</code> to route digests to a chat/channel; add <code>continuity: true</code> so consecutive digests can dedupe.</li>
+<li><strong>Reading an article the user asks about</strong>: <code>web_extract([url])</code> on the article URL from <code>blogwatcher-cli articles</code> — do not re-scrape by hand.</li>
+<li><strong>One-off &quot;watch this page for changes&quot; without feed semantics</strong>: skip this skill; the cronjob tool&#39;s <code>monitor</code> field accepts an http(s) URL directly.</li>
+<li><strong>One-off read of a feed or a site&#39;s latest posts, nothing to install</strong>: the bundled <code>rss-feeds</code> skill (<code>scripts/feed.py read URL</code>); blogwatcher earns its install when you track many feeds with read/unread state.</li>
+<li><strong>Company/competitor tracking with analysis and citations</strong>: prefer the <code>competitor-news-monitor</code> skill; blogwatcher is the lighter raw-feed layer it can sit on.</li>
+</ul>
+<h3>Installation</h3>
+<p>Pick one method:</p>
+<ul>
+<li><strong>Go:</strong> <code>go install github.com/JulienTant/blogwatcher-cli/cmd/blogwatcher-cli@latest</code></li>
+<li><strong>Docker:</strong> <code>docker run --rm -v blogwatcher-cli:/data ghcr.io/julientant/blogwatcher-cli</code></li>
+<li><strong>Binary (Linux amd64):</strong> <code>curl -sL https://github.com/JulienTant/blogwatcher-cli/releases/latest/download/blogwatcher-cli_linux_amd64.tar.gz | tar xz -C /usr/local/bin blogwatcher-cli</code></li>
+<li><strong>Binary (Linux arm64):</strong> <code>curl -sL https://github.com/JulienTant/blogwatcher-cli/releases/latest/download/blogwatcher-cli_linux_arm64.tar.gz | tar xz -C /usr/local/bin blogwatcher-cli</code></li>
+<li><strong>Binary (macOS Apple Silicon):</strong> <code>curl -sL https://github.com/JulienTant/blogwatcher-cli/releases/latest/download/blogwatcher-cli_darwin_arm64.tar.gz | tar xz -C /usr/local/bin blogwatcher-cli</code></li>
+<li><strong>Binary (macOS Intel):</strong> <code>curl -sL https://github.com/JulienTant/blogwatcher-cli/releases/latest/download/blogwatcher-cli_darwin_amd64.tar.gz | tar xz -C /usr/local/bin blogwatcher-cli</code></li>
+</ul>
+<p>All releases: <a href="https://github.com/JulienTant/blogwatcher-cli/releases">https://github.com/JulienTant/blogwatcher-cli/releases</a></p>
+<h4>Docker with persistent storage</h4>
+<p>By default the database lives at <code>~/.blogwatcher-cli/blogwatcher-cli.db</code>. In Docker this is lost on container restart. Use <code>BLOGWATCHER_DB</code> or a volume mount to persist it:</p>
+<pre><code class="language-bash"># Named volume (simplest)
+docker run --rm -v blogwatcher-cli:/data -e BLOGWATCHER_DB=/data/blogwatcher-cli.db ghcr.io/julientant/blogwatcher-cli scan
+
+# Host bind mount
+docker run --rm -v /path/on/host:/data -e BLOGWATCHER_DB=/data/blogwatcher-cli.db ghcr.io/julientant/blogwatcher-cli scan
+</code></pre>
+<h4>Migrating from the original blogwatcher</h4>
+<p>If upgrading from <code>Hyaxia/blogwatcher</code>, move your database:</p>
+<pre><code class="language-bash">mv ~/.blogwatcher/blogwatcher.db ~/.blogwatcher-cli/blogwatcher-cli.db
+</code></pre>
+<p>The binary name changed from <code>blogwatcher</code> to <code>blogwatcher-cli</code>.</p>
+<h3>Common Commands</h3>
+<h4>Managing blogs</h4>
+<ul>
+<li>Add a blog: <code>blogwatcher-cli add &quot;My Blog&quot; https://example.com</code></li>
+<li>Add with explicit feed: <code>blogwatcher-cli add &quot;My Blog&quot; https://example.com --feed-url https://example.com/feed.xml</code></li>
+<li>Add with HTML scraping: <code>blogwatcher-cli add &quot;My Blog&quot; https://example.com --scrape-selector &quot;article h2 a&quot;</code></li>
+<li>List tracked blogs: <code>blogwatcher-cli blogs</code></li>
+<li>Remove a blog: <code>blogwatcher-cli remove &quot;My Blog&quot; --yes</code></li>
+<li>Import from OPML: <code>blogwatcher-cli import subscriptions.opml</code></li>
+</ul>
+<h4>Scanning and reading</h4>
+<ul>
+<li>Scan all blogs: <code>blogwatcher-cli scan</code></li>
+<li>Scan one blog: <code>blogwatcher-cli scan &quot;My Blog&quot;</code></li>
+<li>List unread articles: <code>blogwatcher-cli articles</code></li>
+<li>List all articles: <code>blogwatcher-cli articles --all</code></li>
+<li>Filter by blog: <code>blogwatcher-cli articles --blog &quot;My Blog&quot;</code></li>
+<li>Filter by category: <code>blogwatcher-cli articles --category &quot;Engineering&quot;</code></li>
+<li>Mark article read: <code>blogwatcher-cli read 1</code></li>
+<li>Mark article unread: <code>blogwatcher-cli unread 1</code></li>
+<li>Mark all read: <code>blogwatcher-cli read-all</code></li>
+<li>Mark all read for a blog: <code>blogwatcher-cli read-all --blog &quot;My Blog&quot; --yes</code></li>
+</ul>
+<h3>Environment Variables</h3>
+<p>All flags can be set via environment variables with the <code>BLOGWATCHER_</code> prefix:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BLOGWATCHER_DB</code></td>
+<td>Path to SQLite database file</td>
+</tr>
+<tr>
+<td><code>BLOGWATCHER_WORKERS</code></td>
+<td>Number of concurrent scan workers (default: 8)</td>
+</tr>
+<tr>
+<td><code>BLOGWATCHER_SILENT</code></td>
+<td>Only output &quot;scan done&quot; when scanning</td>
+</tr>
+<tr>
+<td><code>BLOGWATCHER_YES</code></td>
+<td>Skip confirmation prompts</td>
+</tr>
+<tr>
+<td><code>BLOGWATCHER_CATEGORY</code></td>
+<td>Default filter for articles by category</td>
+</tr>
+</tbody></table>
+<h3>Example Output</h3>
+<pre><code>$ blogwatcher-cli blogs
+Tracked blogs (1):
+
+  xkcd
+    URL: https://xkcd.com
+    Feed: https://xkcd.com/atom.xml
+    Last scanned: 2026-04-03 10:30
+</code></pre>
+<pre><code>$ blogwatcher-cli scan
+Scanning 1 blog(s)...
+
+  xkcd
+    Source: RSS | Found: 4 | New: 4
+
+Found 4 new article(s) total!
+</code></pre>
+<pre><code>$ blogwatcher-cli articles
+Unread articles (2):
+
+  [1] [new] Barrel - Part 13
+       Blog: xkcd
+       URL: https://xkcd.com/3095/
+       Published: 2026-04-02
+       Categories: Comics, Science
+
+  [2] [new] Volcano Fact
+       Blog: xkcd
+       URL: https://xkcd.com/3094/
+       Published: 2026-04-01
+       Categories: Comics
+</code></pre>
+<h3>Notes</h3>
+<ul>
+<li>Auto-discovers RSS/Atom feeds from blog homepages when no <code>--feed-url</code> is provided.</li>
+<li>Falls back to HTML scraping if RSS fails and <code>--scrape-selector</code> is configured.</li>
+<li>Categories from RSS/Atom feeds are stored and can be used to filter articles.</li>
+<li>Import blogs in bulk from OPML files exported by Feedly, Inoreader, NewsBlur, etc.</li>
+<li>Database stored at <code>~/.blogwatcher-cli/blogwatcher-cli.db</code> by default (override with <code>--db</code> or <code>BLOGWATCHER_DB</code>).</li>
+<li>Use <code>blogwatcher-cli &lt;command&gt; --help</code> to discover all flags and options.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/blogwatcher</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

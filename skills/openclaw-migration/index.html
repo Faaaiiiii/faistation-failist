@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>openclaw-migration — Skill Hermes</title>
+<meta name="description" content="Import an OpenClaw setup (memories, skills) into Hermes.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>openclaw-migration</h1>
+    <p class="lede">Import an OpenClaw setup (memories, skills) into Hermes.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>openclaw-migration</dd>
+      <dt>Keterangan</dt><dd>Import an OpenClaw setup (memories, skills) into Hermes.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>migration · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/openclaw-migration.zip" download>Muat turun ZIP (36.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">15.6 KB</td></tr>
+<tr><td><code>scripts/openclaw_to_hermes.py</code></td><td class="sz">146.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OpenClaw -&gt; Hermes Migration</h2>
+<p>Use this skill when a user wants to move their OpenClaw setup into Hermes Agent with minimal manual cleanup.</p>
+<h3>CLI Command</h3>
+<p>For a quick, non-interactive migration, use the built-in CLI command:</p>
+<pre><code class="language-bash">hermes claw migrate              # Full interactive migration
+hermes claw migrate --dry-run    # Preview what would be migrated
+hermes claw migrate --preset user-data   # Migrate without secrets
+hermes claw migrate --overwrite  # Overwrite existing conflicts
+hermes claw migrate --source /custom/path/.openclaw  # Custom source
+</code></pre>
+<p>The CLI command runs the same migration script described below. Use this skill (via the agent) when you want an interactive, guided migration with dry-run previews and per-item conflict resolution.</p>
+<p><strong>First-time setup:</strong> The <code>hermes setup</code> wizard automatically detects <code>~/.openclaw</code> and offers migration before configuration begins.</p>
+<h3>What this skill does</h3>
+<p>It uses <code>scripts/openclaw_to_hermes.py</code> to:</p>
+<ul>
+<li>import <code>SOUL.md</code> into the Hermes home directory as <code>SOUL.md</code></li>
+<li>transform OpenClaw <code>MEMORY.md</code> and <code>USER.md</code> into Hermes memory entries</li>
+<li>merge OpenClaw command approval patterns into Hermes <code>command_allowlist</code></li>
+<li>migrate Hermes-compatible messaging settings such as <code>TELEGRAM_ALLOWED_USERS</code>, and map OpenClaw workspace settings to Hermes working-directory configuration</li>
+<li>copy OpenClaw skills into <code>~/.hermes/skills/openclaw-imports/</code></li>
+<li>optionally copy the OpenClaw workspace instructions file into a chosen Hermes workspace</li>
+<li>mirror compatible workspace assets such as <code>workspace/tts/</code> into <code>~/.hermes/tts/</code></li>
+<li>archive non-secret docs that do not have a direct Hermes destination</li>
+<li>produce a structured report listing migrated items, conflicts, skipped items, and reasons</li>
+</ul>
+<h3>Path resolution</h3>
+<p>The helper script lives in this skill directory at:</p>
+<ul>
+<li><code>scripts/openclaw_to_hermes.py</code></li>
+</ul>
+<p>When this skill is installed from the Skills Hub, the normal location is:</p>
+<ul>
+<li><code>~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py</code></li>
+</ul>
+<p>Do not guess a shorter path like <code>~/.hermes/skills/openclaw-migration/...</code>.</p>
+<p>Before running the helper:</p>
+<ol>
+<li>Prefer the installed path under <code>~/.hermes/skills/migration/openclaw-migration/</code>.</li>
+<li>If that path fails, inspect the installed skill directory and resolve the script relative to the installed <code>SKILL.md</code>.</li>
+<li>Only use <code>find</code> as a fallback if the installed location is missing or the skill was moved manually.</li>
+<li>When calling the terminal tool, do not pass <code>workdir: &quot;~&quot;</code>. Use an absolute directory such as the user&#39;s home directory, or omit <code>workdir</code> entirely.</li>
+</ol>
+<p>With <code>--migrate-secrets</code>, it will also import a small allowlisted set of Hermes-compatible secrets, currently:</p>
+<ul>
+<li><code>TELEGRAM_BOT_TOKEN</code></li>
+</ul>
+<h3>Default workflow</h3>
+<ol>
+<li>Inspect first with a dry run.</li>
+<li>Present a simple summary of what can be migrated, what cannot be migrated, and what would be archived.</li>
+<li>If the <code>clarify</code> tool is available, use it for user decisions instead of asking for a free-form prose reply.</li>
+<li>If the dry run finds imported skill directory conflicts, ask how those should be handled before executing.</li>
+<li>Ask the user to choose between the two supported migration modes before executing.</li>
+<li>Ask for a target workspace path only if the user wants the workspace instructions file brought over.</li>
+<li>Execute the migration with the matching preset and flags.</li>
+<li>Summarize the results, especially:<ul>
+<li>what was migrated</li>
+<li>what was archived for manual review</li>
+<li>what was skipped and why</li>
+</ul>
+</li>
+</ol>
+<h3>User interaction protocol</h3>
+<p>Hermes CLI supports the <code>clarify</code> tool for interactive prompts, but it is limited to:</p>
+<ul>
+<li>one choice at a time</li>
+<li>up to 4 predefined choices</li>
+<li>an automatic <code>Other</code> free-text option</li>
+</ul>
+<p>It does <strong>not</strong> support true multi-select checkboxes in a single prompt.</p>
+<p>For every <code>clarify</code> call:</p>
+<ul>
+<li>always include a non-empty <code>question</code></li>
+<li>include <code>choices</code> only for real selectable prompts</li>
+<li>keep <code>choices</code> to 2-4 plain string options</li>
+<li>never emit placeholder or truncated options such as <code>...</code></li>
+<li>never pad or stylize choices with extra whitespace</li>
+<li>never include fake form fields in the question such as <code>enter directory here</code>, blank lines to fill in, or underscores like <code>_____</code></li>
+<li>for open-ended path questions, ask only the plain sentence; the user types in the normal CLI prompt below the panel</li>
+</ul>
+<p>If a <code>clarify</code> call returns an error, inspect the error text, correct the payload, and retry once with a valid <code>questions</code> array and clean choices.</p>
+<p>When <code>clarify</code> is available and the dry run reveals any required user decision, your <strong>next action must be a <code>clarify</code> tool call</strong>.
+Do not end the turn with a normal assistant message such as:</p>
+<ul>
+<li>&quot;Let me present the choices&quot;</li>
+<li>&quot;What would you like to do?&quot;</li>
+<li>&quot;Here are the options&quot;</li>
+</ul>
+<p>If a user decision is required, collect it via <code>clarify</code> before producing more prose.
+If multiple unresolved decisions remain, do not insert an explanatory assistant message between them. After one <code>clarify</code> response is received, your next action should usually be the next required <code>clarify</code> call.</p>
+<p>Treat <code>workspace-agents</code> as an unresolved decision whenever the dry run reports:</p>
+<ul>
+<li><code>kind=&quot;workspace-agents&quot;</code></li>
+<li><code>status=&quot;skipped&quot;</code></li>
+<li>reason containing <code>No workspace target was provided</code></li>
+</ul>
+<p>In that case, you must ask about workspace instructions before execution. Do not silently treat that as a decision to skip.</p>
+<p>Because of that limitation, use this simplified decision flow:</p>
+<ol>
+<li>For <code>SOUL.md</code> conflicts, use <code>clarify</code> with choices such as:<ul>
+<li><code>keep existing</code></li>
+<li><code>overwrite with backup</code></li>
+<li><code>review first</code></li>
+</ul>
+</li>
+<li>If the dry run shows one or more <code>kind=&quot;skill&quot;</code> items with <code>status=&quot;conflict&quot;</code>, use <code>clarify</code> with choices such as:<ul>
+<li><code>keep existing skills</code></li>
+<li><code>overwrite conflicting skills with backup</code></li>
+<li><code>import conflicting skills under renamed folders</code></li>
+</ul>
+</li>
+<li>For workspace instructions, use <code>clarify</code> with choices such as:<ul>
+<li><code>skip workspace instructions</code></li>
+<li><code>copy to a workspace path</code></li>
+<li><code>decide later</code></li>
+</ul>
+</li>
+<li>If the user chooses to copy workspace instructions, ask a follow-up open-ended <code>clarify</code> question requesting an <strong>absolute path</strong>.</li>
+<li>If the user chooses <code>skip workspace instructions</code> or <code>decide later</code>, proceed without <code>--workspace-target</code>.</li>
+<li>For migration mode, use <code>clarify</code> with these 3 choices:<ul>
+<li><code>user-data only</code></li>
+<li><code>full compatible migration</code></li>
+<li><code>cancel</code></li>
+</ul>
+</li>
+<li><code>user-data only</code> means: migrate user data and compatible config, but do <strong>not</strong> import allowlisted secrets.</li>
+<li><code>full compatible migration</code> means: migrate the same compatible user data plus the allowlisted secrets when present.</li>
+<li>If <code>clarify</code> is not available, ask the same question in normal text, but still constrain the answer to <code>user-data only</code>, <code>full compatible migration</code>, or <code>cancel</code>.</li>
+</ol>
+<p>Execution gate:</p>
+<ul>
+<li>Do not execute while a <code>workspace-agents</code> skip caused by <code>No workspace target was provided</code> remains unresolved.</li>
+<li>The only valid ways to resolve it are:<ul>
+<li>user explicitly chooses <code>skip workspace instructions</code></li>
+<li>user explicitly chooses <code>decide later</code></li>
+<li>user provides a workspace path after choosing <code>copy to a workspace path</code></li>
+</ul>
+</li>
+<li>Absence of a workspace target in the dry run is not itself permission to execute.</li>
+<li>Do not execute while any required <code>clarify</code> decision remains unresolved.</li>
+</ul>
+<p>Use these exact <code>clarify</code> payload shapes as the default pattern:</p>
+<ul>
+<li><code>{&quot;question&quot;:&quot;Your existing SOUL.md conflicts with the imported one. What should I do?&quot;,&quot;choices&quot;:[&quot;keep existing&quot;,&quot;overwrite with backup&quot;,&quot;review first&quot;]}</code></li>
+<li><code>{&quot;question&quot;:&quot;One or more imported OpenClaw skills already exist in Hermes. How should I handle those skill conflicts?&quot;,&quot;choices&quot;:[&quot;keep existing skills&quot;,&quot;overwrite conflicting skills with backup&quot;,&quot;import conflicting skills under renamed folders&quot;]}</code></li>
+<li><code>{&quot;question&quot;:&quot;Choose migration mode: migrate only user data, or run the full compatible migration including allowlisted secrets?&quot;,&quot;choices&quot;:[&quot;user-data only&quot;,&quot;full compatible migration&quot;,&quot;cancel&quot;]}</code></li>
+<li><code>{&quot;question&quot;:&quot;Do you want to copy the OpenClaw workspace instructions file into a Hermes workspace?&quot;,&quot;choices&quot;:[&quot;skip workspace instructions&quot;,&quot;copy to a workspace path&quot;,&quot;decide later&quot;]}</code></li>
+<li><code>{&quot;question&quot;:&quot;Please provide an absolute path where the workspace instructions should be copied.&quot;}</code></li>
+</ul>
+<h3>Decision-to-command mapping</h3>
+<p>Map user decisions to command flags exactly:</p>
+<ul>
+<li>If the user chooses <code>keep existing</code> for <code>SOUL.md</code>, do <strong>not</strong> add <code>--overwrite</code>.</li>
+<li>If the user chooses <code>overwrite with backup</code>, add <code>--overwrite</code>.</li>
+<li>If the user chooses <code>review first</code>, stop before execution and review the relevant files.</li>
+<li>If the user chooses <code>keep existing skills</code>, add <code>--skill-conflict skip</code>.</li>
+<li>If the user chooses <code>overwrite conflicting skills with backup</code>, add <code>--skill-conflict overwrite</code>.</li>
+<li>If the user chooses <code>import conflicting skills under renamed folders</code>, add <code>--skill-conflict rename</code>.</li>
+<li>If the user chooses <code>user-data only</code>, execute with <code>--preset user-data</code> and do <strong>not</strong> add <code>--migrate-secrets</code>.</li>
+<li>If the user chooses <code>full compatible migration</code>, execute with <code>--preset full --migrate-secrets</code>.</li>
+<li>Only add <code>--workspace-target</code> if the user explicitly provided an absolute workspace path.</li>
+<li>If the user chooses <code>skip workspace instructions</code> or <code>decide later</code>, do not add <code>--workspace-target</code>.</li>
+</ul>
+<p>Before executing, restate the exact command plan in plain language and make sure it matches the user&#39;s choices.</p>
+<h3>Post-run reporting rules</h3>
+<p>After execution, treat the script&#39;s JSON output as the source of truth.</p>
+<ol>
+<li>Base all counts on <code>report.summary</code>.</li>
+<li>Only list an item under &quot;Successfully Migrated&quot; if its <code>status</code> is exactly <code>migrated</code>.</li>
+<li>Do not claim a conflict was resolved unless the report shows that item as <code>migrated</code>.</li>
+<li>Do not say <code>SOUL.md</code> was overwritten unless the report item for <code>kind=&quot;soul&quot;</code> has <code>status=&quot;migrated&quot;</code>.</li>
+<li>If <code>report.summary.conflict &gt; 0</code>, include a conflict section instead of silently implying success.</li>
+<li>If counts and listed items disagree, fix the list to match the report before responding.</li>
+<li>Include the <code>output_dir</code> path from the report when available so the user can inspect <code>report.json</code>, <code>summary.md</code>, backups, and archived files.</li>
+<li>For memory or user-profile overflow, do not say the entries were archived unless the report explicitly shows an archive path. If <code>details.overflow_file</code> exists, say the full overflow list was exported there.</li>
+<li>If a skill was imported under a renamed folder, report the final destination and mention <code>details.renamed_from</code>.</li>
+<li>If <code>report.skill_conflict_mode</code> is present, use it as the source of truth for the selected imported-skill conflict policy.</li>
+<li>If an item has <code>status=&quot;skipped&quot;</code>, do not describe it as overwritten, backed up, migrated, or resolved.</li>
+<li>If <code>kind=&quot;soul&quot;</code> has <code>status=&quot;skipped&quot;</code> with reason <code>Target already matches source</code>, say it was left unchanged and do not mention a backup.</li>
+<li>If a renamed imported skill has an empty <code>details.backup</code>, do not imply the existing Hermes skill was renamed or backed up. Say only that the imported copy was placed in the new destination and reference <code>details.renamed_from</code> as the pre-existing folder that remained in place.</li>
+</ol>
+<h3>Migration presets</h3>
+<p>Prefer these two presets in normal use:</p>
+<ul>
+<li><code>user-data</code></li>
+<li><code>full</code></li>
+</ul>
+<p><code>user-data</code> includes:</p>
+<ul>
+<li><code>soul</code></li>
+<li><code>workspace-agents</code></li>
+<li><code>memory</code></li>
+<li><code>user-profile</code></li>
+<li><code>messaging-settings</code></li>
+<li><code>command-allowlist</code></li>
+<li><code>skills</code></li>
+<li><code>tts-assets</code></li>
+<li><code>archive</code></li>
+</ul>
+<p><code>full</code> includes everything in <code>user-data</code> plus:</p>
+<ul>
+<li><code>secret-settings</code></li>
+</ul>
+<p>The helper script still supports category-level <code>--include</code> / <code>--exclude</code>, but treat that as an advanced fallback rather than the default UX.</p>
+<h3>Commands</h3>
+<p>Run the helper with Hermes&#39; Python environment, which includes <code>ruamel.yaml</code>.
+For a standalone Python environment, install <code>ruamel.yaml==0.18.17</code> first.</p>
+<p>Dry run with full discovery:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py
+</code></pre>
+<p>When using the terminal tool, prefer an absolute invocation pattern such as:</p>
+<pre><code class="language-json">{&quot;command&quot;:&quot;python /home/USER/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py&quot;,&quot;workdir&quot;:&quot;/home/USER&quot;}
+</code></pre>
+<p>Dry run with the user-data preset:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py --preset user-data
+</code></pre>
+<p>Execute a user-data migration:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py --execute --preset user-data --skill-conflict skip
+</code></pre>
+<p>Execute a full compatible migration:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py --execute --preset full --migrate-secrets --skill-conflict skip
+</code></pre>
+<p>Execute with workspace instructions included:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/migration/openclaw-migration/scripts/openclaw_to_hermes.py --execute --preset user-data --skill-conflict rename --workspace-target &quot;/absolute/workspace/path&quot;
+</code></pre>
+<p>Do not use <code>$PWD</code> or the home directory as the workspace target by default. Ask for an explicit workspace path first.</p>
+<h3>Important rules</h3>
+<ol>
+<li>Run a dry run before writing unless the user explicitly says to proceed immediately.</li>
+<li>Do not migrate secrets by default. Tokens, auth blobs, device credentials, and raw gateway config should stay out of Hermes unless the user explicitly asks for secret migration.</li>
+<li>Do not silently overwrite non-empty Hermes targets unless the user explicitly wants that. The helper script will preserve backups when overwriting is enabled.</li>
+<li>Always give the user the skipped-items report. That report is part of the migration, not an optional extra.</li>
+<li>Prefer the primary OpenClaw workspace (<code>~/.openclaw/workspace/</code>) over <code>workspace.default/</code>. Only use the default workspace as fallback when the primary files are missing.</li>
+<li>Even in secret-migration mode, only migrate secrets with a clean Hermes destination. Unsupported auth blobs must still be reported as skipped.</li>
+<li>If the dry run shows a large asset copy, a conflicting <code>SOUL.md</code>, or overflowed memory entries, call those out separately before execution.</li>
+<li>Default to <code>user-data only</code> if the user is unsure.</li>
+<li>Only include <code>workspace-agents</code> when the user has explicitly provided a destination workspace path.</li>
+<li>Treat category-level <code>--include</code> / <code>--exclude</code> as an advanced escape hatch, not the normal flow.</li>
+<li>Do not end the dry-run summary with a vague “What would you like to do?” if <code>clarify</code> is available. Use structured follow-up prompts instead.</li>
+<li>Do not use an open-ended <code>clarify</code> prompt when a real choice prompt would work. Prefer selectable choices first, then free text only for absolute paths or file review requests.</li>
+<li>After a dry run, never stop after summarizing if there is still an unresolved decision. Use <code>clarify</code> immediately for the highest-priority blocking decision.</li>
+<li>Priority order for follow-up questions:<ul>
+<li><code>SOUL.md</code> conflict</li>
+<li>imported skill conflicts</li>
+<li>migration mode</li>
+<li>workspace instructions destination</li>
+</ul>
+</li>
+<li>Do not promise to present choices later in the same message. Present them by actually calling <code>clarify</code>.</li>
+<li>After the migration-mode answer, explicitly check whether <code>workspace-agents</code> is still unresolved. If it is, your next action must be the workspace-instructions <code>clarify</code> call.</li>
+<li>After any <code>clarify</code> answer, if another required decision remains, do not narrate what was just decided. Ask the next required question immediately.</li>
+</ol>
+<h3>Expected result</h3>
+<p>After a successful run, the user should have:</p>
+<ul>
+<li>Hermes persona state imported</li>
+<li>Hermes memory files populated with converted OpenClaw knowledge</li>
+<li>OpenClaw skills available under <code>~/.hermes/skills/openclaw-imports/</code></li>
+<li>a migration report showing any conflicts, omissions, or unsupported data</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/migration/openclaw-migration</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

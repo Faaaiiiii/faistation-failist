@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ast-grep — Skill Hermes</title>
+<meta name="description" content="AST-aware structural code search and rewrite via ast-grep.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>ast-grep</h1>
+    <p class="lede">AST-aware structural code search and rewrite via ast-grep.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>ast-grep</dd>
+      <dt>Keterangan</dt><dd>AST-aware structural code search and rewrite via ast-grep.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Yeongyu Kim (code-yeongyu), adapted by Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/ast-grep.zip" download>Muat turun ZIP (46.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (14)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.8 KB</td></tr>
+<tr><td><code>install.ps1</code></td><td class="sz">7.2 KB</td></tr>
+<tr><td><code>install.sh</code></td><td class="sz">7.4 KB</td></tr>
+<tr><td><code>LICENSE</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/cli.md</code></td><td class="sz">7.1 KB</td></tr>
+<tr><td><code>references/install.md</code></td><td class="sz">5.5 KB</td></tr>
+<tr><td><code>references/patterns.md</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>references/pitfalls.md</code></td><td class="sz">8.7 KB</td></tr>
+<tr><td><code>references/recipes.md</code></td><td class="sz">7.7 KB</td></tr>
+<tr><td><code>references/sgconfig.md</code></td><td class="sz">6.3 KB</td></tr>
+<tr><td><code>references/yaml-rules.md</code></td><td class="sz">11.1 KB</td></tr>
+<tr><td><code>scripts/ast_grep_helper.py</code></td><td class="sz">27.0 KB</td></tr>
+<tr><td><code>tests/smoke.ps1</code></td><td class="sz">5.7 KB</td></tr>
+<tr><td><code>tests/smoke.sh</code></td><td class="sz">7.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>ast-grep</h2>
+<p><code>ast-grep</code> (binary also named <code>sg</code>) is an <strong>AST-aware search and rewrite tool</strong> across 25 languages. It treats your pattern as code, parses it the same way it parses your project, and matches structurally. It is the right tool whenever your question depends on <strong>code shape</strong> rather than text bytes.</p>
+<p>This skill ships a Python wrapper at <code>scripts/ast_grep_helper.py</code> and platform install scripts at <code>install.sh</code> (POSIX) and <code>install.ps1</code> (Windows). The helper adds offline pattern validation, the two-pass write trick, and binary auto-resolution. Use it as your default entry point.</p>
+<p>Upstream source: vendored from <a href="https://github.com/code-yeongyu/ast-grep-skill">code-yeongyu/ast-grep-skill</a> (MIT), as shipped in oh-my-openagent&#39;s shared-skills bundle.</p>
+<hr>
+<h3>When to use this skill</h3>
+<p>Use it whenever the question is about <strong>code structure</strong>, not bytes:</p>
+<ul>
+<li>&quot;Find every function that takes a <code>Request</code> parameter.&quot;</li>
+<li>&quot;Rewrite every <code>console.log(x)</code> to <code>logger.info(x)</code>.&quot;</li>
+<li>&quot;Strip every <code>as any</code> cast.&quot;</li>
+<li>&quot;Replace <code>require(...)</code> with <code>import</code> across the repo.&quot;</li>
+<li>&quot;Find empty catch blocks.&quot;</li>
+<li>&quot;Migrate <code>Optional[X]</code> to <code>X | None</code>.&quot;</li>
+<li>&quot;Apply this codemod across these 200 files.&quot;</li>
+<li>&quot;Run our YAML lint rules and surface violations.&quot;</li>
+</ul>
+<p>Switch to <code>search_files</code> (or plain <code>rg</code>) when the question is text-shaped (string literal contents, comments, license headers, file names, cross-language regex). When in doubt, ask: &quot;does the answer depend on the language&#39;s syntax tree, or just on the file&#39;s bytes?&quot; If the former, ast-grep. If the latter, search_files.</p>
+<p>Hermes integration notes:</p>
+<ul>
+<li>Run the helper and <code>sg</code> through the <code>terminal</code> tool. Single-quote every pattern so the shell never expands <code>$VAR</code>.</li>
+<li>For find→read chains around matches, use <code>--json-out</code> and process with <code>execute_code</code> rather than piping through interpreters.</li>
+<li>This complements (does not replace) Hermes&#39;s <code>patch</code> tool: <code>patch</code> is for targeted edits you author; ast-grep is for pattern-driven bulk rewrites across many sites.</li>
+</ul>
+<hr>
+<h3>Three things the agent must internalize</h3>
+<h4>1. ast-grep is NOT regex</h4>
+<p>The wildcards are <code>$VAR</code> (one AST node) and <code>$$$</code> (zero or more nodes). Regex syntax fails silently:</p>
+<table>
+<thead>
+<tr>
+<th>You wrote</th>
+<th>What ast-grep saw</th>
+<th>What you wanted</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>foo|bar</code></td>
+<td>bitwise-or of <code>foo</code> and <code>bar</code></td>
+<td>run two separate searches</td>
+</tr>
+<tr>
+<td><code>.*foo</code></td>
+<td>not parseable</td>
+<td><code>$$$ foo</code> (if <code>$$$</code> is a list of nodes) or use rg</td>
+</tr>
+<tr>
+<td><code>\w+</code></td>
+<td>not parseable</td>
+<td><code>$VAR</code> to capture any identifier</td>
+</tr>
+<tr>
+<td><code>[a-z]</code></td>
+<td>character class, not parseable</td>
+<td>switch to rg</td>
+</tr>
+</tbody></table>
+<p>The full anti-pattern table is in <code>references/pitfalls.md</code> §1. The helper&#39;s <code>validate</code> subcommand catches these mechanically — call it before debugging &quot;no matches&quot; by hand.</p>
+<h4>2. Patterns must be valid code</h4>
+<p>The pattern itself must parse. <code>def $FN($$$):</code> fails because the trailing <code>:</code> makes it incomplete; use <code>def $FN($$$)</code>. <code>function $NAME</code> without params/body fails; use <code>function $NAME($$$) { $$$ }</code>. Full table per language in <code>references/pitfalls.md</code> §2.</p>
+<h4>3. <code>--update-all</code> and <code>--json</code> are mutually exclusive (silently)</h4>
+<p>This is the single biggest gotcha when scripting. <code>sg run -p P -r R --json --update-all</code> returns the JSON but <strong>does not mutate files</strong>. To both preview AND apply, run <strong>two passes</strong>:</p>
+<pre><code class="language-bash">sg run -p P -r R --json=compact .   # pass 1: see what would change
+sg run -p P -r R --update-all .     # pass 2: actually apply
+</code></pre>
+<p>The helper does this automatically when you call <code>replace --apply</code>. Read <code>references/pitfalls.md</code> §9.</p>
+<hr>
+<h3>The helper script — <code>scripts/ast_grep_helper.py</code></h3>
+<p>A single-file Python 3 stdlib wrapper. Same on every OS. The agent&#39;s default entry point.</p>
+<h4><code>search</code> — find all matches of a pattern</h4>
+<pre><code class="language-bash">python scripts/ast_grep_helper.py search &#39;console.log($MSG)&#39; --lang ts src/
+</code></pre>
+<p>Validates the pattern offline first. If the pattern looks like regex (<code>\w</code>, <code>.*</code>, <code>|</code>, etc.) the helper exits with a hint and never calls <code>sg</code> — saves a round-trip. Pass <code>--force</code> to skip validation.</p>
+<p>Flags:</p>
+<ul>
+<li><code>--lang ts</code> (or any of the 25 languages; aliases like <code>js</code>, <code>py</code>, <code>rs</code>, <code>kt</code> accepted)</li>
+<li><code>--globs &#39;!**/*.test.ts&#39;</code> (repeatable; prefix <code>!</code> to exclude)</li>
+<li><code>-C 3</code> (context lines)</li>
+<li><code>--json-out</code> (raw JSON instead of human format)</li>
+</ul>
+<h4><code>replace</code> — rewrite by pattern, dry-run by default</h4>
+<pre><code class="language-bash"># Dry-run preview (default — no files mutated)
+python scripts/ast_grep_helper.py replace &#39;console.log($MSG)&#39; &#39;logger.info($MSG)&#39; --lang ts src/
+
+# Actually apply
+python scripts/ast_grep_helper.py replace &#39;console.log($MSG)&#39; &#39;logger.info($MSG)&#39; --lang ts src/ --apply
+</code></pre>
+<p>The helper:</p>
+<ol>
+<li>Validates both <code>pattern</code> and <code>rewrite</code> for hint-detectable mistakes.</li>
+<li>Runs pass 1 with <code>--json=compact</code> to collect matches and show a preview.</li>
+<li>If <code>--apply</code> is set, runs pass 2 with <code>--update-all</code> to mutate files.</li>
+</ol>
+<h4><code>scan</code> — run YAML rules</h4>
+<pre><code class="language-bash"># Discover sgconfig.yml from cwd and run all rules
+python scripts/ast_grep_helper.py scan src/
+
+# Run a single rule file
+python scripts/ast_grep_helper.py scan -r rules/no-console.yml src/
+
+# Apply auto-fixes
+python scripts/ast_grep_helper.py scan -U src/
+
+# CI-friendly GitHub annotations
+python scripts/ast_grep_helper.py scan --report-style short src/
+</code></pre>
+<h4><code>validate</code> — offline pattern check (no <code>sg</code> call)</h4>
+<p>Useful for CI lints, pre-commit hooks, and quick sanity checks:</p>
+<pre><code class="language-bash">python scripts/ast_grep_helper.py validate &#39;\w+&#39; --lang ts
+# → exit 2: regex \w not supported. Use $VAR for identifiers.
+
+python scripts/ast_grep_helper.py validate &#39;console.log($MSG)&#39; --lang ts
+# → exit 0: pattern looks plausible for ast-grep.
+</code></pre>
+<h4><code>langs</code> / <code>doctor</code> / <code>install</code></h4>
+<pre><code class="language-bash">python scripts/ast_grep_helper.py langs       # list 25 supported languages and aliases
+python scripts/ast_grep_helper.py doctor      # check ast-grep binary availability
+python scripts/ast_grep_helper.py install     # delegate to install.sh / install.ps1
+</code></pre>
+<p><code>new</code> and <code>test</code> subcommands proxy directly to <code>sg new</code> and <code>sg test</code>.</p>
+<hr>
+<h3>Direct <code>sg</code> use (when the helper isn&#39;t enough)</h3>
+<p>The helper is opinionated. For full control, drop to <code>sg</code>. The skill ships a CLI cheat sheet in <code>references/cli.md</code>. The minimal idioms:</p>
+<pre><code class="language-bash"># Search
+sg run -p &#39;console.log($MSG)&#39; --lang ts src/
+
+# Search with JSON for scripting
+sg run -p &#39;console.log($MSG)&#39; --lang ts --json=compact src/
+
+# Rewrite, dry-run
+sg run -p &#39;console.log($MSG)&#39; -r &#39;logger.info($MSG)&#39; --lang ts --json=compact src/
+
+# Rewrite, apply
+sg run -p &#39;console.log($MSG)&#39; -r &#39;logger.info($MSG)&#39; --lang ts --update-all src/
+
+# Pattern from stdin (great for ad-hoc experiments)
+echo &#39;console.log(&quot;hi&quot;)&#39; | sg run -p &#39;console.log($MSG)&#39; --lang js --stdin
+
+# Debug a pattern that returns 0 matches
+sg run -p &#39;&lt;your pattern&gt;&#39; --lang &lt;lang&gt; --debug-query=ast --stdin &lt;&lt;&lt; &#39;&lt;sample-code&gt;&#39;
+
+# Run YAML rules
+sg scan src/
+
+# Inline YAML rule (one-off)
+sg scan --inline-rules &#39;
+id: no-todo
+language: TypeScript
+severity: warning
+rule: { pattern: TODO }&#39; src/
+</code></pre>
+<p>When using <code>sg</code> directly in a shell, <strong>always single-quote patterns</strong> so <code>$VAR</code> is not expanded by the shell.</p>
+<hr>
+<h3>Decision tree — what to use, when</h3>
+<pre><code>USER asks for &quot;find/rewrite/codemod&quot;
+│
+├─ structural pattern (function shape, call, class, import, control flow)
+│  └→ ast-grep (this skill)
+│
+├─ text pattern (regex, alternation, character classes, file names)
+│  └→ search_files / rg
+│
+├─ semantic question (what variable does this refer to? does this throw?)
+│  └→ LSP tools, TypeScript compiler, Pyright, Semgrep with type inference
+│
+└─ multiple repos / federated search
+   └→ a search engine + then ast-grep / rg / LSP per-repo
+</code></pre>
+<p>If the user says &quot;find all&quot; or &quot;every&quot;, default to ast-grep when the target is shaped (function, class, call, import, statement). Default to search_files when the target is text (string content, comment, license header, file name, identifier substring).</p>
+<hr>
+<h3>Always run dry-run first when rewriting</h3>
+<p>A bad pattern silently rewrites the wrong thing. The helper&#39;s <code>replace</code> defaults to dry-run for this reason. The flow is:</p>
+<ol>
+<li>Search to confirm matches: <code>helper search &#39;&lt;pattern&gt;&#39; --lang X .</code></li>
+<li>Dry-run rewrite: <code>helper replace &#39;&lt;pattern&gt;&#39; &#39;&lt;rewrite&gt;&#39; --lang X .</code> (no <code>--apply</code>)</li>
+<li>Inspect the dry-run summary: number of matches, files affected, the per-location preview.</li>
+<li>If wrong: refine pattern, go back to step 1.</li>
+<li>If right: <code>helper replace &#39;&lt;pattern&gt;&#39; &#39;&lt;rewrite&gt;&#39; --lang X . --apply</code>.</li>
+</ol>
+<p>Never apply a rewrite that you have not first dry-run. After an <code>--apply</code> in a git repo, review with <code>git diff --stat</code> before committing.</p>
+<hr>
+<h3>When <code>sg</code> returns 0 matches but you know the code is there</h3>
+<p>In priority order:</p>
+<ol>
+<li><strong>Run <code>helper validate &#39;&lt;pattern&gt;&#39; --lang &lt;lang&gt;</code></strong> — catches regex misuse, missing function bodies, Python trailing colons.</li>
+<li><strong>Check <code>--lang</code></strong> — <code>sg</code> infers from extension; if you pass a <code>.tsx</code> file with <code>--lang ts</code> (not <code>tsx</code>), JSX won&#39;t parse.</li>
+<li><strong>Inspect the parsed pattern</strong>: <code>sg run -p &#39;&lt;pattern&gt;&#39; --lang &lt;lang&gt; --debug-query=ast --stdin &lt;&lt;&lt; &#39;&lt;sample&gt;&#39;</code>. If it shows <code>ERROR</code> nodes, the pattern is malformed.</li>
+<li><strong>Check the AST of the target file</strong>: <code>sg run -p &#39;$_&#39; --lang &lt;lang&gt; --debug-query=cst path/to/file | head -40</code> — find the <code>kind</code> you&#39;re trying to match.</li>
+<li><strong>Try the playground</strong>: <a href="https://ast-grep.github.io/playground.html">https://ast-grep.github.io/playground.html</a> — paste code + pattern, see what&#39;s happening.</li>
+</ol>
+<p>Do not blindly retry with variations. Each failure has a reason; surface it.</p>
+<hr>
+<h3>When to use YAML rules vs inline <code>-p</code> patterns</h3>
+<p><strong>Use inline <code>-p</code></strong> when:</p>
+<ul>
+<li>One-off ad-hoc query.</li>
+<li>The pattern is simple (no constraints, no fix template).</li>
+<li>You&#39;re exploring.</li>
+</ul>
+<p><strong>Use YAML rules</strong> (file under <code>rules/</code>, run via <code>sg scan</code>) when:</p>
+<ul>
+<li>The pattern is reused (lint rule, codemod that runs in CI).</li>
+<li>You need <code>constraints</code>, <code>transform</code>, complex <code>inside</code>/<code>has</code>, or composite logic.</li>
+<li>You want auto-fix (<code>fix:</code> field).</li>
+<li>You want to test the rule (snapshot tests via <code>sg test</code>).</li>
+</ul>
+<p>The full YAML rule schema is in <code>references/yaml-rules.md</code>. Project setup (<code>sgconfig.yml</code>, <code>ruleDirs</code>, <code>utilDirs</code>) is in <code>references/sgconfig.md</code>.</p>
+<hr>
+<h3>Output discipline</h3>
+<ul>
+<li><code>sg run --json=compact</code> produces an array of match objects: <code>{ file, range: {start, end}, text, replacement?, lines, language, ... }</code>.</li>
+<li>Without <code>--json</code>, <code>sg</code> produces human-readable colored output suitable for terminals.</li>
+<li>The helper&#39;s default output is human-readable (file:line:column + match preview). Pass <code>--json-out</code> for raw JSON.</li>
+<li>The helper&#39;s <code>replace</code> always summarizes: number of matches, number of files, per-location preview.</li>
+</ul>
+<p>When summarizing for the user, <strong>always include the count of files affected</strong>, not just the count of matches. Users care about blast radius.</p>
+<hr>
+<h3>Required reading (in order of priority)</h3>
+<ol>
+<li><code>references/patterns.md</code> — meta-variables, naming rules, strictness levels. Read when you&#39;re unsure why a pattern doesn&#39;t match.</li>
+<li><code>references/pitfalls.md</code> — the failure-mode field guide. Read when 0 matches surprises you.</li>
+<li><code>references/recipes.md</code> — copy-paste patterns by language. Read first when you start a new task.</li>
+<li><code>references/cli.md</code> — <code>sg run</code>, <code>sg scan</code>, <code>sg test</code>, <code>sg new</code>, <code>sg lsp</code>. Read when the helper isn&#39;t enough.</li>
+<li><code>references/yaml-rules.md</code> — YAML rule schema. Read when you outgrow inline patterns.</li>
+<li><code>references/sgconfig.md</code> — project-level configuration. Read when you set up <code>sg scan</code> for a real project.</li>
+<li><code>references/install.md</code> — per-OS install methods. Read only if <code>install.sh</code> / <code>install.ps1</code> fail.</li>
+</ol>
+<hr>
+<h3>Invariants (do not break)</h3>
+<ul>
+<li><strong>Validate before searching.</strong> When emitting a pattern programmatically, call <code>helper validate</code> first. It catches the regex-misuse class of mistakes that account for ~70% of &quot;0 matches&quot; debug sessions.</li>
+<li><strong>Dry-run before applying.</strong> Never run <code>sg run -r ... --update-all</code> without first inspecting the matches. The helper&#39;s <code>replace</code> enforces this by default.</li>
+<li><strong>Two-pass writes.</strong> When using <code>sg</code> directly to both preview and apply, run two invocations — <code>--json</code> ignores <code>--update-all</code>.</li>
+<li><strong>Single-quote patterns in shell.</strong> <code>&#39;$VAR&#39;</code> not <code>&quot;$VAR&quot;</code>. The shell expands <code>$VAR</code> to the empty string in double quotes, breaking the pattern.</li>
+<li><strong>Pattern is code, not regex.</strong> When the pattern would need <code>|</code>, <code>.*</code>, <code>\w</code>, or <code>[a-z]</code>, switch to search_files instead. Don&#39;t try to force ast-grep into a regex shape.</li>
+<li><strong><code>--lang</code> is required for stdin.</strong> When piping with <code>--stdin</code>, set <code>--lang</code> explicitly; <code>sg</code> cannot infer from extension.</li>
+<li><strong>Linux: prefer <code>ast-grep</code> over <code>sg</code></strong> because <code>sg</code> collides with <code>setgroups</code> from <code>util-linux</code>. The helper handles this; if you call <code>sg</code> directly, alias it: <code>alias sg=ast-grep</code>.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/software-development/ast-grep</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

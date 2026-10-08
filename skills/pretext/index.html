@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pretext — Skill Hermes</title>
+<meta name="description" content="Build creative browser demos with DOM-free text layout.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pretext</h1>
+    <p class="lede">Build creative browser demos with DOM-free text layout.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pretext</dd>
+      <dt>Keterangan</dt><dd>Build creative browser demos with DOM-free text layout.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pretext.zip" download>Muat turun ZIP (28.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.7 KB</td></tr>
+<tr><td><code>references/patterns.md</code></td><td class="sz">10.2 KB</td></tr>
+<tr><td><code>templates/donut-orbit.html</code></td><td class="sz">52.0 KB</td></tr>
+<tr><td><code>templates/hello-orb-flow.html</code></td><td class="sz">3.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Pretext Creative Demos</h2>
+<h3>Overview</h3>
+<p><a href="https://github.com/chenglou/pretext"><code>@chenglou/pretext</code></a> is a 15KB zero-dependency TypeScript library by Cheng Lou (React core, ReasonML, Midjourney) for <strong>DOM-free multiline text measurement and layout</strong>. It does one thing: given <code>(text, font, width)</code>, return the line breaks, per-line widths, per-grapheme positions, and total height — all via canvas measurement, no reflow.</p>
+<p>That sounds like plumbing. It is not. Because it is fast and geometric, it is a <strong>creative primitive</strong>: you can reflow paragraphs around a moving sprite at 60fps, build games whose level geometry is made of real words, drive ASCII logos through prose, shatter text into particles with exact per-grapheme starting positions, or pack shrink-wrapped multiline UI without any <code>getBoundingClientRect</code> thrash.</p>
+<p>This skill exists so Hermes can make <strong>cool demos</strong> with it — the kind people post to X. See <code>pretext.cool</code> and <code>chenglou.me/pretext</code> for the community demo corpus.</p>
+<h3>When to Use</h3>
+<p>Use when the user asks for:</p>
+<ul>
+<li>A &quot;pretext demo&quot; / &quot;cool pretext thing&quot; / &quot;text-as-X&quot;</li>
+<li>Text flowing around a moving shape (hero sections, editorial layouts, animated long-form pages)</li>
+<li>ASCII-art effects using <strong>real words or prose</strong>, not monospace rasters</li>
+<li>Games where the playfield / obstacles / bricks are made of text (Tetris-from-letters, Breakout-of-prose)</li>
+<li>Kinetic typography with per-glyph physics (shatter, scatter, flock, flow)</li>
+<li>Typographic generative art, especially with non-Latin scripts or mixed scripts</li>
+<li>Multiline &quot;shrink-wrap&quot; UI (smallest container width that still fits the text)</li>
+<li>Anything that would require knowing line breaks <em>before</em> rendering</li>
+</ul>
+<p>Don&#39;t use for:</p>
+<ul>
+<li>Static SVG/HTML pages where CSS already solves layout — just use CSS</li>
+<li>Rich text editors, general inline formatting engines (pretext is intentionally narrow)</li>
+<li>Image → text (use <code>ascii-art</code> / <code>ascii-video</code> skills)</li>
+<li>Pure canvas generative art with no text role — use <code>p5js</code></li>
+</ul>
+<h3>Creative Standard</h3>
+<p>This is visual art rendered in a browser. Pretext returns numbers; <strong>you</strong> draw the thing.</p>
+<ul>
+<li><strong>Don&#39;t ship a &quot;hello world&quot; demo.</strong> The <code>hello-orb-flow.html</code> template is the <em>starting</em> point. Every delivered demo must add intentional color, motion, composition, and one visual detail the user didn&#39;t ask for but will appreciate.</li>
+<li><strong>Dark backgrounds, warm cores, considered palette.</strong> Classic amber-on-black (CRT / terminal) works, but so do cold-white-on-charcoal (editorial) and desaturated pastels (risograph). Pick one and commit.</li>
+<li><strong>Proportional fonts are the point.</strong> Pretext&#39;s whole vibe is &quot;not monospaced&quot; — lean into it. Use Iowan Old Style, Inter, JetBrains Mono, Helvetica Neue, or a variable font. Never default sans.</li>
+<li><strong>Real source/text, not lorem ipsum.</strong> The corpus should mean something. Short manifestos, poetry, real source code, a found text, the library&#39;s own README — never <code>lorem ipsum</code>.</li>
+<li><strong>First-paint excellence.</strong> No loading states, no blank frames. The demo must look shippable the instant it opens.</li>
+</ul>
+<h3>Stack</h3>
+<p>Single self-contained HTML file per demo. No build step.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core</td>
+<td><code>@chenglou/pretext</code> via <code>esm.sh</code> CDN</td>
+<td>Text measurement + line layout</td>
+</tr>
+<tr>
+<td>Render</td>
+<td>HTML5 Canvas 2D</td>
+<td>Glyph rendering, per-frame composition</td>
+</tr>
+<tr>
+<td>Segmentation</td>
+<td><code>Intl.Segmenter</code> (built-in)</td>
+<td>Grapheme splitting for emoji / CJK / combining marks</td>
+</tr>
+<tr>
+<td>Interaction</td>
+<td>Raw DOM events</td>
+<td>Mouse / touch / wheel — no framework</td>
+</tr>
+</tbody></table>
+<pre><code class="language-html">&lt;script type=&quot;module&quot;&gt;
+import {
+  prepare, layout,                   // use-case 1: simple height
+  prepareWithSegments, layoutWithLines,  // use-case 2a: fixed-width lines
+  layoutNextLineRange, materializeLineRange, // use-case 2b: streaming / variable width
+  measureLineStats, walkLineRanges,  // stats without string allocation
+} from &quot;https://esm.sh/@chenglou/pretext@0.0.6&quot;;
+&lt;/script&gt;
+</code></pre>
+<p>Pin the version. <code>@0.0.6</code> at time of writing — check <a href="https://www.npmjs.com/package/@chenglou/pretext">npm</a> for the latest if demo behavior is off.</p>
+<h3>The Two Use Cases</h3>
+<p>Almost everything reduces to one of these two shapes. Learn both.</p>
+<h4>Use-case 1 — measure, then render with CSS/DOM</h4>
+<pre><code class="language-js">const prepared = prepare(text, &quot;16px Inter&quot;);
+const { height, lineCount } = layout(prepared, 320, 20);
+</code></pre>
+<p>You still let the browser draw the text. Pretext just tells you how tall the box will be at a given width, <strong>without</strong> a DOM read. Use for:</p>
+<ul>
+<li>Virtualized lists where rows contain wrapping text</li>
+<li>Masonry with precise card heights</li>
+<li>&quot;Does this label fit?&quot; dev-time checks</li>
+<li>Preventing layout shift when remote text loads</li>
+</ul>
+<p><strong>Keep <code>font</code> and <code>letterSpacing</code> exactly in sync with your CSS.</strong> The canvas <code>ctx.font</code> format (e.g. <code>&quot;16px Inter&quot;</code>, <code>&quot;500 17px &#39;JetBrains Mono&#39;&quot;</code>) must match the rendered CSS, or measurements drift.</p>
+<h4>Use-case 2 — measure <em>and</em> render yourself</h4>
+<pre><code class="language-js">const prepared = prepareWithSegments(text, FONT);
+const { lines } = layoutWithLines(prepared, 320, 26);
+for (let i = 0; i &lt; lines.length; i++) {
+  ctx.fillText(lines[i].text, 0, i * 26);
+}
+</code></pre>
+<p>This is where the creative work lives. You own the drawing, so you can:</p>
+<ul>
+<li>Render to canvas, SVG, WebGL, or any coordinate system</li>
+<li>Substitute per-glyph transforms (rotation, jitter, scale, opacity)</li>
+<li>Use line metadata (width, grapheme positions) as geometry</li>
+</ul>
+<p>For <strong>variable-width-per-line</strong> flow (text around a shape, text in a donut band, text in a non-rectangular column):</p>
+<pre><code class="language-js">let cursor = { segmentIndex: 0, graphemeIndex: 0 };
+let y = 0;
+while (true) {
+  const lineWidth = widthAtY(y);  // your function: how wide is the corridor at this y?
+  const range = layoutNextLineRange(prepared, cursor, lineWidth);
+  if (!range) break;
+  const line = materializeLineRange(prepared, range);
+  ctx.fillText(line.text, leftEdgeAtY(y), y);
+  cursor = range.end;
+  y += lineHeight;
+}
+</code></pre>
+<p>This is the most important pattern in the whole library. It&#39;s what unlocks &quot;text flowing around a dragged sprite&quot; — the demo that went viral on X.</p>
+<h4>Helpers worth knowing</h4>
+<ul>
+<li><code>measureLineStats(prepared, maxWidth)</code> → <code>{ lineCount, maxLineWidth }</code> — the widest line, i.e. multiline shrink-wrap width.</li>
+<li><code>walkLineRanges(prepared, maxWidth, callback)</code> — iterate lines without allocating strings. Use for stats/physics over graphemes when you don&#39;t need the characters.</li>
+<li><code>@chenglou/pretext/rich-inline</code> — the same system but for paragraphs mixing fonts / chips / mentions. Import from the subpath.</li>
+</ul>
+<h3>Demo Recipe Patterns</h3>
+<p>The community corpus (see <code>references/patterns.md</code>) clusters into a handful of strong patterns. Pick one and riff — don&#39;t invent a new category unless asked.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Key API</th>
+<th>Example idea</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Reflow around obstacle</strong></td>
+<td><code>layoutNextLineRange</code> + per-row width function</td>
+<td>Editorial paragraph that parts around a dragged cursor sprite</td>
+</tr>
+<tr>
+<td><strong>Text-as-geometry game</strong></td>
+<td><code>layoutWithLines</code> + per-line collision rects</td>
+<td>Breakout where each brick is a measured word</td>
+</tr>
+<tr>
+<td><strong>Shatter / particles</strong></td>
+<td><code>walkLineRanges</code> → per-grapheme (x,y) → physics</td>
+<td>Sentence that explodes into letters on click</td>
+</tr>
+<tr>
+<td><strong>ASCII obstacle typography</strong></td>
+<td><code>layoutNextLineRange</code> + measured per-row obstacle spans</td>
+<td>Bitmap ASCII logo, shape morphs, and draggable wire objects that make text open around their actual geometry</td>
+</tr>
+<tr>
+<td><strong>Editorial multi-column</strong></td>
+<td><code>layoutNextLineRange</code> per column + shared cursor</td>
+<td>Animated magazine spread with pull quotes</td>
+</tr>
+<tr>
+<td><strong>Kinetic type</strong></td>
+<td><code>layoutWithLines</code> + per-line transform over time</td>
+<td>Star Wars crawl, wave, bounce, glitch</td>
+</tr>
+<tr>
+<td><strong>Multiline shrink-wrap</strong></td>
+<td><code>measureLineStats</code></td>
+<td>Quote card that auto-sizes to its tightest container</td>
+</tr>
+</tbody></table>
+<p>See <code>templates/donut-orbit.html</code> and <code>templates/hello-orb-flow.html</code> for working single-file starters.</p>
+<h3>Workflow</h3>
+<ol>
+<li><strong>Pick a pattern</strong> from the table above based on the user&#39;s brief.</li>
+<li><strong>Start from a template</strong>:<ul>
+<li><code>templates/hello-orb-flow.html</code> — text reflowing around a moving orb (reflow-around-obstacle pattern)</li>
+<li><code>templates/donut-orbit.html</code> — advanced example: measured ASCII logo obstacles, draggable wire sphere/cube, morphing shape fields, selectable DOM text, and dev-only controls</li>
+<li><code>write_file</code> to a new <code>.html</code> in <code>~/.hermes/cache/scratch/</code> or the user&#39;s workspace.</li>
+</ul>
+</li>
+<li><strong>Swap the corpus</strong> for something intentional to the brief. Real prose, 10-100 sentences, no lorem.</li>
+<li><strong>Tune the aesthetic</strong> — font, palette, composition, interaction. This is the work; don&#39;t skip it.</li>
+<li><strong>Verify locally</strong>:<pre><code class="language-sh">cd &lt;dir-with-html&gt; &amp;&amp; python -m http.server 8765
+# then open http://localhost:8765/&lt;file&gt;.html
+</code></pre>
+</li>
+<li><strong>Check the console</strong> — pretext will throw if <code>prepareWithSegments</code> is called with a bad font string; <code>Intl.Segmenter</code> is available in every modern browser.</li>
+<li><strong>Show the user the file path</strong>, not just the code — they want to open it.</li>
+</ol>
+<h3>Performance Notes</h3>
+<ul>
+<li><code>prepare()</code> / <code>prepareWithSegments()</code> is the expensive call. Do it <strong>once</strong> per text+font pair. Cache the handle.</li>
+<li>On resize, only rerun <code>layout()</code> / <code>layoutWithLines()</code> — never re-prepare.</li>
+<li>For per-frame animations where text doesn&#39;t change but geometry does, <code>layoutNextLineRange</code> in a tight loop is cheap enough to do every frame at 60fps for normal-length paragraphs.</li>
+<li>When rendering ASCII masks per frame, keep a cell buffer (<code>Uint8Array</code>/typed arrays), derive measured per-row obstacle spans from the cells or projected geometry, merge spans, then feed those spans into <code>layoutNextLineRange</code> before drawing text.</li>
+<li>Keep visual animation and layout animation coupled. If a sphere morphs into a cube, tween both the rendered cell buffer and the obstacle spans with the same value; otherwise the demo looks painted-on instead of physically reflowed.</li>
+<li>For fades, prefer layer opacity over changing glyph intensity or obstacle scale. Put transient ASCII sprites on their own canvas and fade the canvas with CSS/GSAP opacity so geometry does not appear to shrink.</li>
+<li>Canvas <code>ctx.font</code> setting is surprisingly slow; set it <strong>once</strong> per frame if font doesn&#39;t vary, not per <code>fillText</code> call.</li>
+</ul>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><p><strong>Drifting CSS/canvas font strings.</strong> <code>ctx.font = &quot;16px Inter&quot;</code> measured, but CSS says <code>font-family: Inter, sans-serif; font-size: 16px</code>. Fine <em>if</em> Inter loads. If Inter 404s, CSS falls back to sans-serif and measurements drift by 5-20%. Always <code>preload</code> the font or use a web-safe family.</p>
+</li>
+<li><p><strong>Re-preparing inside the animation loop.</strong> Only <code>layout*</code> is cheap. Re-calling <code>prepare</code> every frame will tank perf. Keep the prepared handle in module scope.</p>
+</li>
+<li><p><strong>Forgetting <code>Intl.Segmenter</code> for grapheme splits.</strong> Emoji, combining marks, CJK — <code>&quot;é&quot;.split(&quot;&quot;)</code> gives you two chars. Use <code>new Intl.Segmenter(undefined, { granularity: &quot;grapheme&quot; })</code> when sampling individual visible glyphs.</p>
+</li>
+<li><p><strong><code>break: &#39;never&#39;</code> chips without <code>extraWidth</code>.</strong> In <code>rich-inline</code>, if you use <code>break: &#39;never&#39;</code> for an atomic chip/mention, you must also supply <code>extraWidth</code> for the pill padding — otherwise chip chrome overflows the container.</p>
+</li>
+<li><p><strong>Using <code>@chenglou/pretext</code> from <code>unpkg</code> with TypeScript-only entry.</strong> Use <code>esm.sh</code> — it compiles the TS exports to browser-ready ESM automatically. <code>unpkg</code> will 404 or serve raw TS.</p>
+</li>
+<li><p><strong>Monospace fallbacks silently erasing the whole point.</strong> Users seeing monospace-looking output often have a CSS <code>font-family</code> that fell through to <code>monospace</code>. Verify the actual rendered font via DevTools.</p>
+</li>
+<li><p><strong>Skipping rows vs adjusting width</strong> when flowing around a shape. If the corridor on this row is too narrow to fit a line, <em>skip the row</em> (<code>y += lineHeight; continue;</code>) rather than passing a tiny maxWidth to <code>layoutNextLineRange</code> — pretext will return one-grapheme lines that look broken.</p>
+</li>
+<li><p><strong>Shipping a cold demo.</strong> The default first-paint looks tutorial-grade. Add: vignette, subtle scanline, idle auto-motion, one carefully chosen interactive response (drag, hover, scroll, click). Without these, &quot;cool pretext demo&quot; lands as &quot;intern repro of the README.&quot;</p>
+</li>
+</ol>
+<h3>Verification Checklist</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Demo is a single self-contained <code>.html</code> file — opens by double-click or <code>python -m http.server</code></li>
+<li><input disabled="" type="checkbox"> <code>@chenglou/pretext</code> imported via <code>esm.sh</code> with pinned version</li>
+<li><input disabled="" type="checkbox"> Corpus is real prose, not lorem ipsum, and matches the demo&#39;s concept</li>
+<li><input disabled="" type="checkbox"> Font string passed to <code>prepare</code> matches the CSS font exactly</li>
+<li><input disabled="" type="checkbox"> <code>prepare()</code> / <code>prepareWithSegments()</code> called once, not per frame</li>
+<li><input disabled="" type="checkbox"> Dark background + considered palette — not the default white canvas</li>
+<li><input disabled="" type="checkbox"> At least one interactive response (drag / hover / scroll / click) or idle auto-motion</li>
+<li><input disabled="" type="checkbox"> Tested locally with <code>python -m http.server</code> and confirmed no console errors</li>
+<li><input disabled="" type="checkbox"> 60fps on a mid-tier laptop (or graceful degradation documented)</li>
+<li><input disabled="" type="checkbox"> One &quot;extra mile&quot; detail the user didn&#39;t ask for</li>
+</ul>
+<h3>Reference: Community Demos</h3>
+<p>Clone these for inspiration / patterns (all MIT-ish, linked from <a href="https://www.pretext.cool/">pretext.cool</a>):</p>
+<ul>
+<li><strong>Pretext Breaker</strong> — breakout with word-bricks — <code>github.com/rinesh/pretext-breaker</code></li>
+<li><strong>Tetris × Pretext</strong> — <code>github.com/shinichimochizuki/tetris-pretext</code></li>
+<li><strong>Dragon animation</strong> — <code>github.com/qtakmalay/PreTextExperiments</code></li>
+<li><strong>Somnai editorial engine</strong> — <code>github.com/somnai-dreams/pretext-demos</code></li>
+<li><strong>Bad Apple!! ASCII</strong> — <code>github.com/frmlinn/bad-apple-pretext</code></li>
+<li><strong>Drag-sprite reflow</strong> — <code>github.com/dokobot/pretext-demo</code></li>
+<li><strong>Alarmy editorial clock</strong> — <code>github.com/SmisLee/alarmy-pretext-demo</code></li>
+</ul>
+<p>Official playground: <a href="https://chenglou.me/pretext/">chenglou.me/pretext</a> — accordion, bubbles, dynamic-layout, editorial-engine, justification-comparison, masonry, markdown-chat, rich-note.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/pretext</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

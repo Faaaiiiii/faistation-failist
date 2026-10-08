@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>jupyter-notebook — Skill Hermes</title>
+<meta name="description" content="Iterative Python via live Jupyter kernel (hamelnb).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>jupyter-notebook</h1>
+    <p class="lede">Iterative Python via live Jupyter kernel (hamelnb).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>jupyter-notebook</dd>
+      <dt>Keterangan</dt><dd>Iterative Python via live Jupyter kernel (hamelnb).</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>data-science · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/jupyter-notebook.zip" download>Muat turun ZIP (2.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.9 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Jupyter Notebook (hamelnb live kernel)</h2>
+<p>Gives you a <strong>stateful Python REPL</strong> via a live Jupyter kernel. Variables persist
+across executions. Use this instead of <code>execute_code</code> when you need to build up
+state incrementally, explore APIs, inspect DataFrames, or iterate on complex code.</p>
+<h3>When to Use This vs Other Tools</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>This skill</strong></td>
+<td>Iterative exploration, state across steps, data science, ML, &quot;let me try this and check&quot;</td>
+</tr>
+<tr>
+<td><code>execute_code</code></td>
+<td>One-shot scripts needing hermes tool access (web_search, file ops). Stateless.</td>
+</tr>
+<tr>
+<td><code>terminal</code></td>
+<td>Shell commands, builds, installs, git, process management</td>
+</tr>
+</tbody></table>
+<p><strong>Rule of thumb:</strong> If you&#39;d want a Jupyter notebook for the task, use this skill.</p>
+<h3>Prerequisites</h3>
+<ol>
+<li><strong>uv</strong> must be installed (check: <code>which uv</code>)</li>
+<li><strong>JupyterLab</strong> must be installed: <code>uv tool install jupyterlab</code></li>
+<li>A Jupyter server must be running (see Setup below)</li>
+</ol>
+<h3>Setup</h3>
+<p>The hamelnb script location:</p>
+<pre><code>SCRIPT=&quot;$HOME/.agent-skills/hamelnb/skills/jupyter-live-kernel/scripts/jupyter_live_kernel.py&quot;
+</code></pre>
+<p>If not cloned yet:</p>
+<pre><code>git clone https://github.com/hamelsmu/hamelnb.git ~/.agent-skills/hamelnb
+</code></pre>
+<h4>Starting JupyterLab</h4>
+<p>Check if a server is already running:</p>
+<pre><code>uv run &quot;$SCRIPT&quot; servers
+</code></pre>
+<p>If no servers found, start one:</p>
+<pre><code>jupyter-lab --no-browser --port=8888 --notebook-dir=$HOME/notebooks \
+  --IdentityProvider.token=&#39;&#39; --ServerApp.password=&#39;&#39; &gt; ~/.hermes/cache/scratch/jupyter.log 2&gt;&amp;1 &amp;
+sleep 3
+</code></pre>
+<p>Note: Token/password disabled for local agent access. The server runs headless.</p>
+<h4>Creating a Notebook for REPL Use</h4>
+<p>If you just need a REPL (no existing notebook), create a minimal notebook file:</p>
+<pre><code>mkdir -p ~/notebooks
+</code></pre>
+<p>Write a minimal .ipynb JSON file with one empty code cell, then start a kernel
+session via the Jupyter REST API:</p>
+<pre><code>curl -s -X POST http://127.0.0.1:8888/api/sessions \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;path&quot;:&quot;scratch.ipynb&quot;,&quot;type&quot;:&quot;notebook&quot;,&quot;name&quot;:&quot;scratch.ipynb&quot;,&quot;kernel&quot;:{&quot;name&quot;:&quot;python&quot;}}&#39;
+</code></pre>
+<h3>Core Workflow</h3>
+<p>All commands return structured JSON. Always use <code>--compact</code> to save tokens.</p>
+<h4>1. Discover servers and notebooks</h4>
+<pre><code>uv run &quot;$SCRIPT&quot; servers --compact
+uv run &quot;$SCRIPT&quot; notebooks --compact
+</code></pre>
+<h4>2. Execute code (primary operation)</h4>
+<pre><code>uv run &quot;$SCRIPT&quot; execute --path &lt;notebook.ipynb&gt; --code &#39;&lt;python code&gt;&#39; --compact
+</code></pre>
+<p>State persists across execute calls. Variables, imports, objects all survive.</p>
+<p>Multi-line code works with $&#39;...&#39; quoting:</p>
+<pre><code>uv run &quot;$SCRIPT&quot; execute --path scratch.ipynb --code $&#39;import os\nfiles = os.listdir(&quot;.&quot;)\nprint(f&quot;Found {len(files)} files&quot;)&#39; --compact
+</code></pre>
+<h4>3. Inspect live variables</h4>
+<pre><code>uv run &quot;$SCRIPT&quot; variables --path &lt;notebook.ipynb&gt; list --compact
+uv run &quot;$SCRIPT&quot; variables --path &lt;notebook.ipynb&gt; preview --name &lt;varname&gt; --compact
+</code></pre>
+<h4>4. Edit notebook cells</h4>
+<pre><code># View current cells
+uv run &quot;$SCRIPT&quot; contents --path &lt;notebook.ipynb&gt; --compact
+
+# Insert a new cell
+uv run &quot;$SCRIPT&quot; edit --path &lt;notebook.ipynb&gt; insert \
+  --at-index &lt;N&gt; --cell-type code --source &#39;&lt;code&gt;&#39; --compact
+
+# Replace cell source (use cell-id from contents output)
+uv run &quot;$SCRIPT&quot; edit --path &lt;notebook.ipynb&gt; replace-source \
+  --cell-id &lt;id&gt; --source &#39;&lt;new code&gt;&#39; --compact
+
+# Delete a cell
+uv run &quot;$SCRIPT&quot; edit --path &lt;notebook.ipynb&gt; delete --cell-id &lt;id&gt; --compact
+</code></pre>
+<h4>5. Verification (restart + run all)</h4>
+<p>Only use when the user asks for a clean verification or you need to confirm
+the notebook runs top-to-bottom:</p>
+<pre><code>uv run &quot;$SCRIPT&quot; restart-run-all --path &lt;notebook.ipynb&gt; --save-outputs --compact
+</code></pre>
+<h3>Practical Tips from Experience</h3>
+<ol>
+<li><p><strong>First execution after server start may timeout</strong> — the kernel needs a moment
+to initialize. If you get a timeout, just retry.</p>
+</li>
+<li><p><strong>The kernel Python is JupyterLab&#39;s Python</strong> — packages must be installed in
+that environment. If you need additional packages, install them into the
+JupyterLab tool environment first.</p>
+</li>
+<li><p><strong>--compact flag saves significant tokens</strong> — always use it. JSON output can
+be very verbose without it.</p>
+</li>
+<li><p><strong>For pure REPL use</strong>, create a scratch.ipynb and don&#39;t bother with cell editing.
+Just use <code>execute</code> repeatedly.</p>
+</li>
+<li><p><strong>Argument order matters</strong> — subcommand flags like <code>--path</code> go BEFORE the
+sub-subcommand. E.g.: <code>variables --path nb.ipynb list</code> not <code>variables list --path nb.ipynb</code>.</p>
+</li>
+<li><p><strong>If a session doesn&#39;t exist yet</strong>, you need to start one via the REST API
+(see Setup section). The tool can&#39;t execute without a live kernel session.</p>
+</li>
+<li><p><strong>Errors are returned as JSON</strong> with traceback — read the <code>ename</code> and <code>evalue</code>
+fields to understand what went wrong.</p>
+</li>
+<li><p><strong>Occasional websocket timeouts</strong> — some operations may timeout on first try,
+especially after a kernel restart. Retry once before escalating.</p>
+</li>
+<li><p><strong>If websocket consistently times out on this host</strong>, force zmq transport:
+<code>uv run &quot;$SCRIPT&quot; execute --transport zmq ...</code>. Symptom: every execute returns
+&quot;Websocket execution may already have reached the kernel, so auto fallback was
+skipped&quot;. The kernel actually ran fine (REST shows execution_state=idle and
+execution_count increments) — only the websocket reply channel is broken.
+zmq transport uses jupyter_client directly and sidesteps the issue.</p>
+</li>
+<li><p><strong>When starting a fresh server for REST-only use</strong>, add
+<code>--ServerApp.disable_check_xsrf=True</code> — otherwise POST /api/sessions returns
+<code>&quot;&#39;_xsrf&#39; argument missing from POST&quot;</code> and kernel session creation fails.</p>
+</li>
+</ol>
+<h3>Timeout Defaults</h3>
+<p>The script has a 30-second default timeout per execution. For long-running
+operations, pass <code>--timeout 120</code>. Use generous timeouts (60+) for initial
+setup or heavy computation.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/data-science/jupyter-notebook</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

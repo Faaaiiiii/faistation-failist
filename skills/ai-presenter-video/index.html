@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ai-presenter-video — Skill Hermes</title>
+<meta name="description" content="Make a verified AI presenter video from script + image.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>ai-presenter-video</h1>
+    <p class="lede">Make a verified AI presenter video from script + image.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>ai-presenter-video</dd>
+      <dt>Keterangan</dt><dd>Make a verified AI presenter video from script + image.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>cclank (https://github.com/cclank/lanshu-create-ai-presenter-video), ported by Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/ai-presenter-video.zip" download>Muat turun ZIP (19.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (9)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.1 KB</td></tr>
+<tr><td><code>assets/job.template.json</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>LICENSE</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/editing.md</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>references/generation.md</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>references/qa-recovery.md</code></td><td class="sz">3.7 KB</td></tr>
+<tr><td><code>scripts/finalize_delivery.sh</code></td><td class="sz">6.8 KB</td></tr>
+<tr><td><code>scripts/init_job.py</code></td><td class="sz">5.3 KB</td></tr>
+<tr><td><code>scripts/preflight.py</code></td><td class="sz">7.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>AI Presenter Video</h2>
+<p>Turn a topic (or finished script) plus ONE authorized adult presenter image
+into a complete, publish-ready presenter-led video: locked narration, avatar
+generation with lip-sync QA, captions, deterministic editing, loudness-normalized
+master/share encodes, and machine + visual acceptance reports.</p>
+<p>Use this skill for new presenter videos AND for continuing, revising,
+captioning, lip-sync-repairing, or re-exporting an existing presenter-video
+job. The workflow is provider-neutral: pick generation capabilities from what
+is actually available in the session (FAL video/image models via
+<code>image_generate</code> and the video-gen plugin, TTS via <code>text_to_speech</code>, ASR via
+the whisper/STT tooling, ffmpeg for everything deterministic).</p>
+<blockquote>
+<p>Ported from cclank/lanshu-create-ai-presenter-video (MIT). Upstream body
+kept substantively verbatim in <code>references/</code>; Hermes adaptations live in
+this hub file. Scripts are deterministic (no network, no credentials).</p>
+</blockquote>
+<h3>Hermes adaptations (read first)</h3>
+<ul>
+<li><p><strong>Skill dir resolution</strong> — upstream hardcoded its own agent&#39;s skills path.
+In Hermes the loader expands <code>${HERMES_SKILL_DIR}</code> to this skill&#39;s installed
+directory, so every command below uses that token directly:</p>
+<pre><code class="language-bash">SKILL_DIR=&quot;${HERMES_SKILL_DIR}&quot;
+</code></pre>
+<p>Shell variables do not persist between tool calls — re-paste the assignment
+(or the expanded path) in each terminal call that uses it.</p>
+</li>
+<li><p><strong>Capability mapping</strong> — where the references say &quot;a voice generation
+capability&quot;, use <code>text_to_speech</code> (OpenAI/Edge/ElevenLabs per user config);
+&quot;presenter/avatar generation&quot; → FAL image-to-video families (Kling, Wan,
+MiniMax H3 etc.) through the configured video tooling, or an avatar/lipsync
+endpoint the user has access to; &quot;word-timestamp ASR&quot; → whisper via the STT
+tooling or <code>faster-whisper</code> in a venv; &quot;deterministic compositor&quot; → ffmpeg
+filtergraphs, or the <code>hyperframes</code> skill when installed (the editing
+reference has a HyperFrames section that maps directly onto it).</p>
+</li>
+<li><p><strong>Visual QA</strong> — do the &quot;normal-speed visual review&quot; steps with
+<code>vision_analyze</code> on the generated contact sheet plus sampled frames
+(identity, mouth timing, hands, blinking, continuity). Numeric checks come
+from the scripts&#39; ffprobe output.</p>
+</li>
+<li><p><strong>Paid-generation consent</strong> — remote avatar/TTS generation is billable.
+Follow the upstream operating rules: before the first paid call state the
+uploaded assets, requested seconds, known cost, pilot size, and retry
+ceiling, and get the user&#39;s explicit go-ahead. Never upload the presenter
+image to a remote provider before <code>remote_upload_approved</code> is true in
+<code>job.json</code>.</p>
+</li>
+<li><p><strong>Consent flags live under <code>input</code></strong> — <code>rights_confirmed</code>,
+<code>adult_presenter_confirmed</code>, <code>remote_upload_approved</code>, and
+<code>voice_clone_approved</code> sit inside the <code>input</code> object of <code>job.json</code> (init
+flags set them; hand-editing must target <code>input.*</code>, not the job root).
+<code>manual_input_review.*</code> sits at the root. <code>preflight.py</code> distinguishes
+<code>errors</code> (block everything) from <code>remote_blockers</code> (block only remote
+generation) — local script/audio work may proceed while remote is blocked.</p>
+</li>
+</ul>
+<h3>Workflow</h3>
+<ol>
+<li><p><strong>Start or resume a job.</strong> New job:</p>
+<pre><code class="language-bash">python3 &quot;$SKILL_DIR/scripts/init_job.py&quot; \
+  --job-dir ~/Videos/my-presenter-video \
+  --presenter-image /path/to/presenter.png \
+  --topic &quot;explain context engineering in one minute&quot; \
+  --duration 60 --aspect 9:16 \
+  --rights-confirmed --adult-presenter-confirmed
+</code></pre>
+<p>Use <code>--script</code> for an existing script file; other flags: <code>--voice-sample</code>,
+<code>--supporting-media</code>, <code>--width</code>, <code>--height</code>, <code>--fps</code>, <code>--watermark</code>,
+<code>--cta</code>. For an existing job, read <code>job.json</code> + QA reports and resume from
+the earliest unfinished state — never regenerate accepted work.</p>
+</li>
+<li><p><strong>Manual input review.</strong> Actually look at the presenter image
+(<code>vision_analyze</code>) and listen to any voice sample; record findings by
+setting the <code>manual_input_review</code> booleans in <code>job.json</code>, e.g.:</p>
+<pre><code class="language-bash">python3 - &lt;&lt;&#39;PY&#39;
+import json
+p = &quot;~/Videos/my-presenter-video/job.json&quot;  # expand ~ or use an absolute path
+import os; p = os.path.expanduser(p)
+j = json.load(open(p))
+j[&quot;manual_input_review&quot;].update(image_viewed=True, single_clear_face=True,
+                                image_has_no_unwanted_text=True)
+json.dump(j, open(p, &quot;w&quot;), indent=2)
+PY
+</code></pre>
+<p>Then gate:</p>
+<pre><code class="language-bash">python3 &quot;$SKILL_DIR/scripts/preflight.py&quot; ~/Videos/my-presenter-video/job.json
+</code></pre>
+<p>Proceed only when <code>ok: true</code>; do remote generation only when
+<code>remote_ready: true</code>. Note: preflight also updates <code>job.json</code> in place
+(records the report path) — re-read it after running rather than editing
+a stale copy.</p>
+</li>
+<li><p><strong>Lock content and audio</strong> — read <code>references/generation.md</code>. Script →
+full narration via <code>text_to_speech</code> → ASR-verify the narration against the
+script → record real durations. The locked audio is the master clock for
+everything downstream.</p>
+</li>
+<li><p><strong>Plan and generate the presenter</strong> — read <code>references/generation.md</code>.
+Short low-cost pilot first; full run only after the pilot passes identity
+and mouth-timing review.</p>
+</li>
+<li><p><strong>Edit</strong> — read <code>references/editing.md</code>. Deterministic timeline driven by
+the locked audio; captions and keyword callouts only after audio and media
+are final.</p>
+</li>
+<li><p><strong>Verify and deliver</strong> — read <code>references/qa-recovery.md</code>, render, then:</p>
+<pre><code class="language-bash">bash &quot;$SKILL_DIR/scripts/finalize_delivery.sh&quot; \
+  ~/Videos/my-presenter-video/renders/rendered.mp4 \
+  ~/Videos/my-presenter-video/outputs my-video
+</code></pre>
+<p>The finalizer preserves aspect ratio, runs two-pass loudness normalization
+(program ≈ −16 LUFS), produces master + share encodes, decode-verifies
+both, writes a delivery report JSON, and emits a nine-frame contact sheet.
+Inspect the contact sheet with <code>vision_analyze</code> before claiming completion.</p>
+</li>
+</ol>
+<h3>Operating rules (non-negotiable)</h3>
+<ul>
+<li>Confirm image rights, adult status, remote-upload approval, and
+voice-cloning authorization before the relevant remote action.</li>
+<li>Never infer or clone a real person&#39;s voice from an image; use an authorized
+sample or a stock TTS voice.</li>
+<li>Lock the complete narration before presenter generation, caption timing, or
+final scene boundaries.</li>
+<li>Mute video sources in the final composition; only the approved narration
+and intentional mix tracks carry audio.</li>
+<li>Preserve provider request bodies and task IDs (minus credentials/expiring
+URLs). Poll interrupted work before resubmitting — avoid double billing.</li>
+<li>Stop after three rejected paid candidates and summarize the failure mode.</li>
+<li>Do not claim completion until the final files fully decode and the contact
+sheet or full playback has been reviewed.</li>
+</ul>
+<h3>Defaults for minimal input</h3>
+<p>9:16, 1080×1920, 30fps; topic-derived videos target 45–75s; stock voice when
+no authorized sample; presenter-led layout with hook → 2–4 beats → close;
+no music/CTA unless requested; language inferred from the request.</p>
+<h3>Reference routing</h3>
+<ul>
+<li><code>references/generation.md</code> — intake, content, voice, capability selection,
+presenter prompts, paid generation, provider changes.</li>
+<li><code>references/editing.md</code> — timeline contract, openings/closes, captions,
+keyword-callout presets, HyperFrames composition, exports.</li>
+<li><code>references/qa-recovery.md</code> — technical acceptance, visual acceptance, and
+recovery for lip-sync/identity/hands/exposure/freeze/caption/audio faults.</li>
+</ul>
+<h3>Pitfalls</h3>
+<ul>
+<li><code>preflight.py</code> requires ffprobe; on a bare box install ffmpeg first.</li>
+<li>The consent booleans set by init flags land under <code>input.*</code>; editing them
+at the job-json root silently does nothing (preflight keeps blocking).</li>
+<li><code>finalize_delivery.sh</code> needs bash + jq + awk and a fully decodable input —
+a truncated render fails the decode check by design, not by accident.</li>
+<li>Long avatar clips drift: prefer one continuous presenter source sliced on
+the audio timeline over many regenerated chapter clips (identity drift
+across regenerations is the #1 visual-QA failure).</li>
+<li>FAL i2v endpoints cap duration (typically 5–15s); plan chapter-level
+presenter segments accordingly and reuse the pilot&#39;s seed/params for
+consistency where the endpoint supports it.</li>
+</ul>
+<h3>Verification</h3>
+<p>Validated hands-on (Aug 2026): <code>init_job.py</code> → <code>job.json</code> with correct state
+machine; <code>preflight.py</code> correctly blocked on unreviewed inputs, flipped to
+<code>ok: true</code> after review booleans, and kept <code>remote_ready: false</code> until
+<code>input.remote_upload_approved</code>; <code>finalize_delivery.sh</code> on a synthetic 5s
+1080×1920 render produced decode-verified master (631kbit/s) + share encodes,
+delivery-report JSON, and a 9-frame contact sheet, exit 0.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/ai-presenter-video</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

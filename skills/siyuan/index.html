@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>siyuan — Skill Hermes</title>
+<meta name="description" content="Query and edit a SiYuan knowledge base via its API.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>siyuan</h1>
+    <p class="lede">Query and edit a SiYuan knowledge base via its API.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>siyuan</dd>
+      <dt>Keterangan</dt><dd>Query and edit a SiYuan knowledge base via its API.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>FEUAZUR</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/siyuan.zip" download>Muat turun ZIP (3.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>SiYuan Note API</h2>
+<p>Use the <a href="https://github.com/siyuan-note/siyuan">SiYuan</a> kernel API via curl to search, read, create, update, and delete blocks and documents in a self-hosted knowledge base. No extra tools needed -- just curl and an API token.</p>
+<h3>Prerequisites</h3>
+<ol>
+<li>Install and run SiYuan (desktop or Docker)</li>
+<li>Get your API token: <strong>Settings &gt; About &gt; API token</strong></li>
+<li>Store it in <code>${HERMES_HOME:-~/.hermes}/.env</code>:<pre><code>SIYUAN_TOKEN=your_token_here
+SIYUAN_URL=http://127.0.0.1:6806
+</code></pre>
+<code>SIYUAN_URL</code> defaults to <code>http://127.0.0.1:6806</code> if not set.</li>
+</ol>
+<h3>API Basics</h3>
+<p>All SiYuan API calls are <strong>POST with JSON body</strong>. Every request follows this pattern:</p>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/...&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;param&quot;: &quot;value&quot;}&#39;
+</code></pre>
+<p>Responses are JSON with this structure:</p>
+<pre><code class="language-json">{&quot;code&quot;: 0, &quot;msg&quot;: &quot;&quot;, &quot;data&quot;: { ... }}
+</code></pre>
+<p><code>code: 0</code> means success. Any other value is an error -- check <code>msg</code> for details.</p>
+<p><strong>ID format:</strong> SiYuan IDs look like <code>20210808180117-6v0mkxr</code> (14-digit timestamp + 7 alphanumeric chars).</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Full-text search</td>
+<td><code>/api/search/fullTextSearchBlock</code></td>
+</tr>
+<tr>
+<td>SQL query</td>
+<td><code>/api/query/sql</code></td>
+</tr>
+<tr>
+<td>Read block</td>
+<td><code>/api/block/getBlockKramdown</code></td>
+</tr>
+<tr>
+<td>Read children</td>
+<td><code>/api/block/getChildBlocks</code></td>
+</tr>
+<tr>
+<td>Get path</td>
+<td><code>/api/filetree/getHPathByID</code></td>
+</tr>
+<tr>
+<td>Get attributes</td>
+<td><code>/api/attr/getBlockAttrs</code></td>
+</tr>
+<tr>
+<td>List notebooks</td>
+<td><code>/api/notebook/lsNotebooks</code></td>
+</tr>
+<tr>
+<td>List documents</td>
+<td><code>/api/filetree/listDocsByPath</code></td>
+</tr>
+<tr>
+<td>Create notebook</td>
+<td><code>/api/notebook/createNotebook</code></td>
+</tr>
+<tr>
+<td>Create document</td>
+<td><code>/api/filetree/createDocWithMd</code></td>
+</tr>
+<tr>
+<td>Append block</td>
+<td><code>/api/block/appendBlock</code></td>
+</tr>
+<tr>
+<td>Update block</td>
+<td><code>/api/block/updateBlock</code></td>
+</tr>
+<tr>
+<td>Rename document</td>
+<td><code>/api/filetree/renameDocByID</code></td>
+</tr>
+<tr>
+<td>Set attributes</td>
+<td><code>/api/attr/setBlockAttrs</code></td>
+</tr>
+<tr>
+<td>Delete block</td>
+<td><code>/api/block/deleteBlock</code></td>
+</tr>
+<tr>
+<td>Delete document</td>
+<td><code>/api/filetree/removeDocByID</code></td>
+</tr>
+<tr>
+<td>Export as Markdown</td>
+<td><code>/api/export/exportMdContent</code></td>
+</tr>
+</tbody></table>
+<h3>Common Operations</h3>
+<h4>Search (Full-Text)</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/search/fullTextSearchBlock&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;query&quot;: &quot;meeting notes&quot;, &quot;page&quot;: 0}&#39; | jq &#39;.data.blocks[:5]&#39;
+</code></pre>
+<h4>Search (SQL)</h4>
+<p>Query the blocks database directly. Only SELECT statements are safe.</p>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/query/sql&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;stmt&quot;: &quot;SELECT id, content, type, box FROM blocks WHERE content LIKE &#39;\&#39;&#39;%keyword%&#39;\&#39;&#39; AND type=&#39;\&#39;&#39;p&#39;\&#39;&#39; LIMIT 20&quot;}&#39; | jq &#39;.data&#39;
+</code></pre>
+<p>Useful columns: <code>id</code>, <code>parent_id</code>, <code>root_id</code>, <code>box</code> (notebook ID), <code>path</code>, <code>content</code>, <code>type</code>, <code>subtype</code>, <code>created</code>, <code>updated</code>.</p>
+<h4>Read Block Content</h4>
+<p>Returns block content in Kramdown (Markdown-like) format.</p>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/block/getBlockKramdown&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;20210808180117-6v0mkxr&quot;}&#39; | jq &#39;.data.kramdown&#39;
+</code></pre>
+<h4>Read Child Blocks</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/block/getChildBlocks&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;20210808180117-6v0mkxr&quot;}&#39; | jq &#39;.data&#39;
+</code></pre>
+<h4>Get Human-Readable Path</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/filetree/getHPathByID&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;20210808180117-6v0mkxr&quot;}&#39; | jq &#39;.data&#39;
+</code></pre>
+<h4>Get Block Attributes</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/attr/getBlockAttrs&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;20210808180117-6v0mkxr&quot;}&#39; | jq &#39;.data&#39;
+</code></pre>
+<h4>List Notebooks</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/notebook/lsNotebooks&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{}&#39; | jq &#39;.data.notebooks[] | {id, name, closed}&#39;
+</code></pre>
+<h4>List Documents in a Notebook</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/filetree/listDocsByPath&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;notebook&quot;: &quot;NOTEBOOK_ID&quot;, &quot;path&quot;: &quot;/&quot;}&#39; | jq &#39;.data.files[] | {id, name}&#39;
+</code></pre>
+<h4>Create a Document</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/filetree/createDocWithMd&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;notebook&quot;: &quot;NOTEBOOK_ID&quot;,
+    &quot;path&quot;: &quot;/Meeting Notes/2026-03-22&quot;,
+    &quot;markdown&quot;: &quot;# Meeting Notes\n\n- Discussed project timeline\n- Assigned tasks&quot;
+  }&#39; | jq &#39;.data&#39;
+</code></pre>
+<h4>Create a Notebook</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/notebook/createNotebook&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;name&quot;: &quot;My New Notebook&quot;}&#39; | jq &#39;.data.notebook.id&#39;
+</code></pre>
+<h4>Append Block to Document</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/block/appendBlock&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;parentID&quot;: &quot;DOCUMENT_OR_BLOCK_ID&quot;,
+    &quot;data&quot;: &quot;New paragraph added at the end.&quot;,
+    &quot;dataType&quot;: &quot;markdown&quot;
+  }&#39; | jq &#39;.data&#39;
+</code></pre>
+<p>Also available: <code>/api/block/prependBlock</code> (same params, inserts at the beginning) and <code>/api/block/insertBlock</code> (uses <code>previousID</code> instead of <code>parentID</code> to insert after a specific block).</p>
+<h4>Update Block Content</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/block/updateBlock&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;id&quot;: &quot;BLOCK_ID&quot;,
+    &quot;data&quot;: &quot;Updated content here.&quot;,
+    &quot;dataType&quot;: &quot;markdown&quot;
+  }&#39; | jq &#39;.data&#39;
+</code></pre>
+<h4>Rename a Document</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/filetree/renameDocByID&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;DOCUMENT_ID&quot;, &quot;title&quot;: &quot;New Title&quot;}&#39;
+</code></pre>
+<h4>Set Block Attributes</h4>
+<p>Custom attributes must be prefixed with <code>custom-</code>:</p>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/attr/setBlockAttrs&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;id&quot;: &quot;BLOCK_ID&quot;,
+    &quot;attrs&quot;: {
+      &quot;custom-status&quot;: &quot;reviewed&quot;,
+      &quot;custom-priority&quot;: &quot;high&quot;
+    }
+  }&#39;
+</code></pre>
+<h4>Delete a Block</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/block/deleteBlock&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;BLOCK_ID&quot;}&#39;
+</code></pre>
+<p>To delete a whole document: use <code>/api/filetree/removeDocByID</code> with <code>{&quot;id&quot;: &quot;DOC_ID&quot;}</code>.
+To delete a notebook: use <code>/api/notebook/removeNotebook</code> with <code>{&quot;notebook&quot;: &quot;NOTEBOOK_ID&quot;}</code>.</p>
+<h4>Export Document as Markdown</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;${SIYUAN_URL:-http://127.0.0.1:6806}/api/export/exportMdContent&quot; \
+  -H &quot;Authorization: Token $SIYUAN_TOKEN&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;id&quot;: &quot;DOCUMENT_ID&quot;}&#39; | jq -r &#39;.data.content&#39;
+</code></pre>
+<h3>Block Types</h3>
+<p>Common <code>type</code> values in SQL queries:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>d</code></td>
+<td>Document (root block)</td>
+</tr>
+<tr>
+<td><code>p</code></td>
+<td>Paragraph</td>
+</tr>
+<tr>
+<td><code>h</code></td>
+<td>Heading</td>
+</tr>
+<tr>
+<td><code>l</code></td>
+<td>List</td>
+</tr>
+<tr>
+<td><code>i</code></td>
+<td>List item</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>Code block</td>
+</tr>
+<tr>
+<td><code>m</code></td>
+<td>Math block</td>
+</tr>
+<tr>
+<td><code>t</code></td>
+<td>Table</td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>Blockquote</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>Super block</td>
+</tr>
+<tr>
+<td><code>html</code></td>
+<td>HTML block</td>
+</tr>
+</tbody></table>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>All endpoints are POST</strong> -- even read-only operations. Do not use GET.</li>
+<li><strong>SQL safety</strong>: only use SELECT queries. INSERT/UPDATE/DELETE/DROP are dangerous and should never be sent.</li>
+<li><strong>ID validation</strong>: IDs match the pattern <code>YYYYMMDDHHmmss-xxxxxxx</code>. Reject anything else.</li>
+<li><strong>Error responses</strong>: always check <code>code != 0</code> in responses before processing <code>data</code>.</li>
+<li><strong>Large documents</strong>: block content and export results can be very large. Use <code>LIMIT</code> in SQL and pipe through <code>jq</code> to extract only what you need.</li>
+<li><strong>Notebook IDs</strong>: when working with a specific notebook, get its ID first via <code>lsNotebooks</code>.</li>
+</ul>
+<h3>Alternative: MCP Server</h3>
+<p>If you prefer a native integration instead of curl, install the SiYuan MCP server:</p>
+<pre><code class="language-yaml"># In ~/.hermes/config.yaml under mcp_servers:
+mcp_servers:
+  siyuan:
+    command: npx
+    args: [&quot;-y&quot;, &quot;@porkll/siyuan-mcp&quot;]
+    env:
+      SIYUAN_TOKEN: &quot;your_token&quot;
+      SIYUAN_URL: &quot;http://127.0.0.1:6806&quot;
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/productivity/siyuan</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

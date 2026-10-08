@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>unreal-mcp — Skill Hermes</title>
+<meta name="description" content="Automate Unreal Engine editor scenes, actors, and renders.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>unreal-mcp</h1>
+    <p class="lede">Automate Unreal Engine editor scenes, actors, and renders.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>unreal-mcp</dd>
+      <dt>Keterangan</dt><dd>Automate Unreal Engine editor scenes, actors, and renders.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/unreal-mcp.zip" download>Muat turun ZIP (39.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (6)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.6 KB</td></tr>
+<tr><td><code>references/advanced-workflows.md</code></td><td class="sz">12.7 KB</td></tr>
+<tr><td><code>references/pitfalls.md</code></td><td class="sz">17.2 KB</td></tr>
+<tr><td><code>references/recipes.md</code></td><td class="sz">10.4 KB</td></tr>
+<tr><td><code>references/scene-craft.md</code></td><td class="sz">12.5 KB</td></tr>
+<tr><td><code>references/tool-surface.md</code></td><td class="sz">19.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Unreal Engine MCP Skill</h2>
+<p>Companion skill for the <code>unreal-engine</code> entry in the Hermes MCP catalog. The
+MCP server (Epic&#39;s official, experimental &quot;Unreal MCP&quot; plugin, internal id
+<code>ModelContextProtocol</code>) runs INSIDE the Unreal Editor process and exposes
+editor functionality as typed tools. This skill teaches how to drive it well:
+discovering the live tool surface, sequencing calls safely, translating
+plain-English asks into scenes that actually look good, and verifying work
+visually. The user should never need to touch the editor beyond launching it.</p>
+<h3>When to Use</h3>
+<p>Use when the user wants anything done in Unreal Engine: build or dress a
+level, spawn/move/delete actors, set up lighting and atmosphere, create or
+tune material instances, frame a camera shot, capture screenshots or renders,
+import assets, inspect the scene or UI, run automation tests, or script the
+editor. Works for single actions (&quot;make the sun golden hour&quot;) and for
+complete multi-step projects (&quot;build me a moody forest clearing with a
+campfire and render a shot of it&quot;).</p>
+<p>Don&#39;t use for: DCC-style mesh modeling/sculpting (model in Blender and
+import the result), or for editing Unreal C++ project source (that&#39;s normal
+code work — use the terminal; this skill is about the live editor).</p>
+<h3>Prerequisites</h3>
+<p>Two halves, in this order: the editor side must be up before Hermes connects.</p>
+<h4>One-time, editor side</h4>
+<ol>
+<li>Unreal Editor <strong>5.8+</strong> with a project open. (macOS: full Xcode must be
+installed and its license accepted — the editor exits on first launch
+without it; see pitfalls.)</li>
+<li><strong>Edit &gt; Plugins</strong> — enable <strong>Unreal MCP</strong> (its Toolset Registry
+dependency auto-enables). Restart the editor when prompted.</li>
+<li>The typed toolsets ship separately from the server: also enable the
+<strong>AllToolsets</strong> plugin in the same Plugins browser. Unreal MCP ships NO
+tools itself — AllToolsets provides the shipped toolsets (SceneTools,
+ActorTools, MaterialInstanceTools, ObjectTools, …); skip it and the
+server connects but the agent has nothing to call.</li>
+<li><strong>Edit &gt; Editor Preferences &gt; General &gt; Model Context Protocol</strong> — enable
+<strong>Auto Start Server</strong>. Default bind is <code>http://127.0.0.1:8000/mcp</code>
+(port/path configurable in the same panel; server name is <code>unreal-mcp</code>).
+To start manually instead, run <code>ModelContextProtocol.StartServer</code> in the
+editor console (backtick key).</li>
+</ol>
+<h4>One-time, Hermes side</h4>
+<pre><code>hermes mcp install unreal-engine
+</code></pre>
+<p>This writes the <code>mcp_servers.unreal-engine</code> HTTP entry pointing at
+<code>http://127.0.0.1:8000/mcp</code> and probes the live server for its tools. Run it
+while the editor + server are up so the probe sees the real surface. If the
+user changed port/path in Editor Preferences, edit the <code>url</code> in
+<code>~/.hermes/config.yaml</code> under <code>mcp_servers.unreal-engine</code> to match.</p>
+<p>Do NOT use <code>ModelContextProtocol.GenerateClientConfig</code> for Hermes — that
+writes <code>.mcp.json</code>-style files for Claude Code/Cursor/etc. Hermes connects
+from <code>config.yaml</code> via the catalog entry.</p>
+<h4>Every session</h4>
+<ol>
+<li>Launch Unreal Editor, wait for the project to finish loading; confirm the
+server started (Output Log shows the bind address, or run
+<code>ModelContextProtocol.StartServer</code> manually).</li>
+<li>Start the Hermes session. Tools register as <code>mcp_unreal_engine_*</code>. If
+they&#39;re missing: editor wasn&#39;t up first — start it, then open a new
+Hermes session.</li>
+<li>Sanity check: call <code>mcp_unreal_engine_list_toolsets</code> and confirm toolsets
+come back.</li>
+</ol>
+<h3>The Tool Surface: Discovery, Not a Fixed List</h3>
+<p>By default the plugin runs in <strong>tool-search mode</strong>: <code>tools/list</code> returns only
+three meta-tools, and every real tool is reached through them. Through Hermes
+they appear as:</p>
+<table>
+<thead>
+<tr>
+<th>Hermes tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mcp_unreal_engine_list_toolsets</code></td>
+<td>Names + descriptions of every registered toolset</td>
+</tr>
+<tr>
+<td><code>mcp_unreal_engine_describe_toolset</code></td>
+<td>Full JSON schemas for one named toolset&#39;s tools</td>
+</tr>
+<tr>
+<td><code>mcp_unreal_engine_call_tool</code></td>
+<td>Invoke a named tool with arguments, get the result</td>
+</tr>
+</tbody></table>
+<p>The discovery walk, always in this order:</p>
+<ol>
+<li><code>list_toolsets</code> → see what capability groups this project actually has
+(the surface is project-dependent: enabled plugins, Game Feature Plugins,
+and any custom toolsets all contribute). Names come back FULLY QUALIFIED
+(<code>editor_toolset.toolsets.scene.SceneTools</code>,
+<code>EditorToolset.EditorAppToolset</code>) — use them verbatim as <code>toolset_name</code>.</li>
+<li><code>describe_toolset</code> on the group you need → read the real parameter
+schemas. Never guess parameter names — schemas are the contract.</li>
+<li><code>call_tool</code> with the qualified toolset name, the SHORT tool name
+(<code>find_actors</code>, not the dotted form), and arguments matching the schema.</li>
+</ol>
+<p>Cache what you learn for the session; re-list only after the editor side
+changes (new plugin enabled, toolset authored, <code>RefreshTools</code> run).</p>
+<p>The alternative eager mode (<code>Enable Tool Search</code> off in Editor Preferences)
+advertises every tool as its own <code>mcp_unreal_engine_{tool}</code> entry. Discovery
+then happens at <code>hermes mcp install</code>/<code>configure</code> time instead. Tool-search
+mode is the default and what this skill assumes; it also keeps schema tokens
+out of every API call, so prefer it.</p>
+<p>See <code>references/tool-surface.md</code> for the shipped toolset catalog, authoring
+custom toolsets, and the full plugin configuration/console-command reference.</p>
+<h3>Operating Loop</h3>
+<p>Every Unreal task follows the same loop:</p>
+<ol>
+<li><strong>Inspect first.</strong> List toolsets, then query the scene/level state before
+touching anything. Never assume an empty or default level. In an
+unfamiliar project, also check for project-registered Agent Skills
+(<code>call_tool</code> → <code>AgentSkillToolset.ListSkills</code>): a matching project skill&#39;s
+instructions override this skill&#39;s generic defaults.</li>
+<li><strong>Act in small, single-purpose calls.</strong> One logical step per <code>call_tool</code>.
+The server executes tools <strong>serially on the game thread</strong> — a big
+monolithic operation freezes the editor UI until it finishes and risks
+client timeouts. Exception: for loops over 5+ homogeneous operations,
+ONE <code>ProgrammaticToolset.execute_tool_script</code> call batches them
+server-side without breaking the serial rule
+(<code>references/advanced-workflows.md</code>).</li>
+<li><strong>NEVER issue overlapping calls.</strong> Do not batch multiple
+<code>mcp_unreal_engine_*</code> calls in one turn — Hermes runs batched calls
+concurrently, and parallel calls against the game thread deadlock or
+fail. Strictly one call, await result, next call. This overrides the
+general parallel-tool-calls guidance.</li>
+<li><strong>Read every result.</strong> Many tools (Blueprint compiles, material edits,
+widget creation) report success/failure in the response body with no
+protocol-level exception. Anything that isn&#39;t an explicit success is a
+stop-and-diagnose, not a shrug. After property writes, read the value
+back — several write paths silently no-op (see pitfalls).</li>
+<li><strong>Verify visually and structurally.</strong> After each milestone, confirm state
+by querying the actors/properties you changed, and capture a viewport
+screenshot when composition matters (see <code>references/tool-surface.md</code> for
+the capture options; <code>vision_analyze</code> the image — you are the art
+director, judge it).</li>
+<li><strong>Save often.</strong> Editor edits are in-memory until packages/levels are
+saved; an editor crash loses everything since the last save, and MCP
+edits are not reliably undoable. Save before AND after any bulk change,
+and after every milestone.</li>
+<li><strong>Report concretely.</strong> Actor labels, asset paths (<code>/Game/...</code>), file
+locations of captures/renders.</li>
+</ol>
+<p>Rules of the world while you work:</p>
+<ul>
+<li>Units are <strong>centimeters</strong>; axes are <strong>Z-up</strong>, X-forward; rotations are
+degrees (Rotator: Roll around X, Pitch around Y, Yaw around Z). Human eye
+height ≈ 165 cm; a door ≈ 210×90 cm. Full tables in
+<code>references/scene-craft.md</code>.</li>
+<li>Content paths use long package names: <code>/Game/Folder/Asset.Asset</code> for
+project content, <code>/Engine/BasicShapes/Cube.Cube</code> for engine primitives.</li>
+<li>Actor <strong>labels</strong> (what you see in the Outliner, settable, non-unique) are
+not actor <strong>names</strong> (internal, unique). Prefer resolving actors by
+label/class queries, then hold on to whatever handle the tool returns.</li>
+<li>Prefer physically-plausible lighting values (lux/candela/Kelvin) over
+arbitrary brightness numbers — but FIRST read the existing sun&#39;s
+intensity to learn the scene&#39;s calibration convention; template worlds
+are often calibrated around <code>intensity: 10</code>, and physical values blow
+them out (<code>references/scene-craft.md</code> has the numbers,
+<code>references/pitfalls.md</code> #12b has the calibration rule).</li>
+</ul>
+<h3>From Plain English to a Scene</h3>
+<p>The user gives intent, not specs. Translate before you build:</p>
+<ol>
+<li><strong>Extract the brief.</strong> Subject, mood, time of day, interior/exterior,
+style, deliverable (screenshot? render? playable level?). Ask at most one
+round of clarifying questions, then commit — you are the technical
+director; don&#39;t bounce Unreal jargon back at the user.</li>
+<li><strong>Plan the build order.</strong> The order that works: level/environment shell →
+blocking (major geometry/meshes in place) → lighting + atmosphere →
+materials → set dressing/detail → camera → capture/render. Post the plan
+as a todo list for multi-step builds.</li>
+<li><strong>Build with the loop above</strong>, one milestone at a time, screenshot at
+each milestone.</li>
+<li><strong>Art-direct yourself.</strong> Compare each screenshot against the brief:
+readable silhouette? believable light direction/intensity? horizon not
+dead-center? scale correct against a human-height reference? Fix before
+moving on.</li>
+<li><strong>Deliver.</strong> Screenshots/renders as files (<code>MEDIA:</code> path), plus a short
+summary of what exists in the level and where it was saved.</li>
+</ol>
+<p><code>references/recipes.md</code> has complete worked builds (exterior daylight scene,
+moody interior, golden-hour cinematic + render, asset import &amp; placement)
+with the exact call sequences and values.</p>
+<h3>Reference Files</h3>
+<p>Load on demand; keep SKILL.md-level rules in mind throughout.</p>
+<table>
+<thead>
+<tr>
+<th>Reference</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>references/tool-surface.md</code></td>
+<td>Shipped toolsets catalog, discovery protocol detail, plugin console commands/CVars/flags, screenshot &amp; capture paths, MCP Inspector debugging, extending with custom Python/C++ toolsets</td>
+</tr>
+<tr>
+<td><code>references/advanced-workflows.md</code></td>
+<td>Sophisticated workflows, live-verified: ProgrammaticToolset batching, Blueprint DSL authoring loop (create→DSL→compile→spawn), PIE test sessions, Sequencer orientation (140 tools), LogsToolset self-debugging, automation testing, semantic asset search, config settings, per-situation decision table</td>
+</tr>
+<tr>
+<td><code>references/scene-craft.md</code></td>
+<td>Numeric cheat sheet: physical light intensities, color temperatures, exposure/EV100, fog densities, mood recipes (noon/golden hour/overcast/night/interior), scale tables, content path conventions</td>
+</tr>
+<tr>
+<td><code>references/recipes.md</code></td>
+<td>End-to-end worked builds with exact call sequences</td>
+</tr>
+<tr>
+<td><code>references/pitfalls.md</code></td>
+<td>Setup, runtime, and workflow pitfalls with fixes — read before your first session and whenever something misbehaves</td>
+</tr>
+</tbody></table>
+<h3>Pitfalls (top of mind — full list in references/pitfalls.md)</h3>
+<ul>
+<li><strong>Start order matters.</strong> Editor + server up first, then the Hermes
+session. Missing <code>mcp_unreal_engine_*</code> tools = wrong order.</li>
+<li><strong>One call at a time.</strong> Serial game thread; no batching, no overlap.</li>
+<li><strong>The editor UI freezes during each call.</strong> That&#39;s by design (game-thread
+execution). Warn the user during long operations; keep calls small.</li>
+<li><strong>Modal dialogs block everything.</strong> A tool call that opens (or collides
+with) a modal editor dialog stalls until a human dismisses it. If a call
+hangs indefinitely, tell the user to check the editor for a dialog.</li>
+<li><strong>Timeouts on long operations.</strong> Hermes&#39; per-call default is 120 s; asset
+imports, big level saves, and renders can exceed it. Raise
+<code>mcp_servers.unreal-engine.timeout</code> in <code>~/.hermes/config.yaml</code> for
+render/import-heavy sessions.</li>
+<li><strong>Stale tool schemas.</strong> After authoring/hot-reloading toolsets or enabling
+a plugin, run <code>ModelContextProtocol.RefreshTools</code> in the editor console
+and re-<code>list_toolsets</code>. New C++ <code>UFUNCTION</code>s need a full editor restart —
+Live Coding won&#39;t surface them.</li>
+<li><strong>Experimental plugin.</strong> APIs and tool shapes can change between engine
+versions; trust <code>describe_toolset</code> over memory, including this skill&#39;s
+examples. When docs and the live schema disagree, the live schema wins.</li>
+<li><strong>Don&#39;t expose the server beyond localhost.</strong> Loopback-only, no auth, by
+design. Never suggest binding it wider.</li>
+<li><strong>Licensing note.</strong> The server logs on start: data transmitted via the
+plugin to a connected LLM service is Licensed Technology under the UE
+EULA (§6(e)) — the user is responsible for ensuring their LLM provider
+doesn&#39;t train on it. Surface this if the user asks about data handling.</li>
+</ul>
+<h3>Verification Checklist</h3>
+<ul>
+<li><input disabled="" type="checkbox"> <code>list_toolsets</code> returns toolsets at session start (connection healthy)</li>
+<li><input disabled="" type="checkbox"> Scene state queried before first edit (never assumed empty)</li>
+<li><input disabled="" type="checkbox"> After each milestone: changed actors/properties re-queried and a
+screenshot reviewed against the brief</li>
+<li><input disabled="" type="checkbox"> Level/dirty packages saved after each milestone and at the end</li>
+<li><input disabled="" type="checkbox"> Deliverables exist on disk (screenshot/render paths confirmed) and are
+reported to the user with absolute paths</li>
+<li><input disabled="" type="checkbox"> Editor left in a clean state: no pending modal, no unsaved surprise,
+user told exactly what was created/changed and where</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/unreal-mcp</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

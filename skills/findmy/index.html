@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>findmy — Skill Hermes</title>
+<meta name="description" content="Track Apple devices/AirTags via FindMy.app on macOS.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>findmy</h1>
+    <p class="lede">Track Apple devices/AirTags via FindMy.app on macOS.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>findmy</dd>
+      <dt>Keterangan</dt><dd>Track Apple devices/AirTags via FindMy.app on macOS.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>apple · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/findmy.zip" download>Muat turun ZIP (1.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">3.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Find My (Apple)</h2>
+<p>Track Apple devices and AirTags via the FindMy.app on macOS. Since Apple doesn&#39;t
+provide a CLI for FindMy, this skill uses AppleScript to open the app and
+screen capture to read device locations.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>macOS</strong> with Find My app and iCloud signed in</li>
+<li>Devices/AirTags already registered in Find My</li>
+<li>Screen Recording permission for terminal (System Settings → Privacy → Screen Recording)</li>
+<li><strong>Optional but recommended</strong>: Install <code>peekaboo</code> for better UI automation:
+<code>brew install steipete/tap/peekaboo</code></li>
+</ul>
+<h3>When to Use</h3>
+<ul>
+<li>User asks &quot;where is my [device/cat/keys/bag]?&quot;</li>
+<li>Tracking AirTag locations</li>
+<li>Checking device locations (iPhone, iPad, Mac, AirPods)</li>
+<li>Monitoring pet or item movement over time (AirTag patrol routes)</li>
+</ul>
+<h3>Method 1: AppleScript + Screenshot (Basic)</h3>
+<h4>Open FindMy and Navigate</h4>
+<pre><code class="language-bash"># Open Find My app
+osascript -e &#39;tell application &quot;FindMy&quot; to activate&#39;
+
+# Wait for it to load
+sleep 3
+
+# Take a screenshot of the Find My window
+screencapture -w -o ~/.hermes/cache/scratch/findmy.png
+</code></pre>
+<p>Then use <code>vision_analyze</code> to read the screenshot:</p>
+<pre><code>vision_analyze(image_url=&quot;~/.hermes/cache/scratch/findmy.png&quot;, question=&quot;What devices/items are shown and what are their locations?&quot;)
+</code></pre>
+<h4>Switch Between Tabs</h4>
+<pre><code class="language-bash"># Switch to Devices tab
+osascript -e &#39;
+tell application &quot;System Events&quot;
+    tell process &quot;FindMy&quot;
+        click button &quot;Devices&quot; of toolbar 1 of window 1
+    end tell
+end tell&#39;
+
+# Switch to Items tab (AirTags)
+osascript -e &#39;
+tell application &quot;System Events&quot;
+    tell process &quot;FindMy&quot;
+        click button &quot;Items&quot; of toolbar 1 of window 1
+    end tell
+end tell&#39;
+</code></pre>
+<h3>Method 2: Peekaboo UI Automation (Recommended)</h3>
+<p>If <code>peekaboo</code> is installed, use it for more reliable UI interaction:</p>
+<pre><code class="language-bash"># Open Find My
+osascript -e &#39;tell application &quot;FindMy&quot; to activate&#39;
+sleep 3
+
+# Capture and annotate the UI
+peekaboo see --app &quot;FindMy&quot; --annotate --path ~/.hermes/cache/scratch/findmy-ui.png
+
+# Click on a specific device/item by element ID
+peekaboo click --on B3 --app &quot;FindMy&quot;
+
+# Capture the detail view
+peekaboo image --app &quot;FindMy&quot; --path ~/.hermes/cache/scratch/findmy-detail.png
+</code></pre>
+<p>Then analyze with vision:</p>
+<pre><code>vision_analyze(image_url=&quot;~/.hermes/cache/scratch/findmy-detail.png&quot;, question=&quot;What is the location shown for this device/item? Include address and coordinates if visible.&quot;)
+</code></pre>
+<h3>Workflow: Track AirTag Location Over Time</h3>
+<p>For monitoring an AirTag (e.g., tracking a cat&#39;s patrol route):</p>
+<pre><code class="language-bash"># 1. Open FindMy to Items tab
+osascript -e &#39;tell application &quot;FindMy&quot; to activate&#39;
+sleep 3
+
+# 2. Click on the AirTag item (stay on page — AirTag only updates when page is open)
+
+# 3. Periodically capture location
+while true; do
+    screencapture -w -o ~/.hermes/cache/scratch/findmy-$(date +%H%M%S).png
+    sleep 300  # Every 5 minutes
+done
+</code></pre>
+<p>Analyze each screenshot with vision to extract coordinates, then compile a route.</p>
+<h3>Limitations</h3>
+<ul>
+<li>FindMy has <strong>no CLI or API</strong> — must use UI automation</li>
+<li>AirTags only update location while the FindMy page is actively displayed</li>
+<li>Location accuracy depends on nearby Apple devices in the FindMy network</li>
+<li>Screen Recording permission required for screenshots</li>
+<li>AppleScript UI automation may break across macOS versions</li>
+</ul>
+<h3>Rules</h3>
+<ol>
+<li>Keep FindMy app in the foreground when tracking AirTags (updates stop when minimized)</li>
+<li>Use <code>vision_analyze</code> to read screenshot content — don&#39;t try to parse pixels</li>
+<li>For ongoing tracking, use a cronjob to periodically capture and log locations</li>
+<li>Respect privacy — only track devices/items the user owns</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/apple/findmy</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

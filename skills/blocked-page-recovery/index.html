@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>blocked-page-recovery — Skill Hermes</title>
+<meta name="description" content="Use when a fetch fails: 403/429, paywall, WAF, bot wall.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>blocked-page-recovery</h1>
+    <p class="lede">Use when a fetch fails: 403/429, paywall, WAF, bot wall.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>blocked-page-recovery</dd>
+      <dt>Keterangan</dt><dd>Use when a fetch fails: 403/429, paywall, WAF, bot wall.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>web · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/blocked-page-recovery.zip" download>Muat turun ZIP (6.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.1 KB</td></tr>
+<tr><td><code>scripts/recover_page.py</code></td><td class="sz">8.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Blocked-Page Recovery</h2>
+<p>When a page won&#39;t fetch — 403/429, Cloudflare &quot;Just a moment...&quot;, a paywall,
+or a bot-detection interstitial — don&#39;t give up and don&#39;t loop on the same
+URL. Third-party services often hold a <strong>copy</strong> of the page. Work down this
+ladder, cheapest first.</p>
+<h3>The ladder</h3>
+<pre><code>1. Wayback Machine  — archive.org &quot;available&quot; API  (snapshot + timestamp)
+2. archive.today    — domain rotation: archive.ph → .md → .li → .is
+3. Jina Reader      — only if JINA_API_KEY is set  (live server-side render)
+4. API-first pivot  — look for /api/, /graphql, .json, or RSS on the same host
+5. Real browser     — browser tool as the last, most expensive resort
+</code></pre>
+<p>Run it in one shot with the bundled script:</p>
+<pre><code class="language-bash">python3 scripts/recover_page.py &quot;https://example.com/blocked-article&quot; --json
+</code></pre>
+<p>The script tries each route in order, validates every body (see &quot;Fake
+successes&quot; below), and prints the first genuine hit with its provenance.</p>
+<h3>Provenance discipline (non-negotiable)</h3>
+<p>Every recovered copy carries a provenance you MUST preserve when citing:</p>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Provenance</th>
+<th>How to cite</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Wayback / archive.today</td>
+<td><code>snapshot</code></td>
+<td>Cite WITH the snapshot date: &quot;as archived 2026-08-06&quot;. Never present a snapshot as the live page — it may be stale.</td>
+</tr>
+<tr>
+<td>Jina Reader</td>
+<td><code>live</code></td>
+<td>Server-side re-render of the live page; cite normally.</td>
+</tr>
+<tr>
+<td>Live fetch / browser</td>
+<td><code>live</code></td>
+<td>Cite normally.</td>
+</tr>
+</tbody></table>
+<p>If the user needs <em>current</em> data (prices, availability, breaking news), a
+snapshot is context, not an answer — say so explicitly and note its age.</p>
+<h3>Manual routes</h3>
+<h4>1. Wayback Machine (best provenance, try first)</h4>
+<pre><code class="language-bash"># Discovery: returns closest snapshot URL + timestamp as JSON
+curl -sL &quot;https://archive.org/wayback/available?url={URL}&quot;
+# Then fetch archived_snapshots.closest.url
+</code></pre>
+<p>For enumerating many snapshots (or recovering deleted pages), the CDX index:</p>
+<pre><code class="language-bash">curl -sL &quot;https://web.archive.org/cdx/search/cdx?url={URL}&amp;output=json&amp;limit=10&quot;
+</code></pre>
+<p>CDX intermittently returns 503 under load — if it does, fall back to the
+<code>available</code> API; don&#39;t retry-hammer it.</p>
+<p>Works for: any publicly crawled URL. Fails for: robots-blocked sites,
+never-crawled URLs, JS-only SPAs (snapshots don&#39;t render).</p>
+<h4>2. archive.today (paywalls, deleted content)</h4>
+<p>User-submitted archives — often has paywalled news articles Wayback lacks.
+Rate-limits aggressively (429) and rotates domains, so iterate:</p>
+<pre><code class="language-bash">for d in archive.ph archive.md archive.li archive.is; do
+  curl -sL --max-time 20 &quot;https://$d/newest/{URL}&quot; -o ~/.hermes/cache/scratch/page.html \
+    -w &quot;%{http_code}&quot; &amp;&amp; break
+done
+</code></pre>
+<p><strong>Validate the body, not the status code</strong> — a 429 still ships several KB of
+rate-limit HTML that looks like a success to a size check alone.</p>
+<h4>3. Jina Reader (requires JINA_API_KEY)</h4>
+<p><code>r.jina.ai</code> re-renders the live page in a real browser server-side and
+returns markdown. Anonymous access is dead (401 → Turnstile); a key is
+required:</p>
+<pre><code class="language-bash">curl -s -H &quot;Authorization: Bearer $JINA_API_KEY&quot; &quot;https://r.jina.ai/{URL}&quot;
+</code></pre>
+<p>Handles JS SPAs that archives can&#39;t. Skip this route entirely when the env
+var is unset.</p>
+<h4>4. API-first pivot</h4>
+<p>WAFs protect the HTML surface far more aggressively than the data endpoints
+behind it. After 2-3 blocked attempts on a site, stop fighting the HTML and
+look for:</p>
+<ul>
+<li><code>/api/...</code>, <code>/graphql</code>, or <code>.json</code> variants of the page URL</li>
+<li>An RSS/Atom feed (<code>/feed</code>, <code>/rss</code>, <code>&lt;link rel=&quot;alternate&quot;&gt;</code> in any copy
+you did recover)</li>
+<li>A sitemap (<code>/sitemap.xml</code>) revealing canonical URLs that may not be gated</li>
+</ul>
+<h3>Fake successes — routes that LIE</h3>
+<p>These return HTTP 200 with a plausible body that is NOT the page. The script
+rejects them automatically; reject them manually too:</p>
+<ul>
+<li><strong>Google Cache is dead</strong> (since mid-2024). <code>webcache.googleusercontent.com</code>
+returns 200 + tens of KB, but it&#39;s a Google Search interstitial with a JS
+redirect, not a cache. Never use it.</li>
+<li><strong>AMP caches</strong> (<code>*.cdn.ampproject.org</code>) mostly return a ~300-byte
+<code>&lt;title&gt;Redirecting&lt;/title&gt;</code> meta-refresh stub pointing back at the
+original (blocked) URL. Treating that as success creates a fetch loop.</li>
+<li><strong>Rate-limit bodies</strong>: archive.today 429 pages are multi-KB HTML. Check for
+the target&#39;s actual content (title words, expected strings), not just size.</li>
+</ul>
+<p>Detection heuristics the script applies: body under a per-route byte floor;
+meta-refresh/JS-redirect stubs whose target is the original host; interstitial
+titles (&quot;Just a moment&quot;, &quot;Redirecting&quot;, &quot;Google Search&quot;, &quot;Attention Required&quot;).</p>
+<h3>Proxy relays: don&#39;t</h3>
+<p>Generic &quot;web proxy&quot; relays are man-in-the-middle by construction. Never send
+cookies or Authorization headers through one, and don&#39;t use them for anything
+the user will rely on — provenance is unverifiable. Prefer archives, which at
+least timestamp their copies.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/web/blocked-page-recovery</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

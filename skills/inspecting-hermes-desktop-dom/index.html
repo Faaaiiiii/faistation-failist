@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>inspecting-hermes-desktop-dom — Skill Hermes</title>
+<meta name="description" content="Read the live Hermes desktop DOM/CSS over CDP.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>inspecting-hermes-desktop-dom</h1>
+    <p class="lede">Read the live Hermes desktop DOM/CSS over CDP.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>inspecting-hermes-desktop-dom</dd>
+      <dt>Keterangan</dt><dd>Read the live Hermes desktop DOM/CSS over CDP.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/inspecting-hermes-desktop-dom.zip" download>Muat turun ZIP (3.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Inspecting the live Hermes desktop DOM</h2>
+<h3>Overview</h3>
+<p>When you are developing <code>apps/desktop</code> and the user is running that same app
+(<code>hgui</code> / <code>npm run dev</code>), you can read the <strong>live rendered DOM</strong> of the window
+they are looking at — computed styles, geometry, which CSS rule actually won,
+console output — instead of inferring it from <code>.tsx</code> and being wrong.</p>
+<p>Dev-server runs open a Chrome DevTools Protocol port on <code>127.0.0.1:9222</code>
+automatically. The renderer is a Chromium page, so everything DevTools can read,
+a script can read.</p>
+<p><strong>This does not replace looking at it.</strong> CDP answers <em>factual</em> questions (&quot;what
+is the computed padding&quot;, &quot;did this element render&quot;, &quot;which selector matches&quot;).
+It cannot tell you whether the result looks good. Colour balance, spacing feel,
+and &quot;is this ugly&quot; still need the user&#39;s eyes or a screenshot. Answer facts with
+CDP; hand aesthetics to the user.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Verifying a UI change actually took effect in the running app</li>
+<li>&quot;Why is this element still X?&quot; — find the winning rule before editing anything</li>
+<li>Locating a stable selector for a component you&#39;re about to change</li>
+<li>Checking a design token&#39;s computed value on a real node</li>
+<li>Reading renderer console errors the user mentions but can&#39;t copy out</li>
+</ul>
+<p><strong>Don&#39;t use for:</strong> perf profiling or heap work (<code>node-inspect-debugger</code>,
+<code>debugging-hermes-desktop</code>), or anything where the real question is &quot;does this
+look right&quot;.</p>
+<h3>The port</h3>
+<p>Open on <code>127.0.0.1:9222</code> for any dev-server run. Closed in exactly two cases
+(<code>apps/desktop/electron/dev-cdp.ts</code>):</p>
+<ul>
+<li><strong>packaged builds</strong> — always, and no environment value overrides it;</li>
+<li><strong>no <code>HERMES_DESKTOP_DEV_SERVER</code></strong> — an unpackaged <code>electron .</code> against
+<code>dist/</code> is how the packaged app gets smoke tested, so it behaves like one.</li>
+</ul>
+<p><code>HERMES_DESKTOP_CDP_PORT</code> moves the port (<code>=9333</code>) or disables it (<code>=off</code>).</p>
+<p>Check before doing anything else:</p>
+<pre><code class="language-bash">curl -s --max-time 3 http://127.0.0.1:${HERMES_DESKTOP_CDP_PORT:-9222}/json/version
+</code></pre>
+<p>Empty → no port. Do not guess another port silently.</p>
+<p><strong>Never relaunch the user&#39;s app to get a port.</strong> That destroys their session and
+their state. Launch your own isolated instance instead (below).</p>
+<h3>Reading the DOM</h3>
+<p><code>apps/desktop/scripts/eval.mjs</code> is the one-liner:</p>
+<pre><code class="language-bash">cd apps/desktop
+node scripts/eval.mjs &quot;document.querySelectorAll(&#39;[data-slot]&#39;).length&quot;
+</code></pre>
+<p>For multi-step work use the shared client — it has target discovery and
+promise-aware eval:</p>
+<pre><code class="language-js">import { CDP, SELECTORS } from &#39;./scripts/perf/lib/cdp.mjs&#39;
+
+const cdp = await CDP.connect({ port: 9222, match: &#39;5174&#39; })
+const out = await cdp.eval(`JSON.stringify({
+  radius: getComputedStyle(document.documentElement).getPropertyValue(&#39;--radius-scalar&#39;).trim(),
+  composer: !!document.querySelector(&#39;[data-slot=&quot;composer-rich-input&quot;]&#39;)
+})`)
+cdp.close()
+</code></pre>
+<p><code>SELECTORS</code> in <code>scripts/perf/lib/cdp.mjs</code> holds the stable <code>data-slot</code> hooks
+(composer, thread viewport, assistant message, turn pair, profile rail). Prefer
+them over inventing a <code>querySelector</code> — they are updated as a unit when
+components move.</p>
+<h3>The question this is best at: which rule won?</h3>
+<p>Editing every call site because a style &quot;isn&#39;t applying&quot; is the classic waste.
+Read the real node first:</p>
+<pre><code class="language-js">const el = document.querySelector(&#39;[data-slot=&quot;aui_assistant-message-root&quot;] a&#39;)
+JSON.stringify({
+  ownClasses: el.className,
+  weight: getComputedStyle(el).fontWeight,
+  parents: (() =&gt; {
+    const out = []
+    let n = el
+    while ((n = n.parentElement) &amp;&amp; out.length &lt; 6) out.push(n.className)
+    return out
+  })()
+})
+</code></pre>
+<p>If the node carries no class of its own, the value is <strong>inherited</strong> — sweeping
+call sites will not fix it, and you need the ancestor rule. A plugin stylesheet
+(e.g. <code>@tailwindcss/typography</code>&#39;s <code>prose a { font-weight: 500 }</code>) routinely beats
+a utility class; override on the shared class, not at each usage.</p>
+<h3>Your own isolated instance</h3>
+<p>When there is no port, or you must not disturb the user&#39;s window:</p>
+<pre><code class="language-bash">cd apps/desktop
+HERMES_HOME=$HOME/.hermes/cache/scratch/cdp-probe-home \
+HERMES_DESKTOP_DEV_SERVER=http://127.0.0.1:5174 \
+HERMES_DESKTOP_CDP_PORT=9333 \
+  npx electron . --user-data-dir=$HOME/.hermes/cache/scratch/cdp-probe-userdata
+</code></pre>
+<p>The separate <code>--user-data-dir</code> dodges Electron&#39;s single-instance lock, so it
+cannot collide with a running <code>hgui</code>; the separate <code>HERMES_HOME</code> keeps it away
+from real sessions. Pick a port other than 9222 for the same reason. Run it in
+the background and kill it when done.</p>
+<p><code>npm run perf:serve</code> does the same with a temp <code>HERMES_HOME</code> baked in, if you
+also want the perf harness.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Never kill the user&#39;s dev server or app to &quot;free&quot; anything.</strong> A mid-serve
+kill nukes Chromium&#39;s socket pool, and the resulting <code>ERR_NETWORK_CHANGED</code>
+gets blamed on whatever you just changed.</li>
+<li><strong>A throwaway <code>HERMES_HOME</code> has no backend.</strong> The app logs <code>ECONNREFUSED</code> for
+<code>hermes:api</code> and may exit on its own. The renderer still mounts and the DOM is
+readable — read promptly, and don&#39;t mistake a self-exited probe for a broken
+port. Chromium logs <code>DevTools listening on ws://127.0.0.1:&lt;port&gt;/…</code> when it
+binds; that line is the proof the port opened.</li>
+<li><strong>Poll, don&#39;t probe once.</strong> A just-launched app needs a second or two before
+the port answers.</li>
+<li><strong>Never dump the whole DOM.</strong> The desktop renders hundreds of nodes and
+<code>outerHTML</code> will bury your context. Project down to a small JSON object inside
+the evaluated expression.</li>
+<li><strong>Pass <code>match</code> to <code>CDP.connect</code>.</strong> Without it you may attach to the pet
+overlay, quick-entry window, or a devtools target instead of the main window.</li>
+<li><strong><code>cdp.eval</code> returns the value; raw <code>Runtime.evaluate</code> double-nests it</strong>
+(<code>.result.result.value</code>). Use the wrapper.</li>
+<li><strong><code>import.meta.env.DEV</code> is <code>true</code> under <code>vite dev</code></strong> in this repo. The note in
+<code>apps/desktop/scripts/profile-typing-lag.md</code> claiming otherwise is stale.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/inspecting-hermes-desktop-dom</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sketch — Skill Hermes</title>
+<meta name="description" content="Throwaway HTML mockups: 2-3 design variants to compare.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>sketch</h1>
+    <p class="lede">Throwaway HTML mockups: 2-3 design variants to compare.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>sketch</dd>
+      <dt>Keterangan</dt><dd>Throwaway HTML mockups: 2-3 design variants to compare.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (adapted from gsd-build/get-shit-done)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/sketch.zip" download>Muat turun ZIP (4.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Sketch</h2>
+<p>Use this skill when the user wants to <strong>see a design direction before committing</strong> to one — exploring a UI/UX idea as disposable HTML mockups. The point is to generate 2-3 interactive variants so the user can compare visual directions side-by-side, not to produce shippable code.</p>
+<p>Load this when the user says things like &quot;sketch this screen&quot;, &quot;show me what X could look like&quot;, &quot;compare layout A vs B&quot;, &quot;give me 2-3 takes on this UI&quot;, &quot;let me see some variants&quot;, &quot;mockup this before I build&quot;.</p>
+<h3>When NOT to use this</h3>
+<ul>
+<li>User wants a production component — use <code>claude-design</code> or build it properly</li>
+<li>User wants a polished one-off HTML artifact (landing page, deck) — <code>claude-design</code></li>
+<li>User wants a diagram — <code>excalidraw</code>, <code>architecture-diagram</code></li>
+<li>The design is already locked — just build it</li>
+</ul>
+<h3>If the user has the full GSD system installed</h3>
+<p>If <code>gsd-sketch</code> shows up as a sibling skill (installed via <code>npx get-shit-done-cc --hermes</code>), you can use <strong><code>gsd-sketch</code></strong> for the fuller workflow: persistent <code>.planning/sketches/</code> with MANIFEST, frontier mode analysis, consistency audits across past sketches, and integration with the rest of GSD. This skill is the lightweight standalone version — one-off sketching without the state machinery.</p>
+<blockquote>
+<p><strong>Note:</strong> The upstream GSD project (<a href="https://github.com/gsd-build/get-shit-done">gsd-build/get-shit-done</a>) is <strong>archived / no longer maintained</strong> on GitHub. The npm package (<code>get-shit-done-cc</code>) still installs, but treat it as an archived community project — this standalone <code>sketch</code> skill is the maintained path and needs nothing extra.</p>
+</blockquote>
+<h3>Core method</h3>
+<pre><code>intake  →  variants  →  head-to-head  →  pick winner (or iterate)
+</code></pre>
+<h4>1. Intake (skip if the user already gave you enough)</h4>
+<p>Before generating variants, get three things — one question at a time, not all at once:</p>
+<ol>
+<li><strong>Feel.</strong> &quot;What should this feel like? Adjectives, emotions, a vibe.&quot; — <em>&quot;calm, editorial, like Linear&quot;</em> tells you more than <em>&quot;minimal&quot;</em>.</li>
+<li><strong>References.</strong> &quot;What apps, sites, or products capture the feel you&#39;re imagining?&quot; — actual references beat abstract descriptions.</li>
+<li><strong>Core action.</strong> &quot;What&#39;s the single most important thing a user does on this screen?&quot; — the variants should all serve this well; if they don&#39;t, they&#39;re just decoration.</li>
+</ol>
+<p>Reflect each answer briefly before the next question. If the user already gave you all three upfront, skip straight to variants.</p>
+<h4>2. Variants (2-3, never 1, rarely 4+)</h4>
+<p>Produce <strong>2-3 variants</strong> in one go. Each variant is a complete, standalone HTML file. Don&#39;t describe variants — build them. The point is comparison.</p>
+<p>Each variant should take a <strong>different design stance</strong>, not different pixel values. Three good variant axes:</p>
+<ul>
+<li><strong>Density:</strong> compact / airy / ultra-dense (pick two contrasting poles)</li>
+<li><strong>Emphasis:</strong> content-first / action-first / tool-first</li>
+<li><strong>Aesthetic:</strong> editorial / utilitarian / playful</li>
+<li><strong>Layout:</strong> single-column / sidebar / split-pane</li>
+<li><strong>Grounding:</strong> card-based / bare-content / document-style</li>
+</ul>
+<p>Pick one axis and pull apart from it. Two variants that differ only in accent color are wasted effort — the user can&#39;t distinguish them.</p>
+<p><strong>Variant naming:</strong> describe the stance, not the number.</p>
+<pre><code>sketches/
+├── 001-calm-editorial/
+│   ├── index.html
+│   └── README.md
+├── 001-utilitarian-dense/
+│   ├── index.html
+│   └── README.md
+└── 001-playful-split/
+    ├── index.html
+    └── README.md
+</code></pre>
+<h4>3. Make them real HTML</h4>
+<p>Each variant is a <strong>single self-contained HTML file</strong>:</p>
+<ul>
+<li>Inline <code>&lt;style&gt;</code> — no build step, no external CSS</li>
+<li>System fonts or one Google Font via <code>&lt;link&gt;</code></li>
+<li>Tailwind via CDN (<code>&lt;script src=&quot;https://cdn.tailwindcss.com&quot;&gt;&lt;/script&gt;</code>) is fine</li>
+<li>Realistic fake content — actual sentences, actual names, not &quot;Lorem ipsum&quot;</li>
+<li><strong>Interactive</strong>: links clickable, hovers real, at least one state transition (open/close, filter, toggle). A frozen static image is a worse spike than a sloppy animated one.</li>
+</ul>
+<p>Open it in a browser. If it looks broken, fix it before showing the user.</p>
+<p><strong>Verify variants visually — use Hermes&#39; browser tools.</strong> Don&#39;t just write HTML and hope it renders; load each variant and look at it:</p>
+<pre><code>browser_navigate(url=&quot;file:///absolute/path/to/sketches/001-calm-editorial/index.html&quot;)
+browser_vision(question=&quot;Does this layout look clean and readable? Any visible bugs (overlapping text, unstyled elements, broken images)?&quot;)
+</code></pre>
+<p><code>browser_vision</code> returns an AI description of what&#39;s actually on the page plus a screenshot path — catches layout bugs that pure source inspection misses (e.g. a font import that silently failed, a flex container that collapsed). Fix and re-navigate until each variant looks right.</p>
+<p><strong>Default CSS reset + system font stack</strong> for fast starts:</p>
+<pre><code class="language-html">&lt;style&gt;
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto,
+                 &quot;Helvetica Neue&quot;, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: #1a1a1a;
+    background: #fafafa;
+    line-height: 1.5;
+  }
+&lt;/style&gt;
+</code></pre>
+<h4>4. Variant README</h4>
+<p>Each variant&#39;s <code>README.md</code> answers:</p>
+<pre><code class="language-markdown">## Variant: {stance name}
+
+### Design stance
+One sentence on the principle driving this variant.
+
+### Key choices
+- Layout: ...
+- Typography: ...
+- Color: ...
+- Interaction: ...
+
+### Trade-offs
+- Strong at: ...
+- Weak at: ...
+
+### Best for
+- The kind of user or use case this variant actually serves
+</code></pre>
+<h4>5. Head-to-head</h4>
+<p>After all variants are built, present them as a comparison. Don&#39;t just list — <strong>opinionate</strong>:</p>
+<pre><code class="language-markdown">## Three takes on the home screen
+
+| Dimension | Calm editorial | Utilitarian dense | Playful split |
+|-----------|----------------|-------------------|---------------|
+| Density   | Low            | High              | Medium        |
+| Primary action visibility | Low | High | Medium |
+| Scan-ability | High | Medium | Low |
+| Feel | Calm, trusted | Sharp, tool-like | Inviting, energetic |
+
+**My take:** Utilitarian dense for power users, calm editorial for content-forward audiences. Playful split is weakest — tries to do both and commits to neither.
+</code></pre>
+<p>Let the user pick a winner, or combine two into a hybrid, or ask for another round.</p>
+<h3>Theming (when the project has a visual identity)</h3>
+<p>If the user has an existing theme (colors, fonts, tokens), put shared tokens in <code>sketches/themes/tokens.css</code> and <code>@import</code> them in each variant. Keep tokens minimal:</p>
+<pre><code class="language-css">/* sketches/themes/tokens.css */
+:root {
+  --color-bg: #fafafa;
+  --color-fg: #1a1a1a;
+  --color-accent: #0066ff;
+  --color-muted: #666;
+  --radius: 8px;
+  --font-display: &quot;Inter&quot;, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+</code></pre>
+<p>Don&#39;t over-tokenize a throwaway sketch — three colors and one font is usually enough.</p>
+<h3>Interactivity bar</h3>
+<p>A sketch is interactive enough when the user can:</p>
+<ol>
+<li><strong>Click a primary action</strong> and something visible happens (state change, modal, toast, navigation feint)</li>
+<li><strong>See one meaningful state transition</strong> (filter a list, toggle a mode, open/close a panel)</li>
+<li><strong>Hover recognizable affordances</strong> (buttons, rows, tabs)</li>
+</ol>
+<p>More than that is over-engineering a throwaway. Less than that is a screenshot.</p>
+<h3>Frontier mode (picking what to sketch next)</h3>
+<p>If sketches already exist and the user says &quot;what should I sketch next?&quot;:</p>
+<ul>
+<li><strong>Consistency gaps</strong> — two winning variants from different sketches made independent choices that haven&#39;t been composed together yet</li>
+<li><strong>Unsketched screens</strong> — referenced but never explored</li>
+<li><strong>State coverage</strong> — happy path sketched, but not empty / loading / error / 1000-items</li>
+<li><strong>Responsive gaps</strong> — validated at one viewport; does it hold at mobile / ultrawide?</li>
+<li><strong>Interaction patterns</strong> — static layouts exist; transitions, drag, scroll behavior don&#39;t</li>
+</ul>
+<p>Propose 2-4 named candidates. Let the user pick.</p>
+<h3>Output</h3>
+<ul>
+<li>Create <code>sketches/</code> (or <code>.planning/sketches/</code> if the user is using GSD conventions) in the repo root</li>
+<li>One subdir per variant: <code>NNN-stance-name/index.html</code> + <code>README.md</code></li>
+<li>Tell the user how to open them: <code>open sketches/001-calm-editorial/index.html</code> on macOS, <code>xdg-open</code> on Linux, <code>start</code> on Windows</li>
+<li>Keep variants disposable — a sketch that you felt the need to preserve should be promoted into real project code, not curated as an asset</li>
+</ul>
+<p><strong>Typical tool sequence for one variant:</strong></p>
+<pre><code>terminal(&quot;mkdir -p sketches/001-calm-editorial&quot;)
+write_file(&quot;sketches/001-calm-editorial/index.html&quot;, &quot;&lt;!doctype html&gt;...&quot;)
+write_file(&quot;sketches/001-calm-editorial/README.md&quot;, &quot;## Variant: Calm editorial\n...&quot;)
+browser_navigate(url=&quot;file://$(pwd)/sketches/001-calm-editorial/index.html&quot;)
+browser_vision(question=&quot;How does this look? Any obvious layout issues?&quot;)
+</code></pre>
+<p>Repeat for each variant, then present the comparison table.</p>
+<h3>Attribution</h3>
+<p>Adapted from the GSD (Get Shit Done) project&#39;s <code>/gsd-sketch</code> workflow — MIT © 2025 Lex Christopherson (<a href="https://github.com/gsd-build/get-shit-done">gsd-build/get-shit-done</a>). The upstream GSD repo is now <strong>archived/unmaintained</strong> on GitHub; the <code>get-shit-done-cc</code> npm package still installs (<code>npx get-shit-done-cc --hermes --global</code>) and ships persistent sketch state, theme/variant pattern references, and consistency-audit workflows, but treat it as an archived community project.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/sketch</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

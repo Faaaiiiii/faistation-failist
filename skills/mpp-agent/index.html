@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>mpp-agent — Skill Hermes</title>
+<meta name="description" content="Pay HTTP 402 APIs via Machine Payments Protocol (MPP).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>mpp-agent</h1>
+    <p class="lede">Pay HTTP 402 APIs via Machine Payments Protocol (MPP).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>mpp-agent</dd>
+      <dt>Keterangan</dt><dd>Pay HTTP 402 APIs via Machine Payments Protocol (MPP).</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>payments · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/mpp-agent.zip" download>Muat turun ZIP (2.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.9 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>MPP Agent Skill</h2>
+<p>Wraps the Machine Payments Protocol (MPP, <a href="https://mpp.dev">https://mpp.dev</a>) clients so Hermes can pay for per-request API access against servers that respond with <code>HTTP 402 Payment Required</code>.</p>
+<p>Three client options, all distributed via npm. Pick the lightest one that solves the user&#39;s need. Gated <code>[linux, macos]</code> while the broader payments tooling matures on Windows.</p>
+<h3>When to Use</h3>
+<ul>
+<li>A merchant API returns <code>HTTP 402</code> with a <code>www-authenticate</code> header — and the user wants to actually pay it, not just log the response.</li>
+<li>The user asks to &quot;pay per request&quot;, &quot;set up an agent wallet&quot;, &quot;use Tempo / Privy / AgentCash&quot;, or wants to discover MPP-priced services.</li>
+<li>A Stripe Link spend has produced a Shared Payment Token (SPT) and the agent needs to attach it to the 402 challenge — in that flow, prefer <code>link-cli mpp pay</code> (see the <code>stripe-link-cli</code> skill).</li>
+</ul>
+<h3>Choosing a client</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>When</th>
+<th>Setup</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>link-cli</code></td>
+<td>User already has Stripe Link set up, or the 402 challenge advertises <code>method=&quot;stripe&quot;</code></td>
+<td>see the <code>stripe-link-cli</code> skill</td>
+</tr>
+<tr>
+<td>Tempo Wallet</td>
+<td>MPP services with spend controls, service discovery</td>
+<td><code>tempo wallet login</code></td>
+</tr>
+<tr>
+<td>Privy Agent CLI</td>
+<td>Multi-chain wallets, browser-based funding</td>
+<td><code>privy-agent-wallets login</code></td>
+</tr>
+<tr>
+<td>AgentCash</td>
+<td>300+ pre-priced APIs via one USDC.e balance</td>
+<td><code>npx agentcash onboard</code></td>
+</tr>
+<tr>
+<td><code>mppx</code></td>
+<td>Dev + debugging, smallest dep surface</td>
+<td><code>npm install -g mppx</code> then <code>mppx account create</code></td>
+</tr>
+</tbody></table>
+<p>Default: if the user already has Stripe Link configured or the 402 challenge specifies <code>method=&quot;stripe&quot;</code>, use <code>link-cli mpp pay</code> (the <code>stripe-link-cli</code> skill). Otherwise <code>mppx</code> for one-off paid calls and debugging, and Tempo Wallet when the user wants persistent spend controls.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Node.js 20+ on <code>PATH</code></li>
+<li>A funded wallet (Tempo / Privy / AgentCash) OR an <code>mppx</code> account</li>
+<li>For Tempo / Privy / AgentCash: follow their respective onboarding skills:<ul>
+<li><code>https://tempo.xyz/SKILL.md</code></li>
+<li><code>https://agents.privy.io/skill.md</code></li>
+<li><code>https://agentcash.dev/skill.md</code></li>
+</ul>
+</li>
+</ul>
+<p>Use <code>web_extract</code> to fetch any of those SKILL.md files if the user picks one.</p>
+<h3>Procedure (mppx, fastest path)</h3>
+<p>Run all commands through the <code>terminal</code> tool.</p>
+<h4>1. Install + create an account</h4>
+<pre><code>npm install -g mppx
+mppx account create
+</code></pre>
+<p>Store the resulting account credentials wherever the CLI tells you (the CLI writes them under its own config — do not paste them into the agent transcript).</p>
+<h4>2. Inspect the merchant&#39;s 402 challenge</h4>
+<p>If the user gives you a URL, probe it first to confirm it actually speaks MPP:</p>
+<pre><code>curl -i &lt;url&gt;
+</code></pre>
+<p>A real MPP 402 looks like:</p>
+<pre><code>HTTP/1.1 402 Payment Required
+www-authenticate: tempo amount=0.1 currency=...
+</code></pre>
+<h4>3. Pay the request</h4>
+<pre><code>mppx &lt;url&gt;
+</code></pre>
+<p>For non-GET methods or request bodies:</p>
+<pre><code>mppx &lt;url&gt; --method POST --data &#39;&lt;json&gt;&#39;
+</code></pre>
+<p><code>mppx</code> handles the 402 challenge/credential dance automatically and prints the merchant&#39;s actual response on success.</p>
+<h4>4. Verify the receipt</h4>
+<p><code>mppx</code> attaches the receipt header automatically. To inspect:</p>
+<pre><code>mppx &lt;url&gt; -v
+</code></pre>
+<h3>Procedure (Tempo Wallet)</h3>
+<p>The Tempo Wallet skill at <a href="https://tempo.xyz/SKILL.md">https://tempo.xyz/SKILL.md</a> is the canonical reference; fetch it with <code>web_extract</code> and follow it. Headline:</p>
+<pre><code>tempo wallet login
+tempo wallet pay &lt;url&gt;
+</code></pre>
+<p>Spend controls and service discovery live in the wallet UI at <a href="https://wallet.tempo.xyz">https://wallet.tempo.xyz</a>.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong><code>HTTP 402</code> without <code>method=&quot;stripe&quot;</code> cannot be paid by Stripe Link.</strong> If the challenge advertises only Tempo / other methods, use <code>mppx</code> (or whichever wallet matches) — Link will reject it. Conversely, if it advertises <code>method=&quot;stripe&quot;</code>, prefer Link via the <code>stripe-link-cli</code> skill so the spend goes through the user&#39;s approved card.</li>
+<li><strong>Multiple challenges in one header.</strong> <code>www-authenticate</code> may list several methods (e.g. <code>tempo, stripe</code>). The Link CLI&#39;s <code>mpp decode</code> will pick the Stripe one; <code>mppx</code> will pick Tempo. There&#39;s no single &quot;right&quot; client — pick by which wallet the user has funded.</li>
+<li><strong>Zero-amount challenges.</strong> Some MPP endpoints charge <code>$0.00</code> and just want a proof credential. These work without a funded wallet. Don&#39;t refuse them as &quot;broken.&quot;</li>
+<li><strong>Wallet keys never enter agent context.</strong> All four clients store keys under their own config dirs (or generate per-session ephemeral keypairs, in Privy&#39;s case). Do not <code>cat</code>/<code>read_file</code> them.</li>
+<li><strong>Server-side MPP is a different skill.</strong> If the user wants to ADD 402 to their own API, this skill is wrong — point them at <a href="https://mpp.dev/quickstart/server">https://mpp.dev/quickstart/server</a> and the <code>mppx/nextjs</code> / <code>mppx/hono</code> / <code>mppx/express</code> / <code>mppx/elysia</code> middlewares. A dedicated <code>mpp-server</code> skill may land later.</li>
+</ul>
+<h3>Verification</h3>
+<pre><code>mppx --version &amp;&amp; mppx account list
+</code></pre>
+<p>Exit code 0 means installed and an account exists.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/payments/mpp-agent</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

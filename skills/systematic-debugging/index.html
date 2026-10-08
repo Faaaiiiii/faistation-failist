@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>systematic-debugging — Skill Hermes</title>
+<meta name="description" content="4-phase root cause debugging: understand bugs before fixing.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>systematic-debugging</h1>
+    <p class="lede">4-phase root cause debugging: understand bugs before fixing.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>systematic-debugging</dd>
+      <dt>Keterangan</dt><dd>4-phase root cause debugging: understand bugs before fixing.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (adapted from obra/superpowers)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/systematic-debugging.zip" download>Muat turun ZIP (6.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Systematic Debugging</h2>
+<h3>Overview</h3>
+<p>Random fixes waste time and create new bugs. Quick patches mask underlying issues.</p>
+<p><strong>Core principle:</strong> ALWAYS find root cause before attempting fixes. Symptom fixes are failure.</p>
+<p><strong>Violating the letter of this process is violating the spirit of debugging.</strong></p>
+<h3>The Iron Law</h3>
+<pre><code>NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST
+</code></pre>
+<p>If you haven&#39;t completed Phase 1, you cannot propose fixes.</p>
+<h3>The Feedback Loop Rule</h3>
+<p>The feedback loop is the debugging work. Before reading code to build a theory, create or identify a <strong>tight</strong> command that can go red on the user&#39;s exact symptom and green when the bug is fixed. A tight loop is fast, deterministic, agent-runnable, and specific enough to catch this bug — not merely &quot;doesn&#39;t crash&quot;.</p>
+<p>When a clean repro is hard, spend disproportionate effort building the loop. Guessing without a red-capable loop is the failure mode this skill exists to prevent.</p>
+<h3>When to Use</h3>
+<p>Use for ANY technical issue:</p>
+<ul>
+<li>Test failures</li>
+<li>Bugs in production</li>
+<li>Unexpected behavior</li>
+<li>Performance problems</li>
+<li>Build failures</li>
+<li>Integration issues</li>
+</ul>
+<p><strong>Use this ESPECIALLY when:</strong></p>
+<ul>
+<li>Under time pressure (emergencies make guessing tempting)</li>
+<li>&quot;Just one quick fix&quot; seems obvious</li>
+<li>You&#39;ve already tried multiple fixes</li>
+<li>Previous fix didn&#39;t work</li>
+<li>You don&#39;t fully understand the issue</li>
+</ul>
+<p><strong>Don&#39;t skip when:</strong></p>
+<ul>
+<li>Issue seems simple (simple bugs have root causes too)</li>
+<li>You&#39;re in a hurry (rushing guarantees rework)</li>
+<li>Someone wants it fixed NOW (systematic is faster than thrashing)</li>
+</ul>
+<h3>The Four Phases</h3>
+<p>You MUST complete each phase before proceeding to the next.</p>
+<hr>
+<h3>Phase 1: Root Cause Investigation</h3>
+<p><strong>BEFORE attempting ANY fix:</strong></p>
+<h4>1. Read Error Messages Carefully</h4>
+<ul>
+<li>Don&#39;t skip past errors or warnings</li>
+<li>They often contain the exact solution</li>
+<li>Read stack traces completely</li>
+<li>Note line numbers, file paths, error codes</li>
+</ul>
+<p><strong>Action:</strong> Use <code>read_file</code> on the relevant source files. Use <code>search_files</code> to find the error string in the codebase.</p>
+<h4>2. Build a Tight Feedback Loop</h4>
+<ul>
+<li>Can you trigger the user&#39;s exact symptom with one command?</li>
+<li>Does the command fail for this bug and only pass once the bug is fixed?</li>
+<li>Is it fast enough to run repeatedly?</li>
+<li>Is it deterministic? For flaky bugs, can you raise the reproduction rate high enough to debug?</li>
+<li>If not reproducible → gather more data, don&#39;t guess.</li>
+</ul>
+<p><strong>Ways to construct a loop — try in roughly this order:</strong></p>
+<ol>
+<li><strong>Failing test</strong> at the seam that reaches the bug: unit, integration, or end-to-end.</li>
+<li><strong>HTTP script / curl</strong> against a running dev server.</li>
+<li><strong>CLI invocation</strong> with fixture input, diffing stdout/stderr against expected output.</li>
+<li><strong>Headless browser script</strong> (Playwright/Puppeteer) asserting on DOM, console, or network.</li>
+<li><strong>Replay a captured trace</strong>: HAR, request payload, event log, queue message, or webhook body.</li>
+<li><strong>Throwaway harness</strong> that boots the smallest useful slice of the system and calls the failing path.</li>
+<li><strong>Property / fuzz loop</strong> when the bug is intermittent wrong output over a broad input space.</li>
+<li><strong>Bisection harness</strong> suitable for <code>git bisect run</code> when the bug appeared between two known states.</li>
+<li><strong>Differential loop</strong> comparing old vs new version, two configs, two providers, or two datasets.</li>
+<li><strong>Human-in-the-loop script</strong> only as a last resort: script the human steps and capture their result so the loop stays structured.</li>
+</ol>
+<p><strong>Tighten the loop once it exists:</strong></p>
+<ul>
+<li>Make it faster: cache setup, narrow scope, skip unrelated initialization.</li>
+<li>Make the signal sharper: assert the exact symptom, not generic success.</li>
+<li>Make it more deterministic: pin time, seed randomness, isolate filesystem, freeze network.</li>
+</ul>
+<p>For non-deterministic bugs, the immediate goal is a higher reproduction rate, not perfection. Run the trigger 100x, parallelize, add stress, narrow timing windows, or inject sleeps. A 50% flake is debuggable; a 1% flake usually is not.</p>
+<p><strong>Action:</strong> Use the <code>terminal</code> tool to run the tight loop:</p>
+<pre><code class="language-bash"># Run a specific failing test
+pytest tests/test_module.py::test_name -v
+
+# Or run a scripted repro
+python scripts/repro_bug.py
+
+# Or run a high-repetition flaky repro
+for i in {1..100}; do pytest tests/test_flake.py::test_name -q || break; done
+</code></pre>
+<h4>3. Check Recent Changes</h4>
+<ul>
+<li>What changed that could cause this?</li>
+<li>Git diff, recent commits</li>
+<li>New dependencies, config changes</li>
+</ul>
+<p><strong>Action:</strong></p>
+<pre><code class="language-bash"># Recent commits
+git log --oneline -10
+
+# Uncommitted changes
+git diff
+
+# Changes in specific file
+git log -p --follow src/problematic_file.py | head -100
+</code></pre>
+<h4>4. Gather Evidence in Multi-Component Systems</h4>
+<p><strong>WHEN system has multiple components (API → service → database, CI → build → deploy):</strong></p>
+<p><strong>BEFORE proposing fixes, add diagnostic instrumentation:</strong></p>
+<p>For EACH component boundary:</p>
+<ul>
+<li>Log what data enters the component</li>
+<li>Log what data exits the component</li>
+<li>Verify environment/config propagation</li>
+<li>Check state at each layer</li>
+</ul>
+<p>Run once to gather evidence showing WHERE it breaks.
+THEN analyze evidence to identify the failing component.
+THEN investigate that specific component.</p>
+<h4>5. Trace Data Flow</h4>
+<p><strong>WHEN error is deep in the call stack:</strong></p>
+<ul>
+<li>Where does the bad value originate?</li>
+<li>What called this function with the bad value?</li>
+<li>Keep tracing upstream until you find the source</li>
+<li>Fix at the source, not at the symptom</li>
+</ul>
+<p><strong>Action:</strong> Use <code>search_files</code> to trace references:</p>
+<pre><code class="language-python"># Find where the function is called
+search_files(&quot;function_name(&quot;, path=&quot;src/&quot;, file_glob=&quot;*.py&quot;)
+
+# Find where the variable is set
+search_files(&quot;variable_name\\s*=&quot;, path=&quot;src/&quot;, file_glob=&quot;*.py&quot;)
+</code></pre>
+<h4>Phase 1 Completion Checklist</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Error messages fully read and understood</li>
+<li><input disabled="" type="checkbox"> A tight loop command exists and has been run at least once</li>
+<li><input disabled="" type="checkbox"> Loop is red-capable: it asserts the user&#39;s exact symptom, not a nearby failure</li>
+<li><input disabled="" type="checkbox"> Loop is deterministic, or a flaky bug has a high enough reproduction rate to debug</li>
+<li><input disabled="" type="checkbox"> Recent changes identified and reviewed</li>
+<li><input disabled="" type="checkbox"> Evidence gathered (logs, state, data flow)</li>
+<li><input disabled="" type="checkbox"> Problem isolated to specific component/code</li>
+<li><input disabled="" type="checkbox"> Root cause hypotheses can be stated and tested</li>
+</ul>
+<p><strong>STOP:</strong> Do not proceed to Phase 2 until you understand WHY it&#39;s happening.</p>
+<hr>
+<h3>Phase 2: Pattern Analysis</h3>
+<p><strong>Find the pattern before fixing:</strong></p>
+<h4>0. Minimize the Reproduction</h4>
+<p>Once the loop is red, shrink the repro to the smallest scenario that still goes red. Cut inputs, callers, config, data, and steps <strong>one at a time</strong>, re-running the loop after each cut. Keep only what is load-bearing for the failure.</p>
+<p>Done when removing any remaining element makes the loop go green. A minimal repro narrows the hypothesis space and often becomes the cleanest regression test.</p>
+<h4>1. Find Working Examples</h4>
+<ul>
+<li>Locate similar working code in the same codebase</li>
+<li>What works that&#39;s similar to what&#39;s broken?</li>
+</ul>
+<p><strong>Action:</strong> Use <code>search_files</code> to find comparable patterns:</p>
+<pre><code class="language-python">search_files(&quot;similar_pattern&quot;, path=&quot;src/&quot;, file_glob=&quot;*.py&quot;)
+</code></pre>
+<h4>2. Compare Against References</h4>
+<ul>
+<li>If implementing a pattern, read the reference implementation COMPLETELY</li>
+<li>Don&#39;t skim — read every line</li>
+<li>Understand the pattern fully before applying</li>
+</ul>
+<h4>3. Identify Differences</h4>
+<ul>
+<li>What&#39;s different between working and broken?</li>
+<li>List every difference, however small</li>
+<li>Don&#39;t assume &quot;that can&#39;t matter&quot;</li>
+</ul>
+<h4>4. Understand Dependencies</h4>
+<ul>
+<li>What other components does this need?</li>
+<li>What settings, config, environment?</li>
+<li>What assumptions does it make?</li>
+</ul>
+<hr>
+<h3>Phase 3: Hypothesis and Testing</h3>
+<p><strong>Scientific method:</strong></p>
+<h4>1. Form Ranked Falsifiable Hypotheses</h4>
+<ul>
+<li>Generate 3–5 plausible hypotheses before testing any single one.</li>
+<li>Rank them by likelihood and cheapness to falsify.</li>
+<li>State the prediction each hypothesis makes: &quot;If X is the cause, then changing or observing Y should make Z happen.&quot;</li>
+<li>Discard or sharpen any hypothesis that does not make a testable prediction.</li>
+</ul>
+<p>If the user is present, show the ranked list before testing. They may have domain knowledge that instantly re-ranks it. If the user is AFK, proceed with your ranking.</p>
+<h4>2. Test Minimally</h4>
+<ul>
+<li>Test the highest-ranked hypothesis with the smallest possible probe.</li>
+<li>Change one variable at a time.</li>
+<li>Don&#39;t fix multiple things at once.</li>
+<li>Prefer debugger/REPL inspection when available; one breakpoint beats ten logs.</li>
+<li>If you add logs, tag every temporary line with a unique prefix such as <code>[DEBUG-a4f2]</code> so cleanup is a single search.</li>
+</ul>
+<h4>3. Verify Before Continuing</h4>
+<ul>
+<li>Did it work? → Phase 4</li>
+<li>Didn&#39;t work? → Form NEW hypothesis</li>
+<li>DON&#39;T add more fixes on top</li>
+</ul>
+<h4>4. When You Don&#39;t Know</h4>
+<ul>
+<li>Say &quot;I don&#39;t understand X&quot;</li>
+<li>Don&#39;t pretend to know</li>
+<li>Ask the user for help</li>
+<li>Research more</li>
+</ul>
+<hr>
+<h3>Phase 4: Implementation</h3>
+<p><strong>Fix the root cause, not the symptom:</strong></p>
+<h4>1. Create Failing Test Case</h4>
+<ul>
+<li>Simplest possible reproduction</li>
+<li>Automated test if possible</li>
+<li>MUST have before fixing</li>
+<li>Use the <code>test-driven-development</code> skill</li>
+</ul>
+<h4>2. Implement Single Fix</h4>
+<ul>
+<li>Address the root cause identified</li>
+<li>ONE change at a time</li>
+<li>No &quot;while I&#39;m here&quot; improvements</li>
+<li>No bundled refactoring</li>
+</ul>
+<h4>3. Verify Fix</h4>
+<pre><code class="language-bash"># Run the specific regression test
+pytest tests/test_module.py::test_regression -v
+
+# Run full suite — no regressions
+pytest tests/ -q
+</code></pre>
+<h4>4. If Fix Doesn&#39;t Work — The Rule of Three</h4>
+<ul>
+<li><strong>STOP.</strong></li>
+<li>Count: How many fixes have you tried?</li>
+<li>If &lt; 3: Return to Phase 1, re-analyze with new information</li>
+<li><strong>If ≥ 3: STOP and question the architecture (step 5 below)</strong></li>
+<li>DON&#39;T attempt Fix #4 without architectural discussion</li>
+</ul>
+<h4>5. If 3+ Fixes Failed: Question Architecture</h4>
+<p><strong>Pattern indicating an architectural problem:</strong></p>
+<ul>
+<li>Each fix reveals new shared state/coupling in a different place</li>
+<li>Fixes require &quot;massive refactoring&quot; to implement</li>
+<li>Each fix creates new symptoms elsewhere</li>
+</ul>
+<p><strong>STOP and question fundamentals:</strong></p>
+<ul>
+<li>Is this pattern fundamentally sound?</li>
+<li>Are we &quot;sticking with it through sheer inertia&quot;?</li>
+<li>Should we refactor the architecture vs. continue fixing symptoms?</li>
+</ul>
+<p><strong>Discuss with the user before attempting more fixes.</strong></p>
+<p>This is NOT a failed hypothesis — this is a wrong architecture.</p>
+<hr>
+<h3>Red Flags — STOP and Follow Process</h3>
+<p>If you catch yourself thinking:</p>
+<ul>
+<li>&quot;Quick fix for now, investigate later&quot;</li>
+<li>&quot;Just try changing X and see if it works&quot;</li>
+<li>&quot;Add multiple changes, run tests&quot;</li>
+<li>&quot;Skip the test, I&#39;ll manually verify&quot;</li>
+<li>&quot;It&#39;s probably X, let me fix that&quot;</li>
+<li>&quot;I don&#39;t fully understand but this might work&quot;</li>
+<li>&quot;Pattern says X but I&#39;ll adapt it differently&quot;</li>
+<li>&quot;Here are the main problems: [lists fixes without investigation]&quot;</li>
+<li>Proposing solutions before tracing data flow</li>
+<li><strong>&quot;One more fix attempt&quot; (when already tried 2+)</strong></li>
+<li><strong>Each fix reveals a new problem in a different place</strong></li>
+</ul>
+<p><strong>ALL of these mean: STOP. Return to Phase 1.</strong></p>
+<p><strong>If 3+ fixes failed:</strong> Question the architecture (Phase 4 step 5).</p>
+<h3>Common Rationalizations</h3>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;Issue is simple, don&#39;t need process&quot;</td>
+<td>Simple issues have root causes too. Process is fast for simple bugs.</td>
+</tr>
+<tr>
+<td>&quot;Emergency, no time for process&quot;</td>
+<td>Systematic debugging is FASTER than guess-and-check thrashing.</td>
+</tr>
+<tr>
+<td>&quot;Just try this first, then investigate&quot;</td>
+<td>First fix sets the pattern. Do it right from the start.</td>
+</tr>
+<tr>
+<td>&quot;I&#39;ll write test after confirming fix works&quot;</td>
+<td>Untested fixes don&#39;t stick. Test first proves it.</td>
+</tr>
+<tr>
+<td>&quot;Multiple fixes at once saves time&quot;</td>
+<td>Can&#39;t isolate what worked. Causes new bugs.</td>
+</tr>
+<tr>
+<td>&quot;Reference too long, I&#39;ll adapt the pattern&quot;</td>
+<td>Partial understanding guarantees bugs. Read it completely.</td>
+</tr>
+<tr>
+<td>&quot;I see the problem, let me fix it&quot;</td>
+<td>Seeing symptoms ≠ understanding root cause.</td>
+</tr>
+<tr>
+<td>&quot;One more fix attempt&quot; (after 2+ failures)</td>
+<td>3+ failures = architectural problem. Question the pattern, don&#39;t fix again.</td>
+</tr>
+</tbody></table>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Key Activities</th>
+<th>Success Criteria</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1. Root Cause</strong></td>
+<td>Read errors, reproduce, check changes, gather evidence, trace data flow</td>
+<td>Understand WHAT and WHY</td>
+</tr>
+<tr>
+<td><strong>2. Pattern</strong></td>
+<td>Find working examples, compare, identify differences</td>
+<td>Know what&#39;s different</td>
+</tr>
+<tr>
+<td><strong>3. Hypothesis</strong></td>
+<td>Form theory, test minimally, one variable at a time</td>
+<td>Confirmed or new hypothesis</td>
+</tr>
+<tr>
+<td><strong>4. Implementation</strong></td>
+<td>Create regression test, fix root cause, verify</td>
+<td>Bug resolved, all tests pass</td>
+</tr>
+</tbody></table>
+<h3>Hermes Agent Integration</h3>
+<h4>Investigation Tools</h4>
+<p>Use these Hermes tools during Phase 1:</p>
+<ul>
+<li><strong><code>search_files</code></strong> — Find error strings, trace function calls, locate patterns</li>
+<li><strong><code>read_file</code></strong> — Read source code with line numbers for precise analysis</li>
+<li><strong><code>terminal</code></strong> — Run tests, check git history, reproduce bugs</li>
+<li><strong><code>web_search</code>/<code>web_extract</code></strong> — Research error messages, library docs</li>
+</ul>
+<h4>With delegate_task</h4>
+<p>For complex multi-component debugging, dispatch investigation subagents:</p>
+<pre><code class="language-python">delegate_task(
+    goal=&quot;Investigate why [specific test/behavior] fails&quot;,
+    context=&quot;&quot;&quot;
+    Follow systematic-debugging skill:
+    1. Read the error message carefully
+    2. Reproduce the issue
+    3. Trace the data flow to find root cause
+    4. Report findings — do NOT fix yet
+
+    Error: [paste full error]
+    File: [path to failing code]
+    Test command: [exact command]
+    &quot;&quot;&quot;,
+    toolsets=[&#39;terminal&#39;, &#39;file&#39;]
+)
+</code></pre>
+<h4>With test-driven-development</h4>
+<p>When fixing bugs:</p>
+<ol>
+<li>Write a test that reproduces the bug (RED)</li>
+<li>Debug systematically to find root cause</li>
+<li>Fix the root cause (GREEN)</li>
+<li>The test proves the fix and prevents regression</li>
+</ol>
+<h3>Real-World Impact</h3>
+<p>From debugging sessions:</p>
+<ul>
+<li>Systematic approach: 15-30 minutes to fix</li>
+<li>Random fixes approach: 2-3 hours of thrashing</li>
+<li>First-time fix rate: 95% vs 40%</li>
+<li>New bugs introduced: Near zero vs common</li>
+</ul>
+<p><strong>No shortcuts. No guessing. Systematic always wins.</strong></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/systematic-debugging</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

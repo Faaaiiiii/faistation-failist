@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>faiss — Skill Hermes</title>
+<meta name="description" content="Fast vector similarity search at billion scale.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>faiss</h1>
+    <p class="lede">Fast vector similarity search at billion scale.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>faiss</dd>
+      <dt>Keterangan</dt><dd>Fast vector similarity search at billion scale.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/faiss.zip" download>Muat turun ZIP (4.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>references/index_types.md</code></td><td class="sz">6.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>FAISS - Efficient Similarity Search</h2>
+<p>Facebook AI&#39;s library for billion-scale vector similarity search.</p>
+<h3>When to use FAISS</h3>
+<p><strong>Use FAISS when:</strong></p>
+<ul>
+<li>Need fast similarity search on large vector datasets (millions/billions)</li>
+<li>GPU acceleration required</li>
+<li>Pure vector similarity (no metadata filtering needed)</li>
+<li>High throughput, low latency critical</li>
+<li>Offline/batch processing of embeddings</li>
+</ul>
+<p><strong>Metrics</strong>:</p>
+<ul>
+<li><strong>31,700+ GitHub stars</strong></li>
+<li>Meta/Facebook AI Research</li>
+<li><strong>Handles billions of vectors</strong></li>
+<li><strong>C++</strong> with Python bindings</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>Chroma/Pinecone</strong>: Need metadata filtering</li>
+<li><strong>Weaviate</strong>: Need full database features</li>
+<li><strong>Annoy</strong>: Simpler, fewer features</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># CPU only
+pip install faiss-cpu
+
+# GPU support
+pip install faiss-gpu
+</code></pre>
+<h4>Basic usage</h4>
+<pre><code class="language-python">import faiss
+import numpy as np
+
+# Create sample data (1000 vectors, 128 dimensions)
+d = 128
+nb = 1000
+vectors = np.random.random((nb, d)).astype(&#39;float32&#39;)
+
+# Create index
+index = faiss.IndexFlatL2(d)  # L2 distance
+index.add(vectors)             # Add vectors
+
+# Search
+k = 5  # Find 5 nearest neighbors
+query = np.random.random((1, d)).astype(&#39;float32&#39;)
+distances, indices = index.search(query, k)
+
+print(f&quot;Nearest neighbors: {indices}&quot;)
+print(f&quot;Distances: {distances}&quot;)
+</code></pre>
+<h3>Index types</h3>
+<h4>1. Flat (exact search)</h4>
+<pre><code class="language-python"># L2 (Euclidean) distance
+index = faiss.IndexFlatL2(d)
+
+# Inner product (cosine similarity if normalized)
+index = faiss.IndexFlatIP(d)
+
+# Slowest, most accurate
+</code></pre>
+<h4>2. IVF (inverted file) - Fast approximate</h4>
+<pre><code class="language-python"># Create quantizer
+quantizer = faiss.IndexFlatL2(d)
+
+# IVF index with 100 clusters
+nlist = 100
+index = faiss.IndexIVFFlat(quantizer, d, nlist)
+
+# Train on data
+index.train(vectors)
+
+# Add vectors
+index.add(vectors)
+
+# Search (nprobe = clusters to search)
+index.nprobe = 10
+distances, indices = index.search(query, k)
+</code></pre>
+<h4>3. HNSW (Hierarchical NSW) - Best quality/speed</h4>
+<pre><code class="language-python"># HNSW index
+M = 32  # Number of connections per layer
+index = faiss.IndexHNSWFlat(d, M)
+
+# No training needed
+index.add(vectors)
+
+# Search
+distances, indices = index.search(query, k)
+</code></pre>
+<h4>4. Product Quantization - Memory efficient</h4>
+<pre><code class="language-python"># PQ reduces memory by 16-32×
+m = 8   # Number of subquantizers
+nbits = 8
+index = faiss.IndexPQ(d, m, nbits)
+
+# Train and add
+index.train(vectors)
+index.add(vectors)
+</code></pre>
+<h3>Save and load</h3>
+<pre><code class="language-python"># Save index
+faiss.write_index(index, &quot;large.index&quot;)
+
+# Load index
+index = faiss.read_index(&quot;large.index&quot;)
+
+# Continue using
+distances, indices = index.search(query, k)
+</code></pre>
+<h3>GPU acceleration</h3>
+<pre><code class="language-python"># Single GPU
+res = faiss.StandardGpuResources()
+index_cpu = faiss.IndexFlatL2(d)
+index_gpu = faiss.index_cpu_to_gpu(res, 0, index_cpu)  # GPU 0
+
+# Multi-GPU
+index_gpu = faiss.index_cpu_to_all_gpus(index_cpu)
+
+# 10-100× faster than CPU
+</code></pre>
+<h3>LangChain integration</h3>
+<pre><code class="language-python">from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+
+# Create FAISS vector store
+vectorstore = FAISS.from_documents(docs, OpenAIEmbeddings())
+
+# Save
+vectorstore.save_local(&quot;faiss_index&quot;)
+
+# Load
+vectorstore = FAISS.load_local(
+    &quot;faiss_index&quot;,
+    OpenAIEmbeddings(),
+    allow_dangerous_deserialization=True
+)
+
+# Search
+results = vectorstore.similarity_search(&quot;query&quot;, k=5)
+</code></pre>
+<h3>LlamaIndex integration</h3>
+<pre><code class="language-python">from llama_index.vector_stores.faiss import FaissVectorStore
+import faiss
+
+# Create FAISS index
+d = 1536
+faiss_index = faiss.IndexFlatL2(d)
+
+vector_store = FaissVectorStore(faiss_index=faiss_index)
+</code></pre>
+<h3>Best practices</h3>
+<ol>
+<li><strong>Choose right index type</strong> - Flat for &lt;10K, IVF for 10K-1M, HNSW for quality</li>
+<li><strong>Normalize for cosine</strong> - Use IndexFlatIP with normalized vectors</li>
+<li><strong>Use GPU for large datasets</strong> - 10-100× faster</li>
+<li><strong>Save trained indices</strong> - Training is expensive</li>
+<li><strong>Tune nprobe/ef_search</strong> - Balance speed/accuracy</li>
+<li><strong>Monitor memory</strong> - PQ for large datasets</li>
+<li><strong>Batch queries</strong> - Better GPU utilization</li>
+</ol>
+<h3>Performance</h3>
+<table>
+<thead>
+<tr>
+<th>Index Type</th>
+<th>Build Time</th>
+<th>Search Time</th>
+<th>Memory</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Flat</td>
+<td>Fast</td>
+<td>Slow</td>
+<td>High</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>IVF</td>
+<td>Medium</td>
+<td>Fast</td>
+<td>Medium</td>
+<td>95-99%</td>
+</tr>
+<tr>
+<td>HNSW</td>
+<td>Slow</td>
+<td>Fastest</td>
+<td>High</td>
+<td>99%</td>
+</tr>
+<tr>
+<td>PQ</td>
+<td>Medium</td>
+<td>Fast</td>
+<td>Low</td>
+<td>90-95%</td>
+</tr>
+</tbody></table>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/facebookresearch/faiss">https://github.com/facebookresearch/faiss</a> ⭐ 31,700+</li>
+<li><strong>Wiki</strong>: <a href="https://github.com/facebookresearch/faiss/wiki">https://github.com/facebookresearch/faiss/wiki</a></li>
+<li><strong>License</strong>: MIT</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/faiss</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

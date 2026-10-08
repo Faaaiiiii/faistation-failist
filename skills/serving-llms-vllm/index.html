@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>serving-llms-vllm — Skill Hermes</title>
+<meta name="description" content="vLLM: high-throughput LLM serving, OpenAI API, quantization.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>serving-llms-vllm</h1>
+    <p class="lede">vLLM: high-throughput LLM serving, OpenAI API, quantization.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>serving-llms-vllm</dd>
+      <dt>Keterangan</dt><dd>vLLM: high-throughput LLM serving, OpenAI API, quantization.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/serving-llms-vllm.zip" download>Muat turun ZIP (14.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.1 KB</td></tr>
+<tr><td><code>references/optimization.md</code></td><td class="sz">5.6 KB</td></tr>
+<tr><td><code>references/quantization.md</code></td><td class="sz">6.6 KB</td></tr>
+<tr><td><code>references/server-deployment.md</code></td><td class="sz">5.1 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">8.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>vLLM - High-Performance LLM Serving</h2>
+<h3>When to use</h3>
+<p>Use when deploying production LLM APIs, optimizing inference latency/throughput, or serving models with limited GPU memory. Supports OpenAI-compatible endpoints, quantization (GPTQ/AWQ/FP8), and tensor parallelism.</p>
+<h3>Quick start</h3>
+<p>vLLM achieves 24x higher throughput than standard transformers through PagedAttention (block-based KV cache) and continuous batching (mixing prefill/decode requests).</p>
+<p><strong>Installation</strong>:</p>
+<pre><code class="language-bash">pip install vllm
+</code></pre>
+<p><strong>Basic offline inference</strong>:</p>
+<pre><code class="language-python">from vllm import LLM, SamplingParams
+
+llm = LLM(model=&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;)
+sampling = SamplingParams(temperature=0.7, max_tokens=256)
+
+outputs = llm.generate([&quot;Explain quantum computing&quot;], sampling)
+print(outputs[0].outputs[0].text)
+</code></pre>
+<p><strong>OpenAI-compatible server</strong>:</p>
+<pre><code class="language-bash">vllm serve meta-llama/Meta-Llama-3-8B-Instruct
+
+# Query with OpenAI SDK
+python -c &quot;
+from openai import OpenAI
+client = OpenAI(base_url=&#39;http://localhost:8000/v1&#39;, api_key=&#39;EMPTY&#39;)
+print(client.chat.completions.create(
+    model=&#39;meta-llama/Meta-Llama-3-8B-Instruct&#39;,
+    messages=[{&#39;role&#39;: &#39;user&#39;, &#39;content&#39;: &#39;Hello!&#39;}]
+).choices[0].message.content)
+&quot;
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Production API deployment</h4>
+<p>Copy this checklist and track progress:</p>
+<pre><code>Deployment Progress:
+- [ ] Step 1: Configure server settings
+- [ ] Step 2: Test with limited traffic
+- [ ] Step 3: Enable monitoring
+- [ ] Step 4: Deploy to production
+- [ ] Step 5: Verify performance metrics
+</code></pre>
+<p><strong>Step 1: Configure server settings</strong></p>
+<p>Choose configuration based on your model size:</p>
+<pre><code class="language-bash"># For 7B-13B models on single GPU
+vllm serve meta-llama/Meta-Llama-3-8B-Instruct \
+  --gpu-memory-utilization 0.9 \
+  --max-model-len 8192 \
+  --port 8000
+
+# For 30B-70B models with tensor parallelism
+vllm serve meta-llama/Meta-Llama-3-70B-Instruct \
+  --tensor-parallel-size 4 \
+  --gpu-memory-utilization 0.9 \
+  --quantization awq \
+  --port 8000
+
+# For production with caching (Prometheus metrics are exposed
+# automatically at /metrics on the API port)
+vllm serve meta-llama/Meta-Llama-3-8B-Instruct \
+  --gpu-memory-utilization 0.9 \
+  --enable-prefix-caching \
+  --port 8000 \
+  --host 0.0.0.0
+</code></pre>
+<p><strong>Step 2: Test with limited traffic</strong></p>
+<p>Run load test before production:</p>
+<pre><code class="language-bash"># Install load testing tool
+pip install locust
+
+# Create test_load.py with sample requests
+# Run: locust -f test_load.py --host http://localhost:8000
+</code></pre>
+<p>Verify TTFT (time to first token) &lt; 500ms and throughput &gt; 100 req/sec.</p>
+<p><strong>Step 3: Enable monitoring</strong></p>
+<p>vLLM exposes Prometheus metrics at <code>/metrics</code> on the API port (default 8000):</p>
+<pre><code class="language-bash">curl http://localhost:8000/metrics | grep vllm
+</code></pre>
+<p>Key metrics to monitor:</p>
+<ul>
+<li><code>vllm:time_to_first_token_seconds</code> - Latency</li>
+<li><code>vllm:num_requests_running</code> - Active requests</li>
+<li><code>vllm:gpu_cache_usage_perc</code> - KV cache utilization</li>
+</ul>
+<p><strong>Step 4: Deploy to production</strong></p>
+<p>Use Docker for consistent deployment:</p>
+<pre><code class="language-bash"># Run vLLM in Docker
+docker run --gpus all -p 8000:8000 \
+  vllm/vllm-openai:latest \
+  --model meta-llama/Meta-Llama-3-8B-Instruct \
+  --gpu-memory-utilization 0.9 \
+  --enable-prefix-caching
+</code></pre>
+<p><strong>Step 5: Verify performance metrics</strong></p>
+<p>Check that deployment meets targets:</p>
+<ul>
+<li>TTFT &lt; 500ms (for short prompts)</li>
+<li>Throughput &gt; target req/sec</li>
+<li>GPU utilization &gt; 80%</li>
+<li>No OOM errors in logs</li>
+</ul>
+<h4>Workflow 2: Offline batch inference</h4>
+<p>For processing large datasets without server overhead.</p>
+<p>Copy this checklist:</p>
+<pre><code>Batch Processing:
+- [ ] Step 1: Prepare input data
+- [ ] Step 2: Configure LLM engine
+- [ ] Step 3: Run batch inference
+- [ ] Step 4: Process results
+</code></pre>
+<p><strong>Step 1: Prepare input data</strong></p>
+<pre><code class="language-python"># Load prompts from file
+prompts = []
+with open(&quot;prompts.txt&quot;) as f:
+    prompts = [line.strip() for line in f]
+
+print(f&quot;Loaded {len(prompts)} prompts&quot;)
+</code></pre>
+<p><strong>Step 2: Configure LLM engine</strong></p>
+<pre><code class="language-python">from vllm import LLM, SamplingParams
+
+llm = LLM(
+    model=&quot;meta-llama/Meta-Llama-3-8B-Instruct&quot;,
+    tensor_parallel_size=2,  # Use 2 GPUs
+    gpu_memory_utilization=0.9,
+    max_model_len=4096
+)
+
+sampling = SamplingParams(
+    temperature=0.7,
+    top_p=0.95,
+    max_tokens=512,
+    stop=[&quot;&lt;/s&gt;&quot;, &quot;\n\n&quot;]
+)
+</code></pre>
+<p><strong>Step 3: Run batch inference</strong></p>
+<p>vLLM automatically batches requests for efficiency:</p>
+<pre><code class="language-python"># Process all prompts in one call
+outputs = llm.generate(prompts, sampling)
+
+# vLLM handles batching internally
+# No need to manually chunk prompts
+</code></pre>
+<p><strong>Step 4: Process results</strong></p>
+<pre><code class="language-python"># Extract generated text
+results = []
+for output in outputs:
+    prompt = output.prompt
+    generated = output.outputs[0].text
+    results.append({
+        &quot;prompt&quot;: prompt,
+        &quot;generated&quot;: generated,
+        &quot;tokens&quot;: len(output.outputs[0].token_ids)
+    })
+
+# Save to file
+import json
+with open(&quot;results.jsonl&quot;, &quot;w&quot;) as f:
+    for result in results:
+        f.write(json.dumps(result) + &quot;\n&quot;)
+
+print(f&quot;Processed {len(results)} prompts&quot;)
+</code></pre>
+<h4>Workflow 3: Quantized model serving</h4>
+<p>Fit large models in limited GPU memory.</p>
+<pre><code>Quantization Setup:
+- [ ] Step 1: Choose quantization method
+- [ ] Step 2: Find or create quantized model
+- [ ] Step 3: Launch with quantization flag
+- [ ] Step 4: Verify accuracy
+</code></pre>
+<p><strong>Step 1: Choose quantization method</strong></p>
+<ul>
+<li><strong>AWQ</strong>: Best for 70B models, minimal accuracy loss</li>
+<li><strong>GPTQ</strong>: Wide model support, good compression</li>
+<li><strong>FP8</strong>: Fastest on H100 GPUs</li>
+</ul>
+<p><strong>Step 2: Find or create quantized model</strong></p>
+<p>Use pre-quantized models from HuggingFace:</p>
+<pre><code class="language-bash"># Search for AWQ models
+# Example: TheBloke/Llama-2-70B-AWQ
+</code></pre>
+<p><strong>Step 3: Launch with quantization flag</strong></p>
+<pre><code class="language-bash"># Using pre-quantized model
+vllm serve TheBloke/Llama-2-70B-AWQ \
+  --quantization awq \
+  --tensor-parallel-size 1 \
+  --gpu-memory-utilization 0.95
+
+# Results: 70B model in ~40GB VRAM
+</code></pre>
+<p><strong>Step 4: Verify accuracy</strong></p>
+<p>Test outputs match expected quality:</p>
+<pre><code class="language-python"># Compare quantized vs non-quantized responses
+# Verify task-specific performance unchanged
+</code></pre>
+<h3>When to use vs alternatives</h3>
+<p><strong>Use vLLM when:</strong></p>
+<ul>
+<li>Deploying production LLM APIs (100+ req/sec)</li>
+<li>Serving OpenAI-compatible endpoints</li>
+<li>Limited GPU memory but need large models</li>
+<li>Multi-user applications (chatbots, assistants)</li>
+<li>Need low latency with high throughput</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>llama.cpp</strong>: CPU/edge inference, single-user</li>
+<li><strong>HuggingFace transformers</strong>: Research, prototyping, one-off generation</li>
+<li><strong>TensorRT-LLM</strong>: NVIDIA-only, need absolute maximum performance</li>
+<li><strong>Text-Generation-Inference</strong>: Already in HuggingFace ecosystem</li>
+</ul>
+<h3>Common issues</h3>
+<p><strong>Issue: Out of memory during model loading</strong></p>
+<p>Reduce memory usage:</p>
+<pre><code class="language-bash">vllm serve MODEL \
+  --gpu-memory-utilization 0.7 \
+  --max-model-len 4096
+</code></pre>
+<p>Or use quantization:</p>
+<pre><code class="language-bash">vllm serve MODEL --quantization awq
+</code></pre>
+<p><strong>Issue: Slow first token (TTFT &gt; 1 second)</strong></p>
+<p>Enable prefix caching for repeated prompts:</p>
+<pre><code class="language-bash">vllm serve MODEL --enable-prefix-caching
+</code></pre>
+<p>For long prompts, enable chunked prefill:</p>
+<pre><code class="language-bash">vllm serve MODEL --enable-chunked-prefill
+</code></pre>
+<p><strong>Issue: Model not found error</strong></p>
+<p>Use <code>--trust-remote-code</code> for custom models:</p>
+<pre><code class="language-bash">vllm serve MODEL --trust-remote-code
+</code></pre>
+<p><strong>Issue: Low throughput (&lt;50 req/sec)</strong></p>
+<p>Increase concurrent sequences:</p>
+<pre><code class="language-bash">vllm serve MODEL --max-num-seqs 512
+</code></pre>
+<p>Check GPU utilization with <code>nvidia-smi</code> - should be &gt;80%.</p>
+<p><strong>Issue: Inference slower than expected</strong></p>
+<p>Verify tensor parallelism uses power of 2 GPUs:</p>
+<pre><code class="language-bash">vllm serve MODEL --tensor-parallel-size 4  # Not 3
+</code></pre>
+<p>Enable speculative decoding for faster generation (pass config as JSON;
+<code>--speculative-model</code> was removed in favor of <code>--speculative-config</code>):</p>
+<pre><code class="language-bash">vllm serve MODEL \
+  --speculative-config &#39;{&quot;model&quot;: &quot;DRAFT_MODEL&quot;, &quot;num_speculative_tokens&quot;: 5, &quot;method&quot;: &quot;draft_model&quot;}&#39;
+</code></pre>
+<h3>Advanced topics</h3>
+<p><strong>Server deployment patterns</strong>: See <a href="references/server-deployment.md">references/server-deployment.md</a> for Docker, Kubernetes, and load balancing configurations.</p>
+<p><strong>Performance optimization</strong>: See <a href="references/optimization.md">references/optimization.md</a> for PagedAttention tuning, continuous batching details, and benchmark results.</p>
+<p><strong>Quantization guide</strong>: See <a href="references/quantization.md">references/quantization.md</a> for AWQ/GPTQ/FP8 setup, model preparation, and accuracy comparisons.</p>
+<p><strong>Troubleshooting</strong>: See <a href="references/troubleshooting.md">references/troubleshooting.md</a> for detailed error messages, debugging steps, and performance diagnostics.</p>
+<h3>Hardware requirements</h3>
+<ul>
+<li><strong>Small models (7B-13B)</strong>: 1x A10 (24GB) or A100 (40GB)</li>
+<li><strong>Medium models (30B-40B)</strong>: 2x A100 (40GB) with tensor parallelism</li>
+<li><strong>Large models (70B+)</strong>: 4x A100 (40GB) or 2x A100 (80GB), use AWQ/GPTQ</li>
+</ul>
+<p>Supported platforms: NVIDIA (primary), AMD ROCm, Intel GPUs, TPUs</p>
+<h3>Resources</h3>
+<ul>
+<li>Official docs: <a href="https://docs.vllm.ai">https://docs.vllm.ai</a></li>
+<li>GitHub: <a href="https://github.com/vllm-project/vllm">https://github.com/vllm-project/vllm</a></li>
+<li>Paper: &quot;Efficient Memory Management for Large Language Model Serving with PagedAttention&quot; (SOSP 2023)</li>
+<li>Community: <a href="https://discuss.vllm.ai">https://discuss.vllm.ai</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/inference/serving-llms-vllm</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>scrapling — Skill Hermes</title>
+<meta name="description" content="Scrape sites with stealth browsing and Cloudflare bypass.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>scrapling</h1>
+    <p class="lede">Scrape sites with stealth browsing and Cloudflare bypass.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>scrapling</dd>
+      <dt>Keterangan</dt><dd>Scrape sites with stealth browsing and Cloudflare bypass.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>FEUAZUR</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/scrapling.zip" download>Muat turun ZIP (3.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Scrapling</h2>
+<p><a href="https://github.com/D4Vinci/Scrapling">Scrapling</a> is a web scraping framework with anti-bot bypass, stealth browser automation, and a spider framework. It provides three fetching strategies (HTTP, dynamic JS, stealth/Cloudflare) and a full CLI.</p>
+<p><strong>This skill is for educational and research purposes only.</strong> Users must comply with local/international data scraping laws and respect website Terms of Service.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Scraping static HTML pages (faster than browser tools)</li>
+<li>Scraping JS-rendered pages that need a real browser</li>
+<li>Bypassing Cloudflare Turnstile or bot detection</li>
+<li>Crawling multiple pages with a spider</li>
+<li>When the built-in <code>web_extract</code> tool does not return the data you need</li>
+</ul>
+<h3>Installation</h3>
+<pre><code class="language-bash">pip install &quot;scrapling[all]&quot;
+scrapling install
+</code></pre>
+<p>Minimal install (HTTP only, no browser):</p>
+<pre><code class="language-bash">pip install scrapling
+</code></pre>
+<p>With browser automation only:</p>
+<pre><code class="language-bash">pip install &quot;scrapling[fetchers]&quot;
+scrapling install
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Class</th>
+<th>Use When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HTTP</td>
+<td><code>Fetcher</code> / <code>FetcherSession</code></td>
+<td>Static pages, APIs, fast bulk requests</td>
+</tr>
+<tr>
+<td>Dynamic</td>
+<td><code>DynamicFetcher</code> / <code>DynamicSession</code></td>
+<td>JS-rendered content, SPAs</td>
+</tr>
+<tr>
+<td>Stealth</td>
+<td><code>StealthyFetcher</code> / <code>StealthySession</code></td>
+<td>Cloudflare, anti-bot protected sites</td>
+</tr>
+<tr>
+<td>Spider</td>
+<td><code>Spider</code></td>
+<td>Multi-page crawling with link following</td>
+</tr>
+</tbody></table>
+<h3>CLI Usage</h3>
+<h4>Extract Static Page</h4>
+<pre><code class="language-bash">scrapling extract get &#39;https://example.com&#39; output.md
+</code></pre>
+<p>With CSS selector and browser impersonation:</p>
+<pre><code class="language-bash">scrapling extract get &#39;https://example.com&#39; output.md \
+  --css-selector &#39;.content&#39; \
+  --impersonate &#39;chrome&#39;
+</code></pre>
+<h4>Extract JS-Rendered Page</h4>
+<pre><code class="language-bash">scrapling extract fetch &#39;https://example.com&#39; output.md \
+  --css-selector &#39;.dynamic-content&#39; \
+  --disable-resources \
+  --network-idle
+</code></pre>
+<h4>Extract Cloudflare-Protected Page</h4>
+<pre><code class="language-bash">scrapling extract stealthy-fetch &#39;https://protected-site.com&#39; output.html \
+  --solve-cloudflare \
+  --block-webrtc \
+  --hide-canvas
+</code></pre>
+<h4>POST Request</h4>
+<pre><code class="language-bash">scrapling extract post &#39;https://example.com/api&#39; output.json \
+  --json &#39;{&quot;query&quot;: &quot;search term&quot;}&#39;
+</code></pre>
+<h4>Output Formats</h4>
+<p>The output format is determined by the file extension:</p>
+<ul>
+<li><code>.html</code> -- raw HTML</li>
+<li><code>.md</code> -- converted to Markdown</li>
+<li><code>.txt</code> -- plain text</li>
+<li><code>.json</code> / <code>.jsonl</code> -- JSON</li>
+</ul>
+<h3>Python: HTTP Scraping</h3>
+<h4>Single Request</h4>
+<pre><code class="language-python">from scrapling.fetchers import Fetcher
+
+page = Fetcher.get(&#39;https://quotes.toscrape.com/&#39;)
+quotes = page.css(&#39;.quote .text::text&#39;).getall()
+for q in quotes:
+    print(q)
+</code></pre>
+<h4>Session (Persistent Cookies)</h4>
+<pre><code class="language-python">from scrapling.fetchers import FetcherSession
+
+with FetcherSession(impersonate=&#39;chrome&#39;) as session:
+    page = session.get(&#39;https://example.com/&#39;, stealthy_headers=True)
+    links = page.css(&#39;a::attr(href)&#39;).getall()
+    for link in links[:5]:
+        sub = session.get(link)
+        print(sub.css(&#39;h1::text&#39;).get())
+</code></pre>
+<h4>POST / PUT / DELETE</h4>
+<pre><code class="language-python">page = Fetcher.post(&#39;https://api.example.com/data&#39;, json={&quot;key&quot;: &quot;value&quot;})
+page = Fetcher.put(&#39;https://api.example.com/item/1&#39;, data={&quot;name&quot;: &quot;updated&quot;})
+page = Fetcher.delete(&#39;https://api.example.com/item/1&#39;)
+</code></pre>
+<h4>With Proxy</h4>
+<pre><code class="language-python">page = Fetcher.get(&#39;https://example.com&#39;, proxy=&#39;http://user:pass@proxy:8080&#39;)
+</code></pre>
+<h3>Python: Dynamic Pages (JS-Rendered)</h3>
+<p>For pages that require JavaScript execution (SPAs, lazy-loaded content):</p>
+<pre><code class="language-python">from scrapling.fetchers import DynamicFetcher
+
+page = DynamicFetcher.fetch(&#39;https://example.com&#39;, headless=True)
+data = page.css(&#39;.js-loaded-content::text&#39;).getall()
+</code></pre>
+<h4>Wait for Specific Element</h4>
+<pre><code class="language-python">page = DynamicFetcher.fetch(
+    &#39;https://example.com&#39;,
+    wait_selector=(&#39;.results&#39;, &#39;visible&#39;),
+    network_idle=True,
+)
+</code></pre>
+<h4>Disable Resources for Speed</h4>
+<p>Blocks fonts, images, media, stylesheets (~25% faster):</p>
+<pre><code class="language-python">from scrapling.fetchers import DynamicSession
+
+with DynamicSession(headless=True, disable_resources=True, network_idle=True) as session:
+    page = session.fetch(&#39;https://example.com&#39;)
+    items = page.css(&#39;.item::text&#39;).getall()
+</code></pre>
+<h4>Custom Page Automation</h4>
+<pre><code class="language-python">from playwright.sync_api import Page
+from scrapling.fetchers import DynamicFetcher
+
+def scroll_and_click(page: Page):
+    page.mouse.wheel(0, 3000)
+    page.wait_for_timeout(1000)
+    page.click(&#39;button.load-more&#39;)
+    page.wait_for_selector(&#39;.extra-results&#39;)
+
+page = DynamicFetcher.fetch(&#39;https://example.com&#39;, page_action=scroll_and_click)
+results = page.css(&#39;.extra-results .item::text&#39;).getall()
+</code></pre>
+<h3>Python: Stealth Mode (Anti-Bot Bypass)</h3>
+<p>For Cloudflare-protected or heavily fingerprinted sites:</p>
+<pre><code class="language-python">from scrapling.fetchers import StealthyFetcher
+
+page = StealthyFetcher.fetch(
+    &#39;https://protected-site.com&#39;,
+    headless=True,
+    solve_cloudflare=True,
+    block_webrtc=True,
+    hide_canvas=True,
+)
+content = page.css(&#39;.protected-content::text&#39;).getall()
+</code></pre>
+<h4>Stealth Session</h4>
+<pre><code class="language-python">from scrapling.fetchers import StealthySession
+
+with StealthySession(headless=True, solve_cloudflare=True) as session:
+    page1 = session.fetch(&#39;https://protected-site.com/page1&#39;)
+    page2 = session.fetch(&#39;https://protected-site.com/page2&#39;)
+</code></pre>
+<h3>Element Selection</h3>
+<p>All fetchers return a <code>Selector</code> object with these methods:</p>
+<h4>CSS Selectors</h4>
+<pre><code class="language-python">page.css(&#39;h1::text&#39;).get()              # First h1 text
+page.css(&#39;a::attr(href)&#39;).getall()      # All link hrefs
+page.css(&#39;.quote .text::text&#39;).getall() # Nested selection
+</code></pre>
+<h4>XPath</h4>
+<pre><code class="language-python">page.xpath(&#39;//div[@class=&quot;content&quot;]/text()&#39;).getall()
+page.xpath(&#39;//a/@href&#39;).getall()
+</code></pre>
+<h4>Find Methods</h4>
+<pre><code class="language-python">page.find_all(&#39;div&#39;, class_=&#39;quote&#39;)       # By tag + attribute
+page.find_by_text(&#39;Read more&#39;, tag=&#39;a&#39;)    # By text content
+page.find_by_regex(r&#39;\$\d+\.\d{2}&#39;)       # By regex pattern
+</code></pre>
+<h4>Similar Elements</h4>
+<p>Find elements with similar structure (useful for product listings, etc.):</p>
+<pre><code class="language-python">first_product = page.css(&#39;.product&#39;)[0]
+all_similar = first_product.find_similar()
+</code></pre>
+<h4>Navigation</h4>
+<pre><code class="language-python">el = page.css(&#39;.target&#39;)[0]
+el.parent                # Parent element
+el.children              # Child elements
+el.next_sibling          # Next sibling
+el.prev_sibling          # Previous sibling
+</code></pre>
+<h3>Python: Spider Framework</h3>
+<p>For multi-page crawling with link following:</p>
+<pre><code class="language-python">from scrapling.spiders import Spider, Request, Response
+
+class QuotesSpider(Spider):
+    name = &quot;quotes&quot;
+    start_urls = [&quot;https://quotes.toscrape.com/&quot;]
+    concurrent_requests = 10
+    download_delay = 1
+
+    async def parse(self, response: Response):
+        for quote in response.css(&#39;.quote&#39;):
+            yield {
+                &quot;text&quot;: quote.css(&#39;.text::text&#39;).get(),
+                &quot;author&quot;: quote.css(&#39;.author::text&#39;).get(),
+                &quot;tags&quot;: quote.css(&#39;.tag::text&#39;).getall(),
+            }
+
+        next_page = response.css(&#39;.next a::attr(href)&#39;).get()
+        if next_page:
+            yield response.follow(next_page)
+
+result = QuotesSpider().start()
+print(f&quot;Scraped {len(result.items)} quotes&quot;)
+result.items.to_json(&quot;quotes.json&quot;)
+</code></pre>
+<h4>Multi-Session Spider</h4>
+<p>Route requests to different fetcher types:</p>
+<pre><code class="language-python">from scrapling.fetchers import FetcherSession, AsyncStealthySession
+
+class SmartSpider(Spider):
+    name = &quot;smart&quot;
+    start_urls = [&quot;https://example.com/&quot;]
+
+    def configure_sessions(self, manager):
+        manager.add(&quot;fast&quot;, FetcherSession(impersonate=&quot;chrome&quot;))
+        manager.add(&quot;stealth&quot;, AsyncStealthySession(headless=True), lazy=True)
+
+    async def parse(self, response: Response):
+        for link in response.css(&#39;a::attr(href)&#39;).getall():
+            if &quot;protected&quot; in link:
+                yield Request(link, sid=&quot;stealth&quot;)
+            else:
+                yield Request(link, sid=&quot;fast&quot;, callback=self.parse)
+</code></pre>
+<h4>Pause/Resume Crawling</h4>
+<pre><code class="language-python">spider = QuotesSpider(crawldir=&quot;./crawl_checkpoint&quot;)
+spider.start()  # Ctrl+C to pause, re-run to resume from checkpoint
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Browser install required</strong>: run <code>scrapling install</code> after pip install -- without it, <code>DynamicFetcher</code> and <code>StealthyFetcher</code> will fail</li>
+<li><strong>Timeouts</strong>: DynamicFetcher/StealthyFetcher timeout is in <strong>milliseconds</strong> (default 30000), Fetcher timeout is in <strong>seconds</strong></li>
+<li><strong>Cloudflare bypass</strong>: <code>solve_cloudflare=True</code> adds 5-15 seconds to fetch time -- only enable when needed</li>
+<li><strong>Resource usage</strong>: StealthyFetcher runs a real browser -- limit concurrent usage</li>
+<li><strong>Legal</strong>: always check robots.txt and website ToS before scraping. This library is for educational and research purposes</li>
+<li><strong>Python version</strong>: requires Python 3.10+</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/scrapling</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

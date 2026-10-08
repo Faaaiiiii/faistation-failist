@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>codex — Skill Hermes</title>
+<meta name="description" content="Delegate coding to OpenAI Codex CLI (features, PRs).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>codex</h1>
+    <p class="lede">Delegate coding to OpenAI Codex CLI (features, PRs).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>codex</dd>
+      <dt>Keterangan</dt><dd>Delegate coding to OpenAI Codex CLI (features, PRs).</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/codex.zip" download>Muat turun ZIP (2.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Codex CLI</h2>
+<p>Delegate coding tasks to <a href="https://github.com/openai/codex">Codex</a> via the Hermes terminal. Codex is OpenAI&#39;s autonomous coding agent CLI.</p>
+<h3>When to use</h3>
+<ul>
+<li>Building features</li>
+<li>Refactoring</li>
+<li>PR reviews</li>
+<li>Batch issue fixing</li>
+</ul>
+<p>Requires the codex CLI and a git repository.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Codex installed: <code>npm install -g @openai/codex</code></li>
+<li>OpenAI auth configured: either <code>OPENAI_API_KEY</code> or Codex OAuth credentials
+from the Codex CLI login flow</li>
+<li><strong>Must run inside a git repository</strong> — Codex refuses to run outside one</li>
+<li>Use <code>pty=true</code> in terminal calls — Codex is an interactive terminal app</li>
+</ul>
+<p>For Hermes itself, <code>model.provider: openai-codex</code> uses Hermes-managed Codex
+OAuth from <code>~/.hermes/auth.json</code> after <code>hermes auth add openai-codex</code>. For the
+standalone Codex CLI, a valid CLI OAuth session may live under
+<code>~/.codex/auth.json</code>; do not treat a missing <code>OPENAI_API_KEY</code> alone as proof
+that Codex auth is missing.</p>
+<h3>One-Shot Tasks</h3>
+<pre><code>terminal(command=&quot;codex exec &#39;Add dark mode toggle to settings&#39;&quot;, workdir=&quot;~/project&quot;, pty=true)
+</code></pre>
+<p>For scratch work (Codex needs a git repo):</p>
+<pre><code>terminal(command=&quot;cd $(mktemp -d) &amp;&amp; git init &amp;&amp; codex exec &#39;Build a snake game in Python&#39;&quot;, pty=true)
+</code></pre>
+<h3>Background Mode (Long Tasks)</h3>
+<pre><code># Start in background with PTY
+terminal(command=&quot;codex exec --sandbox workspace-write &#39;Refactor the auth module&#39;&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)
+# Returns session_id
+
+# Monitor progress
+process(action=&quot;poll&quot;, session_id=&quot;&lt;id&gt;&quot;)
+process(action=&quot;log&quot;, session_id=&quot;&lt;id&gt;&quot;)
+
+# Send input if Codex asks a question
+process(action=&quot;submit&quot;, session_id=&quot;&lt;id&gt;&quot;, data=&quot;yes&quot;)
+
+# Kill if needed
+process(action=&quot;kill&quot;, session_id=&quot;&lt;id&gt;&quot;)
+</code></pre>
+<h3>Key Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>exec &quot;prompt&quot;</code></td>
+<td>One-shot execution, exits when done</td>
+</tr>
+<tr>
+<td><code>--sandbox workspace-write</code> (<code>-s</code>)</td>
+<td>Sandboxed but auto-approves file changes in the workspace (the recommended auto-build mode)</td>
+</tr>
+<tr>
+<td><code>--dangerously-bypass-approvals-and-sandbox</code></td>
+<td>No sandbox, no approvals (fastest, most dangerous; <code>--yolo</code> still works as a hidden alias)</td>
+</tr>
+<tr>
+<td><code>--sandbox danger-full-access</code></td>
+<td>No Codex sandbox; useful when the host service context breaks bubblewrap</td>
+</tr>
+</tbody></table>
+<blockquote>
+<p><strong>Deprecated:</strong> <code>--full-auto</code> still works but the live CLI warns to use <code>--sandbox workspace-write</code> instead.</p>
+</blockquote>
+<h3>Hermes Gateway Caveat</h3>
+<p>When invoking the Codex CLI from a Hermes gateway/service context (for example,
+Telegram-driven agent sessions), Codex <code>workspace-write</code> sandboxing may fail even
+when the same command works in the user&#39;s interactive shell. A typical symptom is
+bubblewrap/user-namespace errors such as <code>setting up uid map: Permission denied</code>
+or <code>loopback: Failed RTM_NEWADDR: Operation not permitted</code>.</p>
+<p>In that context, prefer:</p>
+<pre><code>codex exec --sandbox danger-full-access &quot;&lt;task&gt;&quot;
+</code></pre>
+<p>Use process boundaries as the safety layer instead: explicit <code>workdir</code>, clean git
+status before launch, narrow task prompts, <code>git diff</code> review, targeted tests, and
+human/agent confirmation before committing broad changes.</p>
+<h3>PR Reviews</h3>
+<p>Clone to a temp directory for safe review:</p>
+<pre><code>terminal(command=&quot;REVIEW=$(mktemp -d) &amp;&amp; git clone https://github.com/user/repo.git $REVIEW &amp;&amp; cd $REVIEW &amp;&amp; gh pr checkout 42 &amp;&amp; codex review --base origin/main&quot;, pty=true)
+</code></pre>
+<h3>Parallel Issue Fixing with Worktrees</h3>
+<pre><code># Create worktrees
+terminal(command=&quot;git worktree add -b fix/issue-78 ~/.hermes/cache/scratch/issue-78 main&quot;, workdir=&quot;~/project&quot;)
+terminal(command=&quot;git worktree add -b fix/issue-99 ~/.hermes/cache/scratch/issue-99 main&quot;, workdir=&quot;~/project&quot;)
+
+# Launch Codex in each
+terminal(command=&quot;codex --sandbox workspace-write exec &#39;Fix issue #78: &lt;description&gt;. Commit when done.&#39;&quot;, workdir=&quot;~/.hermes/cache/scratch/issue-78&quot;, background=true, pty=true)
+terminal(command=&quot;codex --sandbox workspace-write exec &#39;Fix issue #99: &lt;description&gt;. Commit when done.&#39;&quot;, workdir=&quot;~/.hermes/cache/scratch/issue-99&quot;, background=true, pty=true)
+
+# Monitor
+process(action=&quot;list&quot;)
+
+# After completion, push and create PRs
+terminal(command=&quot;cd ~/.hermes/cache/scratch/issue-78 &amp;&amp; git push -u origin fix/issue-78&quot;)
+terminal(command=&quot;gh pr create --repo user/repo --head fix/issue-78 --title &#39;fix: ...&#39; --body &#39;...&#39;&quot;)
+
+# Cleanup
+terminal(command=&quot;git worktree remove ~/.hermes/cache/scratch/issue-78&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<h3>Batch PR Reviews</h3>
+<pre><code># Fetch all PR refs
+terminal(command=&quot;git fetch origin &#39;+refs/pull/*/head:refs/remotes/origin/pr/*&#39;&quot;, workdir=&quot;~/project&quot;)
+
+# Review multiple PRs in parallel
+terminal(command=&quot;codex exec &#39;Review PR #86. git diff origin/main...origin/pr/86&#39;&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)
+terminal(command=&quot;codex exec &#39;Review PR #87. git diff origin/main...origin/pr/87&#39;&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)
+
+# Post results
+terminal(command=&quot;gh pr comment 86 --body &#39;&lt;review&gt;&#39;&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<h3>Rules</h3>
+<ol>
+<li><strong>Always use <code>pty=true</code></strong> — Codex is an interactive terminal app and hangs without a PTY</li>
+<li><strong>Git repo required</strong> — Codex won&#39;t run outside a git directory. Use <code>mktemp -d &amp;&amp; git init</code> for scratch</li>
+<li><strong>Use <code>exec</code> for one-shots</strong> — <code>codex exec &quot;prompt&quot;</code> runs and exits cleanly</li>
+<li><strong><code>--sandbox workspace-write</code> for building</strong> — auto-approves changes within the sandbox (<code>--full-auto</code> is deprecated for this)</li>
+<li><strong>Background for long tasks</strong> — use <code>background=true</code> and monitor with <code>process</code> tool</li>
+<li><strong>Don&#39;t interfere</strong> — monitor with <code>poll</code>/<code>log</code>, be patient with long-running tasks</li>
+<li><strong>Parallel is fine</strong> — run multiple Codex processes at once for batch work</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/autonomous-ai-agents/codex</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>python-debugpy — Skill Hermes</title>
+<meta name="description" content="Debug Python: pdb REPL + debugpy remote (DAP).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>python-debugpy</h1>
+    <p class="lede">Debug Python: pdb REPL + debugpy remote (DAP).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>python-debugpy</dd>
+      <dt>Keterangan</dt><dd>Debug Python: pdb REPL + debugpy remote (DAP).</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/python-debugpy.zip" download>Muat turun ZIP (6.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Python Debugger (pdb + debugpy)</h2>
+<h3>Overview</h3>
+<p>Three tools, picked by situation:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong><code>breakpoint()</code> + pdb</strong></td>
+<td>Local, interactive, simplest. Add <code>breakpoint()</code> in the source, run normally, get a REPL at that line.</td>
+</tr>
+<tr>
+<td><strong><code>python -m pdb</code></strong></td>
+<td>Launch an existing script under pdb with no source edits. Useful for quick poking.</td>
+</tr>
+<tr>
+<td><strong><code>debugpy</code></strong></td>
+<td>Remote / headless / &quot;attach to already-running process.&quot; Talks DAP, scriptable from terminal, works for long-lived processes (gateway, daemon, PTY children).</td>
+</tr>
+</tbody></table>
+<p><strong>Start with <code>breakpoint()</code>.</strong> It&#39;s the cheapest thing that works.</p>
+<h3>When to Use</h3>
+<ul>
+<li>A test fails and the traceback doesn&#39;t reveal why a value is wrong</li>
+<li>You need to step through a function and watch a collection mutate</li>
+<li>A long-running process (hermes gateway, tui_gateway) misbehaves and you can&#39;t restart it</li>
+<li>Post-mortem: an exception fired in prod-ish code and you want to inspect locals at the crash site</li>
+<li>A subprocess / child (Python <code>_SlashWorker</code>, PTY bridge worker) is the actual bug site</li>
+</ul>
+<p><strong>Don&#39;t use for:</strong> things <code>print()</code> / <code>logging.debug</code> solve in under a minute, or things <code>pytest -vv --tb=long --showlocals</code> already reveals.</p>
+<h3>pdb Quick Reference</h3>
+<p>Inside any pdb prompt (<code>(Pdb)</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>h</code> / <code>h cmd</code></td>
+<td>help</td>
+</tr>
+<tr>
+<td><code>n</code></td>
+<td>next line (step over)</td>
+</tr>
+<tr>
+<td><code>s</code></td>
+<td>step into</td>
+</tr>
+<tr>
+<td><code>r</code></td>
+<td>return from current function</td>
+</tr>
+<tr>
+<td><code>c</code></td>
+<td>continue</td>
+</tr>
+<tr>
+<td><code>unt N</code></td>
+<td>continue until line N</td>
+</tr>
+<tr>
+<td><code>j N</code></td>
+<td>jump to line N (same function only)</td>
+</tr>
+<tr>
+<td><code>l</code> / <code>ll</code></td>
+<td>list source around current line / full function</td>
+</tr>
+<tr>
+<td><code>w</code></td>
+<td>where (stack trace)</td>
+</tr>
+<tr>
+<td><code>u</code> / <code>d</code></td>
+<td>move up / down in the stack</td>
+</tr>
+<tr>
+<td><code>a</code></td>
+<td>print args of the current function</td>
+</tr>
+<tr>
+<td><code>p expr</code> / <code>pp expr</code></td>
+<td>print / pretty-print expression</td>
+</tr>
+<tr>
+<td><code>display expr</code></td>
+<td>auto-print expr on every stop</td>
+</tr>
+<tr>
+<td><code>b file:line</code></td>
+<td>set breakpoint</td>
+</tr>
+<tr>
+<td><code>b func</code></td>
+<td>break on function entry</td>
+</tr>
+<tr>
+<td><code>b file:line, cond</code></td>
+<td>conditional breakpoint</td>
+</tr>
+<tr>
+<td><code>cl N</code></td>
+<td>clear breakpoint N</td>
+</tr>
+<tr>
+<td><code>tbreak file:line</code></td>
+<td>one-shot breakpoint</td>
+</tr>
+<tr>
+<td><code>!stmt</code></td>
+<td>execute arbitrary Python (assignments included)</td>
+</tr>
+<tr>
+<td><code>interact</code></td>
+<td>drop into full Python REPL in current scope (Ctrl+D to exit)</td>
+</tr>
+<tr>
+<td><code>q</code></td>
+<td>quit</td>
+</tr>
+</tbody></table>
+<p>The <code>interact</code> command is the most powerful — you can import anything, inspect complex objects, even call methods that mutate state. Locals are read-only by default; use <code>!x = 42</code> from the <code>(Pdb)</code> prompt to mutate.</p>
+<h3>Recipe 1: Local breakpoint</h3>
+<p>Easiest. Edit the file:</p>
+<pre><code class="language-python">def compute(x, y):
+    result = some_helper(x)
+    breakpoint()           # &lt;-- drops into pdb here
+    return result + y
+</code></pre>
+<p>Run the code normally. You land at the <code>breakpoint()</code> line with full access to locals.</p>
+<p><strong>Don&#39;t forget to remove <code>breakpoint()</code> before committing.</strong> Use <code>git diff</code> or a pre-commit grep:</p>
+<pre><code class="language-bash">rg -n &#39;breakpoint\(\)&#39; --type py
+</code></pre>
+<h3>Recipe 2: Launch a script under pdb (no source edits)</h3>
+<pre><code class="language-bash">python -m pdb path/to/script.py arg1 arg2
+# Lands at first line of script
+(Pdb) b path/to/script.py:42
+(Pdb) c
+</code></pre>
+<h3>Recipe 3: Debug a pytest test</h3>
+<p>Use <code>terminal</code> and the canonical runner for noninteractive diagnostics:</p>
+<pre><code class="language-bash"># Show locals in tracebacks without pdb:
+scripts/run_tests.sh tests/path/to/test_file.py --showlocals --tb=long
+</code></pre>
+<p><code>scripts/run_tests.sh</code> captures each file in a separate subprocess, so <code>--pdb</code>
+or <code>--trace</code> cannot provide an interactive prompt there. For an interactive
+debugger only, use the independent development/test interpreter prepared in
+Recipe 5 (never a production generation):</p>
+<pre><code class="language-bash">.venv/bin/python -m pytest tests/foo_test.py::test_bar --pdb
+</code></pre>
+<p>This bypasses the hermetic-env guarantees — fine for debugging, but re-run under the wrapper to confirm before pushing.</p>
+<h3>Recipe 4: Post-mortem on any exception</h3>
+<pre><code class="language-python">import pdb, sys
+try:
+    run_the_thing()
+except Exception:
+    pdb.post_mortem(sys.exc_info()[2])
+</code></pre>
+<p>Or wrap a whole script:</p>
+<pre><code class="language-bash">python -m pdb -c continue script.py
+# When it crashes, pdb catches it and you&#39;re in the frame of the exception
+</code></pre>
+<p>Or set a global hook in a repl/jupyter:</p>
+<pre><code class="language-python">import sys
+def excepthook(etype, value, tb):
+    import pdb; pdb.post_mortem(tb)
+sys.excepthook = excepthook
+</code></pre>
+<h3>Recipe 5: Remote debug with debugpy (attach to running process)</h3>
+<p>For long-lived processes: Hermes gateway, tui_gateway, a daemon, a process that&#39;s already misbehaving and can&#39;t be restarted clean.</p>
+<h4>Setup</h4>
+<p>For Hermes, use a separate development checkout and data home, not a live
+production generation. Follow the
+<a href="https://hermes-agent.nousresearch.com/docs/reference/package-management#developer-workflow">PM developer workflow</a>
+and activate that checkout — PowerShell: <code>. .\activate.ps1</code>. The declared <code>dev</code>
+extra includes debugpy, which PM activation does not sync (<code>all</code> excludes it).
+Through <code>terminal</code>, build a fresh, caller-owned debug/test environment with the
+prepared checkout&#39;s Python:</p>
+<pre><code class="language-bash">source ./activate
+python -m pm.build_env --source . --out .venv --group dev --group test
+.venv/bin/python -c &quot;import debugpy; print(debugpy.__file__)&quot;
+</code></pre>
+<p>The output must not already exist. Stop its processes and intentionally remove
+only that disposable environment before rebuilding. Keep the same isolated
+<code>HERMES_HOME</code> for the debug target. <code>.venv/bin/python</code> is this explicitly built
+debug environment, not a guessed application venv, and the patterns below run
+through it. Do not add debugpy to a running production environment; reproduce
+there only with an already-prepared debug target or arrange a restart in the
+development environment.</p>
+<h4>Pattern A: Source-edit — process waits for debugger at launch</h4>
+<p>Add near the top of the entry point (or inside the function you want to debug):</p>
+<pre><code class="language-python">import debugpy
+debugpy.listen((&quot;127.0.0.1&quot;, 5678))
+print(&quot;debugpy listening on 5678, waiting for client...&quot;, flush=True)
+debugpy.wait_for_client()
+debugpy.breakpoint()       # optional: pause immediately once attached
+</code></pre>
+<p>Start the process; it blocks on <code>wait_for_client()</code>.</p>
+<h4>Pattern B: No source edit — launch with <code>-m debugpy</code></h4>
+<pre><code class="language-bash">.venv/bin/python -m debugpy --listen 127.0.0.1:5678 --wait-for-client your_script.py arg1
+</code></pre>
+<p>Equivalent for module entry:</p>
+<pre><code class="language-bash">.venv/bin/python -m debugpy --listen 127.0.0.1:5678 --wait-for-client -m your.module
+</code></pre>
+<h4>Pattern C: Attach to an already-running process</h4>
+<p>Needs the PID and debugpy preinstalled in the target&#39;s environment:</p>
+<pre><code class="language-bash">.venv/bin/python -m debugpy --listen 127.0.0.1:5678 --pid &lt;pid&gt;
+# debugpy injects itself into the process. Then attach a client as below.
+</code></pre>
+<p>Some kernels/security configs block the ptrace-based injection (<code>/proc/sys/kernel/yama/ptrace_scope</code>). Fix with:</p>
+<pre><code class="language-bash">echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
+</code></pre>
+<h4>Connecting a client from the terminal</h4>
+<p>The easiest terminal-side DAP client is VS Code CLI or a small script. From inside Hermes you have two practical options:</p>
+<p><strong>Option 1: <code>debugpy</code>&#39;s own CLI REPL</strong> — not an official feature, but a tiny DAP client script:</p>
+<pre><code class="language-python"># ~/.hermes/cache/scratch/dap_client.py
+import socket, json, itertools, time, sys
+
+HOST, PORT = &quot;127.0.0.1&quot;, 5678
+s = socket.create_connection((HOST, PORT))
+seq = itertools.count(1)
+
+def send(msg):
+    msg[&quot;seq&quot;] = next(seq)
+    body = json.dumps(msg).encode()
+    s.sendall(f&quot;Content-Length: {len(body)}\r\n\r\n&quot;.encode() + body)
+
+def recv():
+    header = b&quot;&quot;
+    while b&quot;\r\n\r\n&quot; not in header:
+        header += s.recv(1)
+    length = int(header.decode().split(&quot;Content-Length:&quot;)[1].split(&quot;\r\n&quot;)[0].strip())
+    body = b&quot;&quot;
+    while len(body) &lt; length:
+        body += s.recv(length - len(body))
+    return json.loads(body)
+
+send({&quot;type&quot;: &quot;request&quot;, &quot;command&quot;: &quot;initialize&quot;, &quot;arguments&quot;: {&quot;adapterID&quot;: &quot;python&quot;}})
+print(recv())
+send({&quot;type&quot;: &quot;request&quot;, &quot;command&quot;: &quot;attach&quot;, &quot;arguments&quot;: {}})
+print(recv())
+send({&quot;type&quot;: &quot;request&quot;, &quot;command&quot;: &quot;setBreakpoints&quot;,
+      &quot;arguments&quot;: {&quot;source&quot;: {&quot;path&quot;: sys.argv[1]},
+                    &quot;breakpoints&quot;: [{&quot;line&quot;: int(sys.argv[2])}]}})
+print(recv())
+send({&quot;type&quot;: &quot;request&quot;, &quot;command&quot;: &quot;configurationDone&quot;})
+# ... loop reading events and sending continue/stepIn/etc.
+</code></pre>
+<p>This is fine for one-off automation but painful as an interactive UX.</p>
+<p><strong>Option 2: Attach from VS Code / Cursor / Zed</strong> — if the user has one open, they can add a <code>launch.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Attach to Hermes&quot;,
+  &quot;type&quot;: &quot;debugpy&quot;,
+  &quot;request&quot;: &quot;attach&quot;,
+  &quot;connect&quot;: { &quot;host&quot;: &quot;127.0.0.1&quot;, &quot;port&quot;: 5678 },
+  &quot;justMyCode&quot;: false,
+  &quot;pathMappings&quot;: [
+    { &quot;localRoot&quot;: &quot;${workspaceFolder}&quot;, &quot;remoteRoot&quot;: &quot;&lt;hermes-agent-repo&gt;&quot; }
+  ]
+}
+</code></pre>
+<p><strong>Option 3: Ditch DAP, use <code>remote-pdb</code></strong> — usually what you actually want from a terminal agent:</p>
+<p>For an independently owned Python project, declare <code>remote-pdb</code> in that
+project&#39;s development dependencies and prepare its debug environment through
+the project&#39;s package manager. This is not a Hermes SDK install recipe. For
+Hermes, prefer the declared debugpy dependency; the remote-pdb examples below
+require a separately declared, freshly built debug environment, never an
+in-place pip install into the selected application generation.</p>
+<p>In your code:</p>
+<pre><code class="language-python">from remote_pdb import set_trace
+set_trace(host=&quot;127.0.0.1&quot;, port=4444)   # blocks until connection
+</code></pre>
+<p>Then from the terminal:</p>
+<pre><code class="language-bash">nc 127.0.0.1 4444
+# You get a (Pdb) prompt exactly as if debugging locally.
+</code></pre>
+<p><code>remote-pdb</code> is the cleanest agent-friendly choice when <code>debugpy</code>&#39;s DAP protocol is overkill. Use <code>debugpy</code> only when you actually need IDE integration.</p>
+<h3>Debugging Hermes-specific Processes</h3>
+<h4>Tests</h4>
+<p>See Recipe 3. The wrapper captures subprocess output, so run pytest directly for interactive pdb.</p>
+<h4><code>run_agent.py</code> / CLI — one-shot</h4>
+<p>In the prepared debug checkout, add <code>breakpoint()</code> near the suspect line, then
+run <code>python hermes</code>. Control returns to your terminal at the pause point.</p>
+<h4><code>tui_gateway</code> subprocess (spawned by <code>hermes --tui</code>)</h4>
+<p>The gateway runs as a child of the Node TUI. Options:</p>
+<p><strong>A. Source-edit the gateway:</strong></p>
+<pre><code class="language-python"># tui_gateway/server.py near the top of serve()
+import debugpy
+debugpy.listen((&quot;127.0.0.1&quot;, 5678))
+debugpy.wait_for_client()
+</code></pre>
+<p>Start <code>python hermes --tui</code> from the prepared debug checkout. The TUI will appear frozen (its backend is waiting). Attach a client; execution resumes when you <code>continue</code>. Check the child&#39;s interpreter and imports before assuming it inherited the debug environment.</p>
+<p><strong>B. Use <code>remote-pdb</code> at a specific handler:</strong></p>
+<pre><code class="language-python">from remote_pdb import set_trace
+set_trace(host=&quot;127.0.0.1&quot;, port=4444)   # in the RPC handler you want to trap
+</code></pre>
+<p>Trigger the matching slash command from the TUI, then <code>nc 127.0.0.1 4444</code> in another terminal.</p>
+<h4><code>_SlashWorker</code> subprocess</h4>
+<p>Same pattern — <code>remote-pdb</code> with <code>set_trace()</code> inside the worker&#39;s <code>exec</code> path. The worker is persistent across slash commands, so the first trigger blocks until you connect; subsequent slash commands pass through normally unless you re-arm.</p>
+<h4>Gateway (<code>gateway/run.py</code>)</h4>
+<p>Long-lived. Use <code>remote-pdb</code> at a handler, or <code>debugpy</code> with <code>--wait-for-client</code> if you&#39;re restarting the gateway anyway.</p>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><p><strong>pdb under a parallel/output-capturing runner silently does nothing.</strong> You won&#39;t see the prompt, the test just hangs (true of pytest-xdist and of <code>scripts/run_tests.sh</code>&#39;s captured per-file subprocesses). Run pytest directly on a single file for interactive debugging.</p>
+</li>
+<li><p><strong><code>breakpoint()</code> in CI / non-TTY contexts hangs the process.</strong> Safe locally; never commit it. Add a pre-commit grep as a safety net.</p>
+</li>
+<li><p><strong><code>PYTHONBREAKPOINT=0</code></strong> disables all <code>breakpoint()</code> calls. Check the env if your breakpoint isn&#39;t hitting:</p>
+<pre><code class="language-bash">echo $PYTHONBREAKPOINT
+</code></pre>
+</li>
+<li><p><strong><code>debugpy.listen</code> blocks only if you also call <code>wait_for_client()</code>.</strong> Without it, execution continues and your first breakpoint may fire before the client is attached.</p>
+</li>
+<li><p><strong>Attach to PID fails on hardened kernels.</strong> <code>ptrace_scope=1</code> (Ubuntu default) allows only same-user ptrace of child processes. Workaround: <code>echo 0 &gt; /proc/sys/kernel/yama/ptrace_scope</code> (needs root) or launch under <code>debugpy</code> from the start.</p>
+</li>
+<li><p><strong>Threads.</strong> <code>pdb</code> only debugs the current thread. For multithreaded code, use <code>debugpy</code> (thread-aware DAP) or set <code>threading.settrace()</code> per thread.</p>
+</li>
+<li><p><strong>asyncio.</strong> <code>pdb</code> works in coroutines but <code>await</code> inside pdb requires Python 3.13+ or <code>await</code> from <code>interact</code> mode on older versions. For 3.11/3.12, use <code>asyncio.run_coroutine_threadsafe</code> tricks or <code>!stmt</code>-based awaits via <code>asyncio.ensure_future</code>.</p>
+</li>
+<li><p><strong><code>scripts/run_tests.sh</code> strips credentials and sets <code>HOME=&lt;tmpdir&gt;</code>.</strong> If your bug depends on user config or real API keys, it won&#39;t reproduce under the wrapper. Debug with raw <code>pytest</code> first to repro, then re-confirm under the wrapper.</p>
+</li>
+<li><p><strong>Forking / multiprocessing.</strong> pdb does not follow forks. Each child needs its own <code>breakpoint()</code> or <code>set_trace()</code>. For Hermes subagents, debug one process at a time.</p>
+</li>
+</ol>
+<h3>Verification Checklist</h3>
+<ul>
+<li><input disabled="" type="checkbox"> In the independently built debug environment, confirm: <code>.venv/bin/python -c &quot;import debugpy; print(debugpy.__version__); print(debugpy.__file__)&quot;</code></li>
+<li><input disabled="" type="checkbox"> For remote debug, confirm the port is actually listening: <code>ss -tlnp | grep 5678</code></li>
+<li><input disabled="" type="checkbox"> First breakpoint actually hits (if it doesn&#39;t, you likely have <code>PYTHONBREAKPOINT=0</code>, you&#39;re under a parallel/capturing runner, or execution finished before attach)</li>
+<li><input disabled="" type="checkbox"> <code>where</code> / <code>w</code> shows the expected call stack</li>
+<li><input disabled="" type="checkbox"> Post-debug cleanup: no stray <code>breakpoint()</code> / <code>set_trace()</code> in committed code<pre><code class="language-bash">rg -n &#39;breakpoint\(\)|set_trace\(|debugpy\.listen&#39; --type py
+</code></pre>
+</li>
+</ul>
+<h3>One-Shot Recipes</h3>
+<p><strong>&quot;Why is this dict missing a key?&quot;</strong></p>
+<pre><code class="language-python"># add above the KeyError site
+breakpoint()
+# then in pdb:
+(Pdb) pp d
+(Pdb) pp list(d.keys())
+(Pdb) w                # how did we get here
+</code></pre>
+<p><strong>&quot;This test passes in isolation but fails in the suite.&quot;</strong></p>
+<pre><code class="language-bash">scripts/run_tests.sh tests/the_test.py   # confirm it fails under the isolated runner first
+# For interactive debugging, or if it only fails WITH other tests, use the
+# independent development/test interpreter prepared in Recipe 5:
+.venv/bin/python -m pytest tests/ -x --pdb
+# Now it pdb-traps at the exact failing test after state accumulated.
+</code></pre>
+<p><strong>&quot;My async handler deadlocks.&quot;</strong></p>
+<pre><code class="language-python"># Add at handler entry
+import remote_pdb; remote_pdb.set_trace(host=&quot;127.0.0.1&quot;, port=4444)
+</code></pre>
+<p>Trigger the handler. <code>nc 127.0.0.1 4444</code>, then <code>w</code> to see the suspended frame, <code>!import asyncio; asyncio.all_tasks()</code> to see what else is pending.</p>
+<p><strong>&quot;Post-mortem on a crash in an Ink child process / subprocess.&quot;</strong></p>
+<pre><code class="language-bash">PYTHONFAULTHANDLER=1 python -m pdb -c continue path/to/entrypoint.py
+# On crash, pdb lands at the frame of the exception with full locals
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/python-debugpy</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

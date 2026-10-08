@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>agent-merge-conflict-arbiter — Skill Hermes</title>
+<meta name="description" content="Neutral arbiter for merge conflicts between two agents.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>agent-merge-conflict-arbiter</h1>
+    <p class="lede">Neutral arbiter for merge conflicts between two agents.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>agent-merge-conflict-arbiter</dd>
+      <dt>Keterangan</dt><dd>Neutral arbiter for merge conflicts between two agents.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/agent-merge-conflict-arbiter.zip" download>Muat turun ZIP (3.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Agent Merge-Conflict Arbiter</h2>
+<p>Resolve a git merge conflict between two AGENTS&#39; branches as an impartial third
+party. Agents resolving conflicts against a peer&#39;s work reliably either
+overwrite the peer or abandon their own change — they lack the peer&#39;s context
+and are biased toward their own side. This skill is the fix: a neutral
+reconciler that receives both diffs plus both sides&#39; stated intents and
+produces a merged result, like a merge-queue arbiter.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Two agent branches/worktrees collide during a parallel campaign (kanban
+engineering pipeline, parallel-PR wave, multi-worktree refactor).</li>
+<li><code>git merge</code> or <code>git rebase</code> halts on conflicts between two agents&#39; work and
+neither original agent should self-adjudicate.</li>
+<li>Do NOT use for conflicts within a single agent&#39;s own work, or for trivial
+lockfile/generated-file conflicts (regenerate those instead).</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>A repo checkout containing the halted merge, or the two branch names plus
+permission to run the merge yourself.</li>
+<li>Both sides&#39; intent sources: kanban completion summaries (<code>terminal</code> running
+<code>hermes kanban show &lt;task-id&gt;</code>), PR bodies, or at minimum each branch&#39;s
+commit messages.</li>
+<li>The project&#39;s build/test command, if one exists.</li>
+</ul>
+<h3>How to Run</h3>
+<p><strong>Standalone</strong> — a human (or agent) invokes this skill inside the conflicted
+repo: load the skill, then follow the Procedure top to bottom.</p>
+<p><strong>Spawned neutral agent</strong> — the preferred shape in multi-agent campaigns:</p>
+<ul>
+<li><code>delegate_task</code>: spawn a subagent whose task message contains the repo path,
+both branch names, and both sides&#39; intent summaries verbatim, plus an
+instruction to follow this skill.</li>
+<li>Kanban-native: create a reconciliation card assigned to a <strong>third profile</strong>
+(not either worker&#39;s profile) with BOTH conflicted cards linked as parents —
+<code>kanban_create(title=&quot;reconcile branch-a x branch-b&quot;, assignee=&quot;reconciler&quot;, parents=[&quot;t_a&quot;, &quot;t_b&quot;])</code>. The parent links carry both sides&#39; completion
+summaries into the reconciler&#39;s context automatically; the card body should
+name the repo path and the two branches.</li>
+</ul>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Hunk class</th>
+<th>Definition</th>
+<th>Resolution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>disjoint-intent</td>
+<td>The two changes serve different goals and can coexist</td>
+<td>Combine both</td>
+</tr>
+<tr>
+<td>same-question-different-answer</td>
+<td>Both sides answered one design question differently</td>
+<td>Pick ONE per stated intents; surface the decision</td>
+</tr>
+<tr>
+<td>superseded</td>
+<td>One side&#39;s premise no longer holds after the other&#39;s change</td>
+<td>Keep the surviving side; note why</td>
+</tr>
+</tbody></table>
+<p>Impartiality contract: never favor the side that spawned you; touch ONLY
+conflicted regions (no drive-by edits); every design-question pick must appear
+explicitly in the hand-back summary.</p>
+<h3>Procedure</h3>
+<h4>1. Gather both sides</h4>
+<ul>
+<li>Run via <code>terminal</code>: <code>git status</code> (confirm the conflicted state and list
+conflicted files), <code>git merge-base &lt;A&gt; &lt;B&gt;</code>, then for each side
+<code>git log --oneline &lt;base&gt;..&lt;side&gt;</code> and <code>git diff &lt;base&gt;..&lt;side&gt; -- &lt;file&gt;</code>
+for every conflicted file. In a halted merge, <code>HEAD</code> is one side and
+<code>MERGE_HEAD</code> is the other.</li>
+<li>Collect each side&#39;s intent: <code>hermes kanban show &lt;task-id&gt;</code> for completion
+summaries/metadata, or the PR body, or the commit messages from the log
+above. Write down one sentence of intent per side before touching any file.</li>
+<li>Done when: you can state both intents in your own words and have both diffs
+for every conflicted file.</li>
+</ul>
+<h4>2. Classify every conflicted hunk</h4>
+<ul>
+<li>Open each conflicted file with <code>read_file</code> and locate each
+<code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>/<code>=======</code>/<code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code> block.</li>
+<li>Assign each hunk exactly one class from the Quick Reference table, judging
+by the stated intents — not by which change looks nicer.</li>
+<li>If a single hunk contains multiple independent decisions (e.g., new logic
+that combines cleanly PLUS a styling/rounding choice both sides answered
+differently), decompose it into sub-decisions and classify each one.</li>
+<li>A single file often mixes classes: one hunk may be a design collision while
+a neighboring hunk is disjoint. Classify per hunk, not per file.</li>
+<li>Done when: every hunk has a written class and a one-line rationale.</li>
+</ul>
+<h4>3. Resolve under the impartiality contract</h4>
+<ul>
+<li>Edit each hunk with <code>patch</code> (or <code>write_file</code> for whole-file rewrites):<ul>
+<li>disjoint-intent → merge both changes so each intent is fully served.</li>
+<li>same-question-different-answer → pick the answer that best serves the
+STATED intents (e.g., an intent of &quot;strict validation&quot; beats &quot;quick
+default&quot; if the task required correctness). Never split the difference
+into a hybrid neither side asked for.</li>
+<li>superseded → keep the surviving side; delete the dead premise.</li>
+</ul>
+</li>
+<li>Never favor the side that spawned you. If intents genuinely tie, escalate
+(block the kanban card / report back) rather than guess.</li>
+<li>Change nothing outside conflict markers — no formatting, renames, or
+opportunistic fixes.</li>
+<li><code>git add</code> each resolved file via <code>terminal</code>.</li>
+<li>Done when: <code>search_files</code> finds no <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> markers in the repo and every
+resolved file is staged.</li>
+</ul>
+<h4>4. Verify</h4>
+<ul>
+<li>Run the project&#39;s build/tests via <code>terminal</code>; at minimum import/execute the
+touched modules. Both intents must be observable in the merged behavior
+(e.g., side A&#39;s new semantics AND side B&#39;s disjoint addition both present).</li>
+<li>Complete the merge: <code>git commit</code> (the default merge message plus a body
+listing hunk decisions is fine).</li>
+<li>Done when: verification passes and the merge commit exists.</li>
+</ul>
+<h4>5. Hand back</h4>
+<ul>
+<li>Produce a completion summary naming EVERY hunk decision:
+<code>file:lines — class — which side(s) kept — rationale</code>. For every
+same-question-different-answer hunk, state the design question and the
+answer you picked so a human can veto it — never bury a design call.</li>
+<li>Kanban: <code>kanban_complete(summary=...)</code>. Standalone: print the summary.</li>
+<li>Done when: the summary is delivered and lists all hunks.</li>
+</ul>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Self-favoring</strong>: if you were spawned by one of the conflicting agents,
+you are structurally biased — state this and weigh the other side&#39;s intent
+deliberately. Prefer the third-profile shape so this never arises.</li>
+<li><strong>Splitting the difference</strong> on a design collision produces a hybrid nobody
+designed; pick one answer and surface it.</li>
+<li><strong>Per-file classification</strong>: files usually mix hunk classes; classifying a
+whole file as one class silently drops a disjoint change.</li>
+<li><strong>Drive-by edits</strong> make the merge unreviewable and steal decisions from the
+original agents.</li>
+<li><strong>Missing intents</strong>: commit messages alone can be thin; prefer kanban
+completion summaries or PR bodies. If neither side&#39;s intent is recoverable,
+escalate instead of guessing.</li>
+<li><strong>Repeat offenders</strong>: repeated conflicts on the SAME file across rounds are
+a hotspot signal, not routine reconciliation work — flag it (e.g. a
+<code>hotspot: &lt;path&gt; — &lt;reason&gt;</code> kanban comment) so the orchestrator decomposes
+that file, rather than serially reconciling every new collision on it.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li><code>git status</code> shows a clean tree on the target branch with a merge commit.</li>
+<li>No conflict markers remain (<code>search_files</code> pattern <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>).</li>
+<li>Build/tests pass; both sides&#39; intents are demonstrably present or the
+dropped one is explicitly named in the summary.</li>
+<li>The hand-back summary enumerates every hunk with class and rationale.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/autonomous-ai-agents/agent-merge-conflict-arbiter</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>actual-setup — Skill Hermes</title>
+<meta name="description" content="Set up Actual Computer (actual.inc) inference in Hermes.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>actual-setup</h1>
+    <p class="lede">Set up Actual Computer (actual.inc) inference in Hermes.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>actual-setup</dd>
+      <dt>Keterangan</dt><dd>Set up Actual Computer (actual.inc) inference in Hermes.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>shl0ms + Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>devops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/actual-setup.zip" download>Muat turun ZIP (5.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.6 KB</td></tr>
+<tr><td><code>references/opencode.md</code></td><td class="sz">3.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Actual Computer Setup Skill</h2>
+<p>Sets up <a href="https://actual.inc">actual.inc</a> (Actual Computer) as a Hermes inference
+provider. Actual turns the user&#39;s own hardware into a private inference cluster
+and exposes an OpenAI-compatible API two ways: a hosted end-to-end-encrypted
+relay at <code>https://api.actual.inc</code> (authenticated with an <code>ac_</code> key), and a local
+on-device daemon at <code>http://127.0.0.1:8080</code> (no auth on loopback). This skill
+does not install the Actual daemon for the user — device authorization requires
+a human in a browser.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User wants to add actual.inc as an inference provider (cloud relay or local).</li>
+<li>User has an <code>ac_</code> key and wants Hermes routed through their Actual cluster.</li>
+<li>User wants fully-local, on-device inference via the Actual daemon.</li>
+<li>Troubleshooting: Actual requests failing with cryptic 400s or empty streams.</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Hermes has <strong>first-class <code>actual</code> provider support</strong> (provider id <code>actual</code>,
+aliases <code>actual-computer</code>, <code>actualcomputer</code>, <code>aci</code>). Do NOT configure Actual
+as a <code>custom_providers</code> / <code>providers.actual.*</code> entry on current Hermes — the
+built-in provider owns the name and handles base-url normalization, the
+Responses transport, and local no-auth automatically.</li>
+<li>Relay mode: an Actual account and an <code>ac_</code> inference key from
+<a href="https://actual.inc/user/keys">https://actual.inc/user/keys</a>.</li>
+<li>Local mode: the user has installed the daemon
+(<code>curl -fsSL &quot;https://actual.inc/install&quot; | bash</code>) and completed device
+authorization by running <code>actual</code> once and opening the printed
+<code>https://actual.inc/device?code=...</code> URL in a browser. Relay that URL to the
+user and WAIT — never invent an email or authorize on their behalf. Codes
+expire in 5 minutes; re-run <code>actual</code> for a fresh one.</li>
+</ul>
+<h3>How to Run</h3>
+<h4>Relay / API mode</h4>
+<ol>
+<li>Put the key in <code>.env</code> (secrets only — never config.yaml):
+append <code>ACTUAL_API_KEY=ac_...</code> to <code>~/.hermes/.env</code>.</li>
+<li>Verify the key and discover models with <code>terminal</code>:<pre><code class="language-bash">curl -s https://api.actual.inc/v1/models -H &quot;Authorization: Bearer $ACTUAL_API_KEY&quot;
+</code></pre>
+</li>
+<li>Select provider + model:<pre><code class="language-bash">hermes config set model.provider actual
+hermes config set model.default &quot;MODEL_ID_FROM_DISCOVERY&quot;
+</code></pre>
+</li>
+<li>Verify end-to-end:<pre><code class="language-bash">hermes chat -Q -q &quot;Reply with exactly: ACTUAL_OK&quot; --provider actual -m MODEL_ID
+</code></pre>
+</li>
+</ol>
+<h4>Local mode</h4>
+<ol>
+<li>Human has installed + authorized the daemon (see Prerequisites).</li>
+<li>Download and load a model (scriptable once authorized):<pre><code class="language-bash">actual models search &quot;qwen2.5 0.5b instruct gguf&quot; --limit 8 --no-prompt
+# Downloads REQUIRE an explicit quantization (409 ambiguous_model_download otherwise):
+actual models download &quot;Qwen/Qwen2.5-0.5B-Instruct-GGUF/Q4_K_M&quot;
+actual models list        # note the INSTALLED name (differs from download id)
+actual models load &quot;qwen2.5-0.5b-instruct-q4_k_m&quot;   # load by installed name
+</code></pre>
+</li>
+<li>Point Hermes at the daemon. <code>ACTUAL_BASE_URL</code> with a loopback host flips the
+built-in provider into local no-auth mode automatically — no key needed:
+append <code>ACTUAL_BASE_URL=http://127.0.0.1:8080</code> to <code>~/.hermes/.env</code>, then:<pre><code class="language-bash">hermes config set model.provider actual
+hermes config set model.default &quot;INSTALLED_MODEL_NAME&quot;
+</code></pre>
+</li>
+<li>Verify (reduced toolset — see context-window pitfall below):<pre><code class="language-bash">hermes chat -Q -q &quot;Reply with exactly: LOCAL_OK&quot; --provider actual -m INSTALLED_NAME -t file,web
+</code></pre>
+</li>
+</ol>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Thing</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hosted relay</td>
+<td><code>https://api.actual.inc/v1</code> (normalized from bare host automatically)</td>
+</tr>
+<tr>
+<td>Local daemon</td>
+<td><code>http://127.0.0.1:8080/v1</code> (no auth on loopback)</td>
+</tr>
+<tr>
+<td>Key env var</td>
+<td><code>ACTUAL_API_KEY</code> (<code>ac_...</code>)</td>
+</tr>
+<tr>
+<td>Base URL env var</td>
+<td><code>ACTUAL_BASE_URL</code> (loopback host ⇒ local no-auth mode)</td>
+</tr>
+<tr>
+<td>Provider id / aliases</td>
+<td><code>actual</code> / <code>actual-computer</code>, <code>actualcomputer</code>, <code>aci</code></td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>Responses API (<code>codex_responses</code>) — built-in, do not override</td>
+</tr>
+<tr>
+<td>Cluster pinning</td>
+<td><code>X-Cluster-ID</code> header via <code>providers.actual.extra_headers</code> in config.yaml</td>
+</tr>
+<tr>
+<td>Model size guide</td>
+<td>0.5B Q4_K_M ~470MB (toy), 7-8B Q4_K_M ~4.5GB (daily driver), 32B ~20GB</td>
+</tr>
+</tbody></table>
+<h3>Pitfalls</h3>
+<ol>
+<li><strong>reasoning_effort trap (handled by Hermes since the first-class provider).</strong>
+Actual&#39;s SGLang/vLLM backends accept only <code>none/low/medium/high/max</code>;
+<code>xhigh</code>/<code>ultra</code> used to fail with a cryptic
+<code>Expecting value: line 1 column 1 (char 0)</code> (a wrapped HTTP 400). The
+built-in provider clamps <code>xhigh→high</code> and <code>ultra→max</code> on the wire. If a
+request still 400s this way on an old Hermes, set a per-model cap:
+<code>agent.reasoning_overrides.&lt;model&gt;: high</code> in config.yaml.</li>
+<li><strong>Context-window overflow on small local models.</strong> Hermes&#39; default toolset
+is ~26k tokens of schemas plus a ~9k-token system prompt. A model loaded
+with a 32k context overflows before the first turn, and llama.cpp-family
+servers emit a bare <code>data: [DONE]</code> — Hermes reports
+<code>Provider returned an empty stream with no finish_reason</code>. This is NOT an
+SSE bug. Fixes: restrict tools (<code>-t file,web</code>), load the model with a
+larger <code>n_ctx</code>, or pick a &gt;=64k-context model for the full toolset.
+Upstream tracking: #51448 (do not file new issues; add evidence there).
+Related but distinct: #65631 (HTTP-200 SSE carrying a 400), #56516
+(reasoning-only streams).</li>
+<li><strong>Download ids vs installed names.</strong> <code>actual models download</code> takes
+<code>repo/QUANT</code> and 409s without an explicit quantization;
+<code>actual models load</code> takes the INSTALLED name from <code>actual models list</code>.</li>
+<li><strong>Reasoning models returning empty content.</strong> GLM/Qwen reasoning variants
+emit thinking in a separate <code>reasoning</code> field and can burn a small
+<code>max_tokens</code> entirely on reasoning. Give generous max_tokens before
+assuming failure.</li>
+<li><strong>Do not create a custom provider named <code>actual</code>.</strong> Older setup guides
+(pre first-class support) wrote <code>providers.actual.*</code> config blocks. On
+current Hermes the built-in provider wins the name; stale custom blocks
+are ignored or conflict. Remove them and use the env vars + model.provider
+flow above.</li>
+</ol>
+<h3>Verification</h3>
+<pre><code class="language-bash"># Relay:
+hermes chat -Q -q &quot;Reply with exactly: ACTUAL_OK&quot; --provider actual -m MODEL
+# Local (small model — reduced toolset):
+hermes chat -Q -q &quot;Reply with exactly: LOCAL_OK&quot; --provider actual -m MODEL -t file,web
+# Provider status (local no-auth shows key_source=local-offline):
+hermes status
+</code></pre>
+<p>For other OpenAI-compatible clients (e.g. OpenCode), see
+<code>references/opencode.md</code>.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/devops/actual-setup</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

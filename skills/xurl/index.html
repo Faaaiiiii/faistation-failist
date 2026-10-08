@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>xurl — Skill Hermes</title>
+<meta name="description" content="X/Twitter via xurl CLI: raw post search, posting, DM, media.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>xurl</h1>
+    <p class="lede">X/Twitter via xurl CLI: raw post search, posting, DM, media.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>xurl</dd>
+      <dt>Keterangan</dt><dd>X/Twitter via xurl CLI: raw post search, posting, DM, media.</dd>
+      <dt>Versi</dt><dd>1.1.3</dd>
+      <dt>Pengarang</dt><dd>xdevplatform + openclaw + Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>social-media · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/xurl.zip" download>Muat turun ZIP (6.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>xurl — X (Twitter) API via the Official CLI</h2>
+<p><code>xurl</code> is the X developer platform&#39;s official CLI for the X API. It supports shortcut commands for common actions AND raw curl-style access to any v2 endpoint. All commands return JSON to stdout.</p>
+<p>Use this skill for:</p>
+<ul>
+<li>posting, replying, quoting, deleting posts</li>
+<li>searching for raw posts (actual post JSON with IDs you can engage with) and reading timelines/mentions</li>
+<li>liking, reposting, bookmarking</li>
+<li>following, unfollowing, blocking, muting</li>
+<li>direct messages</li>
+<li>media uploads (images and video)</li>
+<li>raw access to any X API v2 endpoint</li>
+<li>multi-app / multi-account workflows</li>
+</ul>
+<p>This skill replaces the older <code>xitter</code> skill (which wrapped a third-party Python CLI). <code>xurl</code> is maintained by the X developer platform team, supports OAuth 2.0 PKCE with auto-refresh, and covers a substantially larger API surface.</p>
+<hr>
+<h3>Secret Safety (MANDATORY)</h3>
+<p>Critical rules when operating inside an agent/LLM session:</p>
+<ul>
+<li><strong>Never</strong> read, print, parse, summarize, upload, or send <code>~/.xurl</code> to LLM context.</li>
+<li><strong>Never</strong> ask the user to paste credentials/tokens into chat.</li>
+<li>The user must fill <code>~/.xurl</code> with secrets manually on their own machine. In Docker, this must be the <code>~</code> seen by Hermes tool subprocesses; see the Docker note below.</li>
+<li><strong>Never</strong> recommend or execute auth commands with inline secrets in agent sessions.</li>
+<li><strong>Never</strong> use <code>--verbose</code> / <code>-v</code> in agent sessions — it can expose auth headers/tokens.</li>
+<li>To verify credentials exist, only use: <code>xurl auth status</code>.</li>
+</ul>
+<p>Forbidden flags in agent commands (they accept inline secrets):
+<code>--bearer-token</code>, <code>--consumer-key</code>, <code>--consumer-secret</code>, <code>--access-token</code>, <code>--token-secret</code>, <code>--client-id</code>, <code>--client-secret</code></p>
+<p>App credential registration and credential rotation must be done by the user manually, outside the agent session. After credentials are registered, the user authenticates with <code>xurl auth oauth2</code> — also outside the agent session. Tokens persist to <code>~/.xurl</code> in YAML. Each app has isolated tokens. OAuth 2.0 tokens auto-refresh.</p>
+<hr>
+<h3>Installation</h3>
+<p>Pick ONE method. On Linux, the shell script or <code>go install</code> are the easiest.</p>
+<pre><code class="language-bash"># Shell script (installs to ~/.local/bin, no sudo, works on Linux + macOS)
+curl -fsSL https://raw.githubusercontent.com/xdevplatform/xurl/main/install.sh | bash
+
+# Homebrew (macOS)
+brew install --cask xdevplatform/tap/xurl
+
+# npm
+npm install -g @xdevplatform/xurl
+
+# Go
+go install github.com/xdevplatform/xurl@latest
+</code></pre>
+<p>Verify:</p>
+<pre><code class="language-bash">xurl --help
+xurl auth status
+</code></pre>
+<p>If <code>xurl</code> is installed but <code>auth status</code> shows no apps or tokens, the user needs to complete auth manually — see the next section.</p>
+<hr>
+<h3>One-Time User Setup (user runs these outside the agent)</h3>
+<p>These steps must be performed by the user directly, NOT by the agent, because they involve pasting secrets. Direct the user to this block; do not execute it for them.</p>
+<ol>
+<li><p>Create or open an app at <a href="https://developer.x.com/en/portal/dashboard">https://developer.x.com/en/portal/dashboard</a></p>
+</li>
+<li><p>Set the redirect URI to <code>http://localhost:8080/callback</code></p>
+</li>
+<li><p>Copy the app&#39;s Client ID and Client Secret</p>
+</li>
+<li><p>Register the app locally (user runs this):</p>
+<pre><code class="language-bash">xurl auth apps add my-app --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET
+</code></pre>
+</li>
+<li><p>Authenticate (specify <code>--app</code> to bind the token to your app):</p>
+<pre><code class="language-bash">xurl auth oauth2 --app my-app
+</code></pre>
+<p>(This opens a browser for the OAuth 2.0 PKCE flow.)</p>
+<p>If X returns a <code>UsernameNotFound</code> error or 403 on the post-OAuth <code>/2/users/me</code> lookup, pass your handle explicitly (xurl v1.1.0+):</p>
+<pre><code class="language-bash">xurl auth oauth2 --app my-app YOUR_USERNAME
+</code></pre>
+<p>This binds the token to your handle and skips the broken <code>/2/users/me</code> call.</p>
+</li>
+<li><p>Set the app as default so all commands use it:</p>
+<pre><code class="language-bash">xurl auth default my-app
+</code></pre>
+</li>
+<li><p>Verify:</p>
+<pre><code class="language-bash">xurl auth status
+xurl whoami
+</code></pre>
+</li>
+</ol>
+<p>After this, the agent can use any command below without further setup. OAuth 2.0 tokens auto-refresh.</p>
+<blockquote>
+<p><strong>Common pitfall:</strong> If you omit <code>--app my-app</code> from <code>xurl auth oauth2</code>, the OAuth token is saved to the built-in <code>default</code> app profile — which has no client-id or client-secret. Commands will fail with auth errors even though the OAuth flow appeared to succeed. If you hit this, re-run <code>xurl auth oauth2 --app my-app</code> and <code>xurl auth default my-app</code>.</p>
+</blockquote>
+<blockquote>
+<p><strong>Docker HOME pitfall:</strong> In the official Hermes Docker layout, <code>/opt/data</code> is <code>HERMES_HOME</code>, but Hermes tool subprocesses use <code>/opt/data/home</code> as <code>HOME</code>. That means <code>~/.xurl</code> resolves to <code>/opt/data/home/.xurl</code> for Hermes-run <code>xurl</code> commands, not <code>/opt/data/.xurl</code>. Run the user setup with the same HOME:</p>
+<pre><code class="language-bash">HOME=/opt/data/home xurl auth apps add my-app --client-id YOUR_CLIENT_ID --client-secret YOUR_CLIENT_SECRET
+HOME=/opt/data/home xurl auth oauth2 --app my-app YOUR_USERNAME
+HOME=/opt/data/home xurl auth default my-app YOUR_USERNAME
+HOME=/opt/data/home xurl auth status
+</code></pre>
+<p>If <code>HOME=/opt/data xurl auth status</code> succeeds but <code>HOME=/opt/data/home xurl auth status</code> shows no apps or tokens, Hermes tool calls will not see the credentials.</p>
+</blockquote>
+<hr>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Post</td>
+<td><code>xurl post &quot;Hello world!&quot;</code></td>
+</tr>
+<tr>
+<td>Reply</td>
+<td><code>xurl reply POST_ID &quot;Nice post!&quot;</code></td>
+</tr>
+<tr>
+<td>Quote</td>
+<td><code>xurl quote POST_ID &quot;My take&quot;</code></td>
+</tr>
+<tr>
+<td>Delete a post</td>
+<td><code>xurl delete POST_ID</code></td>
+</tr>
+<tr>
+<td>Read a post</td>
+<td><code>xurl read POST_ID</code></td>
+</tr>
+<tr>
+<td>Search posts</td>
+<td><code>xurl search &quot;QUERY&quot; -n 10</code></td>
+</tr>
+<tr>
+<td>Who am I</td>
+<td><code>xurl whoami</code></td>
+</tr>
+<tr>
+<td>Look up a user</td>
+<td><code>xurl user @handle</code></td>
+</tr>
+<tr>
+<td>Home timeline</td>
+<td><code>xurl timeline -n 20</code></td>
+</tr>
+<tr>
+<td>Mentions</td>
+<td><code>xurl mentions -n 10</code></td>
+</tr>
+<tr>
+<td>Like / Unlike</td>
+<td><code>xurl like POST_ID</code> / <code>xurl unlike POST_ID</code></td>
+</tr>
+<tr>
+<td>Repost / Undo</td>
+<td><code>xurl repost POST_ID</code> / <code>xurl unrepost POST_ID</code></td>
+</tr>
+<tr>
+<td>Bookmark / Remove</td>
+<td><code>xurl bookmark POST_ID</code> / <code>xurl unbookmark POST_ID</code></td>
+</tr>
+<tr>
+<td>List bookmarks / likes</td>
+<td><code>xurl bookmarks -n 10</code> / <code>xurl likes -n 10</code></td>
+</tr>
+<tr>
+<td>Follow / Unfollow</td>
+<td><code>xurl follow @handle</code> / <code>xurl unfollow @handle</code></td>
+</tr>
+<tr>
+<td>Following / Followers</td>
+<td><code>xurl following -n 20</code> / <code>xurl followers -n 20</code></td>
+</tr>
+<tr>
+<td>Block / Unblock</td>
+<td><code>xurl block @handle</code> / <code>xurl unblock @handle</code></td>
+</tr>
+<tr>
+<td>Mute / Unmute</td>
+<td><code>xurl mute @handle</code> / <code>xurl unmute @handle</code></td>
+</tr>
+<tr>
+<td>Send DM</td>
+<td><code>xurl dm @handle &quot;message&quot;</code></td>
+</tr>
+<tr>
+<td>List DMs</td>
+<td><code>xurl dms -n 10</code></td>
+</tr>
+<tr>
+<td>Upload media</td>
+<td><code>xurl media upload path/to/file.mp4</code></td>
+</tr>
+<tr>
+<td>Media status</td>
+<td><code>xurl media status MEDIA_ID</code></td>
+</tr>
+<tr>
+<td>List apps</td>
+<td><code>xurl auth apps list</code></td>
+</tr>
+<tr>
+<td>Remove app</td>
+<td><code>xurl auth apps remove NAME</code></td>
+</tr>
+<tr>
+<td>Set default app</td>
+<td><code>xurl auth default APP_NAME [USERNAME]</code></td>
+</tr>
+<tr>
+<td>Per-request app</td>
+<td><code>xurl --app NAME /2/users/me</code></td>
+</tr>
+<tr>
+<td>Auth status</td>
+<td><code>xurl auth status</code></td>
+</tr>
+</tbody></table>
+<p>Notes:</p>
+<ul>
+<li><code>POST_ID</code> accepts full URLs too (e.g. <code>https://x.com/user/status/1234567890</code>) — xurl extracts the ID.</li>
+<li>Usernames work with or without a leading <code>@</code>.</li>
+</ul>
+<hr>
+<h3>Command Details</h3>
+<h4>Posting</h4>
+<pre><code class="language-bash">xurl post &quot;Hello world!&quot;
+xurl post &quot;Check this out&quot; --media-id MEDIA_ID
+xurl post &quot;Thread pics&quot; --media-id 111 --media-id 222
+
+xurl reply 1234567890 &quot;Great point!&quot;
+xurl reply https://x.com/user/status/1234567890 &quot;Agreed!&quot;
+xurl reply 1234567890 &quot;Look at this&quot; --media-id MEDIA_ID
+
+xurl quote 1234567890 &quot;Adding my thoughts&quot;
+xurl delete 1234567890
+</code></pre>
+<h4>Reading &amp; Search</h4>
+<p><code>xurl search</code> queries the X index as your authenticated account and returns raw post objects — IDs, authors, full text — so results can be immediately engaged with (reply, like, repost, quote). Use it when you need the actual posts rather than a summarized answer about a topic.</p>
+<pre><code class="language-bash">xurl read 1234567890
+xurl read https://x.com/user/status/1234567890
+
+xurl search &quot;golang&quot;
+xurl search &quot;from:elonmusk&quot; -n 20
+xurl search &quot;#buildinpublic lang:en&quot; -n 15
+</code></pre>
+<p>For X Articles, use raw API mode instead of the <code>read</code> shortcut. <code>xurl read</code>
+expects a post ID or post URL; do not put <code>read</code> before a <code>/2/tweets/...</code>
+endpoint. Request the <code>article</code> tweet field and ingest <code>data.article.plain_text</code>
+from the JSON response:</p>
+<pre><code class="language-bash">xurl --app APP_NAME &#39;/2/tweets/2057909493250539891?expansions=author_id,attachments.media_keys,referenced_tweets.id&amp;tweet.fields=created_at,lang,public_metrics,context_annotations,entities,possibly_sensitive,conversation_id,in_reply_to_user_id,referenced_tweets,article&#39;
+</code></pre>
+<h4>Users, Timeline, Mentions</h4>
+<pre><code class="language-bash">xurl whoami
+xurl user elonmusk
+xurl user @XDevelopers
+
+xurl timeline -n 25
+xurl mentions -n 20
+</code></pre>
+<h4>Engagement</h4>
+<pre><code class="language-bash">xurl like 1234567890
+xurl unlike 1234567890
+
+xurl repost 1234567890
+xurl unrepost 1234567890
+
+xurl bookmark 1234567890
+xurl unbookmark 1234567890
+
+xurl bookmarks -n 20
+xurl likes -n 20
+</code></pre>
+<h4>Social Graph</h4>
+<pre><code class="language-bash">xurl follow @XDevelopers
+xurl unfollow @XDevelopers
+
+xurl following -n 50
+xurl followers -n 50
+
+# Another user&#39;s graph
+xurl following --of elonmusk -n 20
+xurl followers --of elonmusk -n 20
+
+xurl block @spammer
+xurl unblock @spammer
+xurl mute @annoying
+xurl unmute @annoying
+</code></pre>
+<h4>Direct Messages</h4>
+<pre><code class="language-bash">xurl dm @someuser &quot;Hey, saw your post!&quot;
+xurl dms -n 25
+</code></pre>
+<h4>Media Upload</h4>
+<pre><code class="language-bash"># Auto-detect type
+xurl media upload photo.jpg
+xurl media upload video.mp4
+
+# Explicit type/category
+xurl media upload --media-type image/jpeg --category tweet_image photo.jpg
+
+# Videos need server-side processing — check status (or poll)
+xurl media status MEDIA_ID
+xurl media status --wait MEDIA_ID
+
+# Full workflow
+xurl media upload meme.png                  # returns media id
+xurl post &quot;lol&quot; --media-id MEDIA_ID
+</code></pre>
+<hr>
+<h3>Raw API Access</h3>
+<p>The shortcuts cover common operations. For anything else, use raw curl-style mode against any X API v2 endpoint:</p>
+<pre><code class="language-bash"># GET
+xurl /2/users/me
+
+# POST with JSON body
+xurl -X POST /2/tweets -d &#39;{&quot;text&quot;:&quot;Hello world!&quot;}&#39;
+
+# DELETE / PUT / PATCH
+xurl -X DELETE /2/tweets/1234567890
+
+# Custom headers
+xurl -H &quot;Content-Type: application/json&quot; /2/some/endpoint
+
+# Force streaming
+xurl -s /2/tweets/search/stream
+
+# Full URLs also work
+xurl https://api.x.com/2/users/me
+</code></pre>
+<hr>
+<h3>Global Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Short</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--app</code></td>
+<td></td>
+<td>Use a specific registered app (overrides default)</td>
+</tr>
+<tr>
+<td><code>--auth</code></td>
+<td></td>
+<td>Force auth type: <code>oauth1</code>, <code>oauth2</code>, or <code>app</code></td>
+</tr>
+<tr>
+<td><code>--username</code></td>
+<td><code>-u</code></td>
+<td>Which OAuth2 account to use (if multiple exist)</td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td><code>-v</code></td>
+<td><strong>Forbidden in agent sessions</strong> — leaks auth headers</td>
+</tr>
+<tr>
+<td><code>--trace</code></td>
+<td><code>-t</code></td>
+<td>Add <code>X-B3-Flags: 1</code> trace header</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Streaming</h3>
+<p>Streaming endpoints are auto-detected. Known ones include:</p>
+<ul>
+<li><code>/2/tweets/search/stream</code></li>
+<li><code>/2/tweets/sample/stream</code></li>
+<li><code>/2/tweets/sample10/stream</code></li>
+</ul>
+<p>Force streaming on any endpoint with <code>-s</code>.</p>
+<hr>
+<h3>Output Format</h3>
+<p>All commands return JSON to stdout. Structure mirrors X API v2:</p>
+<pre><code class="language-json">{ &quot;data&quot;: { &quot;id&quot;: &quot;1234567890&quot;, &quot;text&quot;: &quot;Hello world!&quot; } }
+</code></pre>
+<p>Errors are also JSON:</p>
+<pre><code class="language-json">{ &quot;errors&quot;: [ { &quot;message&quot;: &quot;Not authorized&quot;, &quot;code&quot;: 403 } ] }
+</code></pre>
+<hr>
+<h3>Common Workflows</h3>
+<h4>Post with an image</h4>
+<pre><code class="language-bash">xurl media upload photo.jpg
+xurl post &quot;Check out this photo!&quot; --media-id MEDIA_ID
+</code></pre>
+<h4>Reply to a conversation</h4>
+<pre><code class="language-bash">xurl read https://x.com/user/status/1234567890
+xurl reply 1234567890 &quot;Here are my thoughts...&quot;
+</code></pre>
+<h4>Search and engage</h4>
+<pre><code class="language-bash">xurl search &quot;topic of interest&quot; -n 10
+xurl like POST_ID_FROM_RESULTS
+xurl reply POST_ID_FROM_RESULTS &quot;Great point!&quot;
+</code></pre>
+<h4>Check your activity</h4>
+<pre><code class="language-bash">xurl whoami
+xurl mentions -n 20
+xurl timeline -n 20
+</code></pre>
+<h4>Multiple apps (credentials pre-configured manually)</h4>
+<pre><code class="language-bash">xurl auth default prod alice               # prod app, alice user
+xurl --app staging /2/users/me             # one-off against staging
+</code></pre>
+<hr>
+<h3>Error Handling</h3>
+<ul>
+<li>Non-zero exit code on any error.</li>
+<li>API errors are still printed as JSON to stdout, so you can parse them.</li>
+<li>Auth errors → have the user re-run <code>xurl auth oauth2</code> outside the agent session.</li>
+<li>Commands that need the caller&#39;s user ID (like, repost, bookmark, follow, etc.) will auto-fetch it via <code>/2/users/me</code>. An auth failure there surfaces as an auth error.</li>
+</ul>
+<hr>
+<h3>Agent Workflow</h3>
+<ol>
+<li>Verify prerequisites: <code>xurl --help</code> and <code>xurl auth status</code>.</li>
+<li>Before using <code>xurl search</code>, check intent. Reach for it when the task needs actual post objects, authenticated account context, or leads into an X write action — it is the right surface when the user wants posts they can engage with, not just a summary of a topic.</li>
+<li><strong>Check default app has credentials.</strong> Parse the <code>auth status</code> output. The default app is marked with <code>▸</code>. If the default app shows <code>oauth2: (none)</code> but another app has a valid oauth2 user, tell the user to run <code>xurl auth default &lt;that-app&gt;</code> to fix it. This is the most common setup mistake — the user added an app with a custom name but never set it as default, so xurl keeps trying the empty <code>default</code> profile.</li>
+<li>If auth is missing entirely, stop and direct the user to the &quot;One-Time User Setup&quot; section — do NOT attempt to register apps or pass secrets yourself.</li>
+<li>Start with a cheap read (<code>xurl whoami</code>, <code>xurl user @handle</code>, <code>xurl search ... -n 3</code>) to confirm reachability.</li>
+<li>Confirm the target post/user and the user&#39;s intent before any write action (post, reply, like, repost, DM, follow, block, delete).</li>
+<li>Only the <code>xurl</code> command output (or the raw X API response) proves that a state-changing X action happened. Never report a write as done based on any other source — search results, summaries, or prior context.</li>
+<li>Use JSON output directly — every response is already structured.</li>
+<li>Never paste <code>~/.xurl</code> contents back into the conversation.</li>
+</ol>
+<hr>
+<h3>Troubleshooting</h3>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Auth errors after successful OAuth flow</td>
+<td>Token saved to <code>default</code> app (no client-id/secret) instead of your named app</td>
+<td><code>xurl auth oauth2 --app my-app</code> then <code>xurl auth default my-app</code></td>
+</tr>
+<tr>
+<td><code>unauthorized_client</code> during OAuth</td>
+<td>App type set to &quot;Native App&quot; in X dashboard</td>
+<td>Change to &quot;Web app, automated app or bot&quot; in User Authentication Settings</td>
+</tr>
+<tr>
+<td><code>UsernameNotFound</code> or 403 on <code>/2/users/me</code> right after OAuth</td>
+<td>X not returning username reliably from <code>/2/users/me</code></td>
+<td>Re-run <code>xurl auth oauth2 --app my-app YOUR_USERNAME</code> (xurl v1.1.0+) to pass the handle explicitly</td>
+</tr>
+<tr>
+<td>401 on every request</td>
+<td>Token expired or wrong default app</td>
+<td>Check <code>xurl auth status</code> — verify <code>▸</code> points to an app with oauth2 tokens</td>
+</tr>
+<tr>
+<td><code>client-forbidden</code> / <code>client-not-enrolled</code></td>
+<td>X platform enrollment issue</td>
+<td>Dashboard → Apps → Manage → Move to &quot;Pay-per-use&quot; package → Production environment</td>
+</tr>
+<tr>
+<td><code>CreditsDepleted</code></td>
+<td>$0 balance on X API</td>
+<td>Buy credits (min $5) in Developer Console → Billing</td>
+</tr>
+<tr>
+<td><code>media processing failed</code> on image upload</td>
+<td>Default category is <code>amplify_video</code></td>
+<td>Add <code>--category tweet_image --media-type image/png</code></td>
+</tr>
+<tr>
+<td>Two &quot;Client Secret&quot; values in X dashboard</td>
+<td>UI bug — first is actually Client ID</td>
+<td>Confirm on the &quot;Keys and tokens&quot; page; ID ends in <code>MTpjaQ</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Notes</h3>
+<ul>
+<li><strong>Rate limits:</strong> X enforces per-endpoint rate limits. A 429 means wait and retry. Write endpoints (post, reply, like, repost) have tighter limits than reads.</li>
+<li><strong>Scopes:</strong> OAuth 2.0 tokens use broad scopes. A 403 on a specific action usually means the token is missing a scope — have the user re-run <code>xurl auth oauth2</code>.</li>
+<li><strong>Token refresh:</strong> OAuth 2.0 tokens auto-refresh. Nothing to do.</li>
+<li><strong>Multiple apps:</strong> Each app has isolated credentials/tokens. Switch with <code>xurl auth default</code> or <code>--app</code>.</li>
+<li><strong>Multiple accounts per app:</strong> Select with <code>-u / --username</code>, or set a default with <code>xurl auth default APP USER</code>.</li>
+<li><strong>Token storage:</strong> <code>~/.xurl</code> is YAML. In Docker, use the Hermes subprocess HOME (<code>/opt/data/home</code> in the official image) so tokens land under <code>/opt/data/home/.xurl</code>. Never read or send this file to LLM context.</li>
+<li><strong>Cost:</strong> X API access is typically paid for meaningful usage. Many failures are plan/permission problems, not code problems.</li>
+</ul>
+<hr>
+<h3>Attribution</h3>
+<ul>
+<li>Upstream CLI: <a href="https://github.com/xdevplatform/xurl">https://github.com/xdevplatform/xurl</a> (X developer platform team, Chris Park et al.)</li>
+<li>Upstream agent skill: <a href="https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md">https://github.com/openclaw/openclaw/blob/main/skills/xurl/SKILL.md</a></li>
+<li>Hermes adaptation: reformatted for Hermes skill conventions; safety guardrails preserved verbatim.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/social-media/xurl</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

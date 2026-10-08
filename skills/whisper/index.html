@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>whisper — Skill Hermes</title>
+<meta name="description" content="Transcribe and translate speech in 99 languages.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>whisper</h1>
+    <p class="lede">Transcribe and translate speech in 99 languages.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>whisper</dd>
+      <dt>Keterangan</dt><dd>Transcribe and translate speech in 99 languages.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/whisper.zip" download>Muat turun ZIP (5.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.1 KB</td></tr>
+<tr><td><code>references/languages.md</code></td><td class="sz">4.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Whisper - Robust Speech Recognition</h2>
+<p>OpenAI&#39;s multilingual speech recognition model.</p>
+<h3>When to use Whisper</h3>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Speech-to-text transcription (99 languages)</li>
+<li>Podcast/video transcription</li>
+<li>Meeting notes automation</li>
+<li>Translation to English</li>
+<li>Noisy audio transcription</li>
+<li>Multilingual audio processing</li>
+</ul>
+<p><strong>Metrics</strong>:</p>
+<ul>
+<li><strong>72,900+ GitHub stars</strong></li>
+<li>99 languages supported</li>
+<li>Trained on 680,000 hours of audio</li>
+<li>MIT License</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>AssemblyAI</strong>: Managed API, speaker diarization</li>
+<li><strong>Deepgram</strong>: Real-time streaming ASR</li>
+<li><strong>Google Speech-to-Text</strong>: Cloud-based</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># Requires Python 3.8-3.11
+pip install -U openai-whisper
+
+# Requires ffmpeg
+# macOS: brew install ffmpeg
+# Ubuntu: sudo apt install ffmpeg
+# Windows: choco install ffmpeg
+</code></pre>
+<h4>Basic transcription</h4>
+<pre><code class="language-python">import whisper
+
+# Load model
+model = whisper.load_model(&quot;base&quot;)
+
+# Transcribe
+result = model.transcribe(&quot;audio.mp3&quot;)
+
+# Print text
+print(result[&quot;text&quot;])
+
+# Access segments
+for segment in result[&quot;segments&quot;]:
+    print(f&quot;[{segment[&#39;start&#39;]:.2f}s - {segment[&#39;end&#39;]:.2f}s] {segment[&#39;text&#39;]}&quot;)
+</code></pre>
+<h3>Model sizes</h3>
+<pre><code class="language-python"># Available models
+models = [&quot;tiny&quot;, &quot;base&quot;, &quot;small&quot;, &quot;medium&quot;, &quot;large&quot;, &quot;turbo&quot;]
+
+# Load specific model
+model = whisper.load_model(&quot;turbo&quot;)  # Fastest, good quality
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Parameters</th>
+<th>English-only</th>
+<th>Multilingual</th>
+<th>Speed</th>
+<th>VRAM</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tiny</td>
+<td>39M</td>
+<td>✓</td>
+<td>✓</td>
+<td>~32x</td>
+<td>~1 GB</td>
+</tr>
+<tr>
+<td>base</td>
+<td>74M</td>
+<td>✓</td>
+<td>✓</td>
+<td>~16x</td>
+<td>~1 GB</td>
+</tr>
+<tr>
+<td>small</td>
+<td>244M</td>
+<td>✓</td>
+<td>✓</td>
+<td>~6x</td>
+<td>~2 GB</td>
+</tr>
+<tr>
+<td>medium</td>
+<td>769M</td>
+<td>✓</td>
+<td>✓</td>
+<td>~2x</td>
+<td>~5 GB</td>
+</tr>
+<tr>
+<td>large</td>
+<td>1550M</td>
+<td>✗</td>
+<td>✓</td>
+<td>1x</td>
+<td>~10 GB</td>
+</tr>
+<tr>
+<td>turbo</td>
+<td>809M</td>
+<td>✗</td>
+<td>✓</td>
+<td>~8x</td>
+<td>~6 GB</td>
+</tr>
+</tbody></table>
+<p><strong>Recommendation</strong>: Use <code>turbo</code> for best speed/quality, <code>base</code> for prototyping</p>
+<h3>Transcription options</h3>
+<h4>Language specification</h4>
+<pre><code class="language-python"># Auto-detect language
+result = model.transcribe(&quot;audio.mp3&quot;)
+
+# Specify language (faster)
+result = model.transcribe(&quot;audio.mp3&quot;, language=&quot;en&quot;)
+
+# Supported: en, es, fr, de, it, pt, ru, ja, ko, zh, and 89 more
+</code></pre>
+<h4>Task selection</h4>
+<pre><code class="language-python"># Transcription (default)
+result = model.transcribe(&quot;audio.mp3&quot;, task=&quot;transcribe&quot;)
+
+# Translation to English
+result = model.transcribe(&quot;spanish.mp3&quot;, task=&quot;translate&quot;)
+# Input: Spanish audio → Output: English text
+</code></pre>
+<h4>Initial prompt</h4>
+<pre><code class="language-python"># Improve accuracy with context
+result = model.transcribe(
+    &quot;audio.mp3&quot;,
+    initial_prompt=&quot;This is a technical podcast about machine learning and AI.&quot;
+)
+
+# Helps with:
+# - Technical terms
+# - Proper nouns
+# - Domain-specific vocabulary
+</code></pre>
+<h4>Timestamps</h4>
+<pre><code class="language-python"># Word-level timestamps
+result = model.transcribe(&quot;audio.mp3&quot;, word_timestamps=True)
+
+for segment in result[&quot;segments&quot;]:
+    for word in segment[&quot;words&quot;]:
+        print(f&quot;{word[&#39;word&#39;]} ({word[&#39;start&#39;]:.2f}s - {word[&#39;end&#39;]:.2f}s)&quot;)
+</code></pre>
+<h4>Temperature fallback</h4>
+<pre><code class="language-python"># Retry with different temperatures if confidence low
+result = model.transcribe(
+    &quot;audio.mp3&quot;,
+    temperature=(0.0, 0.2, 0.4, 0.6, 0.8, 1.0)
+)
+</code></pre>
+<h3>Command line usage</h3>
+<pre><code class="language-bash"># Basic transcription
+whisper audio.mp3
+
+# Specify model
+whisper audio.mp3 --model turbo
+
+# Output formats
+whisper audio.mp3 --output_format txt     # Plain text
+whisper audio.mp3 --output_format srt     # Subtitles
+whisper audio.mp3 --output_format vtt     # WebVTT
+whisper audio.mp3 --output_format json    # JSON with timestamps
+
+# Language
+whisper audio.mp3 --language Spanish
+
+# Translation
+whisper spanish.mp3 --task translate
+</code></pre>
+<h3>Batch processing</h3>
+<pre><code class="language-python">import os
+
+audio_files = [&quot;file1.mp3&quot;, &quot;file2.mp3&quot;, &quot;file3.mp3&quot;]
+
+for audio_file in audio_files:
+    print(f&quot;Transcribing {audio_file}...&quot;)
+    result = model.transcribe(audio_file)
+
+    # Save to file
+    output_file = audio_file.replace(&quot;.mp3&quot;, &quot;.txt&quot;)
+    with open(output_file, &quot;w&quot;) as f:
+        f.write(result[&quot;text&quot;])
+</code></pre>
+<h3>Real-time transcription</h3>
+<pre><code class="language-python"># For streaming audio, use faster-whisper
+# pip install faster-whisper
+
+from faster_whisper import WhisperModel
+
+model = WhisperModel(&quot;base&quot;, device=&quot;cuda&quot;, compute_type=&quot;float16&quot;)
+
+# Transcribe with streaming
+segments, info = model.transcribe(&quot;audio.mp3&quot;, beam_size=5)
+
+for segment in segments:
+    print(f&quot;[{segment.start:.2f}s -&gt; {segment.end:.2f}s] {segment.text}&quot;)
+</code></pre>
+<h3>GPU acceleration</h3>
+<pre><code class="language-python">import whisper
+
+# Automatically uses GPU if available
+model = whisper.load_model(&quot;turbo&quot;)
+
+# Force CPU
+model = whisper.load_model(&quot;turbo&quot;, device=&quot;cpu&quot;)
+
+# Force GPU
+model = whisper.load_model(&quot;turbo&quot;, device=&quot;cuda&quot;)
+
+# 10-20× faster on GPU
+</code></pre>
+<h3>Integration with other tools</h3>
+<h4>Subtitle generation</h4>
+<pre><code class="language-bash"># Generate SRT subtitles
+whisper video.mp4 --output_format srt --language English
+
+# Output: video.srt
+</code></pre>
+<h4>With LangChain</h4>
+<pre><code class="language-python">from langchain.document_loaders import WhisperTranscriptionLoader
+
+loader = WhisperTranscriptionLoader(file_path=&quot;audio.mp3&quot;)
+docs = loader.load()
+
+# Use transcription in RAG
+from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+
+vectorstore = Chroma.from_documents(docs, OpenAIEmbeddings())
+</code></pre>
+<h4>Extract audio from video</h4>
+<pre><code class="language-bash"># Use ffmpeg to extract audio
+ffmpeg -i video.mp4 -vn -acodec pcm_s16le audio.wav
+
+# Then transcribe
+whisper audio.wav
+</code></pre>
+<h3>Best practices</h3>
+<ol>
+<li><strong>Use turbo model</strong> - Best speed/quality for English</li>
+<li><strong>Specify language</strong> - Faster than auto-detect</li>
+<li><strong>Add initial prompt</strong> - Improves technical terms</li>
+<li><strong>Use GPU</strong> - 10-20× faster</li>
+<li><strong>Batch process</strong> - More efficient</li>
+<li><strong>Convert to WAV</strong> - Better compatibility</li>
+<li><strong>Split long audio</strong> - &lt;30 min chunks</li>
+<li><strong>Check language support</strong> - Quality varies by language</li>
+<li><strong>Use faster-whisper</strong> - 4× faster than openai-whisper</li>
+<li><strong>Monitor VRAM</strong> - Scale model size to hardware</li>
+</ol>
+<h3>Performance</h3>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Real-time factor (CPU)</th>
+<th>Real-time factor (GPU)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>tiny</td>
+<td>~0.32</td>
+<td>~0.01</td>
+</tr>
+<tr>
+<td>base</td>
+<td>~0.16</td>
+<td>~0.01</td>
+</tr>
+<tr>
+<td>turbo</td>
+<td>~0.08</td>
+<td>~0.01</td>
+</tr>
+<tr>
+<td>large</td>
+<td>~1.0</td>
+<td>~0.05</td>
+</tr>
+</tbody></table>
+<p><em>Real-time factor: 0.1 = 10× faster than real-time</em></p>
+<h3>Language support</h3>
+<p>Top-supported languages:</p>
+<ul>
+<li>English (en)</li>
+<li>Spanish (es)</li>
+<li>French (fr)</li>
+<li>German (de)</li>
+<li>Italian (it)</li>
+<li>Portuguese (pt)</li>
+<li>Russian (ru)</li>
+<li>Japanese (ja)</li>
+<li>Korean (ko)</li>
+<li>Chinese (zh)</li>
+</ul>
+<p>Full list: 99 languages total</p>
+<h3>Limitations</h3>
+<ol>
+<li><strong>Hallucinations</strong> - May repeat or invent text</li>
+<li><strong>Long-form accuracy</strong> - Degrades on &gt;30 min audio</li>
+<li><strong>Speaker identification</strong> - No diarization</li>
+<li><strong>Accents</strong> - Quality varies</li>
+<li><strong>Background noise</strong> - Can affect accuracy</li>
+<li><strong>Real-time latency</strong> - Not suitable for live captioning</li>
+</ol>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/openai/whisper">https://github.com/openai/whisper</a> ⭐ 72,900+</li>
+<li><strong>Paper</strong>: <a href="https://arxiv.org/abs/2212.04356">https://arxiv.org/abs/2212.04356</a></li>
+<li><strong>Model Card</strong>: <a href="https://github.com/openai/whisper/blob/main/model-card.md">https://github.com/openai/whisper/blob/main/model-card.md</a></li>
+<li><strong>Colab</strong>: Available in repo</li>
+<li><strong>License</strong>: MIT</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/whisper</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

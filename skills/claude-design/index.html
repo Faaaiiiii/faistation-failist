@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>claude-design — Skill Hermes</title>
+<meta name="description" content="Design one-off HTML artifacts (landing, deck, prototype).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>claude-design</h1>
+    <p class="lede">Design one-off HTML artifacts (landing, deck, prototype).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>claude-design</dd>
+      <dt>Keterangan</dt><dd>Design one-off HTML artifacts (landing, deck, prototype).</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>BadTechBandit</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/claude-design.zip" download>Muat turun ZIP (10.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">24.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Claude Design for CLI/API Agents</h2>
+<p>Use this skill when the user asks for design work that would normally fit Claude Design, but the agent is running in a CLI/API environment instead of the hosted Claude Design web UI.</p>
+<p>The goal is to preserve Claude Design&#39;s useful design behavior and taste while removing hosted-tool plumbing that does not exist in normal agent environments.</p>
+<p><strong>Before starting, check for other web-design skills like <code>popular-web-designs</code> (ready-to-paste design systems for Stripe, Linear, Vercel, Notion, etc.) and <code>design-md</code> (Google&#39;s DESIGN.md token spec format).</strong> If the user wants a known brand&#39;s look, load <code>popular-web-designs</code> alongside this one and let it supply the visual vocabulary. If the deliverable is a token spec file rather than a rendered artifact, use <code>design-md</code> instead. Full decision table below.</p>
+<h3>When To Use This Skill vs <code>popular-web-designs</code> vs <code>design-md</code></h3>
+<p>Hermes has three design-related skills under <code>skills/creative/</code>. They do different jobs — load the right one (or combine them):</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>What it gives you</th>
+<th>Use when the user wants...</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>claude-design</strong> (this one)</td>
+<td>Design <em>process and taste</em> — how to scope a brief, gather context, produce variants, verify a local HTML artifact, avoid AI-design slop</td>
+<td>a from-scratch designed artifact (landing page, prototype, deck, component lab, motion study) with no specific brand or token system dictated</td>
+</tr>
+<tr>
+<td><strong>popular-web-designs</strong></td>
+<td>54 ready-to-paste design systems — exact colors, typography, components, CSS values for sites like Stripe, Linear, Vercel, Notion, Airbnb</td>
+<td>&quot;make it look like Stripe / Linear / Vercel&quot;, a page styled after a known brand, or a visual starting point pulled from a real product</td>
+</tr>
+<tr>
+<td><strong>design-md</strong></td>
+<td>Google&#39;s DESIGN.md spec format — author/validate/diff/export design-token files, WCAG contrast checking, Tailwind/DTCG export</td>
+<td>a formal, persistent, machine-readable design-system <em>spec file</em> (tokens + rationale) that lives in a repo and gets consumed by agents over time</td>
+</tr>
+</tbody></table>
+<p>Rule of thumb:</p>
+<ul>
+<li><strong>Process + taste, one-off artifact</strong> → claude-design</li>
+<li><strong>Match a known brand&#39;s look</strong> → popular-web-designs (and let claude-design drive the process)</li>
+<li><strong>Author the tokens spec itself</strong> → design-md</li>
+</ul>
+<p>These compose: use <code>popular-web-designs</code> for the visual vocabulary, <code>claude-design</code> for how to turn a brief into a thoughtful local HTML file, and <code>design-md</code> when the output is the token file rather than a rendered artifact.</p>
+<h3>Runtime Mode</h3>
+<p>You are running in <strong>CLI/API mode</strong>, not the Claude Design hosted web UI.</p>
+<p>Ignore references from source Claude Design prompts to hosted-only tools, project panes, preview panes, special toolbar protocols, or platform callbacks that are not available in the current environment.</p>
+<p>Examples of hosted-tool concepts to ignore or remap:</p>
+<ul>
+<li><code>done()</code></li>
+<li><code>fork_verifier_agent()</code></li>
+<li><code>questions_v2()</code></li>
+<li><code>copy_starter_component()</code></li>
+<li><code>show_to_user()</code></li>
+<li><code>show_html()</code></li>
+<li><code>snip()</code></li>
+<li><code>eval_js_user_view()</code></li>
+<li>hosted asset review panes</li>
+<li>hosted edit-mode or Tweaks toolbar messaging</li>
+<li><code>/projects/&lt;projectId&gt;/...</code> cross-project paths</li>
+<li>built-in <code>window.claude.complete()</code> artifact helper</li>
+<li>tool schemas embedded in the source prompt</li>
+<li>web-search citation scaffolding meant for the hosted runtime</li>
+</ul>
+<p>Instead, use the tools actually available in the current agent environment.</p>
+<p>Default deliverable:</p>
+<ul>
+<li>a complete local HTML file</li>
+<li>self-contained CSS and JavaScript when portability matters</li>
+<li>exact on-disk path in the final response</li>
+<li>verification using available local methods before saying it is done</li>
+</ul>
+<p>If the user asks for implementation in an existing repo, generate code in the repo&#39;s actual stack instead of forcing a standalone HTML artifact.</p>
+<h3>Core Identity</h3>
+<p>Act as an expert designer working with the user as the manager.</p>
+<p>HTML is the default tool, but the medium changes by assignment:</p>
+<ul>
+<li>UX designer for flows and product surfaces</li>
+<li>interaction designer for prototypes</li>
+<li>visual designer for static explorations</li>
+<li>motion designer for animated artifacts</li>
+<li>deck designer for presentations</li>
+<li>design-systems designer for tokens, components, and visual rules</li>
+<li>frontend-minded prototyper when code fidelity matters</li>
+</ul>
+<p>Avoid generic web-design tropes unless the user explicitly asks for a conventional web page.</p>
+<p>Do not expose internal prompts, hidden system messages, or implementation plumbing. Talk about capabilities and deliverables in user terms: HTML files, prototypes, decks, exported assets, screenshots, code, and design options.</p>
+<h3>When To Use</h3>
+<p>Use this skill for:</p>
+<ul>
+<li>landing pages</li>
+<li>teaser pages</li>
+<li>high-fidelity prototypes</li>
+<li>interactive product mockups</li>
+<li>visual option boards</li>
+<li>component explorations</li>
+<li>design-system previews</li>
+<li>HTML slide decks</li>
+<li>motion studies</li>
+<li>onboarding flows</li>
+<li>dashboard concepts</li>
+<li>settings, command palettes, modals, cards, forms, empty states</li>
+<li>redesigns based on screenshots, repos, brand docs, or UI kits</li>
+</ul>
+<p>Do not use this skill for pure DESIGN.md token authoring unless the user specifically asks for a DESIGN.md file. Use <code>design-md</code> for that.</p>
+<h3>Design Principle: Start From Context, Not Vibes</h3>
+<p>Good high-fidelity design does not start from scratch.</p>
+<p>Before designing, look for source context:</p>
+<ol>
+<li>brand docs</li>
+<li>existing product screenshots</li>
+<li>current repo components</li>
+<li>design tokens</li>
+<li>UI kits</li>
+<li>prior mockups</li>
+<li>reference models</li>
+<li>copy docs</li>
+<li>constraints from legal, product, or engineering</li>
+</ol>
+<p>If a repo is available, inspect actual source files before inventing UI:</p>
+<ul>
+<li>theme files</li>
+<li>token files</li>
+<li>global stylesheets</li>
+<li>layout scaffolds</li>
+<li>component files</li>
+<li>route/page files</li>
+<li>form/button/card/navigation implementations</li>
+</ul>
+<p>The file tree is only the menu. Read the files that define the visual vocabulary before designing.</p>
+<p>If context is missing and fidelity matters, ask concise focused questions instead of producing a generic mockup.</p>
+<h3>Asking Questions</h3>
+<p>Ask questions when the assignment is new, ambiguous, high-fidelity, externally facing, or depends on taste.</p>
+<p>Keep questions short. Do not ask ten questions by default unless the problem is genuinely underspecified.</p>
+<p>Usually ask for:</p>
+<ul>
+<li>intended output format</li>
+<li>audience</li>
+<li>fidelity level</li>
+<li>source materials available</li>
+<li>brand/design system in play</li>
+<li>number of variations wanted</li>
+<li>whether to stay conservative or explore divergent ideas</li>
+<li>which dimension matters most: layout, visual language, interaction, copy, motion, or systemization</li>
+</ul>
+<p>Skip questions when:</p>
+<ul>
+<li>the user gave enough direction</li>
+<li>this is a small tweak</li>
+<li>the task is clearly a continuation</li>
+<li>the missing detail has an obvious default</li>
+</ul>
+<p>When proceeding with assumptions, label only the important ones.</p>
+<h3>Surface-First: Commit to a Composition Before Touching Tokens</h3>
+<p>The single highest-leverage anti-slop rule. Most AI design slop is <strong>compositional, not cosmetic</strong> — the model reaches for a centered hero + three equal-weight feature cards for <em>every</em> surface, then decorates. Recoloring or restyling that layout never fixes it, because the layout was wrong before a single color was chosen.</p>
+<p>Before you write any colors, type scale, or components, <strong>commit out loud to exactly one surface archetype.</strong> This conditions generation on a high-level plan first, which collapses the entropy of what gets produced — the same reason a chain-of-thought step improves reasoning.</p>
+<p>The seven surfaces:</p>
+<ol>
+<li><strong>Monitor</strong> — the user is watching state change (dashboards, status pages, observability). Density, glanceable hierarchy, no marketing framing.</li>
+<li><strong>Operate</strong> — the user is taking action on things (consoles, admin panels, queues, inboxes). Action affordances and selection state dominate.</li>
+<li><strong>Compare</strong> — the user is weighing options against each other (pricing, plans, spec tables, search results). Aligned columns, parity of structure, one differentiator emphasized.</li>
+<li><strong>Configure</strong> — the user is setting things up (settings, forms, wizards, onboarding). Progressive disclosure, clear save/validation states, low decoration.</li>
+<li><strong>Decide / Learn</strong> — the user is being convinced or taught (landing pages, docs, marketing). One idea lands per section; this is the ONLY surface where a hero is usually correct.</li>
+<li><strong>Explore</strong> — the user is browsing an open space (galleries, maps, search-and-filter, catalogs). Filters, result grids, and zoom/peek are the composition.</li>
+<li><strong>Command / Inspect</strong> — the user is driving by keyboard or drilling into one object (command bars, inspectors, detail panes, property editors). Speed and focus over breadth.</li>
+</ol>
+<p>Rules:</p>
+<ul>
+<li>State the surface in one line before designing (e.g. &quot;This is a <strong>Monitor</strong> surface, so density and glanceability beat a hero&quot;).</li>
+<li>A dashboard is a Monitor surface, not a Decide surface — do not give it a centered hero and three feature cards.</li>
+<li>If a screen genuinely spans two surfaces, name the <strong>primary</strong> one and treat the other as secondary; do not average them into mush.</li>
+<li>The hero-plus-three-cards composition is correct for <strong>Decide/Learn only</strong>. Reaching for it anywhere else is the #1 tell.</li>
+</ul>
+<p>This one constraint eliminates more generic-looking UI than any aesthetic rule below.</p>
+<h3>Workflow</h3>
+<ol>
+<li><p><strong>Understand the brief</strong></p>
+<ul>
+<li>What is being designed?</li>
+<li>Who is it for?</li>
+<li>What artifact should exist at the end?</li>
+<li>What constraints are locked?</li>
+</ul>
+</li>
+<li><p><strong>Gather context</strong></p>
+<ul>
+<li>Read supplied docs, screenshots, repo files, or design assets.</li>
+<li>Identify the visual vocabulary before writing code.</li>
+</ul>
+</li>
+<li><p><strong>Commit to a surface</strong> (see &quot;Surface-First&quot;)</p>
+<ul>
+<li>Name the one surface archetype before any visual tokens.</li>
+<li>This conditions the composition; everything below inherits from it.</li>
+</ul>
+</li>
+<li><p><strong>Define the design system for this artifact</strong></p>
+<ul>
+<li>colors</li>
+<li>type</li>
+<li>spacing</li>
+<li>radii</li>
+<li>shadows or elevation</li>
+<li>motion posture</li>
+<li>component treatment</li>
+<li>interaction rules</li>
+</ul>
+</li>
+<li><p><strong>Choose the right format</strong></p>
+<ul>
+<li>Static visual comparison: one HTML canvas with options side by side.</li>
+<li>Interaction/flow: clickable prototype.</li>
+<li>Presentation: fixed-size HTML deck with slide navigation.</li>
+<li>Component exploration: component lab with variants.</li>
+<li>Motion: timeline or state-based animation.</li>
+</ul>
+</li>
+<li><p><strong>Build the artifact</strong></p>
+<ul>
+<li>Prefer a single self-contained HTML file unless the task calls for a repo implementation.</li>
+<li>Preserve prior versions for major revisions.</li>
+<li>Avoid unnecessary dependencies.</li>
+</ul>
+</li>
+<li><p><strong>Verify</strong></p>
+<ul>
+<li>Confirm files exist.</li>
+<li>Run any available syntax/static checks.</li>
+<li>If browser tools are available, open the file and check console errors.</li>
+<li>If visual fidelity matters and screenshot tools are available, inspect at least the primary viewport.</li>
+<li>Run the slop self-audit (see &quot;Slop Diagnostic&quot;) and repair only what it flags.</li>
+</ul>
+</li>
+<li><p><strong>Report briefly</strong></p>
+<ul>
+<li>exact file path</li>
+<li>what was created</li>
+<li>caveats</li>
+<li>next decision or next iteration</li>
+</ul>
+</li>
+</ol>
+<h3>Artifact Format Rules</h3>
+<p>Default to local files.</p>
+<p>For standalone artifacts:</p>
+<ul>
+<li>create a descriptive filename, e.g. <code>Landing Page.html</code>, <code>Command Palette Prototype.html</code>, <code>Design System Board.html</code></li>
+<li>embed CSS in <code>&lt;style&gt;</code></li>
+<li>embed JS in <code>&lt;script&gt;</code></li>
+<li>keep the artifact openable directly in a browser</li>
+<li>avoid remote dependencies unless they are explicitly useful and stable</li>
+<li>include responsive behavior unless the format is intentionally fixed-size</li>
+</ul>
+<p>For significant revisions:</p>
+<ul>
+<li>preserve the previous version as <code>Name.html</code></li>
+<li>create <code>Name v2.html</code>, <code>Name v3.html</code>, etc.</li>
+<li>or keep one file with in-page toggles if the assignment is variant exploration</li>
+</ul>
+<p>For repo implementation:</p>
+<ul>
+<li>follow the repo&#39;s actual stack</li>
+<li>use existing components and tokens where possible</li>
+<li>do not create a standalone artifact if the user asked for production code</li>
+</ul>
+<h3>HTML / CSS / JS Standards</h3>
+<p>Use modern CSS well:</p>
+<ul>
+<li>CSS variables for tokens</li>
+<li>CSS grid for layout</li>
+<li>container queries when helpful</li>
+<li><code>text-wrap: pretty</code> where supported</li>
+<li>real focus states</li>
+<li>real hover states</li>
+<li><code>prefers-reduced-motion</code> handling for non-trivial motion</li>
+<li>responsive scaling</li>
+<li>semantic HTML where practical</li>
+</ul>
+<p>Avoid:</p>
+<ul>
+<li>huge monolithic files when a real repo structure is expected</li>
+<li>fragile hard-coded viewport assumptions</li>
+<li>inaccessible tiny hit targets</li>
+<li>decorative JS that fights usability</li>
+<li><code>scrollIntoView</code> unless there is no safer option</li>
+</ul>
+<p>Mobile hit targets should be at least 44px.</p>
+<p>For print documents, text should be at least 12pt.</p>
+<p>For 1920×1080 slide decks, text should generally be 24px or larger.</p>
+<h3>React Guidance for Standalone HTML</h3>
+<p>Use plain HTML/CSS/JS by default.</p>
+<p>Use React only when:</p>
+<ul>
+<li>the artifact needs meaningful state</li>
+<li>variants/toggles are easier as components</li>
+<li>interaction complexity warrants it</li>
+<li>the target implementation is React/Next.js and fidelity matters</li>
+</ul>
+<p>If using React from CDN in standalone HTML:</p>
+<ul>
+<li>pin exact versions</li>
+<li>avoid unpinned <code>react@18</code> style URLs</li>
+<li>avoid <code>type=&quot;module&quot;</code> unless necessary</li>
+<li>avoid multiple global objects named <code>styles</code></li>
+<li>give global style objects specific names, e.g. <code>commandPaletteStyles</code>, <code>deckStyles</code></li>
+<li>if splitting Babel scripts, explicitly attach shared components to <code>window</code></li>
+</ul>
+<p>If building inside a real repo, use the repo&#39;s package manager and component architecture instead.</p>
+<h3>Deck Rules</h3>
+<p>For slide decks, use a fixed-size canvas and scale it to fit the viewport.</p>
+<p>Default slide size: 1920×1080, 16:9.</p>
+<p>Requirements:</p>
+<ul>
+<li>keyboard navigation</li>
+<li>visible slide count</li>
+<li>localStorage persistence for current slide</li>
+<li>print-friendly layout when practical</li>
+<li>screen labels or stable IDs for important slides</li>
+<li>no speaker notes unless the user explicitly asks</li>
+</ul>
+<p>Do not hand-wave a deck as markdown bullets. Create a designed artifact if asked for a deck.</p>
+<p>Use 1–2 background colors max unless the brand system requires more.</p>
+<p>Keep slides sparse. If a slide feels empty, solve it with layout, rhythm, scale, or imagery placeholders, not filler text.</p>
+<h3>Prototype Rules</h3>
+<p>For interactive prototypes:</p>
+<ul>
+<li>make the primary path clickable</li>
+<li>include key states: default, hover/focus, loading, empty, error, success where relevant</li>
+<li>expose variations with in-page controls when useful</li>
+<li>keep controls out of the final composition unless they are intentionally part of the prototype</li>
+<li>persist important state in localStorage when refresh continuity matters</li>
+</ul>
+<p>If the prototype is meant to model a product flow, design the flow, not just the first screen.</p>
+<h3>Variation Rules</h3>
+<p>When exploring, default to at least three options:</p>
+<ol>
+<li><strong>Conservative</strong> — closest to existing patterns / lowest risk</li>
+<li><strong>Strong-fit</strong> — best interpretation of the brief</li>
+<li><strong>Divergent</strong> — more novel, useful for discovering taste boundaries</li>
+</ol>
+<p>Variations can explore:</p>
+<ul>
+<li>layout</li>
+<li>hierarchy</li>
+<li>type scale</li>
+<li>density</li>
+<li>color posture</li>
+<li>surface treatment</li>
+<li>motion</li>
+<li>interaction model</li>
+<li>copy structure</li>
+<li>component shape</li>
+</ul>
+<p>Do not create variations that are merely color swaps unless color is the actual question.</p>
+<p>When the user picks a direction, consolidate. Do not leave the project as a pile of options forever.</p>
+<h3>Tweakable Designs in CLI/API Mode</h3>
+<p>The hosted Claude Design edit-mode toolbar does not exist here.</p>
+<p>Still preserve the idea: when useful, add in-page controls called <code>Tweaks</code>.</p>
+<p>A good <code>Tweaks</code> panel can control:</p>
+<ul>
+<li>theme mode</li>
+<li>layout variant</li>
+<li>density</li>
+<li>accent color</li>
+<li>type scale</li>
+<li>motion on/off</li>
+<li>copy variant</li>
+<li>component variant</li>
+</ul>
+<p>Keep it small and unobtrusive. The design should look final when tweaks are hidden.</p>
+<p>Persist tweak values with localStorage when helpful.</p>
+<h3>Content Discipline</h3>
+<p>Do not add filler content.</p>
+<p>Every element must earn its place.</p>
+<p>Avoid:</p>
+<ul>
+<li>fake metrics</li>
+<li>decorative stats</li>
+<li>generic feature grids</li>
+<li>unnecessary icons</li>
+<li>placeholder testimonials</li>
+<li>AI-generated fluff sections</li>
+<li>invented content that changes strategy or claims</li>
+</ul>
+<p>If additional sections, pages, copy, or claims would improve the artifact, ask before adding them.</p>
+<p>When copy is necessary but not final, mark it as draft or placeholder.</p>
+<h3>Anti-Slop Rules</h3>
+<p>Avoid common AI design sludge:</p>
+<ul>
+<li>aggressive gradient backgrounds</li>
+<li>glassmorphism by default</li>
+<li>emoji unless the brand uses them</li>
+<li>generic SaaS cards with icons everywhere</li>
+<li>left-border accent callout cards</li>
+<li>fake dashboards filled with arbitrary numbers</li>
+<li>stock-photo hero sections</li>
+<li>oversized rounded rectangles as a substitute for hierarchy</li>
+<li>rainbow palettes</li>
+<li>vague labels like “Insights,” “Growth,” “Scale,” “Optimize” without content</li>
+<li>decorative SVG illustrations pretending to be product imagery</li>
+</ul>
+<p>Minimal is not automatically good. Dense is not automatically cluttered. Choose intentionally.</p>
+<h3>Slop Diagnostic: Score Before You Fix</h3>
+<p>AI design slop has a tiny, predictable failure distribution — designers asked to label AI UIs collapse the &quot;this is AI&quot; signal down to about ten tells. Before polishing or repairing an artifact, run this as an explicit self-audit and write a short report. <strong>Diagnose first, treat second</strong> — auditing and fixing in one breath fails, because the model&#39;s prior outweighs the instruction and it repeats the mistake (recolors when it needed re-layout, polishes type on a composition problem).</p>
+<p>The ten tells (presence of each = one point of slop; lower is better):</p>
+<ol>
+<li><strong>Tech gradient</strong> — blue/violet/indigo glossy gradient on everything.</li>
+<li><strong>Generic tech hue</strong> — the default accent is indigo/violet (not chosen for the brand, just the model&#39;s favorite).</li>
+<li><strong>Feature-tile grid</strong> — icon + heading + sentence × 3, all equal weight, nothing prioritized.</li>
+<li><strong>Accent rail</strong> — a colored left strip on cards: decoration pretending to be organization.</li>
+<li><strong>Unearned blur</strong> — glassmorphism with no real depth/elevation system behind it.</li>
+<li><strong>Monument stat</strong> — oversized numbers filling space that should carry product story.</li>
+<li><strong>Icon topper</strong> — a rounded-square icon centered above every heading (Tailwind-template filler).</li>
+<li><strong>Center stack</strong> — everything centered because no real composition was committed to.</li>
+<li><strong>Default type</strong> — Inter (or system-ui) used by default rather than chosen.</li>
+<li><strong>Wrong surface</strong> — the composition doesn&#39;t match the surface (e.g. a hero on a Monitor surface). This is the root cause behind most of the others.</li>
+</ol>
+<p>How to run it:</p>
+<ul>
+<li>Score the artifact out of 10 (10 = maximum slop). State the score and list which tells fired, in one short report.</li>
+<li>Treat the report as <strong>context, not a to-do list</strong> — it tells you <em>where</em> to spend repair effort, it does not dictate edits.</li>
+<li>Then repair, matched to the diagnosis:<ul>
+<li>tells 3, 8, 10 → <strong>re-layout / re-compose</strong> (revisit the surface choice — do not recolor).</li>
+<li>tells 1, 2, 9 → <strong>recolor / re-typeset</strong> (palette and type are genuinely the problem here).</li>
+<li>tells 4, 5, 6, 7 → <strong>remove the decoration</strong>; replace it with real hierarchy (scale, weight, spacing).</li>
+</ul>
+</li>
+<li>Re-score after repairing. Do not declare done while compositional tells (3, 8, 10) are still firing — those are causes, the rest are usually symptoms.</li>
+</ul>
+<p>The point of separating diagnosis from treatment: let the audit complain first, then fix only what it complained about, in the register the complaint calls for.</p>
+<h3>Typography</h3>
+<p>Use the existing type system if one exists.</p>
+<p>If not, choose type deliberately based on the artifact:</p>
+<ul>
+<li>editorial: serif or humanist headline with restrained sans body</li>
+<li>software/productivity: precise sans with strong numeric treatment</li>
+<li>luxury/minimal: fewer weights, more spacing discipline</li>
+<li>technical: mono accents only, not mono everywhere</li>
+<li>deck: large, clear, high contrast</li>
+</ul>
+<p>Avoid overused defaults when a stronger choice is appropriate.</p>
+<p>If using web fonts, keep the number of families and weights low.</p>
+<p>Use type as hierarchy before adding boxes, icons, or color.</p>
+<h3>Color</h3>
+<p>Use brand/design-system colors first.</p>
+<p>If no palette exists:</p>
+<ul>
+<li>define a small system</li>
+<li>include neutrals, surface, ink, muted text, border, accent, danger/success if needed</li>
+<li>use one primary accent unless the assignment calls for a broader palette</li>
+<li>prefer oklch for harmonious invented palettes when browser support is acceptable</li>
+<li>check contrast for important text and controls</li>
+</ul>
+<p>Do not invent lots of colors from scratch.</p>
+<h3>Layout and Composition</h3>
+<p>Design with rhythm:</p>
+<ul>
+<li>scale</li>
+<li>whitespace</li>
+<li>density</li>
+<li>alignment</li>
+<li>repetition</li>
+<li>contrast</li>
+<li>interruption</li>
+</ul>
+<p>Avoid making every section the same card grid.</p>
+<p>For product UIs, prioritize speed of comprehension over decoration.</p>
+<p>For marketing surfaces, make one idea land per section.</p>
+<p>For dashboards, avoid “data slop.” Only show data that helps the user decide or act.</p>
+<h3>Motion</h3>
+<p>Use motion as discipline, not theater.</p>
+<p>Good motion:</p>
+<ul>
+<li>clarifies state changes</li>
+<li>reduces anxiety during loading</li>
+<li>shows continuity between surfaces</li>
+<li>gives controls tactility</li>
+<li>stays subtle</li>
+</ul>
+<p>Bad motion:</p>
+<ul>
+<li>loops without purpose</li>
+<li>delays the user</li>
+<li>calls attention to itself</li>
+<li>hides poor hierarchy</li>
+</ul>
+<p>Respect <code>prefers-reduced-motion</code> for non-trivial animation.</p>
+<h3>Images and Icons</h3>
+<p>Use real supplied imagery when available.</p>
+<p>If an asset is missing:</p>
+<ul>
+<li>use a clean placeholder</li>
+<li>use typography, layout, or abstract texture instead</li>
+<li>ask for real material when fidelity matters</li>
+</ul>
+<p>Do not draw elaborate fake SVG illustrations unless the assignment is explicitly illustration work.</p>
+<p>Avoid iconography unless it improves scanning or matches the design system.</p>
+<h3>Source-Code Fidelity</h3>
+<p>When recreating or extending a UI from a repo:</p>
+<ol>
+<li>inspect the repo tree</li>
+<li>identify the actual UI source files</li>
+<li>read theme/token/global style/component files</li>
+<li>lift exact values where appropriate</li>
+<li>match spacing, radii, shadows, copy tone, density, and interaction patterns</li>
+<li>only then design or modify</li>
+</ol>
+<p>Do not build from memory when source files are available.</p>
+<p>For GitHub URLs, parse owner/repo/ref/path correctly and inspect the relevant files before designing.</p>
+<h3>Reading Documents and Assets</h3>
+<p>Read Markdown, HTML, CSS, JS, TS, JSX, TSX, JSON, SVG, and plain text directly when available.</p>
+<p>For DOCX/PPTX/PDF, use available local extraction tools if present. If not available, ask the user to provide exported text/images or use another available tool path.</p>
+<p>For sketches, prioritize thumbnails or screenshots over raw drawing JSON unless the JSON is the only usable source.</p>
+<h3>Copyright and Reference Models</h3>
+<p>Do not recreate a company&#39;s distinctive UI, proprietary command structure, branded screens, or exact visual identity unless the user clearly has rights to that source.</p>
+<p>It is acceptable to extract general design principles:</p>
+<ul>
+<li>density without clutter</li>
+<li>command-first interaction</li>
+<li>monochrome with one accent</li>
+<li>editorial hierarchy</li>
+<li>clear empty states</li>
+<li>strong keyboard affordances</li>
+</ul>
+<p>It is not acceptable to clone proprietary layouts, copy exact branded surfaces, or reproduce copyrighted content.</p>
+<p>When using references, transform posture and principles into an original design.</p>
+<h3>Verification</h3>
+<p>Before final response, verify as much as the environment allows.</p>
+<p>Minimum:</p>
+<ul>
+<li>file exists at the stated path</li>
+<li>HTML is saved completely</li>
+<li>obvious syntax issues are checked</li>
+</ul>
+<p>Better:</p>
+<ul>
+<li>open in a browser tool and check console errors</li>
+<li>inspect screenshots at the primary viewport</li>
+<li>test key interactions</li>
+<li>test light/dark or variants if present</li>
+<li>test responsive breakpoints if relevant</li>
+</ul>
+<p>If verification is limited by environment, say exactly what was and was not verified.</p>
+<p>Never say “done” if the file was not actually written.</p>
+<h3>Final Response Format</h3>
+<p>Keep final responses short.</p>
+<p>Include:</p>
+<ul>
+<li>artifact path</li>
+<li>what it contains</li>
+<li>verification status</li>
+<li>next suggested action, if useful</li>
+</ul>
+<p>Example:</p>
+<pre><code class="language-text">Created: /path/to/Prototype.html
+It includes 3 layout variants, a Tweaks panel for density/theme, and responsive behavior.
+Verified: file exists and opened cleanly in browser, no console errors.
+Next: pick the strongest direction and I’ll tighten copy + motion.
+</code></pre>
+<h3>Portable Opening Prompt Pattern</h3>
+<p>When adapting a Claude Design style request into CLI/API mode, use this mental translation:</p>
+<pre><code class="language-text">You are running in CLI/API mode, not hosted Claude Design. Ignore references to hosted-only tools or preview panes. Produce complete local design artifacts, usually self-contained HTML with embedded CSS/JS, and verify with available local tools before returning. Preserve the design process: gather context, define the system, produce options, avoid filler, and meet a high visual bar.
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>Do not paste hosted tool schemas into a skill. They cause fake tool calls.</li>
+<li>Do not point the skill at a giant external prompt as required runtime context. That creates drift.</li>
+<li>Do not strip the design doctrine while removing tool plumbing.</li>
+<li>Do not over-ask when the user already gave enough direction.</li>
+<li>Do not under-ask for high-fidelity work with no brand context.</li>
+<li>Do not produce generic SaaS layouts and call them designed.</li>
+<li>Do not claim browser verification unless it actually happened.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/claude-design</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

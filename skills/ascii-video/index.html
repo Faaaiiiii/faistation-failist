@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ascii-video — Skill Hermes</title>
+<meta name="description" content="ASCII video: convert video/audio to colored ASCII MP4/GIF.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>ascii-video</h1>
+    <p class="lede">ASCII video: convert video/audio to colored ASCII MP4/GIF.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>ascii-video</dd>
+      <dt>Keterangan</dt><dd>ASCII video: convert video/audio to colored ASCII MP4/GIF.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>SHL0MS, Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/ascii-video.zip" download>Muat turun ZIP (114.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (10)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>README.md</code></td><td class="sz">16.1 KB</td></tr>
+<tr><td><code>references/architecture.md</code></td><td class="sz">32.2 KB</td></tr>
+<tr><td><code>references/composition.md</code></td><td class="sz">34.1 KB</td></tr>
+<tr><td><code>references/effects.md</code></td><td class="sz">71.2 KB</td></tr>
+<tr><td><code>references/inputs.md</code></td><td class="sz">24.0 KB</td></tr>
+<tr><td><code>references/optimization.md</code></td><td class="sz">23.7 KB</td></tr>
+<tr><td><code>references/scenes.md</code></td><td class="sz">36.6 KB</td></tr>
+<tr><td><code>references/shaders.md</code></td><td class="sz">49.3 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">12.9 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>ASCII Video Production Pipeline</h2>
+<h3>When to use</h3>
+<p>Use when users request: ASCII video, text art video, terminal-style video, character art animation, retro text visualization, audio visualizer in ASCII, converting video to ASCII art, matrix-style effects, or any animated ASCII output.</p>
+<h3>What&#39;s inside</h3>
+<p>Production pipeline for ASCII art video — any format. Converts video/audio/images/generative input into colored ASCII character video output (MP4, GIF, image sequence). Covers: video-to-ASCII conversion, audio-reactive music visualizers, generative ASCII art animations, hybrid video+audio reactive, text/lyrics overlays, real-time terminal rendering.</p>
+<h3>Creative Standard</h3>
+<p>This is visual art. ASCII characters are the medium; cinema is the standard.</p>
+<p><strong>Before writing a single line of code</strong>, articulate the creative concept. What is the mood? What visual story does this tell? What makes THIS project different from every other ASCII video? The user&#39;s prompt is a starting point — interpret it with creative ambition, not literal transcription.</p>
+<p><strong>First-render excellence is non-negotiable.</strong> The output must be visually striking without requiring revision rounds. If something looks generic, flat, or like &quot;AI-generated ASCII art,&quot; it is wrong — rethink the creative concept before shipping.</p>
+<p><strong>Go beyond the reference vocabulary.</strong> The effect catalogs, shader presets, and palette libraries in the references are a starting vocabulary. For every project, combine, modify, and invent new patterns. The catalog is a palette of paints — you write the painting.</p>
+<p><strong>Be proactively creative.</strong> Extend the skill&#39;s vocabulary when the project calls for it. If the references don&#39;t have what the vision demands, build it. Include at least one visual moment the user didn&#39;t ask for but will appreciate — a transition, an effect, a color choice that elevates the whole piece.</p>
+<p><strong>Cohesive aesthetic over technical correctness.</strong> All scenes in a video must feel connected by a unifying visual language — shared color temperature, related character palettes, consistent motion vocabulary. A technically correct video where every scene uses a random different effect is an aesthetic failure.</p>
+<p><strong>Dense, layered, considered.</strong> Every frame should reward viewing. Never flat black backgrounds. Always multi-grid composition. Always per-scene variation. Always intentional color.</p>
+<h3>Modes</h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Input</th>
+<th>Output</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Video-to-ASCII</strong></td>
+<td>Video file</td>
+<td>ASCII recreation of source footage</td>
+<td><code>references/inputs.md</code> § Video Sampling</td>
+</tr>
+<tr>
+<td><strong>Audio-reactive</strong></td>
+<td>Audio file</td>
+<td>Generative visuals driven by audio features</td>
+<td><code>references/inputs.md</code> § Audio Analysis</td>
+</tr>
+<tr>
+<td><strong>Generative</strong></td>
+<td>None (or seed params)</td>
+<td>Procedural ASCII animation</td>
+<td><code>references/effects.md</code></td>
+</tr>
+<tr>
+<td><strong>Hybrid</strong></td>
+<td>Video + audio</td>
+<td>ASCII video with audio-reactive overlays</td>
+<td>Both input refs</td>
+</tr>
+<tr>
+<td><strong>Lyrics/text</strong></td>
+<td>Audio + text/SRT</td>
+<td>Timed text with visual effects</td>
+<td><code>references/inputs.md</code> § Text/Lyrics</td>
+</tr>
+<tr>
+<td><strong>TTS narration</strong></td>
+<td>Text quotes + TTS API</td>
+<td>Narrated testimonial/quote video with typed text</td>
+<td><code>references/inputs.md</code> § TTS Integration</td>
+</tr>
+</tbody></table>
+<h3>Stack</h3>
+<p>Single self-contained Python script per project. No GPU required.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Tool</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Core</td>
+<td>Python 3.10+, NumPy</td>
+<td>Math, array ops, vectorized effects</td>
+</tr>
+<tr>
+<td>Signal</td>
+<td>SciPy</td>
+<td>FFT, peak detection (audio modes)</td>
+</tr>
+<tr>
+<td>Imaging</td>
+<td>Pillow (PIL)</td>
+<td>Font rasterization, frame decoding, image I/O</td>
+</tr>
+<tr>
+<td>Video I/O</td>
+<td>ffmpeg (CLI)</td>
+<td>Decode input, encode output, mux audio</td>
+</tr>
+<tr>
+<td>Parallel</td>
+<td>concurrent.futures</td>
+<td>N workers for batch/clip rendering</td>
+</tr>
+<tr>
+<td>TTS</td>
+<td>ElevenLabs API (optional)</td>
+<td>Generate narration clips</td>
+</tr>
+<tr>
+<td>Optional</td>
+<td>OpenCV</td>
+<td>Video frame sampling, edge detection</td>
+</tr>
+</tbody></table>
+<h3>Pipeline Architecture</h3>
+<p>Every mode follows the same 6-stage pipeline:</p>
+<pre><code>INPUT → ANALYZE → SCENE_FN → TONEMAP → SHADE → ENCODE
+</code></pre>
+<ol>
+<li><strong>INPUT</strong> — Load/decode source material (video frames, audio samples, images, or nothing)</li>
+<li><strong>ANALYZE</strong> — Extract per-frame features (audio bands, video luminance/edges, motion vectors)</li>
+<li><strong>SCENE_FN</strong> — Scene function renders to pixel canvas (<code>uint8 H,W,3</code>). Composes multiple character grids via <code>_render_vf()</code> + pixel blend modes. See <code>references/composition.md</code></li>
+<li><strong>TONEMAP</strong> — Percentile-based adaptive brightness normalization. See <code>references/composition.md</code> § Adaptive Tonemap</li>
+<li><strong>SHADE</strong> — Post-processing via <code>ShaderChain</code> + <code>FeedbackBuffer</code>. See <code>references/shaders.md</code></li>
+<li><strong>ENCODE</strong> — Pipe raw RGB frames to ffmpeg for H.264/GIF encoding</li>
+</ol>
+<h3>Creative Direction</h3>
+<h4>Aesthetic Dimensions</h4>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Options</th>
+<th>Reference</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Character palette</strong></td>
+<td>Density ramps, block elements, symbols, scripts (katakana, Greek, runes, braille), project-specific</td>
+<td><code>architecture.md</code> § Palettes</td>
+</tr>
+<tr>
+<td><strong>Color strategy</strong></td>
+<td>HSV, OKLAB/OKLCH, discrete RGB palettes, auto-generated harmony, monochrome, temperature</td>
+<td><code>architecture.md</code> § Color System</td>
+</tr>
+<tr>
+<td><strong>Background texture</strong></td>
+<td>Sine fields, fBM noise, domain warp, voronoi, reaction-diffusion, cellular automata, video</td>
+<td><code>effects.md</code></td>
+</tr>
+<tr>
+<td><strong>Primary effects</strong></td>
+<td>Rings, spirals, tunnel, vortex, waves, interference, aurora, fire, SDFs, strange attractors</td>
+<td><code>effects.md</code></td>
+</tr>
+<tr>
+<td><strong>Particles</strong></td>
+<td>Sparks, snow, rain, bubbles, runes, orbits, flocking boids, flow-field followers, trails</td>
+<td><code>effects.md</code> § Particles</td>
+</tr>
+<tr>
+<td><strong>Shader mood</strong></td>
+<td>Retro CRT, clean modern, glitch art, cinematic, dreamy, industrial, psychedelic</td>
+<td><code>shaders.md</code></td>
+</tr>
+<tr>
+<td><strong>Grid density</strong></td>
+<td>xs(8px) through xxl(40px), mixed per layer</td>
+<td><code>architecture.md</code> § Grid System</td>
+</tr>
+<tr>
+<td><strong>Coordinate space</strong></td>
+<td>Cartesian, polar, tiled, rotated, fisheye, Möbius, domain-warped</td>
+<td><code>effects.md</code> § Transforms</td>
+</tr>
+<tr>
+<td><strong>Feedback</strong></td>
+<td>Zoom tunnel, rainbow trails, ghostly echo, rotating mandala, color evolution</td>
+<td><code>composition.md</code> § Feedback</td>
+</tr>
+<tr>
+<td><strong>Masking</strong></td>
+<td>Circle, ring, gradient, text stencil, animated iris/wipe/dissolve</td>
+<td><code>composition.md</code> § Masking</td>
+</tr>
+<tr>
+<td><strong>Transitions</strong></td>
+<td>Crossfade, wipe, dissolve, glitch cut, iris, mask-based reveal</td>
+<td><code>shaders.md</code> § Transitions</td>
+</tr>
+</tbody></table>
+<h4>Per-Section Variation</h4>
+<p>Never use the same config for the entire video. For each section/scene:</p>
+<ul>
+<li><strong>Different background effect</strong> (or compose 2-3)</li>
+<li><strong>Different character palette</strong> (match the mood)</li>
+<li><strong>Different color strategy</strong> (or at minimum a different hue)</li>
+<li><strong>Vary shader intensity</strong> (more bloom during peaks, more grain during quiet)</li>
+<li><strong>Different particle types</strong> if particles are active</li>
+</ul>
+<h4>Project-Specific Invention</h4>
+<p>For every project, invent at least one of:</p>
+<ul>
+<li>A custom character palette matching the theme</li>
+<li>A custom background effect (combine/modify existing building blocks)</li>
+<li>A custom color palette (discrete RGB set matching the brand/mood)</li>
+<li>A custom particle character set</li>
+<li>A novel scene transition or visual moment</li>
+</ul>
+<p>Don&#39;t just pick from the catalog. The catalog is vocabulary — you write the poem.</p>
+<h3>Workflow</h3>
+<h4>Step 1: Creative Vision</h4>
+<p>Before any code, articulate the creative concept:</p>
+<ul>
+<li><strong>Mood/atmosphere</strong>: What should the viewer feel? Energetic, meditative, chaotic, elegant, ominous?</li>
+<li><strong>Visual story</strong>: What happens over the duration? Build tension? Transform? Dissolve?</li>
+<li><strong>Color world</strong>: Warm/cool? Monochrome? Neon? Earth tones? What&#39;s the dominant hue?</li>
+<li><strong>Character texture</strong>: Dense data? Sparse stars? Organic dots? Geometric blocks?</li>
+<li><strong>What makes THIS different</strong>: What&#39;s the one thing that makes this project unique?</li>
+<li><strong>Emotional arc</strong>: How do scenes progress? Open with energy, build to climax, resolve?</li>
+</ul>
+<p>Map the user&#39;s prompt to aesthetic choices. A &quot;chill lo-fi visualizer&quot; demands different everything from a &quot;glitch cyberpunk data stream.&quot;</p>
+<h4>Step 2: Technical Design</h4>
+<ul>
+<li><strong>Mode</strong> — which of the 6 modes above</li>
+<li><strong>Resolution</strong> — landscape 1920x1080 (default), portrait 1080x1920, square 1080x1080 @ 24fps</li>
+<li><strong>Hardware detection</strong> — auto-detect cores/RAM, set quality profile. See <code>references/optimization.md</code></li>
+<li><strong>Sections</strong> — map timestamps to scene functions, each with its own effect/palette/color/shader config</li>
+<li><strong>Output format</strong> — MP4 (default), GIF (640x360 @ 15fps), PNG sequence</li>
+</ul>
+<h4>Step 3: Build the Script</h4>
+<p>Single Python file. Components (with references):</p>
+<ol>
+<li><strong>Hardware detection + quality profile</strong> — <code>references/optimization.md</code></li>
+<li><strong>Input loader</strong> — mode-dependent; <code>references/inputs.md</code></li>
+<li><strong>Feature analyzer</strong> — audio FFT, video luminance, or synthetic</li>
+<li><strong>Grid + renderer</strong> — multi-density grids with bitmap cache; <code>references/architecture.md</code></li>
+<li><strong>Character palettes</strong> — multiple per project; <code>references/architecture.md</code> § Palettes</li>
+<li><strong>Color system</strong> — HSV + discrete RGB + harmony generation; <code>references/architecture.md</code> § Color</li>
+<li><strong>Scene functions</strong> — each returns <code>canvas (uint8 H,W,3)</code>; <code>references/scenes.md</code></li>
+<li><strong>Tonemap</strong> — adaptive brightness normalization; <code>references/composition.md</code></li>
+<li><strong>Shader pipeline</strong> — <code>ShaderChain</code> + <code>FeedbackBuffer</code>; <code>references/shaders.md</code></li>
+<li><strong>Scene table + dispatcher</strong> — time → scene function + config; <code>references/scenes.md</code></li>
+<li><strong>Parallel encoder</strong> — N-worker clip rendering with ffmpeg pipes</li>
+<li><strong>Main</strong> — orchestrate full pipeline</li>
+</ol>
+<h4>Step 4: Quality Verification</h4>
+<ul>
+<li><strong>Test frames first</strong>: render single frames at key timestamps before full render</li>
+<li><strong>Brightness check</strong>: <code>canvas.mean() &gt; 8</code> for all ASCII content. If dark, lower gamma</li>
+<li><strong>Visual coherence</strong>: do all scenes feel like they belong to the same video?</li>
+<li><strong>Creative vision check</strong>: does the output match the concept from Step 1? If it looks generic, go back</li>
+</ul>
+<h3>Critical Implementation Notes</h3>
+<h4>Brightness — Use <code>tonemap()</code>, Not Linear Multipliers</h4>
+<p>This is the #1 visual issue. ASCII on black is inherently dark. <strong>Never use <code>canvas * N</code> multipliers</strong> — they clip highlights. Use adaptive tonemap:</p>
+<pre><code class="language-python">def tonemap(canvas, gamma=0.75):
+    f = canvas.astype(np.float32)
+    lo, hi = np.percentile(f[::4, ::4], [1, 99.5])
+    if hi - lo &lt; 10: hi = lo + 10
+    f = np.clip((f - lo) / (hi - lo), 0, 1) ** gamma
+    return (f * 255).astype(np.uint8)
+</code></pre>
+<p>Pipeline: <code>scene_fn() → tonemap() → FeedbackBuffer → ShaderChain → ffmpeg</code></p>
+<p>Per-scene gamma: default 0.75, solarize 0.55, posterize 0.50, bright scenes 0.85. Use <code>screen</code> blend (not <code>overlay</code>) for dark layers.</p>
+<h4>Font Cell Height</h4>
+<p>macOS Pillow: <code>textbbox()</code> returns wrong height. Use <code>font.getmetrics()</code>: <code>cell_height = ascent + descent</code>. See <code>references/troubleshooting.md</code>.</p>
+<h4>ffmpeg Pipe Deadlock</h4>
+<p>Never <code>stderr=subprocess.PIPE</code> with long-running ffmpeg — buffer fills at 64KB and deadlocks. Redirect to file. See <code>references/troubleshooting.md</code>.</p>
+<h4>Font Compatibility</h4>
+<p>Not all Unicode chars render in all fonts. Validate palettes at init — render each char, check for blank output. See <code>references/troubleshooting.md</code>.</p>
+<h4>Per-Clip Architecture</h4>
+<p>For segmented videos (quotes, scenes, chapters), render each as a separate clip file for parallel rendering and selective re-rendering. See <code>references/scenes.md</code>.</p>
+<h3>Performance Targets</h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Budget</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Feature extraction</td>
+<td>1-5ms</td>
+</tr>
+<tr>
+<td>Effect function</td>
+<td>2-15ms</td>
+</tr>
+<tr>
+<td>Character render</td>
+<td>80-150ms (bottleneck)</td>
+</tr>
+<tr>
+<td>Shader pipeline</td>
+<td>5-25ms</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td>~100-200ms/frame</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>references/architecture.md</code></td>
+<td>Grid system, resolution presets, font selection, character palettes (20+), color system (HSV + OKLAB + discrete RGB + harmony generation), <code>_render_vf()</code> helper, GridLayer class</td>
+</tr>
+<tr>
+<td><code>references/composition.md</code></td>
+<td>Pixel blend modes (20 modes), <code>blend_canvas()</code>, multi-grid composition, adaptive <code>tonemap()</code>, <code>FeedbackBuffer</code>, <code>PixelBlendStack</code>, masking/stencil system</td>
+</tr>
+<tr>
+<td><code>references/effects.md</code></td>
+<td>Effect building blocks: value field generators, hue fields, noise/fBM/domain warp, voronoi, reaction-diffusion, cellular automata, SDFs, strange attractors, particle systems, coordinate transforms, temporal coherence</td>
+</tr>
+<tr>
+<td><code>references/shaders.md</code></td>
+<td><code>ShaderChain</code>, <code>_apply_shader_step()</code> dispatch, 38 shader catalog, audio-reactive scaling, transitions, tint presets, output format encoding, terminal rendering</td>
+</tr>
+<tr>
+<td><code>references/scenes.md</code></td>
+<td>Scene protocol, <code>Renderer</code> class, <code>SCENES</code> table, <code>render_clip()</code>, beat-synced cutting, parallel rendering, design patterns (layer hierarchy, directional arcs, visual metaphors, compositional techniques), complete scene examples at every complexity level, scene design checklist</td>
+</tr>
+<tr>
+<td><code>references/inputs.md</code></td>
+<td>Audio analysis (FFT, bands, beats), video sampling, image conversion, text/lyrics, TTS integration (ElevenLabs, voice assignment, audio mixing)</td>
+</tr>
+<tr>
+<td><code>references/optimization.md</code></td>
+<td>Hardware detection, quality profiles, vectorized patterns, parallel rendering, memory management, performance budgets</td>
+</tr>
+<tr>
+<td><code>references/troubleshooting.md</code></td>
+<td>NumPy broadcasting traps, blend mode pitfalls, multiprocessing/pickling, brightness diagnostics, ffmpeg issues, font problems, common mistakes</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Creative Divergence (use only when user requests experimental/creative/unique output)</h3>
+<p>If the user asks for creative, experimental, surprising, or unconventional output, select the strategy that best fits and reason through its steps BEFORE generating code.</p>
+<ul>
+<li><strong>Forced Connections</strong> — when the user wants cross-domain inspiration (&quot;make it look organic,&quot; &quot;industrial aesthetic&quot;)</li>
+<li><strong>Conceptual Blending</strong> — when the user names two things to combine (&quot;ocean meets music,&quot; &quot;space + calligraphy&quot;)</li>
+<li><strong>Oblique Strategies</strong> — when the user is maximally open (&quot;surprise me,&quot; &quot;something I&#39;ve never seen&quot;)</li>
+</ul>
+<h4>Forced Connections</h4>
+<ol>
+<li>Pick a domain unrelated to the visual goal (weather systems, microbiology, architecture, fluid dynamics, textile weaving)</li>
+<li>List its core visual/structural elements (erosion → gradual reveal; mitosis → splitting duplication; weaving → interlocking patterns)</li>
+<li>Map those elements onto ASCII characters and animation patterns</li>
+<li>Synthesize — what does &quot;erosion&quot; or &quot;crystallization&quot; look like in a character grid?</li>
+</ol>
+<h4>Conceptual Blending</h4>
+<ol>
+<li>Name two distinct visual/conceptual spaces (e.g., ocean waves + sheet music)</li>
+<li>Map correspondences (crests = high notes, troughs = rests, foam = staccato)</li>
+<li>Blend selectively — keep the most interesting mappings, discard forced ones</li>
+<li>Develop emergent properties that exist only in the blend</li>
+</ol>
+<h4>Oblique Strategies</h4>
+<ol>
+<li>Draw one: &quot;Honor thy error as a hidden intention&quot; / &quot;Use an old idea&quot; / &quot;What would your closest friend do?&quot; / &quot;Emphasize the flaws&quot; / &quot;Turn it upside down&quot; / &quot;Only a part, not the whole&quot; / &quot;Reverse&quot;</li>
+<li>Interpret the directive against the current ASCII animation challenge</li>
+<li>Apply the lateral insight to the visual design before writing code</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/creative/ascii-video</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

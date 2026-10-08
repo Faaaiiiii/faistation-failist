@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>parallel-cli — Skill Hermes</title>
+<meta name="description" content="Agent-native web search, deep research, and enrichment.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>parallel-cli</h1>
+    <p class="lede">Agent-native web search, deep research, and enrichment.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>parallel-cli</dd>
+      <dt>Keterangan</dt><dd>Agent-native web search, deep research, and enrichment.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/parallel-cli.zip" download>Muat turun ZIP (4.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Parallel CLI</h2>
+<p>Use <code>parallel-cli</code> when the user explicitly wants Parallel, or when a terminal-native workflow would benefit from Parallel&#39;s vendor-specific stack for web search, extraction, deep research, enrichment, entity discovery, or monitoring.</p>
+<p>This is an optional third-party workflow, not a Hermes core capability.</p>
+<p>Important expectations:</p>
+<ul>
+<li>Parallel is a paid service with a free tier, not a fully free local tool.</li>
+<li>It overlaps with Hermes native <code>web_search</code> / <code>web_extract</code>, so do not prefer it by default for ordinary lookups.</li>
+<li>Prefer this skill when the user mentions Parallel specifically or needs capabilities like Parallel&#39;s enrichment, FindAll, or monitor workflows.</li>
+</ul>
+<p><code>parallel-cli</code> is designed for agents:</p>
+<ul>
+<li>JSON output via <code>--json</code></li>
+<li>Non-interactive command execution</li>
+<li>Async long-running jobs with <code>--no-wait</code>, <code>status</code>, and <code>poll</code></li>
+<li>Context chaining with <code>--previous-interaction-id</code></li>
+<li>Search, extract, research, enrichment, entity discovery, and monitoring in one CLI</li>
+</ul>
+<h3>When to use it</h3>
+<p>Prefer this skill when:</p>
+<ul>
+<li>The user explicitly mentions Parallel or <code>parallel-cli</code></li>
+<li>The task needs richer workflows than a simple one-shot search/extract pass</li>
+<li>You need async deep research jobs that can be launched and polled later</li>
+<li>You need structured enrichment, FindAll entity discovery, or monitoring</li>
+</ul>
+<p>Prefer Hermes native <code>web_search</code> / <code>web_extract</code> for quick one-off lookups when Parallel is not specifically requested.</p>
+<h3>Installation</h3>
+<p>Try the least invasive install path available for the environment.</p>
+<h4>Homebrew</h4>
+<pre><code class="language-bash">brew install parallel-web/tap/parallel-cli
+</code></pre>
+<h4>npm</h4>
+<pre><code class="language-bash">npm install -g parallel-web-cli
+</code></pre>
+<h4>Python package</h4>
+<pre><code class="language-bash">pip install &quot;parallel-web-tools[cli]&quot;
+</code></pre>
+<h4>Standalone installer</h4>
+<pre><code class="language-bash">curl -fsSL https://parallel.ai/install.sh | bash
+</code></pre>
+<p>If you want an isolated Python install, <code>pipx</code> can also work:</p>
+<pre><code class="language-bash">pipx install &quot;parallel-web-tools[cli]&quot;
+pipx ensurepath
+</code></pre>
+<h3>Authentication</h3>
+<p>Interactive login:</p>
+<pre><code class="language-bash">parallel-cli login
+</code></pre>
+<p>Headless / SSH / CI:</p>
+<pre><code class="language-bash">parallel-cli login --device
+</code></pre>
+<p>API key environment variable:</p>
+<pre><code class="language-bash">export PARALLEL_API_KEY=&quot;***&quot;
+</code></pre>
+<p>Verify current auth status:</p>
+<pre><code class="language-bash">parallel-cli auth
+</code></pre>
+<p>If auth requires browser interaction, run with <code>pty=true</code>.</p>
+<h3>Core rule set</h3>
+<ol>
+<li>Always prefer <code>--json</code> when you need machine-readable output.</li>
+<li>Prefer explicit arguments and non-interactive flows.</li>
+<li>For long-running jobs, use <code>--no-wait</code> and then <code>status</code> / <code>poll</code>.</li>
+<li>Cite only URLs returned by the CLI output.</li>
+<li>Save large JSON outputs to a temp file when follow-up questions are likely.</li>
+<li>Use background processes only for genuinely long-running workflows; otherwise run in foreground.</li>
+<li>Prefer Hermes native tools unless the user wants Parallel specifically or needs Parallel-only workflows.</li>
+</ol>
+<h3>Quick reference</h3>
+<pre><code class="language-text">parallel-cli
+├── auth
+├── login
+├── logout
+├── search
+├── extract / fetch
+├── research run|status|poll|processors
+├── enrich run|status|poll|plan|suggest|deploy
+├── findall run|ingest|status|poll|result|enrich|extend|schema|cancel
+└── monitor create|list|get|update|delete|events|event-group|simulate
+</code></pre>
+<h3>Common flags and patterns</h3>
+<p>Commonly useful flags:</p>
+<ul>
+<li><code>--json</code> for structured output</li>
+<li><code>--no-wait</code> for async jobs</li>
+<li><code>--previous-interaction-id &lt;id&gt;</code> for follow-up tasks that reuse earlier context</li>
+<li><code>--max-results &lt;n&gt;</code> for search result count</li>
+<li><code>--mode one-shot|agentic</code> for search behavior</li>
+<li><code>--include-domains domain1.com,domain2.com</code></li>
+<li><code>--exclude-domains domain1.com,domain2.com</code></li>
+<li><code>--after-date YYYY-MM-DD</code></li>
+</ul>
+<p>Read from stdin when convenient:</p>
+<pre><code class="language-bash">echo &quot;What is the latest funding for Anthropic?&quot; | parallel-cli search - --json
+echo &quot;Research question&quot; | parallel-cli research run - --json
+</code></pre>
+<h3>Search</h3>
+<p>Use for current web lookups with structured results.</p>
+<pre><code class="language-bash">parallel-cli search &quot;What is Anthropic&#39;s latest AI model?&quot; --json
+parallel-cli search &quot;SEC filings for Apple&quot; --include-domains sec.gov --json
+parallel-cli search &quot;bitcoin price&quot; --after-date 2026-01-01 --max-results 10 --json
+parallel-cli search &quot;latest browser benchmarks&quot; --mode one-shot --json
+parallel-cli search &quot;AI coding agent enterprise reviews&quot; --mode agentic --json
+</code></pre>
+<p>Useful constraints:</p>
+<ul>
+<li><code>--include-domains</code> to narrow trusted sources</li>
+<li><code>--exclude-domains</code> to strip noisy domains</li>
+<li><code>--after-date</code> for recency filtering</li>
+<li><code>--max-results</code> when you need broader coverage</li>
+</ul>
+<p>If you expect follow-up questions, save output:</p>
+<pre><code class="language-bash">parallel-cli search &quot;latest React 19 changes&quot; --json -o ~/.hermes/cache/scratch/react-19-search.json
+</code></pre>
+<p>When summarizing results:</p>
+<ul>
+<li>lead with the answer</li>
+<li>include dates, names, and concrete facts</li>
+<li>cite only returned sources</li>
+<li>avoid inventing URLs or source titles</li>
+</ul>
+<h3>Extraction</h3>
+<p>Use to pull clean content or markdown from a URL.</p>
+<pre><code class="language-bash">parallel-cli extract https://example.com --json
+parallel-cli extract https://company.com --objective &quot;Find pricing info&quot; --json
+parallel-cli extract https://example.com --full-content --json
+parallel-cli fetch https://example.com --json
+</code></pre>
+<p>Use <code>--objective</code> when the page is broad and you only need one slice of information.</p>
+<h3>Deep research</h3>
+<p>Use for deeper multi-step research tasks that may take time.</p>
+<p>Common processor tiers:</p>
+<ul>
+<li><code>lite</code> / <code>base</code> for faster, cheaper passes</li>
+<li><code>core</code> / <code>pro</code> for more thorough synthesis</li>
+<li><code>ultra</code> for the heaviest research jobs</li>
+</ul>
+<h4>Synchronous</h4>
+<pre><code class="language-bash">parallel-cli research run \
+  &quot;Compare the leading AI coding agents by pricing, model support, and enterprise controls&quot; \
+  --processor core \
+  --json
+</code></pre>
+<h4>Async launch + poll</h4>
+<pre><code class="language-bash">parallel-cli research run \
+  &quot;Compare the leading AI coding agents by pricing, model support, and enterprise controls&quot; \
+  --processor ultra \
+  --no-wait \
+  --json
+
+parallel-cli research status trun_xxx --json
+parallel-cli research poll trun_xxx --json
+parallel-cli research processors --json
+</code></pre>
+<h4>Context chaining / follow-up</h4>
+<pre><code class="language-bash">parallel-cli research run &quot;What are the top AI coding agents?&quot; --json
+parallel-cli research run \
+  &quot;What enterprise controls does the top-ranked one offer?&quot; \
+  --previous-interaction-id trun_xxx \
+  --json
+</code></pre>
+<p>Recommended Hermes workflow:</p>
+<ol>
+<li>launch with <code>--no-wait --json</code></li>
+<li>capture the returned run/task ID</li>
+<li>if the user wants to continue other work, keep moving</li>
+<li>later call <code>status</code> or <code>poll</code></li>
+<li>summarize the final report with citations from the returned sources</li>
+</ol>
+<h3>Enrichment</h3>
+<p>Use when the user has CSV/JSON/tabular inputs and wants additional columns inferred from web research.</p>
+<h4>Suggest columns</h4>
+<pre><code class="language-bash">parallel-cli enrich suggest &quot;Find the CEO and annual revenue&quot; --json
+</code></pre>
+<h4>Plan a config</h4>
+<pre><code class="language-bash">parallel-cli enrich plan -o config.yaml
+</code></pre>
+<h4>Inline data</h4>
+<pre><code class="language-bash">parallel-cli enrich run \
+  --data &#39;[{&quot;company&quot;: &quot;Anthropic&quot;}, {&quot;company&quot;: &quot;Mistral&quot;}]&#39; \
+  --intent &quot;Find headquarters and employee count&quot; \
+  --json
+</code></pre>
+<h4>Non-interactive file run</h4>
+<pre><code class="language-bash">parallel-cli enrich run \
+  --source-type csv \
+  --source companies.csv \
+  --target enriched.csv \
+  --source-columns &#39;[{&quot;name&quot;: &quot;company&quot;, &quot;description&quot;: &quot;Company name&quot;}]&#39; \
+  --intent &quot;Find the CEO and annual revenue&quot;
+</code></pre>
+<h4>YAML config run</h4>
+<pre><code class="language-bash">parallel-cli enrich run config.yaml
+</code></pre>
+<h4>Status / polling</h4>
+<pre><code class="language-bash">parallel-cli enrich status &lt;task_group_id&gt; --json
+parallel-cli enrich poll &lt;task_group_id&gt; --json
+</code></pre>
+<p>Use explicit JSON arrays for column definitions when operating non-interactively.
+Validate the output file before reporting success.</p>
+<h3>FindAll</h3>
+<p>Use for web-scale entity discovery when the user wants a discovered dataset rather than a short answer.</p>
+<pre><code class="language-bash">parallel-cli findall run &quot;Find AI coding agent startups with enterprise offerings&quot; --json
+parallel-cli findall run &quot;AI startups in healthcare&quot; -n 25 --json
+parallel-cli findall status &lt;run_id&gt; --json
+parallel-cli findall poll &lt;run_id&gt; --json
+parallel-cli findall result &lt;run_id&gt; --json
+parallel-cli findall schema &lt;run_id&gt; --json
+</code></pre>
+<p>This is a better fit than ordinary search when the user wants a discovered set of entities that can be reviewed, filtered, or enriched later.</p>
+<h3>Monitor</h3>
+<p>Use for ongoing change detection over time.</p>
+<pre><code class="language-bash">parallel-cli monitor list --json
+parallel-cli monitor get &lt;monitor_id&gt; --json
+parallel-cli monitor events &lt;monitor_id&gt; --json
+parallel-cli monitor delete &lt;monitor_id&gt; --json
+</code></pre>
+<p>Creation is usually the sensitive part because cadence and delivery matter:</p>
+<pre><code class="language-bash">parallel-cli monitor create --help
+</code></pre>
+<p>Use this when the user wants recurring tracking of a page or source rather than a one-time fetch.</p>
+<h3>Recommended Hermes usage patterns</h3>
+<h4>Fast answer with citations</h4>
+<ol>
+<li>Run <code>parallel-cli search ... --json</code></li>
+<li>Parse titles, URLs, dates, excerpts</li>
+<li>Summarize with inline citations from the returned URLs only</li>
+</ol>
+<h4>URL investigation</h4>
+<ol>
+<li>Run <code>parallel-cli extract URL --json</code></li>
+<li>If needed, rerun with <code>--objective</code> or <code>--full-content</code></li>
+<li>Quote or summarize the extracted markdown</li>
+</ol>
+<h4>Long research workflow</h4>
+<ol>
+<li>Run <code>parallel-cli research run ... --no-wait --json</code></li>
+<li>Store the returned ID</li>
+<li>Continue other work or periodically poll</li>
+<li>Summarize the final report with citations</li>
+</ol>
+<h4>Structured enrichment workflow</h4>
+<ol>
+<li>Inspect the input file and columns</li>
+<li>Use <code>enrich suggest</code> or provide explicit enriched columns</li>
+<li>Run <code>enrich run</code></li>
+<li>Poll for completion if needed</li>
+<li>Validate the output file before reporting success</li>
+</ol>
+<h3>Error handling and exit codes</h3>
+<p>The CLI documents these exit codes:</p>
+<ul>
+<li><code>0</code> success</li>
+<li><code>2</code> bad input</li>
+<li><code>3</code> auth error</li>
+<li><code>4</code> API error</li>
+<li><code>5</code> timeout</li>
+</ul>
+<p>If you hit auth errors:</p>
+<ol>
+<li>check <code>parallel-cli auth</code></li>
+<li>confirm <code>PARALLEL_API_KEY</code> or run <code>parallel-cli login</code> / <code>parallel-cli login --device</code></li>
+<li>verify <code>parallel-cli</code> is on <code>PATH</code></li>
+</ol>
+<h3>Maintenance</h3>
+<p>Check current auth / install state:</p>
+<pre><code class="language-bash">parallel-cli auth
+parallel-cli --help
+</code></pre>
+<p>Update commands:</p>
+<pre><code class="language-bash">parallel-cli update
+pip install --upgrade parallel-web-tools
+parallel-cli config auto-update-check off
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>Do not omit <code>--json</code> unless the user explicitly wants human-formatted output.</li>
+<li>Do not cite sources not present in the CLI output.</li>
+<li><code>login</code> may require PTY/browser interaction.</li>
+<li>Prefer foreground execution for short tasks; do not overuse background processes.</li>
+<li>For large result sets, save JSON to <code>~/.hermes/cache/scratch/*.json</code> (the Hermes scratch dir) instead of stuffing everything into context.</li>
+<li>Do not silently choose Parallel when Hermes native tools are already sufficient.</li>
+<li>Remember this is a vendor workflow that usually requires account auth and paid usage beyond the free tier.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/parallel-cli</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

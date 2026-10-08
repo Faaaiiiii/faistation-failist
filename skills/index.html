@@ -242,6 +242,9 @@
     c.appendChild(bd);
 
     var links = document.createElement('div'); links.className='links';
+    var rd = document.createElement('a'); rd.className='dl'; rd.href=it.n+'/';
+    rd.textContent='Baca';
+    links.appendChild(rd);
     var dl = document.createElement('a'); dl.className='dl'; dl.href='zips/'+it.z;
     dl.setAttribute('download',''); dl.textContent='Muat turun ZIP (' + (it.zb/1024).toFixed(0) + ' KB)';
     links.appendChild(dl);

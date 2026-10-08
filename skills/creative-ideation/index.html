@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>creative-ideation — Skill Hermes</title>
+<meta name="description" content="Generate ideas via named methods from creative practice.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>creative-ideation</h1>
+    <p class="lede">Generate ideas via named methods from creative practice.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>creative-ideation</dd>
+      <dt>Keterangan</dt><dd>Generate ideas via named methods from creative practice.</dd>
+      <dt>Versi</dt><dd>2.1.0</dd>
+      <dt>Pengarang</dt><dd>SHL0MS</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/creative-ideation.zip" download>Muat turun ZIP (68.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (28)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.2 KB</td></tr>
+<tr><td><code>references/anti-slop.md</code></td><td class="sz">7.1 KB</td></tr>
+<tr><td><code>references/exercises.md</code></td><td class="sz">5.9 KB</td></tr>
+<tr><td><code>references/full-prompt-library.md</code></td><td class="sz">7.9 KB</td></tr>
+<tr><td><code>references/heuristics.md</code></td><td class="sz">5.0 KB</td></tr>
+<tr><td><code>references/method-catalog.md</code></td><td class="sz">4.8 KB</td></tr>
+<tr><td><code>references/methods/affinity-diagrams.md</code></td><td class="sz">4.6 KB</td></tr>
+<tr><td><code>references/methods/analogy-and-blending.md</code></td><td class="sz">5.2 KB</td></tr>
+<tr><td><code>references/methods/biomimicry.md</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>references/methods/chance-and-remix.md</code></td><td class="sz">3.7 KB</td></tr>
+<tr><td><code>references/methods/compression-progress.md</code></td><td class="sz">3.0 KB</td></tr>
+<tr><td><code>references/methods/creative-discipline.md</code></td><td class="sz">4.9 KB</td></tr>
+<tr><td><code>references/methods/defamiliarization.md</code></td><td class="sz">4.1 KB</td></tr>
+<tr><td><code>references/methods/derive-and-mapping.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>references/methods/first-principles.md</code></td><td class="sz">4.1 KB</td></tr>
+<tr><td><code>references/methods/jobs-to-be-done.md</code></td><td class="sz">3.9 KB</td></tr>
+<tr><td><code>references/methods/lateral-provocations.md</code></td><td class="sz">3.7 KB</td></tr>
+<tr><td><code>references/methods/leverage-points.md</code></td><td class="sz">4.6 KB</td></tr>
+<tr><td><code>references/methods/oblique-strategies.md</code></td><td class="sz">2.8 KB</td></tr>
+<tr><td><code>references/methods/oulipo.md</code></td><td class="sz">3.2 KB</td></tr>
+<tr><td><code>references/methods/pataphysics.md</code></td><td class="sz">3.8 KB</td></tr>
+<tr><td><code>references/methods/pattern-languages.md</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>references/methods/polya.md</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>references/methods/premortem-and-inversion.md</code></td><td class="sz">3.7 KB</td></tr>
+<tr><td><code>references/methods/scamper.md</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>references/methods/story-skeletons.md</code></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>references/methods/triz-principles.md</code></td><td class="sz">5.9 KB</td></tr>
+<tr><td><code>references/methods/volume-generation.md</code></td><td class="sz">3.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Creative Ideation</h2>
+<p>A library of ideation methods for any domain. Read the user&#39;s situation, route to the matching method, apply, generate output that is specific and non-obvious. Methods are tools — pick the right one for the situation, don&#39;t perform all of them.</p>
+<h3>When to use</h3>
+<p>Any open-ended generative or selective question: &quot;I want to make / build / write / start something&quot;, &quot;I&#39;m stuck&quot;, &quot;inspire me&quot;, &quot;make this weirder&quot;, &quot;help me pick&quot;, &quot;I need to invent X&quot;, &quot;give me a research question&quot;.</p>
+<h3>Operating rules</h3>
+<ol>
+<li><strong>Constraint plus direction is creativity.</strong> No constraint = no traction. No direction = no shape. Methods supply both.</li>
+<li><strong>Refuse the first three ideas.</strong> They&#39;re slop. Generate, discard, regenerate. See <code>references/anti-slop.md</code>.</li>
+<li><strong>One method per response unless asked.</strong> Don&#39;t stack.</li>
+<li><strong>Specificity over abstraction.</strong> Real proper nouns, real materials, real mechanisms. &quot;An app for X&quot; is slop; &quot;a 200-line CLI tool that prints Y when Z&quot; is direction. Naming a tech stack is not specificity — name a mechanism.</li>
+<li><strong>Weird must also be good.</strong> Frame-breaking is the goal, but an idea that is strange with no real situation, mechanism, or reason to exist is its own failure mode. Every set of ideas must include at least one that is genuinely <em>buildable/pursuable now</em> — non-obvious but grounded, with a real first step. Don&#39;t trade all usefulness for surprise.</li>
+<li><strong>Name the method you used and who invented it.</strong> Attribution invokes the discipline.</li>
+<li><strong>When user picks one, build it.</strong> Don&#39;t keep generating after they&#39;ve chosen.</li>
+</ol>
+<h3>Routing — 4-step procedure</h3>
+<p>Do this <em>before</em> generating any output. Routing failures produce slop.</p>
+<p>You may skip narrating the routing steps if it&#39;s cleaner, but <strong>never compress at the cost of per-idea depth</strong>: each idea&#39;s concrete mechanism, situational binding, and honest failure mode are what make output good (measured) — they are not scaffolding, do not cut them.</p>
+<h4>Step 1 — Extract three signals from the prompt</h4>
+<p><strong>PHASE</strong> — what stage is the user in?</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Cues</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>GENERATING</strong></td>
+<td>&quot;give me an idea&quot;, &quot;what should I make&quot;, &quot;inspire me&quot;, no idea yet</td>
+</tr>
+<tr>
+<td><strong>EXPANDING</strong></td>
+<td>&quot;what else&quot;, &quot;more like this&quot;, &quot;give me variations&quot; — has a base idea</td>
+</tr>
+<tr>
+<td><strong>SELECTING</strong></td>
+<td>&quot;help me pick&quot;, &quot;which should I do&quot;, &quot;I have these options&quot;</td>
+</tr>
+<tr>
+<td><strong>UNBLOCKING</strong></td>
+<td>&quot;I&#39;m stuck&quot;, &quot;blocked&quot;, &quot;going in circles&quot;, &quot;stale&quot; — has material</td>
+</tr>
+<tr>
+<td><strong>SUBVERTING</strong></td>
+<td>&quot;make it weirder&quot;, &quot;less obvious&quot;, &quot;this is too safe&quot;</td>
+</tr>
+<tr>
+<td><strong>REFINING</strong></td>
+<td>&quot;this is fine but missing something&quot;, &quot;feels rough&quot;</td>
+</tr>
+<tr>
+<td><strong>SYNTHESIZING</strong></td>
+<td>&quot;I have a pile of notes / interviews / observations&quot;</td>
+</tr>
+</tbody></table>
+<p><strong>DOMAIN</strong> — what is the user making/doing?</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Cues</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>TEXT</strong></td>
+<td>fiction, essay, poem, lyric, script, copy</td>
+</tr>
+<tr>
+<td><strong>OBJECT</strong></td>
+<td>visual art, music, sound, performance, installation, sculpture</td>
+</tr>
+<tr>
+<td><strong>ARTIFACT</strong></td>
+<td>software, hardware, mechanism, device</td>
+</tr>
+<tr>
+<td><strong>SYSTEM</strong></td>
+<td>org, civic, institution, ecology, community</td>
+</tr>
+<tr>
+<td><strong>SELF</strong></td>
+<td>life decision, career, personal practice</td>
+</tr>
+<tr>
+<td><strong>RESEARCH</strong></td>
+<td>paper, thesis, scholarly question</td>
+</tr>
+<tr>
+<td><strong>PRODUCT</strong></td>
+<td>business, market, service</td>
+</tr>
+</tbody></table>
+<p><strong>SPECIFICITY</strong> — how much constraint is in the prompt?</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Cues</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>NONE</strong></td>
+<td>&quot;I&#39;m bored&quot;, &quot;inspire me&quot; — no domain, no project</td>
+</tr>
+<tr>
+<td><strong>DOMAIN</strong></td>
+<td>&quot;I want to write something&quot; — knows the field, no project</td>
+</tr>
+<tr>
+<td><strong>PROJECT</strong></td>
+<td>&quot;I&#39;m working on this specific X&quot;</td>
+</tr>
+<tr>
+<td><strong>PROBLEM</strong></td>
+<td>&quot;I have this specific friction within X&quot;</td>
+</tr>
+</tbody></table>
+<h4>Step 2 — Apply overrides (highest priority, fire first)</h4>
+<p>Override rules beat the routing table:</p>
+<ul>
+<li><strong>Mood signal</strong> — user says &quot;weird&quot;, &quot;strange&quot;, &quot;surprising&quot;, &quot;less obvious&quot;, &quot;more interesting&quot; → <code>references/methods/lateral-provocations.md</code> or <code>references/methods/pataphysics.md</code>, regardless of domain.</li>
+<li><strong>User names a method</strong> — use it.</li>
+<li><strong>User asks for a method recommendation</strong> (&quot;which method&quot;) → surface 2–3 candidates with one-line each, ask which to apply. Don&#39;t silently default.</li>
+<li><strong>High-slop terrain</strong> — &quot;AI ideas&quot;, &quot;startup ideas&quot;, &quot;habit tracker&quot;, &quot;productivity / wellness / fitness / food / travel app&quot; → force <code>references/methods/lateral-provocations.md</code> or <code>references/methods/pataphysics.md</code> over the obvious method. Refuse the first <strong>5</strong> ideas, not 3.</li>
+</ul>
+<h4>Step 3 — Route by phase first, then domain</h4>
+<p><strong>By phase (applies regardless of domain):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Default route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GENERATING + SPECIFICITY=NONE</td>
+<td><code>references/full-prompt-library.md</code> <strong>General</strong> section (constraint dispatch)</td>
+</tr>
+<tr>
+<td>GENERATING + DOMAIN known</td>
+<td>route by domain (next table)</td>
+</tr>
+<tr>
+<td>EXPANDING</td>
+<td><code>references/methods/scamper.md</code></td>
+</tr>
+<tr>
+<td>SELECTING</td>
+<td><code>references/methods/premortem-and-inversion.md</code> (or <code>references/methods/compression-progress.md</code> for upside)</td>
+</tr>
+<tr>
+<td>UNBLOCKING</td>
+<td><code>references/methods/oblique-strategies.md</code></td>
+</tr>
+<tr>
+<td>SUBVERTING</td>
+<td><code>references/methods/lateral-provocations.md</code> (fallback <code>references/methods/pataphysics.md</code>)</td>
+</tr>
+<tr>
+<td>REFINING (text)</td>
+<td><code>references/methods/defamiliarization.md</code></td>
+</tr>
+<tr>
+<td>REFINING (other)</td>
+<td><code>references/methods/creative-discipline.md</code> (Tharp&#39;s spine)</td>
+</tr>
+<tr>
+<td>SYNTHESIZING</td>
+<td><code>references/methods/affinity-diagrams.md</code></td>
+</tr>
+<tr>
+<td>Volume needed fast</td>
+<td><code>references/methods/volume-generation.md</code></td>
+</tr>
+</tbody></table>
+<p><strong>By domain (when GENERATING with DOMAIN known):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Default route</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>TEXT — formal / poetry</td>
+<td><code>references/methods/oulipo.md</code></td>
+</tr>
+<tr>
+<td>TEXT — narrative</td>
+<td><code>references/methods/story-skeletons.md</code></td>
+</tr>
+<tr>
+<td>TEXT — has source material to remix</td>
+<td><code>references/methods/chance-and-remix.md</code></td>
+</tr>
+<tr>
+<td>OBJECT (music, visual, performance)</td>
+<td><code>references/methods/oblique-strategies.md</code></td>
+</tr>
+<tr>
+<td>OBJECT — physical maker / wants a starting constraint</td>
+<td><code>references/full-prompt-library.md</code> <strong>Physical / object</strong> section</td>
+</tr>
+<tr>
+<td>ARTIFACT — wants a starting constraint</td>
+<td><code>references/full-prompt-library.md</code> <strong>Software / artifact</strong> section</td>
+</tr>
+<tr>
+<td>ARTIFACT — engineering invention with parameter conflict</td>
+<td><code>references/methods/triz-principles.md</code></td>
+</tr>
+<tr>
+<td>ARTIFACT — software architecture</td>
+<td><code>references/methods/pattern-languages.md</code></td>
+</tr>
+<tr>
+<td>ARTIFACT — has natural-system analog</td>
+<td><code>references/methods/biomimicry.md</code></td>
+</tr>
+<tr>
+<td>ARTIFACT — accumulated assumptions to question</td>
+<td><code>references/methods/first-principles.md</code></td>
+</tr>
+<tr>
+<td>SYSTEM (civic, org, institutional)</td>
+<td><code>references/methods/leverage-points.md</code></td>
+</tr>
+<tr>
+<td>SYSTEM — collective / participatory</td>
+<td><code>references/full-prompt-library.md</code> <strong>Social / collective</strong> section</td>
+</tr>
+<tr>
+<td>SELF (life, career, what-to-study)</td>
+<td><code>references/methods/derive-and-mapping.md</code></td>
+</tr>
+<tr>
+<td>RESEARCH — picking a question</td>
+<td><code>references/methods/compression-progress.md</code></td>
+</tr>
+<tr>
+<td>RESEARCH — attacking a known problem</td>
+<td><code>references/methods/polya.md</code></td>
+</tr>
+<tr>
+<td>PRODUCT (business, service)</td>
+<td><code>references/methods/jobs-to-be-done.md</code></td>
+</tr>
+<tr>
+<td>Need to break a frame / find analogy</td>
+<td><code>references/methods/analogy-and-blending.md</code></td>
+</tr>
+</tbody></table>
+<h4>Step 4 — Handle ambiguity and contradiction</h4>
+<ul>
+<li><strong>Multiple paths plausible</strong> → pick the one closest to the user&#39;s actual phrasing. Don&#39;t pick the most interesting method to seem sophisticated.</li>
+<li><strong>Genuinely ambiguous</strong> → ask ONE clarifying question, don&#39;t silently guess. Examples: <em>&quot;Are you generating ideas or picking between ones you have?&quot;</em> / <em>&quot;Is this for fiction, essay, or something else?&quot;</em></li>
+<li><strong>Signals contradict</strong> (e.g., &quot;weird startup ideas&quot; → product domain + weird mood) → <strong>stack two methods explicitly</strong>. State what you&#39;re doing: <em>&quot;Using <code>jobs-to-be-done</code> for the product framing + <code>lateral-provocations</code> to break the obvious shape.&quot;</em></li>
+<li><strong>No match</strong> → constraint dispatch (<code>references/full-prompt-library.md</code>) is the safe fallback.</li>
+<li><strong>Same question asked again</strong> → switch methods. Variation in method = variation in idea distribution.</li>
+</ul>
+<h4>Anti-default check (run before generating)</h4>
+<ul>
+<li>About to write &quot;Here are 5 ideas:&quot; or a bare numbered list? → STOP. Pick a method first.</li>
+<li>About to default to generic LLM-mode brainstorming? → STOP. Pick a path above.</li>
+<li>Output looks like what an unrouted LLM would produce? → routing failed, redo.</li>
+</ul>
+<p>The default LLM mode is exactly what this skill exists to displace. If you generate without routing, you&#39;ve defeated the skill.</p>
+<p>For deeper edge cases (mood signals, stacking, anti-patterns) see <code>references/heuristics.md</code>.</p>
+<h3>Output format</h3>
+<p>For the constraint-dispatch default path:</p>
+<pre><code>## Constraint: [Name] — from [Source]
+&gt; [The constraint, one sentence]
+
+### Ideas
+
+1. **[One-line pitch]**
+   [2-3 sentences — what specifically is made, why it&#39;s interesting]
+   ⏱ [weekend/week/month]  •  🔧 [stack/medium/materials]
+
+2. ...
+3. ...
+</code></pre>
+<p>For other methods, use the format the method specifies (TRIZ produces a contradiction analysis; OuLiPo produces constrained text; Oblique Strategies produces a single applied card → next move). Don&#39;t force every method into the constraint template.</p>
+<p><strong>Every idea set, regardless of method:</strong></p>
+<ul>
+<li>Name the method used. On slop terrain, name the obvious ideas you refused.</li>
+<li>Give each idea its concrete mechanism and its honest failure mode / tradeoff / who-it&#39;s-for. This depth is what makes ideas land — measured, not decorative.</li>
+<li>Mark at least one idea as the <strong>grounded</strong> one — buildable/pursuable now, non-obvious but with a real first step. The others can run further toward the strange; this one has to be genuinely doable. Don&#39;t let the whole set be weird-but-impractical.</li>
+</ul>
+<h3>File map</h3>
+<ul>
+<li><code>references/full-prompt-library.md</code> — constraint library, sectioned by domain (General, Software, Physical, Social, Lists). Default path for SPECIFICITY=NONE.</li>
+<li><code>references/method-catalog.md</code> — one-line summary + when-to-use per method</li>
+<li><code>references/heuristics.md</code> — extended decision tree for edge cases</li>
+<li><code>references/anti-slop.md</code> — anti-slop rules; apply to every output</li>
+<li><code>references/exercises.md</code> — time-boxed exercises (5min / 30min / 1hr / day / week)</li>
+<li><code>references/methods/</code> — 22 named methods, one file each, load only the one you&#39;re using</li>
+</ul>
+<h3>Attribution</h3>
+<p>Constraint-dispatch core adapted from <a href="https://wttdotm.com/prompts.html">wttdotm.com/prompts.html</a>. Methods drawn from primary sources cited in each method file.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/creative-ideation</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

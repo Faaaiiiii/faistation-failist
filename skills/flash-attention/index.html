@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>flash-attention — Skill Hermes</title>
+<meta name="description" content="Speed up long-sequence transformer training and inference.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>flash-attention</h1>
+    <p class="lede">Speed up long-sequence transformer training and inference.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>flash-attention</dd>
+      <dt>Keterangan</dt><dd>Speed up long-sequence transformer training and inference.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/flash-attention.zip" download>Muat turun ZIP (8.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.4 KB</td></tr>
+<tr><td><code>references/benchmarks.md</code></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>references/transformers-integration.md</code></td><td class="sz">7.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Flash Attention - Fast Memory-Efficient Attention</h2>
+<h3>Quick start</h3>
+<p>Flash Attention provides 2-4x speedup and 10-20x memory reduction for transformer attention through IO-aware tiling and recomputation.</p>
+<p><strong>PyTorch native (easiest, PyTorch 2.2+)</strong>:</p>
+<pre><code class="language-python">import torch
+import torch.nn.functional as F
+
+q = torch.randn(2, 8, 512, 64, device=&#39;cuda&#39;, dtype=torch.float16)  # [batch, heads, seq, dim]
+k = torch.randn(2, 8, 512, 64, device=&#39;cuda&#39;, dtype=torch.float16)
+v = torch.randn(2, 8, 512, 64, device=&#39;cuda&#39;, dtype=torch.float16)
+
+# Automatically uses Flash Attention if available
+out = F.scaled_dot_product_attention(q, k, v)
+</code></pre>
+<p><strong>flash-attn library (more features)</strong>:</p>
+<pre><code class="language-bash">pip install flash-attn --no-build-isolation
+</code></pre>
+<pre><code class="language-python">from flash_attn import flash_attn_func
+
+# q, k, v: [batch, seqlen, nheads, headdim]
+out = flash_attn_func(q, k, v, dropout_p=0.0, causal=True)
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Enable in existing PyTorch model</h4>
+<p>Copy this checklist:</p>
+<pre><code>Flash Attention Integration:
+- [ ] Step 1: Check PyTorch version (≥2.2)
+- [ ] Step 2: Enable Flash Attention backend
+- [ ] Step 3: Verify speedup with profiling
+- [ ] Step 4: Test accuracy matches baseline
+</code></pre>
+<p><strong>Step 1: Check PyTorch version</strong></p>
+<pre><code class="language-bash">python -c &quot;import torch; print(torch.__version__)&quot;
+# Should be ≥2.2.0
+</code></pre>
+<p>If &lt;2.2, upgrade:</p>
+<pre><code class="language-bash">pip install --upgrade torch
+</code></pre>
+<p><strong>Step 2: Enable Flash Attention backend</strong></p>
+<p>Replace standard attention:</p>
+<pre><code class="language-python"># Before (standard attention)
+attn_weights = torch.softmax(q @ k.transpose(-2, -1) / math.sqrt(d_k), dim=-1)
+out = attn_weights @ v
+
+# After (Flash Attention)
+import torch.nn.functional as F
+out = F.scaled_dot_product_attention(q, k, v, attn_mask=mask)
+</code></pre>
+<p>Force Flash Attention backend (<code>torch.backends.cuda.sdp_kernel</code> is deprecated; use
+<code>torch.nn.attention.sdpa_kernel</code> with <code>SDPBackend</code>):</p>
+<pre><code class="language-python">from torch.nn.attention import SDPBackend, sdpa_kernel
+
+with sdpa_kernel(SDPBackend.FLASH_ATTENTION):
+    out = F.scaled_dot_product_attention(q, k, v)
+</code></pre>
+<p><strong>Step 3: Verify speedup with profiling</strong></p>
+<pre><code class="language-python">import torch.utils.benchmark as benchmark
+
+def test_attention(use_flash):
+    q, k, v = [torch.randn(2, 8, 2048, 64, device=&#39;cuda&#39;, dtype=torch.float16) for _ in range(3)]
+
+    if use_flash:
+        from torch.nn.attention import SDPBackend, sdpa_kernel
+        with sdpa_kernel(SDPBackend.FLASH_ATTENTION):
+            return F.scaled_dot_product_attention(q, k, v)
+    else:
+        attn = (q @ k.transpose(-2, -1) / 8.0).softmax(dim=-1)
+        return attn @ v
+
+# Benchmark
+t_flash = benchmark.Timer(stmt=&#39;test_attention(True)&#39;, globals=globals())
+t_standard = benchmark.Timer(stmt=&#39;test_attention(False)&#39;, globals=globals())
+
+print(f&quot;Flash: {t_flash.timeit(100).mean:.3f}s&quot;)
+print(f&quot;Standard: {t_standard.timeit(100).mean:.3f}s&quot;)
+</code></pre>
+<p>Expected: 2-4x speedup for sequences &gt;512 tokens.</p>
+<p><strong>Step 4: Test accuracy matches baseline</strong></p>
+<pre><code class="language-python"># Compare outputs
+q, k, v = [torch.randn(1, 8, 512, 64, device=&#39;cuda&#39;, dtype=torch.float16) for _ in range(3)]
+
+# Flash Attention
+out_flash = F.scaled_dot_product_attention(q, k, v)
+
+# Standard attention
+attn_weights = torch.softmax(q @ k.transpose(-2, -1) / 8.0, dim=-1)
+out_standard = attn_weights @ v
+
+# Check difference
+diff = (out_flash - out_standard).abs().max()
+print(f&quot;Max difference: {diff:.6f}&quot;)
+# Should be &lt;1e-3 for float16
+</code></pre>
+<h4>Workflow 2: Use flash-attn library for advanced features</h4>
+<p>For multi-query attention, sliding window, or H100 FP8.</p>
+<p>Copy this checklist:</p>
+<pre><code>flash-attn Library Setup:
+- [ ] Step 1: Install flash-attn library
+- [ ] Step 2: Modify attention code
+- [ ] Step 3: Enable advanced features
+- [ ] Step 4: Benchmark performance
+</code></pre>
+<p><strong>Step 1: Install flash-attn library</strong></p>
+<pre><code class="language-bash"># NVIDIA GPUs (CUDA 12.0+)
+pip install flash-attn --no-build-isolation
+
+# Verify installation
+python -c &quot;from flash_attn import flash_attn_func; print(&#39;Success&#39;)&quot;
+</code></pre>
+<p><strong>Step 2: Modify attention code</strong></p>
+<pre><code class="language-python">from flash_attn import flash_attn_func
+
+# Input: [batch_size, seq_len, num_heads, head_dim]
+# Transpose from [batch, heads, seq, dim] if needed
+q = q.transpose(1, 2)  # [batch, seq, heads, dim]
+k = k.transpose(1, 2)
+v = v.transpose(1, 2)
+
+out = flash_attn_func(
+    q, k, v,
+    dropout_p=0.1,
+    causal=True,  # For autoregressive models
+    window_size=(-1, -1),  # No sliding window
+    softmax_scale=None  # Auto-scale
+)
+
+out = out.transpose(1, 2)  # Back to [batch, heads, seq, dim]
+</code></pre>
+<p><strong>Step 3: Enable advanced features</strong></p>
+<p>Multi-query attention (shared K/V across heads):</p>
+<pre><code class="language-python">from flash_attn import flash_attn_func
+
+# q: [batch, seq, num_q_heads, dim]
+# k, v: [batch, seq, num_kv_heads, dim]  # Fewer KV heads
+out = flash_attn_func(q, k, v)  # Automatically handles MQA
+</code></pre>
+<p>Sliding window attention (local attention):</p>
+<pre><code class="language-python"># Only attend to window of 256 tokens before/after
+out = flash_attn_func(
+    q, k, v,
+    window_size=(256, 256),  # (left, right) window
+    causal=True
+)
+</code></pre>
+<p><strong>Step 4: Benchmark performance</strong></p>
+<pre><code class="language-python">import torch
+from flash_attn import flash_attn_func
+import time
+
+q, k, v = [torch.randn(4, 4096, 32, 64, device=&#39;cuda&#39;, dtype=torch.float16) for _ in range(3)]
+
+# Warmup
+for _ in range(10):
+    _ = flash_attn_func(q, k, v)
+
+# Benchmark
+torch.cuda.synchronize()
+start = time.time()
+for _ in range(100):
+    out = flash_attn_func(q, k, v)
+    torch.cuda.synchronize()
+end = time.time()
+
+print(f&quot;Time per iteration: {(end-start)/100*1000:.2f}ms&quot;)
+print(f&quot;Memory allocated: {torch.cuda.max_memory_allocated()/1e9:.2f}GB&quot;)
+</code></pre>
+<h4>Workflow 3: H100 FP8 optimization (FlashAttention-3)</h4>
+<p>For maximum performance on Hopper GPUs (H100).</p>
+<blockquote>
+<p><strong>Important:</strong> The pip package <code>flash-attn</code> (2.8.x) ships <strong>FlashAttention-2 only</strong> — it does
+<strong>not</strong> contain FA3 or FP8 H100 kernels, and <code>flash_attn_func</code> does <strong>not</strong> auto-use FP8.
+FlashAttention-3 is a separate <strong>beta</strong> build compiled from source from the repo&#39;s <code>hopper/</code>
+directory, exposed via the <code>flash_attn_interface</code> module. FA3 supports FP16/BF16 forward+backward
+and <strong>FP8 forward only</strong>.</p>
+</blockquote>
+<pre><code>FP8 Setup:
+- [ ] Step 1: Verify Hopper (H100) GPU available
+- [ ] Step 2: Build &amp; install FlashAttention-3 from source (hopper/)
+- [ ] Step 3: Use the FA3 interface (FP8 forward)
+</code></pre>
+<p><strong>Step 1: Verify H100 GPU</strong></p>
+<pre><code class="language-bash">nvidia-smi --query-gpu=name --format=csv
+# Should show &quot;H100&quot; or &quot;H800&quot;
+</code></pre>
+<p><strong>Step 2: Build &amp; install FlashAttention-3 from source</strong></p>
+<p>FA3 is NOT included in <code>pip install flash-attn</code>. Build it from the <code>hopper/</code> subdirectory:</p>
+<pre><code class="language-bash">git clone https://github.com/Dao-AILab/flash-attention.git
+cd flash-attention/hopper
+python setup.py install
+# (compilation is heavy and requires a CUDA toolchain + Hopper GPU)
+</code></pre>
+<p><strong>Step 3: Use the FA3 interface (FP8 forward)</strong></p>
+<p>FA3 exposes its own module <code>flash_attn_interface</code> (distinct from the FA2 <code>flash_attn</code>).
+FP8 is a <strong>forward-only</strong> path and expects <code>float8_e4m3fn</code> inputs:</p>
+<pre><code class="language-python">import torch
+from flash_attn_interface import flash_attn_func  # FA3 (hopper build), not `flash_attn`
+
+# q, k, v: [batch, seqlen, nheads, headdim]
+q = torch.randn(2, 4096, 32, 64, device=&#39;cuda&#39;, dtype=torch.float16)
+k = torch.randn(2, 4096, 32, 64, device=&#39;cuda&#39;, dtype=torch.float16)
+v = torch.randn(2, 4096, 32, 64, device=&#39;cuda&#39;, dtype=torch.float16)
+
+# FP8 forward (inference / forward-only): cast to float8_e4m3fn
+q_fp8 = q.to(torch.float8_e4m3fn)
+k_fp8 = k.to(torch.float8_e4m3fn)
+v_fp8 = v.to(torch.float8_e4m3fn)
+
+out = flash_attn_func(q_fp8, k_fp8, v_fp8, causal=True)
+# FP16/BF16 forward+backward is also supported by the FA3 interface.
+</code></pre>
+<h3>When to use vs alternatives</h3>
+<p><strong>Use Flash Attention when:</strong></p>
+<ul>
+<li>Training transformers with sequences &gt;512 tokens</li>
+<li>Running inference with long context (&gt;2K tokens)</li>
+<li>GPU memory constrained (OOM with standard attention)</li>
+<li>Need 2-4x speedup without accuracy loss</li>
+<li>Using PyTorch 2.2+ or can install flash-attn</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>Standard attention</strong>: Sequences &lt;256 tokens (overhead not worth it)</li>
+<li><strong>xFormers</strong>: Need more attention variants (not just speed)</li>
+<li><strong>Memory-efficient attention</strong>: CPU inference (Flash Attention needs GPU)</li>
+</ul>
+<h3>Common issues</h3>
+<p><strong>Issue: ImportError: cannot import flash_attn</strong></p>
+<p>Install with no-build-isolation flag:</p>
+<pre><code class="language-bash">pip install flash-attn --no-build-isolation
+</code></pre>
+<p>Or install CUDA toolkit first:</p>
+<pre><code class="language-bash">conda install cuda -c nvidia
+pip install flash-attn --no-build-isolation
+</code></pre>
+<p><strong>Issue: Slower than expected (no speedup)</strong></p>
+<p>Flash Attention benefits increase with sequence length:</p>
+<ul>
+<li>&lt;512 tokens: Minimal speedup (10-20%)</li>
+<li>512-2K tokens: 2-3x speedup</li>
+<li><blockquote>
+<p>2K tokens: 3-4x speedup</p>
+</blockquote>
+</li>
+</ul>
+<p>Check sequence length is sufficient.</p>
+<p><strong>Issue: RuntimeError: CUDA error</strong></p>
+<p>Verify GPU supports Flash Attention:</p>
+<pre><code class="language-python">import torch
+print(torch.cuda.get_device_capability())
+# Should be ≥(7, 5) for Turing+
+</code></pre>
+<p>Flash Attention requires:</p>
+<ul>
+<li>Ampere (A100, A10): ✅ Full support</li>
+<li>Turing (T4): ✅ Supported</li>
+<li>Volta (V100): ❌ Not supported</li>
+</ul>
+<p><strong>Issue: Accuracy degradation</strong></p>
+<p>Check dtype is float16 or bfloat16 (not float32):</p>
+<pre><code class="language-python">q = q.to(torch.float16)  # Or torch.bfloat16
+</code></pre>
+<p>Flash Attention uses float16/bfloat16 for speed. Float32 not supported.</p>
+<h3>Advanced topics</h3>
+<p><strong>Integration with HuggingFace Transformers</strong>: See <a href="references/transformers-integration.md">references/transformers-integration.md</a> for enabling Flash Attention in BERT, GPT, Llama models.</p>
+<p><strong>Performance benchmarks</strong>: See <a href="references/benchmarks.md">references/benchmarks.md</a> for detailed speed and memory comparisons across GPUs and sequence lengths.</p>
+<h3>Hardware requirements</h3>
+<ul>
+<li><strong>GPU</strong>: NVIDIA Ampere+ (A100, A10, A30) or AMD MI200+</li>
+<li><strong>VRAM</strong>: Same as standard attention (Flash Attention doesn&#39;t increase memory)</li>
+<li><strong>CUDA</strong>: 12.0+ (11.8 minimum)</li>
+<li><strong>PyTorch</strong>: 2.2+ for native support</li>
+</ul>
+<p><strong>Not supported</strong>: V100 (Volta), CPU inference</p>
+<h3>Resources</h3>
+<ul>
+<li>Paper: &quot;FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness&quot; (NeurIPS 2022)</li>
+<li>Paper: &quot;FlashAttention-2: Faster Attention with Better Parallelism and Work Partitioning&quot; (ICLR 2024)</li>
+<li>Blog: <a href="https://tridao.me/blog/2024/flash3/">https://tridao.me/blog/2024/flash3/</a></li>
+<li>GitHub: <a href="https://github.com/Dao-AILab/flash-attention">https://github.com/Dao-AILab/flash-attention</a></li>
+<li>PyTorch docs: <a href="https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html">https://pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/flash-attention</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

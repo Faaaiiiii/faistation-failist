@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>page-agent — Skill Hermes</title>
+<meta name="description" content="Embed an in-page natural-language GUI copilot in web apps.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>page-agent</h1>
+    <p class="lede">Embed an in-page natural-language GUI copilot in web apps.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>page-agent</dd>
+      <dt>Keterangan</dt><dd>Embed an in-page natural-language GUI copilot in web apps.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>web-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/page-agent.zip" download>Muat turun ZIP (3.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>page-agent</h2>
+<p>alibaba/page-agent (<a href="https://github.com/alibaba/page-agent">https://github.com/alibaba/page-agent</a>, 17k+ stars, MIT) is an in-page GUI agent written in TypeScript. It lives inside a webpage, reads the DOM as text (no screenshots, no multi-modal LLM), and executes natural-language instructions like &quot;click the login button, then fill username as John&quot; against the current page. Pure client-side — the host site just includes a script and passes an OpenAI-compatible LLM endpoint.</p>
+<h3>When to use this skill</h3>
+<p>Load this skill when a user wants to:</p>
+<ul>
+<li><strong>Ship an AI copilot inside their own web app</strong> (SaaS, admin panel, B2B tool, ERP, CRM) — &quot;users on my dashboard should be able to type &#39;create invoice for Acme Corp and email it&#39; instead of clicking through five screens&quot;</li>
+<li><strong>Modernize a legacy web app</strong> without rewriting the frontend — page-agent drops on top of existing DOM</li>
+<li><strong>Add accessibility via natural language</strong> — voice / screen-reader users drive the UI by describing what they want</li>
+<li><strong>Demo or evaluate page-agent</strong> against a local (Ollama) or hosted (Qwen, OpenAI, OpenRouter) LLM</li>
+<li><strong>Build interactive training / product demos</strong> — let an AI walk a user through &quot;how to submit an expense report&quot; live in the real UI</li>
+</ul>
+<h3>When NOT to use this skill</h3>
+<ul>
+<li>User wants <strong>Hermes itself to drive a browser</strong> → use Hermes&#39; built-in browser tool (Browserbase / Camofox). page-agent is the <em>opposite</em> direction.</li>
+<li>User wants <strong>cross-tab automation without embedding</strong> → use Playwright, browser-use, or the page-agent Chrome extension</li>
+<li>User needs <strong>visual grounding / screenshots</strong> → page-agent is text-DOM only; use a multimodal browser agent instead</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Node 22.13+ or 24+, npm 10+ (docs claim 11+ but 10.9 works fine)</li>
+<li>An OpenAI-compatible LLM endpoint: Qwen (DashScope), OpenAI, Ollama, OpenRouter, or anything speaking <code>/v1/chat/completions</code></li>
+<li>Browser with devtools (for debugging)</li>
+</ul>
+<h3>Path 1 — 30-second demo via CDN (no install)</h3>
+<p>Fastest way to see it work. Uses alibaba&#39;s free testing LLM proxy — <strong>for evaluation only</strong>, subject to their terms.</p>
+<p>Add to any HTML page (or paste into the devtools console as a bookmarklet):</p>
+<pre><code class="language-html">&lt;script src=&quot;https://cdn.jsdelivr.net/npm/page-agent@1.8.0/dist/iife/page-agent.demo.js&quot; crossorigin=&quot;true&quot;&gt;&lt;/script&gt;
+</code></pre>
+<p>A panel appears. Type an instruction. Done.</p>
+<p>Bookmarklet form (drop into bookmarks bar, click on any page):</p>
+<pre><code class="language-javascript">javascript:(function(){var s=document.createElement(&#39;script&#39;);s.src=&#39;https://cdn.jsdelivr.net/npm/page-agent@1.8.0/dist/iife/page-agent.demo.js&#39;;document.head.appendChild(s);})();
+</code></pre>
+<h3>Path 2 — npm install into your own web app (production use)</h3>
+<p>Inside an existing web project (React / Vue / Svelte / plain):</p>
+<pre><code class="language-bash">npm install page-agent
+</code></pre>
+<p>Wire it up with your own LLM endpoint — <strong>never ship the demo CDN to real users</strong>:</p>
+<pre><code class="language-javascript">import { PageAgent } from &#39;page-agent&#39;
+
+const agent = new PageAgent({
+    model: &#39;qwen3.5-plus&#39;,
+    baseURL: &#39;https://dashscope.aliyuncs.com/compatible-mode/v1&#39;,
+    apiKey: process.env.LLM_API_KEY,   // never hardcode
+    language: &#39;en-US&#39;,
+})
+
+// Show the panel for end users:
+agent.panel.show()
+
+// Or drive it programmatically:
+await agent.execute(&#39;Click submit button, then fill username as John&#39;)
+</code></pre>
+<p>Provider examples (any OpenAI-compatible endpoint works):</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th><code>baseURL</code></th>
+<th><code>model</code></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Qwen / DashScope</td>
+<td><code>https://dashscope.aliyuncs.com/compatible-mode/v1</code></td>
+<td><code>qwen3.5-plus</code></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td><code>https://api.openai.com/v1</code></td>
+<td><code>gpt-4o-mini</code></td>
+</tr>
+<tr>
+<td>Ollama (local)</td>
+<td><code>http://localhost:11434/v1</code></td>
+<td><code>qwen3:14b</code></td>
+</tr>
+<tr>
+<td>OpenRouter</td>
+<td><code>https://openrouter.ai/api/v1</code></td>
+<td><code>anthropic/claude-sonnet-4.6</code></td>
+</tr>
+</tbody></table>
+<p><strong>Key config fields</strong> (passed to <code>new PageAgent({...})</code>):</p>
+<ul>
+<li><code>model</code>, <code>baseURL</code>, <code>apiKey</code> — LLM connection</li>
+<li><code>language</code> — UI language (<code>en-US</code>, <code>zh-CN</code>, etc.)</li>
+<li>Allowlist and data-masking hooks exist for locking down what the agent can touch — see <a href="https://alibaba.github.io/page-agent/">https://alibaba.github.io/page-agent/</a> for the full option list</li>
+</ul>
+<p><strong>Security.</strong> Don&#39;t put your <code>apiKey</code> in client-side code for a real deployment — proxy LLM calls through your backend and point <code>baseURL</code> at your proxy. The demo CDN exists because alibaba runs that proxy for evaluation.</p>
+<h3>Path 3 — clone the source repo (contributing, or hacking on it)</h3>
+<p>Use this when the user wants to modify page-agent itself, test it against arbitrary sites via a local IIFE bundle, or develop the browser extension.</p>
+<pre><code class="language-bash">git clone https://github.com/alibaba/page-agent.git
+cd page-agent
+npm ci              # exact lockfile install (or `npm i` to allow updates)
+</code></pre>
+<p>Create <code>.env</code> in the repo root with an LLM endpoint. Example:</p>
+<pre><code>LLM_MODEL_NAME=gpt-4o-mini
+LLM_API_KEY=sk-...
+LLM_BASE_URL=https://api.openai.com/v1
+</code></pre>
+<p>Ollama flavor:</p>
+<pre><code>LLM_BASE_URL=http://localhost:11434/v1
+LLM_API_KEY=NA
+LLM_MODEL_NAME=qwen3:14b
+</code></pre>
+<p>Common commands:</p>
+<pre><code class="language-bash">npm start           # docs/website dev server
+npm run build       # build every package
+npm run dev:demo    # serve IIFE bundle at http://localhost:5174/page-agent.demo.js
+npm run dev:ext     # develop the browser extension (WXT + React)
+npm run build:ext   # build the extension
+</code></pre>
+<p><strong>Test on any website</strong> using the local IIFE bundle. Add this bookmarklet:</p>
+<pre><code class="language-javascript">javascript:(function(){var s=document.createElement(&#39;script&#39;);s.src=`http://localhost:5174/page-agent.demo.js?t=${Math.random()}`;s.onload=()=&gt;console.log(&#39;PageAgent ready!&#39;);document.head.appendChild(s);})();
+</code></pre>
+<p>Then: <code>npm run dev:demo</code>, click the bookmarklet on any page, and the local build injects. Auto-rebuilds on save.</p>
+<p><strong>Warning:</strong> your <code>.env</code> <code>LLM_API_KEY</code> is inlined into the IIFE bundle during dev builds. Don&#39;t share the bundle. Don&#39;t commit it. Don&#39;t paste the URL into Slack. (Verified: grepping the public dev bundle returns the literal values from <code>.env</code>.)</p>
+<h3>Repo layout (Path 3)</h3>
+<p>Monorepo with npm workspaces. Key packages:</p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>page-agent</code></td>
+<td><code>packages/page-agent/</code></td>
+<td>Main entry with UI panel</td>
+</tr>
+<tr>
+<td><code>@page-agent/core</code></td>
+<td><code>packages/core/</code></td>
+<td>Core agent logic, no UI</td>
+</tr>
+<tr>
+<td><code>@page-agent/mcp</code></td>
+<td><code>packages/mcp/</code></td>
+<td>MCP server (beta)</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>packages/llms/</code></td>
+<td>LLM client</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>packages/page-controller/</code></td>
+<td>DOM ops + visual feedback</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>packages/ui/</code></td>
+<td>Panel + i18n</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>packages/extension/</code></td>
+<td>Chrome/Firefox extension</td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>packages/website/</code></td>
+<td>Docs + landing site</td>
+</tr>
+</tbody></table>
+<h3>Verifying it works</h3>
+<p>After Path 1 or Path 2:</p>
+<ol>
+<li>Open the page in a browser with devtools open</li>
+<li>You should see a floating panel. If not, check the console for errors (most common: CORS on the LLM endpoint, wrong <code>baseURL</code>, or a bad API key)</li>
+<li>Type a simple instruction matching something visible on the page (&quot;click the Login link&quot;)</li>
+<li>Watch the Network tab — you should see a request to your <code>baseURL</code></li>
+</ol>
+<p>After Path 3:</p>
+<ol>
+<li><code>npm run dev:demo</code> prints <code>Accepting connections at http://localhost:5174</code></li>
+<li><code>curl -I http://localhost:5174/page-agent.demo.js</code> returns <code>HTTP/1.1 200 OK</code> with <code>Content-Type: application/javascript</code></li>
+<li>Click the bookmarklet on any site; panel appears</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Demo CDN in production</strong> — don&#39;t. It&#39;s rate-limited, uses alibaba&#39;s free proxy, and their terms forbid production use.</li>
+<li><strong>API key exposure</strong> — any key passed to <code>new PageAgent({apiKey: ...})</code> ships in your JS bundle. Always proxy through your own backend for real deployments.</li>
+<li><strong>Non-OpenAI-compatible endpoints</strong> fail silently or with cryptic errors. If your provider needs native Anthropic/Gemini formatting, use an OpenAI-compatibility proxy (LiteLLM, OpenRouter) in front.</li>
+<li><strong>CSP blocks</strong> — sites with strict Content-Security-Policy may refuse to load the CDN script or disallow inline eval. In that case, self-host from your origin.</li>
+<li><strong>Restart dev server</strong> after editing <code>.env</code> in Path 3 — Vite only reads env at startup.</li>
+<li><strong>Node version</strong> — the repo declares <code>^22.13.0 || &gt;=24</code>. Node 20 will fail <code>npm ci</code> with engine errors.</li>
+<li><strong>npm 10 vs 11</strong> — docs say npm 11+; npm 10.9 actually works fine.</li>
+</ul>
+<h3>Reference</h3>
+<ul>
+<li>Repo: <a href="https://github.com/alibaba/page-agent">https://github.com/alibaba/page-agent</a></li>
+<li>Docs: <a href="https://alibaba.github.io/page-agent/">https://alibaba.github.io/page-agent/</a></li>
+<li>License: MIT (built on browser-use&#39;s DOM processing internals, Copyright 2024 Gregor Zunic)</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/web-development/page-agent</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

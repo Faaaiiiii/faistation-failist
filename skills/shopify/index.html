@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>shopify — Skill Hermes</title>
+<meta name="description" content="Query Shopify Admin/Storefront GraphQL APIs via curl.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>shopify</h1>
+    <p class="lede">Query Shopify Admin/Storefront GraphQL APIs via curl.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>shopify</dd>
+      <dt>Keterangan</dt><dd>Query Shopify Admin/Storefront GraphQL APIs via curl.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>community</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/shopify.zip" download>Muat turun ZIP (5.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Shopify — Admin &amp; Storefront GraphQL APIs</h2>
+<p>Work with Shopify stores directly through <code>curl</code>: list products, manage inventory, pull orders, update customers, read metafields. No SDK, no app framework — just the GraphQL endpoint and a custom-app access token.</p>
+<p>The REST Admin API is legacy since 2024-04 and only receives security fixes. <strong>Use GraphQL Admin</strong> for all admin work. Use <strong>Storefront GraphQL</strong> for read-only customer-facing queries (products, collections, cart).</p>
+<h3>Prerequisites</h3>
+<ol>
+<li>In Shopify admin: <strong>Settings → Apps and sales channels → Develop apps → Create an app</strong>.</li>
+<li>Click <strong>Configure Admin API scopes</strong>, select what you need (examples below), save.</li>
+<li><strong>Install app</strong> → the Admin API access token appears ONCE. Copy it immediately — Shopify will never show it again. Tokens start with <code>shpat_</code>.</li>
+<li>Save to <code>${HERMES_HOME:-~/.hermes}/.env</code>:<pre><code>SHOPIFY_ACCESS_TOKEN=shpat_xxxxxxxxxxxxxxxxxxxx
+SHOPIFY_STORE_DOMAIN=my-store.myshopify.com
+SHOPIFY_API_VERSION=2026-01
+</code></pre>
+</li>
+</ol>
+<blockquote>
+<p><strong>Heads up:</strong> As of January 1, 2026, new &quot;legacy custom apps&quot; created in the Shopify admin are gone. New setups should use the <strong>Dev Dashboard</strong> (<code>shopify.dev/docs/apps/build/dev-dashboard</code>). Existing admin-created apps keep working. If the user&#39;s shop has no existing custom app and it&#39;s after 2026-01-01, direct them to Dev Dashboard instead of the admin flow.</p>
+</blockquote>
+<p>Common scopes by task:</p>
+<ul>
+<li>Products / collections: <code>read_products</code>, <code>write_products</code></li>
+<li>Inventory: <code>read_inventory</code>, <code>write_inventory</code>, <code>read_locations</code></li>
+<li>Orders: <code>read_orders</code>, <code>write_orders</code> (30 most recent without <code>read_all_orders</code>)</li>
+<li>Customers: <code>read_customers</code>, <code>write_customers</code></li>
+<li>Draft orders: <code>read_draft_orders</code>, <code>write_draft_orders</code></li>
+<li>Fulfillments: <code>read_fulfillments</code>, <code>write_fulfillments</code></li>
+<li>Metafields / metaobjects: covered by the matching resource scopes</li>
+</ul>
+<h3>API Basics</h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>https://$SHOPIFY_STORE_DOMAIN/admin/api/$SHOPIFY_API_VERSION/graphql.json</code></li>
+<li><strong>Auth header:</strong> <code>X-Shopify-Access-Token: $SHOPIFY_ACCESS_TOKEN</code> (NOT <code>Authorization: Bearer</code>)</li>
+<li><strong>Method:</strong> always <code>POST</code>, always <code>Content-Type: application/json</code>, body is <code>{&quot;query&quot;: &quot;...&quot;, &quot;variables&quot;: {...}}</code></li>
+<li><strong>HTTP 200 does not mean success.</strong> GraphQL returns errors in a top-level <code>errors</code> array and per-field <code>userErrors</code>. Always check both.</li>
+<li><strong>IDs are GID strings:</strong> <code>gid://shopify/Product/10079467700516</code>, <code>gid://shopify/Variant/...</code>, <code>gid://shopify/Order/...</code>. Pass these verbatim — don&#39;t strip the prefix.</li>
+<li><strong>Rate limit:</strong> calculated via query cost (leaky bucket). Each response has <code>extensions.cost</code> with <code>requestedQueryCost</code>, <code>actualQueryCost</code>, <code>throttleStatus.{currentlyAvailable, maximumAvailable, restoreRate}</code>. Back off when <code>currentlyAvailable</code> drops below your next query&#39;s cost. Standard shops = 100 points bucket, 50/s restore; Plus = 1000/100.</li>
+</ul>
+<p>Base curl pattern (reusable):</p>
+<pre><code class="language-bash">shop_gql() {
+  local query=&quot;$1&quot;
+  local variables=&quot;${2:-{}}&quot;
+  curl -sS -X POST \
+    &quot;https://${SHOPIFY_STORE_DOMAIN}/admin/api/${SHOPIFY_API_VERSION:-2026-01}/graphql.json&quot; \
+    -H &quot;Content-Type: application/json&quot; \
+    -H &quot;X-Shopify-Access-Token: ${SHOPIFY_ACCESS_TOKEN}&quot; \
+    --data &quot;$(jq -nc --arg q &quot;$query&quot; --argjson v &quot;$variables&quot; &#39;{query: $q, variables: $v}&#39;)&quot;
+}
+</code></pre>
+<p>Pipe through <code>jq</code> for readable output. <code>-sS</code> keeps errors visible but hides the progress bar.</p>
+<h3>Discovery</h3>
+<h4>Shop info + current API version</h4>
+<pre><code class="language-bash">shop_gql &#39;{ shop { name myshopifyDomain primaryDomain { url } currencyCode plan { displayName } } }&#39; | jq
+</code></pre>
+<h4>List all supported API versions</h4>
+<pre><code class="language-bash">shop_gql &#39;{ publicApiVersions { handle supported } }&#39; | jq &#39;.data.publicApiVersions[] | select(.supported)&#39;
+</code></pre>
+<h3>Products</h3>
+<h4>Search products (first 20 matching query)</h4>
+<pre><code class="language-bash">shop_gql &#39;
+query($q: String!) {
+  products(first: 20, query: $q) {
+    edges { node { id title handle status totalInventory variants(first: 5) { edges { node { id sku price inventoryQuantity } } } } }
+    pageInfo { hasNextPage endCursor }
+  }
+}&#39; &#39;{&quot;q&quot;:&quot;hoodie status:active&quot;}&#39; | jq
+</code></pre>
+<p>Query syntax supports <code>title:</code>, <code>sku:</code>, <code>vendor:</code>, <code>product_type:</code>, <code>status:active</code>, <code>tag:</code>, <code>created_at:&gt;2025-01-01</code>. Full grammar: <a href="https://shopify.dev/docs/api/usage/search-syntax">https://shopify.dev/docs/api/usage/search-syntax</a></p>
+<h4>Paginate products (cursor)</h4>
+<pre><code class="language-bash">shop_gql &#39;
+query($cursor: String) {
+  products(first: 100, after: $cursor) {
+    edges { cursor node { id handle } }
+    pageInfo { hasNextPage endCursor }
+  }
+}&#39; &#39;{&quot;cursor&quot;:null}&#39;
+# subsequent calls: pass the previous endCursor
+</code></pre>
+<h4>Get a product with variants + metafields</h4>
+<pre><code class="language-bash">shop_gql &#39;
+query($id: ID!) {
+  product(id: $id) {
+    id title handle descriptionHtml tags status
+    variants(first: 20) { edges { node { id sku price compareAtPrice inventoryQuantity selectedOptions { name value } } } }
+    metafields(first: 20) { edges { node { namespace key type value } } }
+  }
+}&#39; &#39;{&quot;id&quot;:&quot;gid://shopify/Product/10079467700516&quot;}&#39; | jq
+</code></pre>
+<h4>Create a product with one variant</h4>
+<pre><code class="language-bash">shop_gql &#39;
+mutation($input: ProductCreateInput!) {
+  productCreate(product: $input) {
+    product { id handle }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;input&quot;:{&quot;title&quot;:&quot;Test Hoodie&quot;,&quot;status&quot;:&quot;DRAFT&quot;,&quot;vendor&quot;:&quot;Hermes&quot;,&quot;productType&quot;:&quot;Apparel&quot;,&quot;tags&quot;:[&quot;test&quot;]}}&#39;
+</code></pre>
+<p>Variants now have their own mutations in recent versions:</p>
+<pre><code class="language-bash"># Add variants after creating the product
+shop_gql &#39;
+mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+  productVariantsBulkCreate(productId: $productId, variants: $variants) {
+    productVariants { id sku price }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;productId&quot;:&quot;gid://shopify/Product/...&quot;,&quot;variants&quot;:[{&quot;optionValues&quot;:[{&quot;optionName&quot;:&quot;Size&quot;,&quot;name&quot;:&quot;M&quot;}],&quot;price&quot;:&quot;49.00&quot;,&quot;inventoryItem&quot;:{&quot;sku&quot;:&quot;HD-M&quot;,&quot;tracked&quot;:true}}]}&#39;
+</code></pre>
+<h4>Update price / SKU</h4>
+<pre><code class="language-bash">shop_gql &#39;
+mutation($productId: ID!, $variants: [ProductVariantsBulkInput!]!) {
+  productVariantsBulkUpdate(productId: $productId, variants: $variants) {
+    productVariants { id sku price }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;productId&quot;:&quot;gid://shopify/Product/...&quot;,&quot;variants&quot;:[{&quot;id&quot;:&quot;gid://shopify/ProductVariant/...&quot;,&quot;price&quot;:&quot;55.00&quot;}]}&#39;
+</code></pre>
+<h3>Orders</h3>
+<h4>List recent orders (last 30 by default without <code>read_all_orders</code>)</h4>
+<pre><code class="language-bash">shop_gql &#39;
+{
+  orders(first: 20, reverse: true, query: &quot;financial_status:paid&quot;) {
+    edges { node {
+      id name createdAt displayFinancialStatus displayFulfillmentStatus
+      totalPriceSet { shopMoney { amount currencyCode } }
+      customer { id displayName email }
+      lineItems(first: 10) { edges { node { title quantity sku } } }
+    } }
+  }
+}&#39; | jq
+</code></pre>
+<p>Useful order query filters: <code>financial_status:paid|pending|refunded</code>, <code>fulfillment_status:unfulfilled|fulfilled</code>, <code>created_at:&gt;2025-01-01</code>, <code>tag:gift</code>, <code>email:foo@example.com</code>.</p>
+<h4>Fetch a single order with shipping address</h4>
+<pre><code class="language-bash">shop_gql &#39;
+query($id: ID!) {
+  order(id: $id) {
+    id name email
+    shippingAddress { name address1 address2 city province country zip phone }
+    lineItems(first: 50) { edges { node { title quantity variant { sku } originalUnitPriceSet { shopMoney { amount currencyCode } } } } }
+    transactions { id kind status amountSet { shopMoney { amount currencyCode } } }
+  }
+}&#39; &#39;{&quot;id&quot;:&quot;gid://shopify/Order/....&quot;}&#39; | jq
+</code></pre>
+<h3>Customers</h3>
+<pre><code class="language-bash"># Search
+shop_gql &#39;
+{
+  customers(first: 10, query: &quot;email:*@example.com&quot;) {
+    edges { node { id email displayName numberOfOrders amountSpent { amount currencyCode } } }
+  }
+}&#39;
+
+# Create
+shop_gql &#39;
+mutation($input: CustomerInput!) {
+  customerCreate(input: $input) {
+    customer { id email }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;input&quot;:{&quot;email&quot;:&quot;test@example.com&quot;,&quot;firstName&quot;:&quot;Test&quot;,&quot;lastName&quot;:&quot;User&quot;,&quot;tags&quot;:[&quot;api-created&quot;]}}&#39;
+</code></pre>
+<h3>Inventory</h3>
+<p>Inventory lives on <strong>inventory items</strong> tied to variants, quantities tracked per <strong>location</strong>.</p>
+<pre><code class="language-bash"># Get inventory for a variant across all locations
+shop_gql &#39;
+query($id: ID!) {
+  productVariant(id: $id) {
+    id sku
+    inventoryItem {
+      id tracked
+      inventoryLevels(first: 10) {
+        edges { node { location { id name } quantities(names: [&quot;available&quot;,&quot;on_hand&quot;,&quot;committed&quot;]) { name quantity } } }
+      }
+    }
+  }
+}&#39; &#39;{&quot;id&quot;:&quot;gid://shopify/ProductVariant/...&quot;}&#39;
+</code></pre>
+<p>Adjust stock (delta) — uses <code>inventoryAdjustQuantities</code>:</p>
+<pre><code class="language-bash">shop_gql &#39;
+mutation($input: InventoryAdjustQuantitiesInput!) {
+  inventoryAdjustQuantities(input: $input) {
+    inventoryAdjustmentGroup { reason changes { name delta } }
+    userErrors { field message }
+  }
+}&#39; &#39;{
+  &quot;input&quot;: {
+    &quot;reason&quot;: &quot;correction&quot;,
+    &quot;name&quot;: &quot;available&quot;,
+    &quot;changes&quot;: [{&quot;delta&quot;: 5, &quot;inventoryItemId&quot;: &quot;gid://shopify/InventoryItem/...&quot;, &quot;locationId&quot;: &quot;gid://shopify/Location/...&quot;}]
+  }
+}&#39;
+</code></pre>
+<p>Set absolute stock (not delta) — <code>inventorySetQuantities</code>:</p>
+<pre><code class="language-bash">shop_gql &#39;
+mutation($input: InventorySetQuantitiesInput!) {
+  inventorySetQuantities(input: $input) {
+    inventoryAdjustmentGroup { id }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;input&quot;:{&quot;reason&quot;:&quot;correction&quot;,&quot;name&quot;:&quot;available&quot;,&quot;ignoreCompareQuantity&quot;:true,&quot;quantities&quot;:[{&quot;inventoryItemId&quot;:&quot;gid://shopify/InventoryItem/...&quot;,&quot;locationId&quot;:&quot;gid://shopify/Location/...&quot;,&quot;quantity&quot;:100}]}}&#39;
+</code></pre>
+<h3>Metafields &amp; Metaobjects</h3>
+<p>Metafields attach custom data to resources (products, customers, orders, shop).</p>
+<pre><code class="language-bash"># Read
+shop_gql &#39;
+query($id: ID!) {
+  product(id: $id) {
+    metafields(first: 10, namespace: &quot;custom&quot;) {
+      edges { node { key type value } }
+    }
+  }
+}&#39; &#39;{&quot;id&quot;:&quot;gid://shopify/Product/...&quot;}&#39;
+
+# Write (works for any owner type)
+shop_gql &#39;
+mutation($metafields: [MetafieldsSetInput!]!) {
+  metafieldsSet(metafields: $metafields) {
+    metafields { id key namespace }
+    userErrors { field message code }
+  }
+}&#39; &#39;{&quot;metafields&quot;:[{&quot;ownerId&quot;:&quot;gid://shopify/Product/...&quot;,&quot;namespace&quot;:&quot;custom&quot;,&quot;key&quot;:&quot;care_instructions&quot;,&quot;type&quot;:&quot;multi_line_text_field&quot;,&quot;value&quot;:&quot;Wash cold. Tumble dry low.&quot;}]}&#39;
+</code></pre>
+<h3>Storefront API (public read-only)</h3>
+<p>Different endpoint, different token, used for customer-facing apps/hydrogen-style headless setups. Headers differ:</p>
+<ul>
+<li><strong>Endpoint:</strong> <code>https://$SHOPIFY_STORE_DOMAIN/api/$SHOPIFY_API_VERSION/graphql.json</code></li>
+<li><strong>Auth header (public):</strong> <code>X-Shopify-Storefront-Access-Token: &lt;public token&gt;</code> — embeddable in browser</li>
+<li><strong>Auth header (private):</strong> <code>Shopify-Storefront-Private-Token: &lt;private token&gt;</code> — server-only</li>
+</ul>
+<pre><code class="language-bash">curl -sS -X POST \
+  &quot;https://${SHOPIFY_STORE_DOMAIN}/api/${SHOPIFY_API_VERSION:-2026-01}/graphql.json&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -H &quot;X-Shopify-Storefront-Access-Token: ${SHOPIFY_STOREFRONT_TOKEN}&quot; \
+  -d &#39;{&quot;query&quot;:&quot;{ shop { name } products(first: 5) { edges { node { id title handle } } } }&quot;}&#39; | jq
+</code></pre>
+<h3>Bulk Operations</h3>
+<p>For dumps larger than rate limits allow (full product catalog, all orders for a year):</p>
+<pre><code class="language-bash"># 1. Start bulk query
+shop_gql &#39;
+mutation {
+  bulkOperationRunQuery(query: &quot;&quot;&quot;
+    { products { edges { node { id title handle variants { edges { node { sku price } } } } } } }
+  &quot;&quot;&quot;) {
+    bulkOperation { id status }
+    userErrors { field message }
+  }
+}&#39;
+
+# 2. Poll status
+shop_gql &#39;{ currentBulkOperation { id status errorCode objectCount fileSize url partialDataUrl } }&#39;
+
+# 3. When status=COMPLETED, download the JSONL file
+curl -sS &quot;$URL&quot; &gt; products.jsonl
+</code></pre>
+<p>Each JSONL line is a node, and nested connections are emitted as separate lines with <code>__parentId</code>. Reassemble client-side if needed.</p>
+<h3>Webhooks</h3>
+<p>Subscribe to events so you don&#39;t have to poll:</p>
+<pre><code class="language-bash">shop_gql &#39;
+mutation($topic: WebhookSubscriptionTopic!, $sub: WebhookSubscriptionInput!) {
+  webhookSubscriptionCreate(topic: $topic, webhookSubscription: $sub) {
+    webhookSubscription { id topic endpoint { __typename ... on WebhookHttpEndpoint { callbackUrl } } }
+    userErrors { field message }
+  }
+}&#39; &#39;{&quot;topic&quot;:&quot;ORDERS_CREATE&quot;,&quot;sub&quot;:{&quot;callbackUrl&quot;:&quot;https://example.com/webhook&quot;,&quot;format&quot;:&quot;JSON&quot;}}&#39;
+</code></pre>
+<p>Verify incoming webhook HMAC using the app&#39;s client secret (not the access token):</p>
+<pre><code class="language-bash">echo -n &quot;$REQUEST_BODY&quot; | openssl dgst -sha256 -hmac &quot;$APP_SECRET&quot; -binary | base64
+# Compare to X-Shopify-Hmac-Sha256 header
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>REST endpoints still exist but are frozen.</strong> Don&#39;t write new integrations against <code>/admin/api/.../products.json</code>. Use GraphQL.</li>
+<li><strong>Token format check.</strong> Admin tokens start with <code>shpat_</code>. Storefront public tokens with <code>shpua_</code>. If you have one and the wrong header, every request returns 401 without a useful error body.</li>
+<li><strong>403 with a valid token = missing scope.</strong> Shopify returns <code>{&quot;errors&quot;:[{&quot;message&quot;:&quot;Access denied for ...&quot;}]}</code>. Re-configure Admin API scopes on the app, then reinstall to regenerate the token.</li>
+<li><strong><code>userErrors</code> is empty != success.</strong> Also check <code>data.&lt;mutation&gt;.&lt;resource&gt;</code> is non-null. Some failures populate neither — inspect the whole response.</li>
+<li><strong>GID vs numeric ID.</strong> Legacy REST gave numeric IDs; GraphQL wants full GID strings. To convert: <code>gid://shopify/Product/&lt;numeric&gt;</code>.</li>
+<li><strong>Rate limit surprise.</strong> A single <code>products(first: 250)</code> with deep nesting can cost 1000+ points and throttle immediately on a standard-plan shop. Start narrow, read <code>extensions.cost</code>, adjust.</li>
+<li><strong>Pagination order.</strong> <code>products(first: N, reverse: true)</code> sorts by <code>id DESC</code>, not <code>created_at</code>. Use <code>sortKey: CREATED_AT, reverse: true</code> for &quot;newest first.&quot;</li>
+<li><strong><code>read_all_orders</code> for historical data.</strong> Without it, <code>orders(...)</code> silently caps at the 60-day window. You won&#39;t get an error, just fewer results than expected. For Shopify Plus merchants with many orders, request this scope via the app&#39;s protected-data settings.</li>
+<li><strong>Currencies are strings.</strong> Amounts come back as <code>&quot;49.00&quot;</code> not <code>49.0</code>. Don&#39;t <code>jq tonumber</code> blindly if you care about zero-padding.</li>
+<li><strong>Multi-currency Money fields</strong> have <code>shopMoney</code> (store&#39;s currency) AND <code>presentmentMoney</code> (customer&#39;s). Pick one consistently.</li>
+</ul>
+<h3>Safety</h3>
+<p>Mutations in Shopify are real — they create products, charge refunds, cancel orders, ship fulfillments. Before running <code>productDelete</code>, <code>orderCancel</code>, <code>refundCreate</code>, or any bulk mutation: state clearly what the change is, on which shop, and confirm with the user. There is no staging clone of production data unless the user has a separate dev store.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/productivity/shopify</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dream-loop — Skill Hermes</title>
+<meta name="description" content="Build stunning 3D scenes via a concept-art fidelity loop.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>dream-loop</h1>
+    <p class="lede">Build stunning 3D scenes via a concept-art fidelity loop.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>dream-loop</dd>
+      <dt>Keterangan</dt><dd>Build stunning 3D scenes via a concept-art fidelity loop.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anshu Chimala (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/dream-loop.zip" download>Muat turun ZIP (7.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.6 KB</td></tr>
+<tr><td><code>LICENSE.txt</code></td><td class="sz">1.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Dream Loop Skill</h2>
+<p>An autonomous process for building extremely impressive visuals, especially 3D
+scenes (games, apps, usually browser three.js/WebGL): generate photorealistic
+concept art of the ideal result, build it, screenshot the live build, have a
+judge score screenshot vs concept against a gated ladder, and iterate until
+convergence. Goal: the most visually stunning result at an acceptable frame
+rate for the target platform (e.g. 60 fps browser, 120 fps modern mobile).</p>
+<p>This skill does NOT cover general web-app functionality, 2D UI design, or
+non-visual quality — only the visual-fidelity loop.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User says &quot;dream loop&quot; or asks for a game/scene/app built to a very high
+level of graphical fidelity.</li>
+<li>Follow-up refinement passes on an existing visual product (see Follow-up
+loops below).</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>Concept art</strong>: the <code>image_generate</code> tool. If unavailable, stop and ask the
+user for a concept image (or an image-generation API to connect to).</li>
+<li><strong>Screenshots</strong>: <code>browser_exec</code> — serve the build locally
+(<code>python3 -m http.server</code> for static builds), then <code>new_tab(url)</code>,
+<code>wait_for_load()</code>, <code>capture_screenshot()</code>.</li>
+<li><strong>Judging</strong>: <code>vision_analyze</code> (see Judge section for the one-image-per-call
+workaround).</li>
+<li><strong>Optional</strong>: Blender for asset modeling — see the <code>blender-3d-automation</code>
+skill. <code>delegate_task</code> for parallel asset work and fresh-context judging.</li>
+</ul>
+<p>If you don&#39;t have the tools needed for the full loop, flag that to the user
+early and stop.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>What happens</th>
+<th>Artifacts (<code>.dream-loop/</code>)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1. Target</td>
+<td>Get/confirm the user&#39;s description</td>
+<td>notes</td>
+</tr>
+<tr>
+<td>2. Concept</td>
+<td>Generate &quot;in-engine screenshot&quot; concept art</td>
+<td><code>concept.png</code></td>
+</tr>
+<tr>
+<td>3. Budget</td>
+<td>Record time budget &amp; start time (if given)</td>
+<td>notes</td>
+</tr>
+<tr>
+<td>4. Build</td>
+<td>Implement the concept as well as possible in one go</td>
+<td>source, plans</td>
+</tr>
+<tr>
+<td>5. Screenshot</td>
+<td>Capture live build at concept resolution</td>
+<td><code>round-N.png</code></td>
+</tr>
+<tr>
+<td>6. Self-check</td>
+<td>Rigorous side-by-side audit before judging</td>
+<td>assessment log</td>
+</tr>
+<tr>
+<td>7. Judge</td>
+<td>Ladder-scored comparison, actionable directives</td>
+<td>verdict log</td>
+</tr>
+<tr>
+<td>8. Iterate/Exit</td>
+<td>Address directives or exit per criteria</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<h4>1. The target concept</h4>
+<p>If the user provided a description of a game, scene, or app, proceed — don&#39;t
+ask for clarification unless it&#39;s too vague to generate concept art from. If
+they didn&#39;t, ask for it.</p>
+<p>Put working context/files in <code>.dream-loop/</code> and gitignore it (unless told
+otherwise).</p>
+<h4>2. Concept art</h4>
+<p>The concept is a realistic, high-quality, impressive target: the look of a
+current AAA game running in real time. Physically plausible materials (wet
+stone, brushed metal, cloth, glass) with real roughness and normal detail,
+correct proportions, atmosphere (fog, haze, rain, dust, volumetric light),
+cinematic lighting with a clear key and rich shadows. It should NOT be
+stylized or an artistic rendition — it should look like a true screenshot of
+the ideal result.</p>
+<p>Avoid these failure modes when generating with <code>image_generate</code>:</p>
+<ul>
+<li><strong>Overbaked</strong>: photographic clutter, film grain, hundreds of unique small
+objects, excessive detail on every surface that reads as noise. A real-time
+build with modeled assets won&#39;t match this, and it won&#39;t even look good.</li>
+<li><strong>Oversimplified</strong>: cartoon or toy look, flat shading, blobby primitive
+shapes, empty surfaces. Boring; will not impress the user.</li>
+</ul>
+<p>Aim for the middle ground: beautiful surfaces and materials that shaders
+render well, strong atmosphere and lighting, an interesting palette, and
+focused hero elements with fine detail that draws the eye (not every element
+fighting for attention).</p>
+<p>Prompt for &quot;in-engine screenshot&quot; more than &quot;concept art&quot; and discourage the
+noisy/grainy look. Review the image with <code>vision_analyze</code>; if it hits a
+failure mode, pass it back to <code>image_generate</code> in edit mode and ask it to fix
+the issue. Save it as <code>.dream-loop/concept.png</code>.</p>
+<p>If you generated the art (the user didn&#39;t supply it), pause and confirm it
+matches the user&#39;s vision before starting the build loop.</p>
+<h4>3. Time budget</h4>
+<p>If the user gives a time budget, record the start time and check the clock
+between rounds. Don&#39;t degrade visual fidelity to hit the budget — strive for
+the absolute best result, and don&#39;t rush work to the judge. Parallelize or
+distribute work (e.g. <code>delegate_task</code> for independent assets) to hit the
+time goal, but no shortcuts: it&#39;s better to hit the time limit with
+meaningful, beautiful progress than with something broadly complete but ugly.</p>
+<p>If no time budget is given, run until an exit criterion — but warn upfront
+that this may consume a lot of tokens.</p>
+<h4>4. Build loop</h4>
+<p>Look at the concept art and implement it in one go, making that first pass
+count across every tier of the score ladder: composition, textures, lighting,
+details. Sculpt and model assets carefully (or use external ones if allowed);
+don&#39;t settle for basic procedural elements and flat surfaces unless the art
+style calls for it. Write intermediate files/plans to <code>.dream-loop/</code>.</p>
+<ul>
+<li>If Blender is installed and the concept involves 3D assets, prefer modeling
+in Blender (see the <code>blender-3d-automation</code> skill). For complex assets,
+delegate to subagents via <code>delegate_task</code>.</li>
+<li>If the user allows external assets, prefer them over modeling unless the
+asset is simple. If unspecified, assume NO external assets from the web.</li>
+<li>Do not be lazy with key environmental details (scenery, flooring,
+buildings): simple shapes look blocky, shiny, flat, and fake. Tiny details
+and texturing matter and need custom sculpting.</li>
+<li>Use <code>image_generate</code> for textures, normal maps, skyboxes, etc. — better
+looking and faster than procedural ones.</li>
+</ul>
+<h4>5. Screenshot</h4>
+<p>Serve the build (e.g. <code>python3 -m http.server</code> in the build dir), then via
+<code>browser_exec</code>: <code>new_tab(&#39;http://localhost:8000&#39;)</code>, <code>wait_for_load()</code>, allow
+the scene to settle, <code>capture_screenshot()</code>. Target the same resolution and
+aspect ratio as the concept art so the comparison is fair. Save as
+<code>.dream-loop/round-N.png</code>.</p>
+<h4>6. Self-check before judging</h4>
+<p>Each time, review the candidate screenshot yourself before submitting. Do not
+submit half-baked work. Compare screenshot and concept side by side and log an
+honest assessment of judge-readiness; only submit if confident you&#39;ve
+significantly improved the score. Be rigorous and audit every pixel: big stuff
+(missing/incorrect objects, wrong scale, perspective, positioning) and small
+stuff (rendering glitches, flat untextured surfaces, ugly lighting, poor
+contrast, washed-out or oversaturated color, speckles, ugly shadows). Scan
+surface by surface, object by object, and list findings.</p>
+<h4>7. Judge</h4>
+<p>Judging should ideally be done by a fresh subagent with a clean context each
+round (<code>delegate_task</code>), to keep it objective and cheap. Give the judge the
+latest screenshot, the concept, and (from round 2 on) the previous round&#39;s
+screenshot and verdict.</p>
+<p>Mechanics: <code>vision_analyze</code> takes one image per call. Either have the judge
+make sequential calls (concept, then screenshot, then compare from memory of
+its own descriptions), or — better — stitch a labeled side-by-side composite
+with ImageMagick (<code>convert concept.png shot.png +append compare.png</code>) or PIL
+and analyze that single image.</p>
+<p>Judge prompt:</p>
+<blockquote>
+<p>You are an art director reviewing a real-time render against its concept
+art. Compare the screenshot to the concept and score it 0-10 using this
+ladder. The ladder is gated: a frame cannot score above a tier&#39;s cap until
+every requirement of the tiers below it is fully met. Be strict about the
+gates.</p>
+<ul>
+<li><strong>Tier 1, shape (0-3):</strong> camera, framing, composition, and the position
+and rough scale of every major object match the concept. Layout, not
+finish: every major element present, in the right region of the frame
+(within ~10% of frame width/height), at roughly the right size (within
+~25%). Right place and vaguely correct outline passes even if edges and
+surface are wrong; save precision nitpicks for Tier 4. Cap 3 until true.</li>
+<li><strong>Tier 2, light and color (3-5):</strong> key light direction and color, overall
+exposure (no clipping to black or white), shadow depth, palette,
+contrast, atmosphere. Attend to reflections, glows, etc. Ensure the scene
+is not too bright or dark relative to the concept. Judge the whole frame,
+not tiny details (Tier 4). Cap 5 until lighting/reflections/color/
+contrast are generally right.</li>
+<li><strong>Tier 3, materials and surfaces (5-7):</strong> every surface reads as the
+right material at a glance: textures, roughness, translucency, wetness,
+reflections. Assets must not look procedural, blocky, smooth/plastic;
+frame-dominating elements should be properly sculpted and detailed. Cap 7
+until true.</li>
+<li><strong>Tier 4, fine detail (7-9):</strong> the small things. Nitpick relentlessly;
+inspect every little object up close. Layout aligns near-perfectly;
+materials extremely convincing. Cap 9 until right.</li>
+<li><strong>Tier 5, indistinguishable (9-10):</strong> holds up side by side and zoomed
+in. Nitpick every pixel.</li>
+</ul>
+<p>If a previous verdict and screenshot are provided: you are one reviewer in
+a sequence, not the first. Maintain consistency. First mark each previous
+directive LANDED, PARTIAL, or NOT DONE against the new screenshot; carry
+forward anything PARTIAL or NOT DONE. Don&#39;t reverse a prior directive
+unless the result is clearly worse — and if you do, say so and why.</p>
+<p>Output format:</p>
+<ol>
+<li>Score on the first line; &quot;Tier N&quot; (highest fully-passed gate) on the
+second.
+1b. If given a previous verdict: the LANDED / PARTIAL / NOT DONE list.</li>
+<li>&quot;Blocking:&quot; the specific failures of the <em>next</em> tier&#39;s gate. The builder
+must clear these before anything else counts. Name the element and the
+change, with magnitudes: &quot;Rocks: replace the stacked ovoid boulders with
+one continuous fractured slab; cracks 2-5cm wide, dark interiors, add
+surface texture so they don&#39;t look flat/plastic&quot; — not &quot;the rocks look
+artificial&quot;.</li>
+<li>Then at most 4 further directives from higher tiers, same style, ordered
+by points recoverable.</li>
+</ol>
+<p>No non-actionable feedback (&quot;this looks synthetic&quot;) — name the specific
+causes. Every directive must be actionable this round. Don&#39;t round up: if a
+gate isn&#39;t fully passed, the cap holds.</p>
+</blockquote>
+<h4>8. Exit criteria</h4>
+<ul>
+<li><strong>Score &gt;= 8 and target FPS acceptable</strong>: done. Show the user the latest
+screenshot; ask if they want more iterations.</li>
+<li><strong>Score &gt;= 8 but FPS unacceptable</strong>: optimize — lossless wins first, then
+minimal-visual-impact ones. Re-judge afterwards to confirm no regression.</li>
+<li><strong>Stall approaching</strong> (best score hasn&#39;t improved a full point in 2 rounds,
+or the judge named the same gap 3 times): stop incremental tweaks. Step
+back and ask what about the <em>approach</em> is capping the score. Make one big
+structural change in a round: swap asset strategy (sculpt in Blender, pull
+real models/textures/HDRIs if allowed), rewrite the lighting model, rebuild
+the composition, change the camera. Self-check carefully — big changes
+break things. Only repeat parameter tuning if you can articulate why it
+would work this time.</li>
+<li><strong>Stalled</strong> (already tried a big structural change, score flat 3 rounds,
+judge is nitpicking or demanding intractable things like raytracing on a
+GPU-less machine): stop, tell the user why you&#39;re blocked, give options.</li>
+<li><strong>Otherwise</strong>: address all or most heavy-hitting gaps this round, not just
+the top one — rounds are expensive. Prioritize gaps that move the needle
+most (lighting, textures, mesh detail). Only revert if the score dropped a
+full point or more; small dips are judge noise, and reverting a whole round
+throws out good changes with bad. If one change clearly regressed, undo
+just that change. Loop.</li>
+</ul>
+<h3>Follow-up loops</h3>
+<p>When building on an existing product (or the user re-invokes the skill for
+refinements), don&#39;t create new concept art in a vacuum — it may diverge from
+what exists. Instead capture a live screenshot of the current product and
+prompt <code>image_generate</code> to render the best possible version of it (current
+screenshot → AAA-graphics version of the same shot), then use that as the
+target. Multiple screens can run parallel judge loops if asked, at higher
+token cost.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li>Overbaked or oversimplified concept art (see failure modes) — fix the
+concept before building against it.</li>
+<li>Submitting half-baked screenshots to the judge; the self-check gate exists
+for a reason.</li>
+<li>Screenshot at a different resolution/aspect than the concept — unfair
+comparison, noisy verdicts.</li>
+<li>Tunnel-visioning on incremental tweaks when the judge says you&#39;re off base.</li>
+<li>Judging both images in one <code>vision_analyze</code> call — it takes one image;
+composite them first.</li>
+<li>Screenshotting before the scene loads/settles — add a wait after
+<code>wait_for_load()</code> for asset streaming and animation warm-up.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li><code>.dream-loop/concept.png</code> exists and passed the failure-mode review (and
+user confirmation, if generated).</li>
+<li>Each round has a screenshot, a logged self-assessment, and a judge verdict
+with score + tier + directives.</li>
+<li>Exit only via an explicit exit criterion; final screenshot shown to the
+user with the final score and FPS measurement.</li>
+</ul>
+<hr>
+<p>Adapted from <a href="https://github.com/achimala/dream-loop">dream-loop</a> by Anshu
+Chimala (MIT). Upstream license vendored as <code>LICENSE.txt</code>.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/dream-loop</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

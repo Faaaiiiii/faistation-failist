@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>google-workspace — Skill Hermes</title>
+<meta name="description" content="Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>google-workspace</h1>
+    <p class="lede">Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>google-workspace</dd>
+      <dt>Keterangan</dt><dd>Gmail, Calendar, Drive, Docs, Sheets via gws CLI or Python.</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>Nous Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/google-workspace.zip" download>Muat turun ZIP (26.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (7)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.9 KB</td></tr>
+<tr><td><code>references/daily-brief.md</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>references/gmail-search-syntax.md</code></td><td class="sz">2.1 KB</td></tr>
+<tr><td><code>scripts/_hermes_home.py</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>scripts/google_api.py</code></td><td class="sz">45.9 KB</td></tr>
+<tr><td><code>scripts/gws_bridge.py</code></td><td class="sz">4.3 KB</td></tr>
+<tr><td><code>scripts/setup.py</code></td><td class="sz">17.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Google Workspace</h2>
+<p>Gmail, Calendar, Drive, Contacts, Sheets, and Docs — through Hermes-managed OAuth and a thin CLI wrapper. When <code>gws</code> is installed, the skill uses it as the execution backend for broader Google Workspace coverage; otherwise it falls back to the bundled Python client implementation.</p>
+<h3>References</h3>
+<ul>
+<li><code>references/gmail-search-syntax.md</code> — Gmail search operators (is:unread, from:, newer_than:, etc.)</li>
+<li><code>references/daily-brief.md</code> — daily/morning brief procedure: schedule + conflicts + meeting prep + urgent mail from Gmail and Calendar. Load it when the user asks for a morning brief, meeting preparation, or &quot;what&#39;s on my calendar and what email needs attention.&quot;</li>
+</ul>
+<h3>Scripts</h3>
+<ul>
+<li><code>scripts/setup.py</code> — OAuth2 setup (run once to authorize)</li>
+<li><code>scripts/google_api.py</code> — compatibility wrapper CLI. It prefers <code>gws</code> for operations when available, while preserving Hermes&#39; existing JSON output contract.</li>
+</ul>
+<h3>First-Time Setup</h3>
+<p>The setup is fully non-interactive — you drive it step by step so it works
+on CLI, Telegram, Discord, or any platform.</p>
+<p>Run the setup script with Python from the Hermes environment, not an unrelated
+system Python. <code>--install-deps</code> syncs Hermes&#39; declared Google extra through PM;
+after syncing, restart Hermes and rerun the OAuth command. If Hermes is not
+importable, use <code>hermes setup</code> first rather than installing packages with pip.</p>
+<p>Define a shorthand first:</p>
+<pre><code class="language-bash">GSETUP=&quot;python ${HERMES_HOME:-$HOME/.hermes}/skills/productivity/google-workspace/scripts/setup.py&quot;
+</code></pre>
+<h4>Step 0: Check if already set up</h4>
+<pre><code class="language-bash">$GSETUP --check
+</code></pre>
+<p>If it prints <code>AUTHENTICATED</code>, skip to Usage — setup is already done.</p>
+<h4>Step 1: Triage — ask the user what they need</h4>
+<p>Before starting OAuth setup, ask the user TWO questions:</p>
+<p><strong>Question 1: &quot;What Google services do you need? Just email, or also
+Calendar/Drive/Sheets/Docs?&quot;</strong></p>
+<ul>
+<li><p><strong>Email only</strong> → They don&#39;t need this skill at all. Use the <code>himalaya</code> skill
+instead — it works with a Gmail App Password (Settings → Security → App
+Passwords) and takes 2 minutes to set up. No Google Cloud project needed.
+Load the himalaya skill and follow its setup instructions.</p>
+</li>
+<li><p><strong>Email + Calendar</strong> → Continue with this skill, but use
+<code>--services email,calendar</code> during auth so the consent screen only asks for
+the scopes they actually need.</p>
+</li>
+<li><p><strong>Calendar/Drive/Sheets/Docs only</strong> → Continue with this skill and use a
+narrower <code>--services</code> set like <code>calendar,drive,sheets,docs</code>.</p>
+</li>
+<li><p><strong>Full Workspace access</strong> → Continue with this skill and use the default
+<code>all</code> service set.</p>
+</li>
+</ul>
+<p><strong>Question 2: &quot;Does your Google account use Advanced Protection (hardware
+security keys required to sign in)? If you&#39;re not sure, you probably don&#39;t
+— it&#39;s something you would have explicitly enrolled in.&quot;</strong></p>
+<ul>
+<li><strong>No / Not sure</strong> → Normal setup. Continue below.</li>
+<li><strong>Yes</strong> → Their Workspace admin must add the OAuth client ID to the org&#39;s
+allowed apps list before Step 4 will work. Let them know upfront.</li>
+</ul>
+<h4>Step 2: Create OAuth credentials (one-time, ~5 minutes)</h4>
+<p>Tell the user:</p>
+<blockquote>
+<p>You need a Google Cloud OAuth client. This is a one-time setup:</p>
+<ol>
+<li>Create or select a project:
+<a href="https://console.cloud.google.com/projectselector2/home/dashboard">https://console.cloud.google.com/projectselector2/home/dashboard</a></li>
+<li>Enable the required APIs from the API Library:
+<a href="https://console.cloud.google.com/apis/library">https://console.cloud.google.com/apis/library</a>
+Enable: Gmail API, Google Calendar API, Google Drive API,
+Google Sheets API, Google Docs API, People API</li>
+<li>Create the OAuth client here:
+<a href="https://console.cloud.google.com/apis/credentials">https://console.cloud.google.com/apis/credentials</a>
+Credentials → Create Credentials → OAuth 2.0 Client ID</li>
+<li>Application type: &quot;Desktop app&quot; → Create</li>
+<li>If the app is still in Testing, add the user&#39;s Google account as a test user here:
+<a href="https://console.cloud.google.com/auth/audience">https://console.cloud.google.com/auth/audience</a>
+Audience → Test users → Add users</li>
+<li>Download the JSON file and tell me the file path</li>
+</ol>
+<p>Important Hermes CLI note: if the file path starts with <code>/</code>, do NOT send only the bare path as its own message in the CLI, because it can be mistaken for a slash command. Send it in a sentence instead, like:
+<code>The JSON file path is: ~/Downloads/client_secret_....json</code></p>
+</blockquote>
+<p>Once they provide the path:</p>
+<pre><code class="language-bash">$GSETUP --client-secret /path/to/client_secret.json
+</code></pre>
+<p>If they paste the raw client ID / client secret values instead of a file path,
+write a valid Desktop OAuth JSON file for them yourself, save it somewhere
+explicit (for example <code>~/Downloads/hermes-google-client-secret.json</code>), then run
+<code>--client-secret</code> against that file.</p>
+<h4>Step 3: Get authorization URL</h4>
+<p>Use the service set chosen in Step 1. Examples:</p>
+<pre><code class="language-bash">$GSETUP --auth-url --services email,calendar --format json
+$GSETUP --auth-url --services calendar,drive,sheets,docs --format json
+$GSETUP --auth-url --services all --format json
+</code></pre>
+<p>This returns JSON with an <code>auth_url</code> field and also saves the exact URL to
+<code>~/.hermes/google_oauth_last_url.txt</code>.</p>
+<p>Agent rules for this step:</p>
+<ul>
+<li>Extract the <code>auth_url</code> field and send that exact URL to the user as a single line.</li>
+<li>Tell the user that the browser will likely fail on <code>http://localhost:1</code> after approval, and that this is expected.</li>
+<li>Tell them to copy the ENTIRE redirected URL from the browser address bar.</li>
+<li>If the user gets <code>Error 403: access_denied</code>, send them directly to <code>https://console.cloud.google.com/auth/audience</code> to add themselves as a test user.</li>
+</ul>
+<h4>Step 4: Exchange the code</h4>
+<p>The user will paste back either a URL like <code>http://localhost:1/?code=4/0A...&amp;scope=...</code>
+or just the code string. Either works. The <code>--auth-url</code> step stores a temporary
+pending OAuth session locally so <code>--auth-code</code> can complete the PKCE exchange
+later, even on headless systems:</p>
+<pre><code class="language-bash">$GSETUP --auth-code &quot;THE_URL_OR_CODE_THE_USER_PASTED&quot; --format json
+</code></pre>
+<p>If <code>--auth-code</code> fails because the code expired, was already used, or came from
+an older browser tab, it now returns a fresh <code>fresh_auth_url</code>. In that case,
+immediately send the new URL to the user and have them retry with the newest
+browser redirect only.</p>
+<h4>Step 5: Verify</h4>
+<pre><code class="language-bash">$GSETUP --check
+</code></pre>
+<p>Should print <code>AUTHENTICATED</code>. Setup is complete — token refreshes automatically from now on.</p>
+<h4>Notes</h4>
+<ul>
+<li>Token is stored at <code>~/.hermes/google_token.json</code> and auto-refreshes.</li>
+<li>Pending OAuth session state/verifier are stored temporarily at <code>~/.hermes/google_oauth_pending.json</code> until exchange completes.</li>
+<li>If <code>gws</code> is installed, <code>google_api.py</code> points it at the same <code>~/.hermes/google_token.json</code> credentials file. Users do not need to run a separate <code>gws auth login</code> flow.</li>
+<li>To revoke: <code>$GSETUP --revoke</code></li>
+</ul>
+<h3>Usage</h3>
+<p>All commands go through the API script. Set <code>GAPI</code> as a shorthand:</p>
+<pre><code class="language-bash">GAPI=&quot;python ${HERMES_HOME:-$HOME/.hermes}/skills/productivity/google-workspace/scripts/google_api.py&quot;
+</code></pre>
+<h4>Gmail</h4>
+<pre><code class="language-bash"># Search (returns JSON array with id, from, subject, date, snippet)
+$GAPI gmail search &quot;is:unread&quot; --max 10
+$GAPI gmail search &quot;from:boss@company.com newer_than:1d&quot;
+$GAPI gmail search &quot;has:attachment filename:pdf newer_than:7d&quot;
+
+# Read full message (returns JSON with body text)
+$GAPI gmail get MESSAGE_ID
+
+# Send
+$GAPI gmail send --to user@example.com --subject &quot;Hello&quot; --body &quot;Message text&quot;
+$GAPI gmail send --to user@example.com --subject &quot;Report&quot; --body &quot;&lt;h1&gt;Q4&lt;/h1&gt;&lt;p&gt;Details...&lt;/p&gt;&quot; --html
+$GAPI gmail send --to user@example.com --subject &quot;Hello&quot; --from &#39;&quot;Research Agent&quot; &lt;user@example.com&gt;&#39; --body &quot;Message text&quot;
+
+# Reply (automatically threads and sets In-Reply-To)
+$GAPI gmail reply MESSAGE_ID --body &quot;Thanks, that works for me.&quot;
+$GAPI gmail reply MESSAGE_ID --from &#39;&quot;Support Bot&quot; &lt;user@example.com&gt;&#39; --body &quot;Thanks&quot;
+
+# Labels
+$GAPI gmail labels
+$GAPI gmail modify MESSAGE_ID --add-labels LABEL_ID
+$GAPI gmail modify MESSAGE_ID --remove-labels UNREAD
+</code></pre>
+<h4>Calendar</h4>
+<pre><code class="language-bash"># List events (defaults to next 7 days)
+$GAPI calendar list
+$GAPI calendar list --start 2026-03-01T00:00:00Z --end 2026-03-07T23:59:59Z
+
+# Create event (ISO 8601 with timezone required)
+$GAPI calendar create --summary &quot;Team Standup&quot; --start 2026-03-01T10:00:00-06:00 --end 2026-03-01T10:30:00-06:00
+$GAPI calendar create --summary &quot;Lunch&quot; --start 2026-03-01T12:00:00Z --end 2026-03-01T13:00:00Z --location &quot;Cafe&quot;
+$GAPI calendar create --summary &quot;Review&quot; --start 2026-03-01T14:00:00Z --end 2026-03-01T15:00:00Z --attendees &quot;alice@co.com,bob@co.com&quot;
+
+# Delete event
+$GAPI calendar delete EVENT_ID
+</code></pre>
+<h4>Drive</h4>
+<pre><code class="language-bash"># Search existing files
+$GAPI drive search &quot;quarterly report&quot; --max 10
+$GAPI drive search &quot;mimeType=&#39;application/pdf&#39;&quot; --raw-query --max 5
+
+# Get metadata for a single file
+$GAPI drive get FILE_ID
+
+# Upload a local file (auto-detects MIME type)
+$GAPI drive upload /path/to/report.pdf
+$GAPI drive upload /path/to/image.png --name &quot;Logo.png&quot; --parent FOLDER_ID
+
+# Download (binary files download as-is; Google-native files export to a
+# sensible default — Docs→pdf, Sheets→csv, Slides→pdf, Drawings→png)
+$GAPI drive download FILE_ID
+$GAPI drive download DOC_ID --output ~/doc.pdf
+$GAPI drive download DOC_ID --export-mime text/plain --output ~/doc.txt
+
+# Create a folder
+$GAPI drive create-folder &quot;Reports&quot;
+$GAPI drive create-folder &quot;Q4&quot; --parent FOLDER_ID
+
+# Share
+$GAPI drive share FILE_ID --email alice@example.com --role reader
+$GAPI drive share FILE_ID --email alice@example.com --role writer --notify
+$GAPI drive share FILE_ID --type anyone --role reader        # anyone with link
+$GAPI drive share FILE_ID --type domain --domain example.com --role reader
+
+# Delete — defaults to trash (reversible). Use --permanent to skip the trash.
+$GAPI drive delete FILE_ID
+$GAPI drive delete FILE_ID --permanent
+</code></pre>
+<h4>Contacts</h4>
+<pre><code class="language-bash">$GAPI contacts list --max 20
+</code></pre>
+<h4>Sheets</h4>
+<pre><code class="language-bash"># Create a new spreadsheet
+$GAPI sheets create --title &quot;Q4 Budget&quot;
+$GAPI sheets create --title &quot;Inventory&quot; --sheet-name &quot;Stock&quot;
+
+# Read
+$GAPI sheets get SHEET_ID &quot;Sheet1!A1:D10&quot;
+
+# Write
+$GAPI sheets update SHEET_ID &quot;Sheet1!A1:B2&quot; --values &#39;[[&quot;Name&quot;,&quot;Score&quot;],[&quot;Alice&quot;,&quot;95&quot;]]&#39;
+
+# Append rows
+$GAPI sheets append SHEET_ID &quot;Sheet1!A:C&quot; --values &#39;[[&quot;new&quot;,&quot;row&quot;,&quot;data&quot;]]&#39;
+</code></pre>
+<h4>Docs</h4>
+<pre><code class="language-bash"># Read (a tabbed Doc returns a &quot;tabs&quot; array; single-tab and legacy Docs also return &quot;body&quot;)
+$GAPI docs get DOC_ID
+$GAPI docs get DOC_ID --tab TAB_ID     # read one tab of a tabbed Doc
+
+# Create a new Doc (optionally seeded with body text)
+$GAPI docs create --title &quot;Meeting Notes&quot;
+$GAPI docs create --title &quot;Draft&quot; --body &quot;First paragraph...&quot;
+
+# Append text to the end of an existing Doc
+$GAPI docs append DOC_ID --text &quot;Additional content to append&quot;
+$GAPI docs append DOC_ID --tab TAB_ID --text &quot;...&quot;   # --tab required when the Doc has multiple tabs
+</code></pre>
+<h3>Output Format</h3>
+<p>All commands return JSON. Parse with <code>jq</code> or read directly. Key fields:</p>
+<ul>
+<li><strong>Gmail search</strong>: <code>[{id, threadId, from, to, subject, date, snippet, labels}]</code></li>
+<li><strong>Gmail get</strong>: <code>{id, threadId, from, to, subject, date, labels, body}</code></li>
+<li><strong>Gmail send/reply</strong>: <code>{status: &quot;sent&quot;, id, threadId}</code></li>
+<li><strong>Calendar list</strong>: <code>[{id, summary, start, end, location, description, htmlLink}]</code></li>
+<li><strong>Calendar create</strong>: <code>{status: &quot;created&quot;, id, summary, htmlLink}</code></li>
+<li><strong>Drive search</strong>: <code>[{id, name, mimeType, modifiedTime, webViewLink}]</code></li>
+<li><strong>Drive get</strong>: <code>{id, name, mimeType, modifiedTime, size, webViewLink, parents, owners}</code></li>
+<li><strong>Drive upload</strong>: <code>{status: &quot;uploaded&quot;, id, name, mimeType, webViewLink}</code></li>
+<li><strong>Drive download</strong>: <code>{status: &quot;downloaded&quot;, id, name, path, mimeType}</code></li>
+<li><strong>Drive create-folder</strong>: <code>{status: &quot;created&quot;, id, name, webViewLink}</code></li>
+<li><strong>Drive share</strong>: <code>{status: &quot;shared&quot;, permissionId, fileId, role, type}</code></li>
+<li><strong>Drive delete</strong>: <code>{status: &quot;trashed&quot; | &quot;deleted&quot;, fileId, permanent}</code></li>
+<li><strong>Contacts list</strong>: <code>[{name, emails: [...], phones: [...]}]</code></li>
+<li><strong>Sheets get</strong>: <code>[[cell, cell, ...], ...]</code></li>
+<li><strong>Sheets create</strong>: <code>{status: &quot;created&quot;, spreadsheetId, title, spreadsheetUrl}</code></li>
+<li><strong>Docs create</strong>: <code>{status: &quot;created&quot;, documentId, title, url}</code></li>
+<li><strong>Docs append</strong>: <code>{status: &quot;appended&quot;, documentId, inserted_at, characters}</code></li>
+</ul>
+<h3>Rules</h3>
+<ol>
+<li><strong>Never send email, create/delete calendar events, delete Drive files, share files, or modify Docs/Sheets without confirming with the user first.</strong> Show what will be done (recipients, file IDs, content, share role) and ask for approval. For <code>drive delete</code>, prefer the default trash (reversible) over <code>--permanent</code>.</li>
+<li><strong>Check auth before first use</strong> — run <code>setup.py --check</code>. If it fails, guide the user through setup.</li>
+<li><strong>Use the Gmail search syntax reference</strong> for complex queries — load it with <code>skill_view(&quot;google-workspace&quot;, file_path=&quot;references/gmail-search-syntax.md&quot;)</code>.</li>
+<li><strong>Calendar times must include timezone</strong> — always use ISO 8601 with offset (e.g., <code>2026-03-01T10:00:00-06:00</code>) or UTC (<code>Z</code>).</li>
+<li><strong>Respect rate limits</strong> — avoid rapid-fire sequential API calls. Batch reads when possible.</li>
+</ol>
+<h3>Troubleshooting</h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NOT_AUTHENTICATED</code></td>
+<td>Run setup Steps 2-5 above</td>
+</tr>
+<tr>
+<td><code>REFRESH_FAILED</code></td>
+<td>Token revoked or expired — redo Steps 3-5</td>
+</tr>
+<tr>
+<td><code>HttpError 403: Insufficient Permission</code></td>
+<td>Missing API scope — <code>$GSETUP --revoke</code> then redo Steps 3-5</td>
+</tr>
+<tr>
+<td><code>AUTHENTICATED (partial)</code> or &quot;Token missing scopes&quot;</td>
+<td>New write capabilities (Drive write/delete, Docs create/edit) require re-authorization. <code>$GSETUP --revoke</code> then redo Steps 3-5 to grant the upgraded scopes.</td>
+</tr>
+<tr>
+<td><code>HttpError 403: Access Not Configured</code></td>
+<td>API not enabled — user needs to enable it in Google Cloud Console</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError</code></td>
+<td>Run <code>$GSETUP --install-deps</code></td>
+</tr>
+<tr>
+<td>Advanced Protection blocks auth</td>
+<td>Workspace admin must allowlist the OAuth client ID</td>
+</tr>
+</tbody></table>
+<h3>Revoking Access</h3>
+<pre><code class="language-bash">$GSETUP --revoke
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/google-workspace</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

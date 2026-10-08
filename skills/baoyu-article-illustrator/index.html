@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>baoyu-article-illustrator — Skill Hermes</title>
+<meta name="description" content="Article illustrations: type × style × palette consistency.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>baoyu-article-illustrator</h1>
+    <p class="lede">Article illustrations: type × style × palette consistency.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>baoyu-article-illustrator</dd>
+      <dt>Keterangan</dt><dd>Article illustrations: type × style × palette consistency.</dd>
+      <dt>Versi</dt><dd>1.57.0</dd>
+      <dt>Pengarang</dt><dd>宝玉 (JimLiu)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/baoyu-article-illustrator.zip" download>Muat turun ZIP (53.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (35)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.8 KB</td></tr>
+<tr><td><code>PORT_NOTES.md</code></td><td class="sz">3.3 KB</td></tr>
+<tr><td><code>prompts/system.md</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/palettes/macaron.md</code></td><td class="sz">1.3 KB</td></tr>
+<tr><td><code>references/palettes/mono-ink.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/palettes/neon.md</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/palettes/warm.md</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/prompt-construction.md</code></td><td class="sz">14.6 KB</td></tr>
+<tr><td><code>references/style-presets.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>references/styles.md</code></td><td class="sz">9.2 KB</td></tr>
+<tr><td><code>references/styles/blueprint.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/styles/chalkboard.md</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>references/styles/editorial.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/elegant.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/fantasy-animation.md</code></td><td class="sz">1.9 KB</td></tr>
+<tr><td><code>references/styles/flat-doodle.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/styles/flat.md</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>references/styles/ink-notes.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>references/styles/intuition-machine.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/styles/minimal.md</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>references/styles/nature.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/notion.md</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>references/styles/pixel-art.md</code></td><td class="sz">1.9 KB</td></tr>
+<tr><td><code>references/styles/playful.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/retro.md</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>references/styles/scientific.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/screen-print.md</code></td><td class="sz">2.6 KB</td></tr>
+<tr><td><code>references/styles/sketch-notes.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/styles/sketch.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/vector-illustration.md</code></td><td class="sz">1.9 KB</td></tr>
+<tr><td><code>references/styles/vintage.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/styles/warm.md</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>references/styles/watercolor.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/usage.md</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>references/workflow.md</code></td><td class="sz">13.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Article Illustrator</h2>
+<p>Adapted from <a href="https://github.com/JimLiu/baoyu-skills">baoyu-article-illustrator</a> for Hermes Agent&#39;s tool ecosystem.</p>
+<p>Analyze articles, identify illustration positions, generate images with <strong>Type × Style × Palette</strong> consistency.</p>
+<h3>When to Use</h3>
+<p>Trigger this skill when the user asks to illustrate an article, add images to an article, generate illustrations for content, or uses phrases like &quot;为文章配图&quot;, &quot;illustrate article&quot;, or &quot;add images&quot;. The user provides an article (file path or pasted content) and optionally specifies type, style, palette, or density.</p>
+<h3>Three Dimensions</h3>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Controls</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Type</strong></td>
+<td>Information structure</td>
+<td>infographic, scene, flowchart, comparison, framework, timeline</td>
+</tr>
+<tr>
+<td><strong>Style</strong></td>
+<td>Rendering approach</td>
+<td>notion, warm, minimal, blueprint, watercolor, elegant</td>
+</tr>
+<tr>
+<td><strong>Palette</strong></td>
+<td>Color scheme (optional)</td>
+<td>macaron, warm, neon — overrides style&#39;s default colors</td>
+</tr>
+</tbody></table>
+<p>Combine freely: <code>type=infographic, style=vector-illustration, palette=macaron</code>.</p>
+<p>Or use presets: <code>edu-visual</code> → type + style + palette in one shot. See <a href="references/style-presets.md">style-presets.md</a>.</p>
+<h3>Types</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>infographic</code></td>
+<td>Data, metrics, technical</td>
+</tr>
+<tr>
+<td><code>scene</code></td>
+<td>Narratives, emotional</td>
+</tr>
+<tr>
+<td><code>flowchart</code></td>
+<td>Processes, workflows</td>
+</tr>
+<tr>
+<td><code>comparison</code></td>
+<td>Side-by-side, options</td>
+</tr>
+<tr>
+<td><code>framework</code></td>
+<td>Models, architecture</td>
+</tr>
+<tr>
+<td><code>timeline</code></td>
+<td>History, evolution</td>
+</tr>
+</tbody></table>
+<h3>Styles</h3>
+<p>See <a href="references/styles.md">references/styles.md</a> for Core Styles, the full gallery, and Type × Style compatibility.</p>
+<h3>Output Structure</h3>
+<pre><code>{output-dir}/
+├── source-{slug}.{ext}    # Only for pasted content
+├── outline.md
+├── prompts/
+│   └── NN-{type}-{slug}.md
+└── NN-{type}-{slug}.png
+</code></pre>
+<p><strong>Default output directory</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Output Directory</th>
+<th>Markdown Insert Path</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Article file path</td>
+<td><code>{article-dir}/imgs/</code></td>
+<td><code>imgs/NN-{type}-{slug}.png</code></td>
+</tr>
+<tr>
+<td>Pasted content</td>
+<td><code>illustrations/{topic-slug}/</code> (cwd)</td>
+<td><code>illustrations/{topic-slug}/NN-{type}-{slug}.png</code></td>
+</tr>
+</tbody></table>
+<p>If the user asks for a different layout (e.g., images alongside the article, or a <code>illustrations/</code> subdirectory), honor that.</p>
+<p><strong>Slug</strong>: 2-4 words, kebab-case. <strong>Conflict</strong>: append <code>-YYYYMMDD-HHMMSS</code>.</p>
+<h3>Core Principles</h3>
+<ul>
+<li><strong>Visualize concepts, not metaphors</strong> — if the article uses a metaphor (e.g., &quot;电锯切西瓜&quot;), illustrate the underlying concept, not the literal image.</li>
+<li><strong>Labels use article data</strong> — actual numbers, terms, and quotes from the article, not generic placeholders.</li>
+<li><strong>Prompt files are reproducibility records</strong> — every illustration must have a saved prompt file under <code>prompts/</code> before any image is generated.</li>
+<li><strong>Strip secrets</strong> — scan source content for API keys, tokens, or credentials before writing anything to disk.</li>
+</ul>
+<h3>Workflow</h3>
+<pre><code>- [ ] Step 1: Detect reference images (if provided)
+- [ ] Step 2: Analyze content
+- [ ] Step 3: Confirm settings (clarify tool)
+- [ ] Step 4: Generate outline
+- [ ] Step 5: Generate prompts
+- [ ] Step 6: Generate images (image_generate)
+- [ ] Step 7: Finalize
+</code></pre>
+<h4>Step 1: Detect Reference Images</h4>
+<p>If the user supplies reference images (paths pasted inline, attachments, or a URL):</p>
+<ol>
+<li>For each reference, call <code>vision_analyze</code> with the path/URL and a question asking for style, palette, composition, and subject. Record the returned description in <code>{output-dir}/references/NN-ref-{slug}.md</code> via <code>write_file</code>.</li>
+<li><strong>Do not</strong> try to copy the binary via <code>write_file</code> / <code>read_file</code> — those are text-only. If you want a local copy for the record, use <code>terminal</code> (<code>cp &quot;$src&quot; &quot;{output-dir}/references/NN-ref-{slug}.{ext}&quot;</code>). The skill itself never needs to read the binary; it works off the vision description.</li>
+<li>Since <code>image_generate</code> doesn&#39;t take image inputs, the vision description is what gets embedded in prompts during Step 5.</li>
+</ol>
+<p>Full procedures: <a href="references/workflow.md#step-1-detect-reference-images">references/workflow.md</a>.</p>
+<h4>Step 2: Analyze</h4>
+<table>
+<thead>
+<tr>
+<th>Analysis</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Content type</td>
+<td>Technical / Tutorial / Methodology / Narrative</td>
+</tr>
+<tr>
+<td>Purpose</td>
+<td>information / visualization / imagination</td>
+</tr>
+<tr>
+<td>Core arguments</td>
+<td>2-5 main points</td>
+</tr>
+<tr>
+<td>Positions</td>
+<td>Where illustrations add value</td>
+</tr>
+</tbody></table>
+<p>Read source (file path → <code>read_file</code>, or pasted text) and write the analysis to <code>{output-dir}/analysis.md</code> using <code>write_file</code>.</p>
+<p>Full procedures: <a href="references/workflow.md#step-2-analyze">references/workflow.md</a>.</p>
+<h4>Step 3: Confirm Settings</h4>
+<p>Use the <code>clarify</code> tool. Put the independent questions in one <code>questions</code> array (up to 5). Skip any question whose answer is already present in the user&#39;s request.</p>
+<table>
+<thead>
+<tr>
+<th>Order</th>
+<th>Question</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Q1</td>
+<td><strong>Preset or Type</strong></td>
+<td>[Recommended preset], [alt preset], or manual: infographic, scene, flowchart, comparison, framework, timeline, mixed</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td><strong>Density</strong></td>
+<td>minimal (1-2), balanced (3-5), per-section (Recommended), rich (6+)</td>
+</tr>
+<tr>
+<td>Q3</td>
+<td><strong>Style</strong> <em>(skip if preset chosen in Q1)</em></td>
+<td>[Recommended], minimal-flat, sci-fi, hand-drawn, editorial, scene, poster</td>
+</tr>
+<tr>
+<td>Q4</td>
+<td><strong>Palette</strong> <em>(optional)</em></td>
+<td>Default (style colors), macaron, warm, neon</td>
+</tr>
+<tr>
+<td>Q5</td>
+<td><strong>Language</strong> <em>(only if article language is ambiguous)</em></td>
+<td>article language / user language</td>
+</tr>
+</tbody></table>
+<p>Don&#39;t ask more than 2-3 <code>clarify</code> questions in a row. If the user already specified these in their request, skip entirely.</p>
+<p>Full procedures: <a href="references/workflow.md#step-3-confirm-settings">references/workflow.md</a>.</p>
+<h4>Step 4: Generate Outline → <code>outline.md</code></h4>
+<p>Save <code>{output-dir}/outline.md</code> using <code>write_file</code> with frontmatter (type, density, style, palette, image_count) and one entry per illustration:</p>
+<pre><code class="language-yaml">## Illustration 1
+**Position**: [section/paragraph]
+**Purpose**: [why]
+**Visual Content**: [what to show]
+**Filename**: 01-infographic-concept-name.png
+</code></pre>
+<p>Full template: <a href="references/workflow.md#step-4-generate-outline">references/workflow.md</a>.</p>
+<h4>Step 5: Generate Prompts</h4>
+<p><strong>BLOCKING</strong>: Every illustration must have a saved prompt file before any image is generated — the prompt file is the reproducibility record.</p>
+<p>For each illustration:</p>
+<ol>
+<li>Create a prompt file per <a href="references/prompt-construction.md">references/prompt-construction.md</a>.</li>
+<li>Save to <code>{output-dir}/prompts/NN-{type}-{slug}.md</code> using <code>write_file</code> with YAML frontmatter.</li>
+<li>Prompts MUST use type-specific templates with structured sections (ZONES / LABELS / COLORS / STYLE / ASPECT).</li>
+<li>LABELS MUST include article-specific data: actual numbers, terms, metrics, quotes.</li>
+<li>Process references (<code>direct</code>/<code>style</code>/<code>palette</code>) per prompt frontmatter — for <code>direct</code> usage, embed a textual description of the reference in the prompt (since <code>image_generate</code> doesn&#39;t take reference-image inputs).</li>
+</ol>
+<h4>Step 6: Generate Images</h4>
+<p>For each prompt file:</p>
+<ol>
+<li>Call <code>image_generate(prompt=..., aspect_ratio=...)</code>. <code>image_generate</code> returns a JSON result containing an image URL; it does NOT write to disk and does NOT accept an output path.</li>
+<li>Map the prompt&#39;s <code>ASPECT</code> to <code>image_generate</code>&#39;s enum: <code>16:9</code> → <code>landscape</code>, <code>9:16</code> → <code>portrait</code>, <code>1:1</code> → <code>square</code>. Custom ratios → nearest named aspect.</li>
+<li>Download the returned URL to <code>{output-dir}/NN-{type}-{slug}.png</code> via <code>terminal</code> (e.g. <code>curl -sSL -o &quot;{output-dir}/NN-{type}-{slug}.png&quot; &quot;{url}&quot;</code>).</li>
+<li>On generation failure, auto-retry once.</li>
+</ol>
+<p>Note: the underlying image-generation backend is user-configured (default: FAL FLUX 2 Klein 9B) and is NOT agent-selectable via <code>image_generate</code>. Do not write model names into prompts expecting them to route.</p>
+<h4>Step 7: Finalize</h4>
+<p>Insert <code>![description]({relative-path}/NN-{type}-{slug}.png)</code> after the corresponding paragraph. Alt text: concise description in the article&#39;s language.</p>
+<p>Report:</p>
+<pre><code>Article Illustration Complete!
+Article: [path] | Type: [type] | Density: [level] | Style: [style] | Palette: [palette or default]
+Images: X/N generated
+</code></pre>
+<h3>Modification</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Steps</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Edit</td>
+<td>Update prompt → Regenerate → Update reference</td>
+</tr>
+<tr>
+<td>Add</td>
+<td>Position → Prompt → Generate → Update outline → Insert</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>Delete files → Remove reference → Update outline</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="references/workflow.md">references/workflow.md</a></td>
+<td>Detailed procedures</td>
+</tr>
+<tr>
+<td><a href="references/usage.md">references/usage.md</a></td>
+<td>Invocation examples</td>
+</tr>
+<tr>
+<td><a href="references/styles.md">references/styles.md</a></td>
+<td>Style gallery + Palette gallery</td>
+</tr>
+<tr>
+<td><a href="references/style-presets.md">references/style-presets.md</a></td>
+<td>Preset shortcuts (type + style + palette)</td>
+</tr>
+<tr>
+<td><a href="references/prompt-construction.md">references/prompt-construction.md</a></td>
+<td>Prompt templates</td>
+</tr>
+</tbody></table>
+<h3>Pitfalls</h3>
+<ol>
+<li><strong>Data integrity is paramount</strong> — never summarize, paraphrase, or alter source statistics. &quot;73% increase&quot; stays &quot;73% increase&quot;.</li>
+<li><strong>Strip secrets</strong> — scan source content for API keys, tokens, or credentials before including in any output file.</li>
+<li><strong>Don&#39;t illustrate metaphors literally</strong> — visualize the underlying concept.</li>
+<li><strong>Prompt files are mandatory</strong> — no image generation without a saved prompt file. The file is what lets you regenerate or switch backends later.</li>
+<li><strong><code>image_generate</code> aspect ratios</strong> — the tool supports <code>landscape</code>, <code>portrait</code>, and <code>square</code>. Custom ratios map to the nearest option.</li>
+<li><strong><code>image_generate</code> returns a URL, not a local file</strong> — always download via <code>terminal</code> (<code>curl</code>) before inserting local image paths into the article.</li>
+<li><strong>No backend selection from the agent</strong> — <code>image_generate</code> uses whatever model the user configured (default: FAL FLUX 2 Klein 9B). Don&#39;t write <code>&quot;use &lt;model&gt; to generate this&quot;</code> into prompts expecting it to route.</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/baoyu-article-illustrator</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

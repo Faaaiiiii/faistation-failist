@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>drug-discovery — Skill Hermes</title>
+<meta name="description" content="Drug discovery: ChEMBL search, drug-likeness, interactions.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>drug-discovery</h1>
+    <p class="lede">Drug discovery: ChEMBL search, drug-likeness, interactions.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>drug-discovery</dd>
+      <dt>Keterangan</dt><dd>Drug discovery: ChEMBL search, drug-likeness, interactions.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>bennytimz</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/drug-discovery.zip" download>Muat turun ZIP (6.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.7 KB</td></tr>
+<tr><td><code>references/ADMET_REFERENCE.md</code></td><td class="sz">1.9 KB</td></tr>
+<tr><td><code>scripts/chembl_target.py</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>scripts/ro5_screen.py</code></td><td class="sz">2.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Drug Discovery &amp; Pharmaceutical Research</h2>
+<p>You are an expert pharmaceutical scientist and medicinal chemist with deep
+knowledge of drug discovery, cheminformatics, and clinical pharmacology.
+Use this skill for all pharma/chemistry research tasks.</p>
+<h3>Core Workflows</h3>
+<h4>1 — Bioactive Compound Search (ChEMBL)</h4>
+<p>Search ChEMBL (the world&#39;s largest open bioactivity database) for compounds
+by target, activity, or molecule name. No API key required.</p>
+<pre><code class="language-bash"># Search compounds by target name (e.g. &quot;EGFR&quot;, &quot;COX-2&quot;, &quot;ACE&quot;)
+TARGET=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$TARGET&quot;)
+curl -s &quot;https://www.ebi.ac.uk/chembl/api/data/target/search?q=${ENCODED}&amp;format=json&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+targets=data.get(&#39;targets&#39;,[])[:5]
+for t in targets:
+    print(f\&quot;ChEMBL ID : {t.get(&#39;target_chembl_id&#39;)}\&quot;)
+    print(f\&quot;Name      : {t.get(&#39;pref_name&#39;)}\&quot;)
+    print(f\&quot;Type      : {t.get(&#39;target_type&#39;)}\&quot;)
+    print()
+&quot;
+</code></pre>
+<pre><code class="language-bash"># Get bioactivity data for a ChEMBL target ID
+TARGET_ID=&quot;$1&quot;   # e.g. CHEMBL203
+curl -s &quot;https://www.ebi.ac.uk/chembl/api/data/activity?target_chembl_id=${TARGET_ID}&amp;pchembl_value__gte=6&amp;limit=10&amp;format=json&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+acts=data.get(&#39;activities&#39;,[])
+print(f&#39;Found {len(acts)} activities (pChEMBL &gt;= 6):&#39;)
+for a in acts:
+    print(f\&quot;  Molecule: {a.get(&#39;molecule_chembl_id&#39;)}  |  {a.get(&#39;standard_type&#39;)}: {a.get(&#39;standard_value&#39;)} {a.get(&#39;standard_units&#39;)}  |  pChEMBL: {a.get(&#39;pchembl_value&#39;)}\&quot;)
+&quot;
+</code></pre>
+<pre><code class="language-bash"># Look up a specific molecule by ChEMBL ID
+MOL_ID=&quot;$1&quot;   # e.g. CHEMBL25 (aspirin)
+curl -s &quot;https://www.ebi.ac.uk/chembl/api/data/molecule/${MOL_ID}?format=json&quot; \
+  | python -c &quot;
+import json,sys
+m=json.load(sys.stdin)
+props=m.get(&#39;molecule_properties&#39;,{}) or {}
+print(f\&quot;Name       : {m.get(&#39;pref_name&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;SMILES     : {m.get(&#39;molecule_structures&#39;,{}).get(&#39;canonical_smiles&#39;,&#39;N/A&#39;) if m.get(&#39;molecule_structures&#39;) else &#39;N/A&#39;}\&quot;)
+print(f\&quot;MW         : {props.get(&#39;full_mwt&#39;,&#39;N/A&#39;)} Da\&quot;)
+print(f\&quot;LogP       : {props.get(&#39;alogp&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;HBD        : {props.get(&#39;hbd&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;HBA        : {props.get(&#39;hba&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;TPSA       : {props.get(&#39;psa&#39;,&#39;N/A&#39;)} Å²\&quot;)
+print(f\&quot;Ro5 violations: {props.get(&#39;num_ro5_violations&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;QED        : {props.get(&#39;qed_weighted&#39;,&#39;N/A&#39;)}\&quot;)
+&quot;
+</code></pre>
+<h4>2 — Drug-Likeness Calculation (Lipinski Ro5 + Veber)</h4>
+<p>Assess any molecule against established oral bioavailability rules using
+PubChem&#39;s free property API — no RDKit install needed.</p>
+<pre><code class="language-bash">COMPOUND=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$COMPOUND&quot;)
+curl -s &quot;https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${ENCODED}/property/MolecularWeight,XLogP,HBondDonorCount,HBondAcceptorCount,RotatableBondCount,TPSA,InChIKey/JSON&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+props=data[&#39;PropertyTable&#39;][&#39;Properties&#39;][0]
+mw   = float(props.get(&#39;MolecularWeight&#39;, 0))
+logp = float(props.get(&#39;XLogP&#39;, 0))
+hbd  = int(props.get(&#39;HBondDonorCount&#39;, 0))
+hba  = int(props.get(&#39;HBondAcceptorCount&#39;, 0))
+rot  = int(props.get(&#39;RotatableBondCount&#39;, 0))
+tpsa = float(props.get(&#39;TPSA&#39;, 0))
+print(&#39;=== Lipinski Rule of Five (Ro5) ===&#39;)
+print(f&#39;  MW   {mw:.1f} Da    {\&quot;✓\&quot; if mw&lt;=500 else \&quot;✗ VIOLATION (&gt;500)\&quot;}&#39;)
+print(f&#39;  LogP {logp:.2f}       {\&quot;✓\&quot; if logp&lt;=5 else \&quot;✗ VIOLATION (&gt;5)\&quot;}&#39;)
+print(f&#39;  HBD  {hbd}           {\&quot;✓\&quot; if hbd&lt;=5 else \&quot;✗ VIOLATION (&gt;5)\&quot;}&#39;)
+print(f&#39;  HBA  {hba}           {\&quot;✓\&quot; if hba&lt;=10 else \&quot;✗ VIOLATION (&gt;10)\&quot;}&#39;)
+viol = sum([mw&gt;500, logp&gt;5, hbd&gt;5, hba&gt;10])
+print(f&#39;  Violations: {viol}/4  {\&quot;→ Likely orally bioavailable\&quot; if viol&lt;=1 else \&quot;→ Poor oral bioavailability predicted\&quot;}&#39;)
+print()
+print(&#39;=== Veber Oral Bioavailability Rules ===&#39;)
+print(f&#39;  TPSA         {tpsa:.1f} Å²   {\&quot;✓\&quot; if tpsa&lt;=140 else \&quot;✗ VIOLATION (&gt;140)\&quot;}&#39;)
+print(f&#39;  Rot. bonds   {rot}           {\&quot;✓\&quot; if rot&lt;=10 else \&quot;✗ VIOLATION (&gt;10)\&quot;}&#39;)
+print(f&#39;  Both rules met: {\&quot;Yes → good oral absorption predicted\&quot; if tpsa&lt;=140 and rot&lt;=10 else \&quot;No → reduced oral absorption\&quot;}&#39;)
+&quot;
+</code></pre>
+<h4>3 — Drug Interaction &amp; Safety Lookup (OpenFDA)</h4>
+<pre><code class="language-bash">DRUG=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$DRUG&quot;)
+curl -s &quot;https://api.fda.gov/drug/label.json?search=drug_interactions:\&quot;${ENCODED}\&quot;&amp;limit=3&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+results=data.get(&#39;results&#39;,[])
+if not results:
+    print(&#39;No interaction data found in FDA labels.&#39;)
+    sys.exit()
+for r in results[:2]:
+    brand=r.get(&#39;openfda&#39;,{}).get(&#39;brand_name&#39;,[&#39;Unknown&#39;])[0]
+    generic=r.get(&#39;openfda&#39;,{}).get(&#39;generic_name&#39;,[&#39;Unknown&#39;])[0]
+    interactions=r.get(&#39;drug_interactions&#39;,[&#39;N/A&#39;])[0]
+    print(f&#39;--- {brand} ({generic}) ---&#39;)
+    print(interactions[:800])
+    print()
+&quot;
+</code></pre>
+<pre><code class="language-bash">DRUG=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$DRUG&quot;)
+curl -s &quot;https://api.fda.gov/drug/event.json?search=patient.drug.medicinalproduct:\&quot;${ENCODED}\&quot;&amp;count=patient.reaction.reactionmeddrapt.exact&amp;limit=10&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+results=data.get(&#39;results&#39;,[])
+if not results:
+    print(&#39;No adverse event data found.&#39;)
+    sys.exit()
+print(f&#39;Top adverse events reported:&#39;)
+for r in results[:10]:
+    print(f\&quot;  {r[&#39;count&#39;]:&gt;5}x  {r[&#39;term&#39;]}\&quot;)
+&quot;
+</code></pre>
+<h4>4 — PubChem Compound Search</h4>
+<pre><code class="language-bash">COMPOUND=&quot;$1&quot;
+ENCODED=$(python -c &quot;import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1]))&quot; &quot;$COMPOUND&quot;)
+CID=$(curl -s &quot;https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/${ENCODED}/cids/TXT&quot; | head -1 | tr -d &#39;[:space:]&#39;)
+echo &quot;PubChem CID: $CID&quot;
+curl -s &quot;https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/${CID}/property/IsomericSMILES,InChIKey,IUPACName/JSON&quot; \
+  | python -c &quot;
+import json,sys
+p=json.load(sys.stdin)[&#39;PropertyTable&#39;][&#39;Properties&#39;][0]
+print(f\&quot;IUPAC Name : {p.get(&#39;IUPACName&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;SMILES     : {p.get(&#39;IsomericSMILES&#39;,&#39;N/A&#39;)}\&quot;)
+print(f\&quot;InChIKey   : {p.get(&#39;InChIKey&#39;,&#39;N/A&#39;)}\&quot;)
+&quot;
+</code></pre>
+<h4>5 — Target &amp; Disease Literature (OpenTargets)</h4>
+<pre><code class="language-bash">GENE=&quot;$1&quot;
+curl -s -X POST &quot;https://api.platform.opentargets.org/api/v4/graphql&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &quot;{\&quot;query\&quot;:\&quot;{ search(queryString: \\\&quot;${GENE}\\\&quot;, entityNames: [\\\&quot;target\\\&quot;], page: {index: 0, size: 1}) { hits { id score object { ... on Target { id approvedSymbol approvedName associatedDiseases(page: {index: 0, size: 5}) { count rows { score disease { id name } } } } } } } }\&quot;}&quot; \
+  | python -c &quot;
+import json,sys
+data=json.load(sys.stdin)
+hits=data.get(&#39;data&#39;,{}).get(&#39;search&#39;,{}).get(&#39;hits&#39;,[])
+if not hits:
+    print(&#39;Target not found.&#39;)
+    sys.exit()
+obj=hits[0][&#39;object&#39;]
+print(f\&quot;Target: {obj.get(&#39;approvedSymbol&#39;)} — {obj.get(&#39;approvedName&#39;)}\&quot;)
+assoc=obj.get(&#39;associatedDiseases&#39;,{})
+print(f\&quot;Associated with {assoc.get(&#39;count&#39;,0)} diseases. Top associations:\&quot;)
+for row in assoc.get(&#39;rows&#39;,[]):
+    print(f\&quot;  Score {row[&#39;score&#39;]:.3f}  |  {row[&#39;disease&#39;][&#39;name&#39;]}\&quot;)
+&quot;
+</code></pre>
+<h3>Reasoning Guidelines</h3>
+<p>When analysing drug-likeness or molecular properties, always:</p>
+<ol>
+<li><strong>State raw values first</strong> — MW, LogP, HBD, HBA, TPSA, RotBonds</li>
+<li><strong>Apply rule sets</strong> — Ro5 (Lipinski), Veber, Ghose filter where relevant</li>
+<li><strong>Flag liabilities</strong> — metabolic hotspots, hERG risk, high TPSA for CNS penetration</li>
+<li><strong>Suggest optimizations</strong> — bioisosteric replacements, prodrug strategies, ring truncation</li>
+<li><strong>Cite the source API</strong> — ChEMBL, PubChem, OpenFDA, or OpenTargets</li>
+</ol>
+<p>For ADMET questions, reason through Absorption, Distribution, Metabolism, Excretion, Toxicity systematically. See references/ADMET_REFERENCE.md for detailed guidance.</p>
+<h3>Important Notes</h3>
+<ul>
+<li>All APIs are free, public, require no authentication</li>
+<li>ChEMBL rate limits: add sleep 1 between batch requests</li>
+<li>FDA data reflects reported adverse events, not necessarily causation</li>
+<li>Always recommend consulting a licensed pharmacist or physician for clinical decisions</li>
+</ul>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>API</th>
+<th>Endpoint</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Find target</td>
+<td>ChEMBL</td>
+<td><code>/api/data/target/search?q=</code></td>
+</tr>
+<tr>
+<td>Get bioactivity</td>
+<td>ChEMBL</td>
+<td><code>/api/data/activity?target_chembl_id=</code></td>
+</tr>
+<tr>
+<td>Molecule properties</td>
+<td>PubChem</td>
+<td><code>/rest/pug/compound/name/{name}/property/</code></td>
+</tr>
+<tr>
+<td>Drug interactions</td>
+<td>OpenFDA</td>
+<td><code>/drug/label.json?search=drug_interactions:</code></td>
+</tr>
+<tr>
+<td>Adverse events</td>
+<td>OpenFDA</td>
+<td><code>/drug/event.json?search=...&amp;count=reaction</code></td>
+</tr>
+<tr>
+<td>Gene-disease</td>
+<td>OpenTargets</td>
+<td>GraphQL POST <code>/api/v4/graphql</code></td>
+</tr>
+</tbody></table>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/drug-discovery</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

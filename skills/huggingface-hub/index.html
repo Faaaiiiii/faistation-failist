@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>huggingface-hub — Skill Hermes</title>
+<meta name="description" content="HuggingFace hf CLI: search/download/upload models, datasets.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>huggingface-hub</h1>
+    <p class="lede">HuggingFace hf CLI: search/download/upload models, datasets.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>huggingface-hub</dd>
+      <dt>Keterangan</dt><dd>HuggingFace hf CLI: search/download/upload models, datasets.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Hugging Face</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/huggingface-hub.zip" download>Muat turun ZIP (1.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">3.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Hugging Face CLI (<code>hf</code>) Reference Guide</h2>
+<p>The <code>hf</code> command is the modern command-line interface for interacting with the Hugging Face Hub, providing tools to manage repositories, models, datasets, and Spaces.</p>
+<blockquote>
+<p><strong>IMPORTANT:</strong> The <code>hf</code> command replaces the now deprecated <code>huggingface-cli</code> command.</p>
+</blockquote>
+<h3>Quick Start</h3>
+<ul>
+<li><strong>Installation:</strong> <code>curl -LsSf https://hf.co/cli/install.sh | bash -s</code></li>
+<li><strong>Help:</strong> Use <code>hf --help</code> to view all available functions and real-world examples.</li>
+<li><strong>Authentication:</strong> Recommended via <code>HF_TOKEN</code> environment variable or the <code>--token</code> flag.</li>
+</ul>
+<hr>
+<h3>Core Commands</h3>
+<h4>General Operations</h4>
+<ul>
+<li><code>hf download REPO_ID</code>: Download files from the Hub.</li>
+<li><code>hf upload REPO_ID</code>: Upload files/folders (recommended for single-commit; also handles resumable uploads of large directories).</li>
+<li><code>hf upload-large-folder REPO_ID LOCAL_PATH</code>: <strong>[Deprecated]</strong> — use <code>hf upload</code> instead.</li>
+<li><code>hf sync</code>: Sync files between a local directory and a bucket.</li>
+<li><code>hf env</code> / <code>hf version</code>: View environment and version details.</li>
+</ul>
+<h4>Authentication (<code>hf auth</code>)</h4>
+<ul>
+<li><code>login</code> / <code>logout</code>: Manage sessions using tokens from <a href="https://huggingface.co/settings/tokens">huggingface.co/settings/tokens</a>.</li>
+<li><code>list</code> / <code>switch</code>: Manage and toggle between multiple stored access tokens.</li>
+<li><code>whoami</code>: Identify the currently logged-in account.</li>
+</ul>
+<h4>Repository Management (<code>hf repos</code>)</h4>
+<ul>
+<li><code>create</code> / <code>delete</code>: Create or permanently remove repositories.</li>
+<li><code>duplicate</code>: Clone a model, dataset, or Space to a new ID.</li>
+<li><code>move</code>: Transfer a repository between namespaces.</li>
+<li><code>branch</code> / <code>tag</code>: Manage Git-like references.</li>
+<li><code>delete-files</code>: Remove specific files using patterns.</li>
+</ul>
+<hr>
+<h3>Specialized Hub Interactions</h3>
+<h4>Datasets &amp; Models</h4>
+<ul>
+<li><strong>Datasets:</strong> <code>hf datasets list</code>, <code>info</code>, and <code>parquet</code> (list parquet URLs).</li>
+<li><strong>SQL Queries:</strong> <code>hf datasets sql SQL</code> — Execute raw SQL via DuckDB against dataset parquet URLs.</li>
+<li><strong>Models:</strong> <code>hf models list</code> and <code>info</code>.</li>
+<li><strong>Papers:</strong> <code>hf papers ls</code> — View daily papers.</li>
+</ul>
+<h4>Discussions &amp; Pull Requests (<code>hf discussions</code>)</h4>
+<ul>
+<li>Manage the lifecycle of Hub contributions: <code>list</code>, <code>create</code>, <code>info</code>, <code>comment</code>, <code>close</code>, <code>reopen</code>, and <code>rename</code>.</li>
+<li><code>diff</code>: View changes in a PR.</li>
+<li><code>merge</code>: Finalize pull requests.</li>
+</ul>
+<h4>Infrastructure &amp; Compute</h4>
+<ul>
+<li><strong>Endpoints:</strong> Deploy and manage Inference Endpoints (<code>deploy</code>, <code>pause</code>, <code>resume</code>, <code>scale-to-zero</code>, <code>catalog</code>).</li>
+<li><strong>Jobs:</strong> Run compute tasks on HF infrastructure. Includes <code>hf jobs uv</code> for running Python scripts with inline dependencies and <code>stats</code> for resource monitoring.</li>
+<li><strong>Spaces:</strong> Manage interactive apps. Includes <code>dev-mode</code> and <code>hot-reload</code> for Python files without full restarts.</li>
+</ul>
+<h4>Storage &amp; Automation</h4>
+<ul>
+<li><strong>Buckets:</strong> Full S3-like bucket management (<code>create</code>, <code>cp</code>, <code>mv</code>, <code>rm</code>, <code>sync</code>).</li>
+<li><strong>Cache:</strong> Manage local storage with <code>list</code>, <code>prune</code> (remove detached revisions), and <code>verify</code> (checksum checks).</li>
+<li><strong>Webhooks:</strong> Automate workflows by managing Hub webhooks (<code>create</code>, <code>watch</code>, <code>enable</code>/<code>disable</code>).</li>
+<li><strong>Collections:</strong> Organize Hub items into collections (<code>add-item</code>, <code>update</code>, <code>list</code>).</li>
+</ul>
+<hr>
+<h3>Advanced Usage &amp; Tips</h3>
+<h4>Global Flags</h4>
+<ul>
+<li><code>--format json</code>: Produces machine-readable output for automation.</li>
+<li><code>-q</code> / <code>--quiet</code>: Limits output to IDs only.</li>
+</ul>
+<h4>Extensions &amp; Skills</h4>
+<ul>
+<li><strong>Extensions:</strong> Extend CLI functionality via GitHub repositories using <code>hf extensions install REPO_ID</code>.</li>
+<li><strong>Skills:</strong> Manage AI assistant skills with <code>hf skills add</code>.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/models/huggingface-hub</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

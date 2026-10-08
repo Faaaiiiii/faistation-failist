@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pytorch-lightning — Skill Hermes</title>
+<meta name="description" content="Clean training loops with built-in distributed support.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pytorch-lightning</h1>
+    <p class="lede">Clean training loops with built-in distributed support.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pytorch-lightning</dd>
+      <dt>Keterangan</dt><dd>Clean training loops with built-in distributed support.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pytorch-lightning.zip" download>Muat turun ZIP (14.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.8 KB</td></tr>
+<tr><td><code>references/callbacks.md</code></td><td class="sz">11.7 KB</td></tr>
+<tr><td><code>references/distributed.md</code></td><td class="sz">10.6 KB</td></tr>
+<tr><td><code>references/hyperparameter-tuning.md</code></td><td class="sz">12.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>PyTorch Lightning - High-Level Training Framework</h2>
+<h3>Quick start</h3>
+<p>PyTorch Lightning organizes PyTorch code to eliminate boilerplate while maintaining flexibility.</p>
+<p><strong>Installation</strong>:</p>
+<pre><code class="language-bash">pip install lightning
+</code></pre>
+<p><strong>Convert PyTorch to Lightning</strong> (3 steps):</p>
+<pre><code class="language-python">import lightning as L
+import torch
+from torch import nn
+from torch.utils.data import DataLoader, Dataset
+
+# Step 1: Define LightningModule (organize your PyTorch code)
+class LitModel(L.LightningModule):
+    def __init__(self, hidden_size=128):
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Linear(28 * 28, hidden_size),
+            nn.ReLU(),
+            nn.Linear(hidden_size, 10)
+        )
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        loss = nn.functional.cross_entropy(y_hat, y)
+        self.log(&#39;train_loss&#39;, loss)  # Auto-logged to TensorBoard
+        return loss
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
+
+# Step 2: Create data
+train_loader = DataLoader(train_dataset, batch_size=32)
+
+# Step 3: Train with Trainer (handles everything else!)
+trainer = L.Trainer(max_epochs=10, accelerator=&#39;gpu&#39;, devices=2)
+model = LitModel()
+trainer.fit(model, train_loader)
+</code></pre>
+<p><strong>That&#39;s it!</strong> Trainer handles:</p>
+<ul>
+<li>GPU/TPU/CPU switching</li>
+<li>Distributed training (DDP, FSDP, DeepSpeed)</li>
+<li>Mixed precision (FP16, BF16)</li>
+<li>Gradient accumulation</li>
+<li>Checkpointing</li>
+<li>Logging</li>
+<li>Progress bars</li>
+</ul>
+<h3>Common workflows</h3>
+<h4>Workflow 1: From PyTorch to Lightning</h4>
+<p><strong>Original PyTorch code</strong>:</p>
+<pre><code class="language-python">model = MyModel()
+optimizer = torch.optim.Adam(model.parameters())
+model.to(&#39;cuda&#39;)
+
+for epoch in range(max_epochs):
+    for batch in train_loader:
+        batch = batch.to(&#39;cuda&#39;)
+        optimizer.zero_grad()
+        loss = model(batch)
+        loss.backward()
+        optimizer.step()
+</code></pre>
+<p><strong>Lightning version</strong>:</p>
+<pre><code class="language-python">class LitModel(L.LightningModule):
+    def __init__(self):
+        super().__init__()
+        self.model = MyModel()
+
+    def training_step(self, batch, batch_idx):
+        loss = self.model(batch)  # No .to(&#39;cuda&#39;) needed!
+        return loss
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters())
+
+# Train
+trainer = L.Trainer(max_epochs=10, accelerator=&#39;gpu&#39;)
+trainer.fit(LitModel(), train_loader)
+</code></pre>
+<p><strong>Benefits</strong>: 40+ lines → 15 lines, no device management, automatic distributed</p>
+<h4>Workflow 2: Validation and testing</h4>
+<pre><code class="language-python">class LitModel(L.LightningModule):
+    def __init__(self):
+        super().__init__()
+        self.model = MyModel()
+
+    def training_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        loss = nn.functional.cross_entropy(y_hat, y)
+        self.log(&#39;train_loss&#39;, loss)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        val_loss = nn.functional.cross_entropy(y_hat, y)
+        acc = (y_hat.argmax(dim=1) == y).float().mean()
+        self.log(&#39;val_loss&#39;, val_loss)
+        self.log(&#39;val_acc&#39;, acc)
+
+    def test_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self.model(x)
+        test_loss = nn.functional.cross_entropy(y_hat, y)
+        self.log(&#39;test_loss&#39;, test_loss)
+
+    def configure_optimizers(self):
+        return torch.optim.Adam(self.parameters(), lr=1e-3)
+
+# Train with validation
+trainer = L.Trainer(max_epochs=10)
+trainer.fit(model, train_loader, val_loader)
+
+# Test
+trainer.test(model, test_loader)
+</code></pre>
+<p><strong>Automatic features</strong>:</p>
+<ul>
+<li>Validation runs every epoch by default</li>
+<li>Metrics logged to TensorBoard</li>
+<li>Best model checkpointing based on val_loss</li>
+</ul>
+<h4>Workflow 3: Distributed training (DDP)</h4>
+<pre><code class="language-python"># Same code as single GPU!
+model = LitModel()
+
+# 8 GPUs with DDP (automatic!)
+trainer = L.Trainer(
+    accelerator=&#39;gpu&#39;,
+    devices=8,
+    strategy=&#39;ddp&#39;  # Or &#39;fsdp&#39;, &#39;deepspeed&#39;
+)
+
+trainer.fit(model, train_loader)
+</code></pre>
+<p><strong>Launch</strong>:</p>
+<pre><code class="language-bash"># Single command, Lightning handles the rest
+python train.py
+</code></pre>
+<p><strong>No changes needed</strong>:</p>
+<ul>
+<li>Automatic data distribution</li>
+<li>Gradient synchronization</li>
+<li>Multi-node support (just set <code>num_nodes=2</code>)</li>
+</ul>
+<h4>Workflow 4: Callbacks for monitoring</h4>
+<pre><code class="language-python">from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, LearningRateMonitor
+
+# Create callbacks
+checkpoint = ModelCheckpoint(
+    monitor=&#39;val_loss&#39;,
+    mode=&#39;min&#39;,
+    save_top_k=3,
+    filename=&#39;model-{epoch:02d}-{val_loss:.2f}&#39;
+)
+
+early_stop = EarlyStopping(
+    monitor=&#39;val_loss&#39;,
+    patience=5,
+    mode=&#39;min&#39;
+)
+
+lr_monitor = LearningRateMonitor(logging_interval=&#39;epoch&#39;)
+
+# Add to Trainer
+trainer = L.Trainer(
+    max_epochs=100,
+    callbacks=[checkpoint, early_stop, lr_monitor]
+)
+
+trainer.fit(model, train_loader, val_loader)
+</code></pre>
+<p><strong>Result</strong>:</p>
+<ul>
+<li>Auto-saves best 3 models</li>
+<li>Stops early if no improvement for 5 epochs</li>
+<li>Logs learning rate to TensorBoard</li>
+</ul>
+<h4>Workflow 5: Learning rate scheduling</h4>
+<pre><code class="language-python">class LitModel(L.LightningModule):
+    # ... (training_step, etc.)
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+
+        # Cosine annealing
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+            optimizer,
+            T_max=100,
+            eta_min=1e-5
+        )
+
+        return {
+            &#39;optimizer&#39;: optimizer,
+            &#39;lr_scheduler&#39;: {
+                &#39;scheduler&#39;: scheduler,
+                &#39;interval&#39;: &#39;epoch&#39;,  # Update per epoch
+                &#39;frequency&#39;: 1
+            }
+        }
+
+# Learning rate auto-logged!
+trainer = L.Trainer(max_epochs=100)
+trainer.fit(model, train_loader)
+</code></pre>
+<h3>When to use vs alternatives</h3>
+<p><strong>Use PyTorch Lightning when</strong>:</p>
+<ul>
+<li>Want clean, organized code</li>
+<li>Need production-ready training loops</li>
+<li>Switching between single GPU, multi-GPU, TPU</li>
+<li>Want built-in callbacks and logging</li>
+<li>Team collaboration (standardized structure)</li>
+</ul>
+<p><strong>Key advantages</strong>:</p>
+<ul>
+<li><strong>Organized</strong>: Separates research code from engineering</li>
+<li><strong>Automatic</strong>: DDP, FSDP, DeepSpeed with 1 line</li>
+<li><strong>Callbacks</strong>: Modular training extensions</li>
+<li><strong>Reproducible</strong>: Less boilerplate = fewer bugs</li>
+<li><strong>Tested</strong>: 1M+ downloads/month, battle-tested</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>Accelerate</strong>: Minimal changes to existing code, more flexibility</li>
+<li><strong>Ray Train</strong>: Multi-node orchestration, hyperparameter tuning</li>
+<li><strong>Raw PyTorch</strong>: Maximum control, learning purposes</li>
+<li><strong>Keras</strong>: TensorFlow ecosystem</li>
+</ul>
+<h3>Common issues</h3>
+<p><strong>Issue: Loss not decreasing</strong></p>
+<p>Check data and model setup:</p>
+<pre><code class="language-python"># Add to training_step
+def training_step(self, batch, batch_idx):
+    if batch_idx == 0:
+        print(f&quot;Batch shape: {batch[0].shape}&quot;)
+        print(f&quot;Labels: {batch[1]}&quot;)
+    loss = ...
+    return loss
+</code></pre>
+<p><strong>Issue: Out of memory</strong></p>
+<p>Reduce batch size or use gradient accumulation:</p>
+<pre><code class="language-python">trainer = L.Trainer(
+    accumulate_grad_batches=4,  # Effective batch = batch_size × 4
+    precision=&#39;bf16&#39;  # Or &#39;fp16&#39;, reduces memory 50%
+)
+</code></pre>
+<p><strong>Issue: Validation not running</strong></p>
+<p>Ensure you pass val_loader:</p>
+<pre><code class="language-python"># WRONG
+trainer.fit(model, train_loader)
+
+# CORRECT
+trainer.fit(model, train_loader, val_loader)
+</code></pre>
+<p><strong>Issue: DDP spawns multiple processes unexpectedly</strong></p>
+<p>Lightning auto-detects GPUs. Explicitly set devices:</p>
+<pre><code class="language-python"># Test on CPU first
+trainer = L.Trainer(accelerator=&#39;cpu&#39;, devices=1)
+
+# Then GPU
+trainer = L.Trainer(accelerator=&#39;gpu&#39;, devices=1)
+</code></pre>
+<h3>Advanced topics</h3>
+<p><strong>Callbacks</strong>: See <a href="references/callbacks.md">references/callbacks.md</a> for EarlyStopping, ModelCheckpoint, custom callbacks, and callback hooks.</p>
+<p><strong>Distributed strategies</strong>: See <a href="references/distributed.md">references/distributed.md</a> for DDP, FSDP, DeepSpeed ZeRO integration, multi-node setup.</p>
+<p><strong>Hyperparameter tuning</strong>: See <a href="references/hyperparameter-tuning.md">references/hyperparameter-tuning.md</a> for integration with Optuna, Ray Tune, and WandB sweeps.</p>
+<h3>Hardware requirements</h3>
+<ul>
+<li><strong>CPU</strong>: Works (good for debugging)</li>
+<li><strong>Single GPU</strong>: Works</li>
+<li><strong>Multi-GPU</strong>: DDP (default), FSDP, or DeepSpeed</li>
+<li><strong>Multi-node</strong>: DDP, FSDP, DeepSpeed</li>
+<li><strong>TPU</strong>: Supported (8 cores)</li>
+<li><strong>Apple MPS</strong>: Supported</li>
+</ul>
+<p><strong>Precision options</strong>:</p>
+<ul>
+<li>FP32 (default)</li>
+<li>FP16 (V100, older GPUs)</li>
+<li>BF16 (A100/H100, recommended)</li>
+<li>FP8 (H100)</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>Docs: <a href="https://lightning.ai/docs/pytorch/stable/">https://lightning.ai/docs/pytorch/stable/</a></li>
+<li>GitHub: <a href="https://github.com/Lightning-AI/pytorch-lightning">https://github.com/Lightning-AI/pytorch-lightning</a> ⭐ 29,000+</li>
+<li>Version: 2.5.5+</li>
+<li>Examples: <a href="https://github.com/Lightning-AI/pytorch-lightning/tree/master/examples">https://github.com/Lightning-AI/pytorch-lightning/tree/master/examples</a></li>
+<li>Discord: <a href="https://discord.gg/lightning-ai">https://discord.gg/lightning-ai</a></li>
+<li>Used by: Kaggle winners, research labs, production teams</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/pytorch-lightning</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pinecone — Skill Hermes</title>
+<meta name="description" content="Managed vector DB for production RAG and search.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pinecone</h1>
+    <p class="lede">Managed vector DB for production RAG and search.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pinecone</dd>
+      <dt>Keterangan</dt><dd>Managed vector DB for production RAG and search.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pinecone.zip" download>Muat turun ZIP (4.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.3 KB</td></tr>
+<tr><td><code>references/deployment.md</code></td><td class="sz">3.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Pinecone - Managed Vector Database</h2>
+<p>The vector database for production AI applications.</p>
+<h3>When to use Pinecone</h3>
+<p><strong>Use when:</strong></p>
+<ul>
+<li>Need managed, serverless vector database</li>
+<li>Production RAG applications</li>
+<li>Auto-scaling required</li>
+<li>Low latency critical (&lt;100ms)</li>
+<li>Don&#39;t want to manage infrastructure</li>
+<li>Need hybrid search (dense + sparse vectors)</li>
+</ul>
+<p><strong>Metrics</strong>:</p>
+<ul>
+<li>Fully managed SaaS</li>
+<li>Auto-scales to billions of vectors</li>
+<li><strong>p95 latency &lt;100ms</strong></li>
+<li>99.9% uptime SLA</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>Chroma</strong>: Self-hosted, open-source</li>
+<li><strong>FAISS</strong>: Offline, pure similarity search</li>
+<li><strong>Weaviate</strong>: Self-hosted with more features</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash">pip install pinecone
+</code></pre>
+<blockquote>
+<p>Note: the old <code>pinecone-client</code> package is deprecated. Install <code>pinecone</code> (v5+; current 9.x). The import stays <code>from pinecone import Pinecone</code>.</p>
+</blockquote>
+<h4>Basic usage</h4>
+<pre><code class="language-python">from pinecone import Pinecone, ServerlessSpec
+
+# Initialize
+pc = Pinecone(api_key=&quot;your-api-key&quot;)
+
+# Create index
+pc.create_index(
+    name=&quot;my-index&quot;,
+    dimension=1536,  # Must match embedding dimension
+    metric=&quot;cosine&quot;,  # or &quot;euclidean&quot;, &quot;dotproduct&quot;
+    spec=ServerlessSpec(cloud=&quot;aws&quot;, region=&quot;us-east-1&quot;)
+)
+
+# Connect to index
+index = pc.Index(&quot;my-index&quot;)
+
+# Upsert vectors
+index.upsert(vectors=[
+    {&quot;id&quot;: &quot;vec1&quot;, &quot;values&quot;: [0.1, 0.2, ...], &quot;metadata&quot;: {&quot;category&quot;: &quot;A&quot;}},
+    {&quot;id&quot;: &quot;vec2&quot;, &quot;values&quot;: [0.3, 0.4, ...], &quot;metadata&quot;: {&quot;category&quot;: &quot;B&quot;}}
+])
+
+# Query
+results = index.query(
+    vector=[0.1, 0.2, ...],
+    top_k=5,
+    include_metadata=True
+)
+
+print(results[&quot;matches&quot;])
+</code></pre>
+<h3>Core operations</h3>
+<h4>Create index</h4>
+<pre><code class="language-python"># Serverless (recommended)
+pc.create_index(
+    name=&quot;my-index&quot;,
+    dimension=1536,
+    metric=&quot;cosine&quot;,
+    spec=ServerlessSpec(
+        cloud=&quot;aws&quot;,         # or &quot;gcp&quot;, &quot;azure&quot;
+        region=&quot;us-east-1&quot;
+    )
+)
+
+# Pod-based (for consistent performance)
+from pinecone import PodSpec
+
+pc.create_index(
+    name=&quot;my-index&quot;,
+    dimension=1536,
+    metric=&quot;cosine&quot;,
+    spec=PodSpec(
+        environment=&quot;us-east1-gcp&quot;,
+        pod_type=&quot;p1.x1&quot;
+    )
+)
+</code></pre>
+<h4>Upsert vectors</h4>
+<pre><code class="language-python"># Single upsert
+index.upsert(vectors=[
+    {
+        &quot;id&quot;: &quot;doc1&quot;,
+        &quot;values&quot;: [0.1, 0.2, ...],  # 1536 dimensions
+        &quot;metadata&quot;: {
+            &quot;text&quot;: &quot;Document content&quot;,
+            &quot;category&quot;: &quot;tutorial&quot;,
+            &quot;timestamp&quot;: &quot;2025-01-01&quot;
+        }
+    }
+])
+
+# Batch upsert (recommended)
+vectors = [
+    {&quot;id&quot;: f&quot;vec{i}&quot;, &quot;values&quot;: embedding, &quot;metadata&quot;: metadata}
+    for i, (embedding, metadata) in enumerate(zip(embeddings, metadatas))
+]
+
+index.upsert(vectors=vectors, batch_size=100)
+</code></pre>
+<h4>Query vectors</h4>
+<pre><code class="language-python"># Basic query
+results = index.query(
+    vector=[0.1, 0.2, ...],
+    top_k=10,
+    include_metadata=True,
+    include_values=False
+)
+
+# With metadata filtering
+results = index.query(
+    vector=[0.1, 0.2, ...],
+    top_k=5,
+    filter={&quot;category&quot;: {&quot;$eq&quot;: &quot;tutorial&quot;}}
+)
+
+# Namespace query
+results = index.query(
+    vector=[0.1, 0.2, ...],
+    top_k=5,
+    namespace=&quot;production&quot;
+)
+
+# Access results
+for match in results[&quot;matches&quot;]:
+    print(f&quot;ID: {match[&#39;id&#39;]}&quot;)
+    print(f&quot;Score: {match[&#39;score&#39;]}&quot;)
+    print(f&quot;Metadata: {match[&#39;metadata&#39;]}&quot;)
+</code></pre>
+<h4>Metadata filtering</h4>
+<pre><code class="language-python"># Exact match
+filter = {&quot;category&quot;: &quot;tutorial&quot;}
+
+# Comparison
+filter = {&quot;price&quot;: {&quot;$gte&quot;: 100}}  # $gt, $gte, $lt, $lte, $ne
+
+# Logical operators
+filter = {
+    &quot;$and&quot;: [
+        {&quot;category&quot;: &quot;tutorial&quot;},
+        {&quot;difficulty&quot;: {&quot;$lte&quot;: 3}}
+    ]
+}  # Also: $or
+
+# In operator
+filter = {&quot;tags&quot;: {&quot;$in&quot;: [&quot;python&quot;, &quot;ml&quot;]}}
+</code></pre>
+<h3>Namespaces</h3>
+<pre><code class="language-python"># Partition data by namespace
+index.upsert(
+    vectors=[{&quot;id&quot;: &quot;vec1&quot;, &quot;values&quot;: [...]}],
+    namespace=&quot;user-123&quot;
+)
+
+# Query specific namespace
+results = index.query(
+    vector=[...],
+    namespace=&quot;user-123&quot;,
+    top_k=5
+)
+
+# List namespaces
+stats = index.describe_index_stats()
+print(stats[&#39;namespaces&#39;])
+</code></pre>
+<h3>Hybrid search (dense + sparse)</h3>
+<pre><code class="language-python"># Upsert with sparse vectors
+index.upsert(vectors=[
+    {
+        &quot;id&quot;: &quot;doc1&quot;,
+        &quot;values&quot;: [0.1, 0.2, ...],  # Dense vector
+        &quot;sparse_values&quot;: {
+            &quot;indices&quot;: [10, 45, 123],  # Token IDs
+            &quot;values&quot;: [0.5, 0.3, 0.8]   # TF-IDF scores
+        },
+        &quot;metadata&quot;: {&quot;text&quot;: &quot;...&quot;}
+    }
+])
+
+# Hybrid query
+# NOTE: index.query() does NOT accept an `alpha` kwarg. Pinecone stores a
+# single sparse-dense vector, so weighting must be applied by pre-scaling the
+# query vectors before sending them. Use the hybrid_score_norm helper below
+# (alpha * dense + (1 - alpha) * sparse; alpha=1 → pure dense, 0 → pure sparse).
+
+def hybrid_score_norm(dense, sparse, alpha: float):
+    &quot;&quot;&quot;Scale dense/sparse query vectors for weighted hybrid search.&quot;&quot;&quot;
+    if not 0 &lt;= alpha &lt;= 1:
+        raise ValueError(&quot;alpha must be between 0 and 1&quot;)
+    scaled_sparse = {
+        &quot;indices&quot;: sparse[&quot;indices&quot;],
+        &quot;values&quot;: [v * (1 - alpha) for v in sparse[&quot;values&quot;]],
+    }
+    return [v * alpha for v in dense], scaled_sparse
+
+hdense, hsparse = hybrid_score_norm(
+    dense=[0.1, 0.2, ...],
+    sparse={&quot;indices&quot;: [10, 45], &quot;values&quot;: [0.5, 0.3]},
+    alpha=0.5,  # 0=sparse, 1=dense, 0.5=balanced
+)
+
+results = index.query(
+    vector=hdense,
+    sparse_vector=hsparse,
+    top_k=5,
+)
+</code></pre>
+<h3>LangChain integration</h3>
+<pre><code class="language-python">from langchain_pinecone import PineconeVectorStore
+from langchain_openai import OpenAIEmbeddings
+
+# Create vector store
+vectorstore = PineconeVectorStore.from_documents(
+    documents=docs,
+    embedding=OpenAIEmbeddings(),
+    index_name=&quot;my-index&quot;
+)
+
+# Query
+results = vectorstore.similarity_search(&quot;query&quot;, k=5)
+
+# With metadata filter
+results = vectorstore.similarity_search(
+    &quot;query&quot;,
+    k=5,
+    filter={&quot;category&quot;: &quot;tutorial&quot;}
+)
+
+# As retriever
+retriever = vectorstore.as_retriever(search_kwargs={&quot;k&quot;: 10})
+</code></pre>
+<h3>LlamaIndex integration</h3>
+<pre><code class="language-python">from llama_index.vector_stores.pinecone import PineconeVectorStore
+
+# Connect to Pinecone
+pc = Pinecone(api_key=&quot;your-key&quot;)
+pinecone_index = pc.Index(&quot;my-index&quot;)
+
+# Create vector store
+vector_store = PineconeVectorStore(pinecone_index=pinecone_index)
+
+# Use in LlamaIndex
+from llama_index.core import StorageContext, VectorStoreIndex
+
+storage_context = StorageContext.from_defaults(vector_store=vector_store)
+index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+</code></pre>
+<h3>Index management</h3>
+<pre><code class="language-python"># List indices
+indexes = pc.list_indexes()
+
+# Describe index
+index_info = pc.describe_index(&quot;my-index&quot;)
+print(index_info)
+
+# Get index stats
+stats = index.describe_index_stats()
+print(f&quot;Total vectors: {stats[&#39;total_vector_count&#39;]}&quot;)
+print(f&quot;Namespaces: {stats[&#39;namespaces&#39;]}&quot;)
+
+# Delete index
+pc.delete_index(&quot;my-index&quot;)
+</code></pre>
+<h3>Delete vectors</h3>
+<pre><code class="language-python"># Delete by ID
+index.delete(ids=[&quot;vec1&quot;, &quot;vec2&quot;])
+
+# Delete by filter
+index.delete(filter={&quot;category&quot;: &quot;old&quot;})
+
+# Delete all in namespace
+index.delete(delete_all=True, namespace=&quot;test&quot;)
+
+# Delete entire index
+index.delete(delete_all=True)
+</code></pre>
+<h3>Best practices</h3>
+<ol>
+<li><strong>Use serverless</strong> - Auto-scaling, cost-effective</li>
+<li><strong>Batch upserts</strong> - More efficient (100-200 per batch)</li>
+<li><strong>Add metadata</strong> - Enable filtering</li>
+<li><strong>Use namespaces</strong> - Isolate data by user/tenant</li>
+<li><strong>Monitor usage</strong> - Check Pinecone dashboard</li>
+<li><strong>Optimize filters</strong> - Index frequently filtered fields</li>
+<li><strong>Test with free tier</strong> - 1 index, 100K vectors free</li>
+<li><strong>Use hybrid search</strong> - Better quality</li>
+<li><strong>Set appropriate dimensions</strong> - Match embedding model</li>
+<li><strong>Regular backups</strong> - Export important data</li>
+</ol>
+<h3>Performance</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Latency</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Upsert</td>
+<td>~50-100ms</td>
+<td>Per batch</td>
+</tr>
+<tr>
+<td>Query (p50)</td>
+<td>~50ms</td>
+<td>Depends on index size</td>
+</tr>
+<tr>
+<td>Query (p95)</td>
+<td>~100ms</td>
+<td>SLA target</td>
+</tr>
+<tr>
+<td>Metadata filter</td>
+<td>~+10-20ms</td>
+<td>Additional overhead</td>
+</tr>
+</tbody></table>
+<h3>Pricing (as of 2025)</h3>
+<p><strong>Serverless</strong>:</p>
+<ul>
+<li>$0.096 per million read units</li>
+<li>$0.06 per million write units</li>
+<li>$0.06 per GB storage/month</li>
+</ul>
+<p><strong>Free tier</strong>:</p>
+<ul>
+<li>1 serverless index</li>
+<li>100K vectors (1536 dimensions)</li>
+<li>Great for prototyping</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Website</strong>: <a href="https://www.pinecone.io">https://www.pinecone.io</a></li>
+<li><strong>Docs</strong>: <a href="https://docs.pinecone.io">https://docs.pinecone.io</a></li>
+<li><strong>Console</strong>: <a href="https://app.pinecone.io">https://app.pinecone.io</a></li>
+<li><strong>Pricing</strong>: <a href="https://www.pinecone.io/pricing">https://www.pinecone.io/pricing</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/pinecone</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>hermes-agent — Skill Hermes</title>
+<meta name="description" content="Use, configure, theme, extend, and orchestrate Hermes Agent.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>hermes-agent</h1>
+    <p class="lede">Use, configure, theme, extend, and orchestrate Hermes Agent.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>hermes-agent</dd>
+      <dt>Keterangan</dt><dd>Use, configure, theme, extend, and orchestrate Hermes Agent.</dd>
+      <dt>Versi</dt><dd>3.2.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/hermes-agent.zip" download>Muat turun ZIP (58.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (22)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.9 KB</td></tr>
+<tr><td><code>references/background-systems.md</code></td><td class="sz">5.0 KB</td></tr>
+<tr><td><code>references/cli-reference.md</code></td><td class="sz">6.5 KB</td></tr>
+<tr><td><code>references/configuration.md</code></td><td class="sz">4.3 KB</td></tr>
+<tr><td><code>references/contributor-guide.md</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>references/delegate-task-concurrency-diagnosis.md</code></td><td class="sz">4.6 KB</td></tr>
+<tr><td><code>references/desktop-plugins.md</code></td><td class="sz">12.8 KB</td></tr>
+<tr><td><code>references/native-mcp.md</code></td><td class="sz">11.9 KB</td></tr>
+<tr><td><code>references/petdex.md</code></td><td class="sz">3.2 KB</td></tr>
+<tr><td><code>references/portal-auth-for-third-party-apps.md</code></td><td class="sz">6.4 KB</td></tr>
+<tr><td><code>references/project-context-files.md</code></td><td class="sz">3.2 KB</td></tr>
+<tr><td><code>references/providers-and-models.md</code></td><td class="sz">3.3 KB</td></tr>
+<tr><td><code>references/security-privacy.md</code></td><td class="sz">3.3 KB</td></tr>
+<tr><td><code>references/slash-commands.md</code></td><td class="sz">5.3 KB</td></tr>
+<tr><td><code>references/themes.md</code></td><td class="sz">6.7 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">3.7 KB</td></tr>
+<tr><td><code>references/tui-widgets.md</code></td><td class="sz">6.3 KB</td></tr>
+<tr><td><code>references/webhooks.md</code></td><td class="sz">8.3 KB</td></tr>
+<tr><td><code>references/windows-quirks.md</code></td><td class="sz">2.6 KB</td></tr>
+<tr><td><code>templates/clock.mjs</code></td><td class="sz">1.4 KB</td></tr>
+<tr><td><code>templates/plugin.js</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>templates/skin.yaml</code></td><td class="sz">1.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Hermes Agent</h2>
+<p>Hermes Agent is an open-source AI agent framework by Nous Research that runs in your terminal, a native desktop app, messaging platforms, and IDEs. It&#39;s in the same category as Claude Code (Anthropic), Codex (OpenAI), and OpenClaw — autonomous coding and task-execution agents that use tool calling to interact with your system. Hermes works with any LLM provider (OpenRouter, Anthropic, OpenAI, Google, DeepSeek, xAI, local models, and 20+ others) and runs on Linux, macOS, Windows, and WSL.</p>
+<p>What makes Hermes different:</p>
+<ul>
+<li><strong>Self-improving through skills</strong> — Hermes learns from experience by saving reusable procedures as skills that load into future sessions.</li>
+<li><strong>Persistent memory across sessions</strong> — remembers who you are, your preferences, environment details, and lessons learned. Pluggable memory backends.</li>
+<li><strong>Multi-platform gateway</strong> — the same agent runs on Telegram, Discord, Slack, WhatsApp, iMessage, Signal, Matrix, Teams, Email, and a dozen more platforms with full tool access, not just chat.</li>
+<li><strong>Many surfaces</strong> — the same agent core drives the CLI, the Ink TUI, a native Electron desktop app, a web dashboard, and an ACP server for IDEs (VS Code / Zed / JetBrains).</li>
+<li><strong>Provider-agnostic</strong> — swap models and providers mid-workflow; credential pools rotate across multiple API keys automatically.</li>
+<li><strong>Profiles</strong> — run multiple independent Hermes instances with isolated configs, sessions, skills, and memory.</li>
+<li><strong>Extensible &amp; themeable</strong> — plugins, MCP servers, custom tools, webhook triggers, cron scheduling, skins that theme every surface, desktop UI plugins, TUI widgets, and pet mascots.</li>
+</ul>
+<p><strong>This skill is a hub.</strong> The body covers identity, quick start, spawning/orchestration, and hard invariants. Everything else lives in reference files — <strong>load the matching reference (below) before answering</strong>; do not answer detail questions from the body alone.</p>
+<p><strong>Docs:</strong> <a href="https://hermes-agent.nousresearch.com/docs/">https://hermes-agent.nousresearch.com/docs/</a></p>
+<h3>Scope &amp; Verification</h3>
+<p>This skill is a concise operating guide, not the complete source of truth for every Hermes feature. If a Hermes feature, command, or setting is not mentioned here or in a reference, do not treat that absence as evidence that it does not exist. Check the live repository and official docs before giving a negative answer.</p>
+<p>Good verification targets, cheapest first:</p>
+<ul>
+<li><strong>Every shipped feature, one line each: <a href="https://hermes-agent.nousresearch.com/docs/llms.txt">https://hermes-agent.nousresearch.com/docs/llms.txt</a>.</strong> Start here for any &quot;can Hermes do X?&quot; or &quot;how do I do X?&quot; — it indexes the entire documentation set with a link to the page that answers. It is generated from the docs tree on every build, so it is never behind the product. Fetch it with <code>web_extract</code>, or <code>curl -s https://hermes-agent.nousresearch.com/docs/llms.txt</code> when web tools are off. The whole documentation set in one file is at <code>/docs/llms-full.txt</code>.</li>
+<li>CLI commands: <code>hermes --help</code>, <code>hermes &lt;command&gt; --help</code>, and <code>hermes_cli/main.py</code></li>
+<li>Source tree: <a href="https://github.com/NousResearch/hermes-agent">https://github.com/NousResearch/hermes-agent</a></li>
+</ul>
+<p>Never answer &quot;Hermes can&#39;t do that&quot; from memory. Hermes ships far more than this skill body describes, and the index exists so a negative answer is always checkable.</p>
+<h3>Quick Start</h3>
+<pre><code class="language-bash"># Install (shell installer — bootstraps PM, Python, dependencies, and the launcher)
+curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+
+# Interactive chat (default surface; set display.interface: tui to launch the Ink TUI instead)
+hermes
+
+# Single query
+hermes chat -q &quot;What is the capital of France?&quot;
+
+# Setup wizard  /  pick model+provider  /  health check
+hermes setup
+hermes model
+hermes doctor
+
+# Other surfaces
+hermes desktop                 # launch the native desktop app (alias: hermes gui)
+hermes dashboard               # web admin panel + embedded chat
+hermes proxy                   # OpenAI-compatible local proxy backed by your OAuth provider
+</code></pre>
+<h3>Key Paths</h3>
+<pre><code>~/.hermes/config.yaml       Main configuration (settings — never secrets)
+~/.hermes/.env              API keys and secrets ONLY (under $HERMES_HOME if set)
+$HERMES_HOME/skills/        Installed skills
+~/.hermes/skins/            Custom themes (see references/themes.md)
+~/.hermes/desktop-plugins/  Desktop app UI plugins (see references/desktop-plugins.md)
+~/.hermes/tui-widgets/      TUI widget apps (see references/tui-widgets.md)
+~/.hermes/pets/             Installed pet mascots (see references/petdex.md)
+~/.hermes/state.db          Canonical session store (SQLite + FTS5)
+~/.hermes/sessions/         Gateway routing index, request dumps, *.jsonl transcripts
+~/.hermes/logs/             Gateway and error logs
+~/.hermes/auth.json         OAuth tokens and credential pools
+~/.hermes/hermes-agent/     Source code (if git-installed)
+</code></pre>
+<p>Profiles use <code>~/.hermes/profiles/&lt;name&gt;/</code> with the same layout. When a profile is active, resolve the real home from <code>$HERMES_HOME</code> — never hardcode <code>~/.hermes</code>.</p>
+<h3>Routing Table — load the reference for the task</h3>
+<table>
+<thead>
+<tr>
+<th>User wants...</th>
+<th>Load</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Anything not listed below — &quot;can Hermes do X?&quot;, &quot;how do I set up X?&quot;</strong></td>
+<td><strong><a href="https://hermes-agent.nousresearch.com/docs/llms.txt">https://hermes-agent.nousresearch.com/docs/llms.txt</a></strong></td>
+</tr>
+<tr>
+<td>Bots that chat, run routines, or message each other; the Bots tab</td>
+<td>docs: <code>/user-guide/bot-mode</code></td>
+</tr>
+<tr>
+<td>CLI commands, subcommands, flags, &quot;how do I run X&quot;</td>
+<td><code>references/cli-reference.md</code></td>
+</tr>
+<tr>
+<td>In-session slash commands</td>
+<td><code>references/slash-commands.md</code></td>
+</tr>
+<tr>
+<td>Provider setup, API keys, OAuth</td>
+<td><code>references/providers-and-models.md</code></td>
+</tr>
+<tr>
+<td>config.yaml sections, toolsets, voice/STT/TTS</td>
+<td><code>references/configuration.md</code></td>
+</tr>
+<tr>
+<td>AGENTS.md / .hermes.md / CLAUDE.md project rules</td>
+<td><code>references/project-context-files.md</code></td>
+</tr>
+<tr>
+<td>Secret redaction, PII, approval modes, &quot;reset permissions&quot;</td>
+<td><code>references/security-privacy.md</code></td>
+</tr>
+<tr>
+<td>Delegation, cron, curator, kanban</td>
+<td><code>references/background-systems.md</code></td>
+</tr>
+<tr>
+<td>MCP servers (add, catalog, <code>hermes mcp</code>)</td>
+<td><code>references/native-mcp.md</code></td>
+</tr>
+<tr>
+<td>Webhook routes and event-driven runs</td>
+<td><code>references/webhooks.md</code></td>
+</tr>
+<tr>
+<td>A custom theme/skin (&quot;synthwave theme&quot;, &quot;change the gold ●&quot;)</td>
+<td><code>references/themes.md</code> + <code>templates/skin.yaml</code></td>
+</tr>
+<tr>
+<td>A desktop app UI element (pane, widget, ⌘K command, page)</td>
+<td><code>references/desktop-plugins.md</code> + <code>templates/plugin.js</code></td>
+</tr>
+<tr>
+<td>A live TUI panel or modal widget (ticker, clock, dashboard)</td>
+<td><code>references/tui-widgets.md</code> + <code>templates/clock.mjs</code></td>
+</tr>
+<tr>
+<td>Pet mascots — install, select, scale, diagnose</td>
+<td><code>references/petdex.md</code></td>
+</tr>
+<tr>
+<td>Windows-specific issues (keybinds, WinError 10106, BOM)</td>
+<td><code>references/windows-quirks.md</code></td>
+</tr>
+<tr>
+<td>Debugging: voice, tools missing, gateway, aux models</td>
+<td><code>references/troubleshooting.md</code></td>
+</tr>
+<tr>
+<td>Contributing code: adding tools, slash commands, tests</td>
+<td><code>references/contributor-guide.md</code></td>
+</tr>
+<tr>
+<td>delegate_task &quot;capped at N&quot; reports</td>
+<td><code>references/delegate-task-concurrency-diagnosis.md</code></td>
+</tr>
+<tr>
+<td>&quot;Can app X use my Nous Portal subscription/OAuth?&quot;</td>
+<td><code>references/portal-auth-for-third-party-apps.md</code></td>
+</tr>
+<tr>
+<td>Connecting a messaging platform (Telegram, Discord, Slack, WhatsApp, …)</td>
+<td>docs: <code>/user-guide/messaging</code></td>
+</tr>
+</tbody></table>
+<p>The reference list above is not the feature list — it is the set of topics that
+need more than their docs page. For everything else Hermes ships, fetch
+<code>llms.txt</code> and it maps the question to the page that answers it.</p>
+<p>Two theming rules that hold even without loading the reference: <strong>you apply skins yourself</strong> (<code>hermes config set display.skin &lt;name&gt;</code> — every surface repaints live within ~a second; don&#39;t tell the user to run <code>/skin</code>), and <strong>to tweak one color, edit the ACTIVE skin</strong> (<code>hermes skin set &lt;key&gt; &lt;hex&gt;</code>) — never fork <code>default</code>, which drops the palette and resets the background.</p>
+<h3>Spawning Additional Hermes Instances</h3>
+<p>Run additional Hermes processes as fully independent subprocesses — separate sessions, tools, and environments.</p>
+<h4>When to Use This vs delegate_task</h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>delegate_task</code></th>
+<th>Spawning <code>hermes</code> process</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Isolation</td>
+<td>Separate conversation, shared process</td>
+<td>Fully independent process</td>
+</tr>
+<tr>
+<td>Duration</td>
+<td>Minutes (bounded by parent loop)</td>
+<td>Hours/days</td>
+</tr>
+<tr>
+<td>Tool access</td>
+<td>Subset of parent&#39;s tools</td>
+<td>Full tool access</td>
+</tr>
+<tr>
+<td>Interactive</td>
+<td>No</td>
+<td>Yes (PTY mode)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Quick parallel subtasks</td>
+<td>Long autonomous missions</td>
+</tr>
+</tbody></table>
+<h4>One-Shot Mode</h4>
+<pre><code>terminal(command=&quot;hermes chat -q &#39;Research GRPO papers and write summary to ~/research/grpo.md&#39;&quot;, timeout=300)
+
+# Background for long tasks:
+terminal(command=&quot;hermes chat -q &#39;Set up CI/CD for ~/myapp&#39;&quot;, background=true)
+</code></pre>
+<h4>Interactive PTY Mode (via tmux)</h4>
+<p>Hermes uses prompt_toolkit, which requires a real terminal. Use tmux for interactive spawning:</p>
+<pre><code># Start
+terminal(command=&quot;tmux new-session -d -s agent1 -x 120 -y 40 &#39;hermes&#39;&quot;, timeout=10)
+
+# Wait for startup, then send a message
+terminal(command=&quot;sleep 8 &amp;&amp; tmux send-keys -t agent1 &#39;Build a FastAPI auth service&#39; Enter&quot;, timeout=15)
+
+# Read output
+terminal(command=&quot;sleep 20 &amp;&amp; tmux capture-pane -t agent1 -p&quot;, timeout=5)
+
+# Send follow-up
+terminal(command=&quot;tmux send-keys -t agent1 &#39;Add rate limiting middleware&#39; Enter&quot;, timeout=5)
+
+# Exit
+terminal(command=&quot;tmux send-keys -t agent1 &#39;/exit&#39; Enter &amp;&amp; sleep 2 &amp;&amp; tmux kill-session -t agent1&quot;, timeout=10)
+</code></pre>
+<h4>Multi-Agent Coordination</h4>
+<pre><code># Agent A: backend
+terminal(command=&quot;tmux new-session -d -s backend -x 120 -y 40 &#39;hermes -w&#39;&quot;, timeout=10)
+terminal(command=&quot;sleep 8 &amp;&amp; tmux send-keys -t backend &#39;Build REST API for user management&#39; Enter&quot;, timeout=15)
+
+# Agent B: frontend
+terminal(command=&quot;tmux new-session -d -s frontend -x 120 -y 40 &#39;hermes -w&#39;&quot;, timeout=10)
+terminal(command=&quot;sleep 8 &amp;&amp; tmux send-keys -t frontend &#39;Build React dashboard for user management&#39; Enter&quot;, timeout=15)
+
+# Check progress, relay context between them
+terminal(command=&quot;tmux capture-pane -t backend -p | tail -30&quot;, timeout=5)
+terminal(command=&quot;tmux send-keys -t frontend &#39;Here is the API schema from the backend agent: ...&#39; Enter&quot;, timeout=5)
+</code></pre>
+<h4>Session Resume</h4>
+<pre><code># Resume most recent session
+terminal(command=&quot;tmux new-session -d -s resumed &#39;hermes --continue&#39;&quot;, timeout=10)
+
+# Resume specific session
+terminal(command=&quot;tmux new-session -d -s resumed &#39;hermes --resume 20260225_143052_a1b2c3&#39;&quot;, timeout=10)
+</code></pre>
+<h4>Tips</h4>
+<ul>
+<li><strong>Prefer <code>delegate_task</code> for quick subtasks</strong> — less overhead than spawning a full process</li>
+<li><strong>Use <code>-w</code> (worktree mode)</strong> when spawning agents that edit code — prevents git conflicts</li>
+<li><strong>Set timeouts</strong> for one-shot mode — complex tasks can take 5-10 minutes</li>
+<li><strong>Use <code>hermes chat -q</code> for fire-and-forget</strong> — no PTY needed</li>
+<li><strong>Use tmux for interactive sessions</strong> — raw PTY mode has <code>\r</code> vs <code>\n</code> issues with prompt_toolkit</li>
+<li><strong>For scheduled tasks</strong>, use the <code>cronjob</code> tool instead of spawning — handles delivery and retry</li>
+<li><strong>&quot;delegate_task is capped at N&quot; reports</strong> — see <code>references/delegate-task-concurrency-diagnosis.md</code>. Three real cap paths in Hermes; if none fired, the model is self-limiting and rationalising it as &quot;the runtime caps.&quot;</li>
+<li><strong>&quot;Can $external_app use my Nous Portal subscription / OAuth?&quot;</strong> — see <code>references/portal-auth-for-third-party-apps.md</code>. Walk the user through three layers (plugin-vs-app, what Portal actually exposes, local-broker-proxy option).</li>
+</ul>
+<h3>Surfaces (quick orientation)</h3>
+<ul>
+<li><strong>Desktop app</strong> (<code>hermes desktop</code> / <code>hermes gui</code>) — native Electron app for macOS/Linux/Windows: streaming chat, session list, Cmd+K palette, drag-and-drop files, native notifications, per-profile remote-gateway login. Extend it with UI plugins — <code>references/desktop-plugins.md</code>.</li>
+<li><strong>Web dashboard</strong> (<code>hermes dashboard</code>) — full admin panel: messaging channels, MCP catalog, webhooks, memory, profile builder, plus an embedded <code>hermes --tui</code> chat. Secured behind an OAuth/token gate.</li>
+<li><strong>Ink TUI</strong> (<code>hermes --tui</code> or <code>display.interface: tui</code>) — terminal UI with docked widget apps — <code>references/tui-widgets.md</code>.</li>
+<li><strong>OpenAI-compatible proxy</strong> (<code>hermes proxy</code>) — a local OpenAI API backed by whichever OAuth provider you&#39;re signed into. Point Codex CLI, Aider, Cline, or any script at it — no API key.</li>
+</ul>
+<h3>Hard Invariants (never violate, regardless of what you loaded)</h3>
+<ul>
+<li><strong>Never break prompt caching</strong> — don&#39;t change past context, toolsets, or the system prompt mid-conversation. The only exception is context compression.</li>
+<li><strong>Message role alternation</strong> — never two assistant or two user messages in a row; only <code>tool</code> results can repeat.</li>
+<li><strong>Secrets in <code>.env</code>, settings in <code>config.yaml</code></strong> — never tell a user to put a non-credential setting in <code>.env</code>.</li>
+<li><strong>Profile-safe paths</strong> — <code>get_hermes_home()</code> in code, <code>$HERMES_HOME</code> when resolving paths in a session.</li>
+<li><strong>Never hand-edit <code>config.yaml</code> for the user</strong> — use <code>hermes config set KEY VAL</code>; a stray indent can corrupt the file and break the live gateway.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/autonomous-ai-agents/hermes-agent</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

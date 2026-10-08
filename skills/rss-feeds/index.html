@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>rss-feeds — Skill Hermes</title>
+<meta name="description" content="Read RSS, Atom, JSON feeds; discover feeds behind a page.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>rss-feeds</h1>
+    <p class="lede">Read RSS, Atom, JSON feeds; discover feeds behind a page.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>rss-feeds</dd>
+      <dt>Keterangan</dt><dd>Read RSS, Atom, JSON feeds; discover feeds behind a page.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/rss-feeds.zip" download>Muat turun ZIP (5.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>scripts/feed.py</code></td><td class="sz">9.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>RSS Feeds Skill</h2>
+<p>Reads any RSS 2.0, RSS 1.0/RDF, Atom, or JSON Feed URL into a clean, date-sorted list of
+entries, and discovers the feed behind an ordinary page URL (<code>&lt;link rel=&quot;alternate&quot;&gt;</code> or
+the usual <code>/feed</code>, <code>/rss.xml</code>, <code>/atom.xml</code> paths). Standard library only, nothing to
+install. It does not fetch full article bodies — pass an entry&#39;s link to <code>web_extract</code> for
+that.</p>
+<h3>When to Use</h3>
+<ul>
+<li>&quot;What&#39;s new on &lt;blog/site&gt;&quot;, &quot;latest releases of <GitHub repo>&quot;, &quot;recent posts in
+<subreddit>&quot;, &quot;read this feed&quot;, &quot;does this site have an RSS feed&quot;.</li>
+<li>Building a recurring digest with <code>cronjob_manage</code> (feeds are cheaper and more stable than
+scraping the HTML front page every run). For a persistent read/unread database across
+many feeds install the optional <code>blogwatcher</code> skill; this skill is the zero-install read.</li>
+<li>Anything where a structured list of <code>title / link / date / author / summary</code> beats a
+rendered page: podcasts, changelogs, YouTube channels, newsrooms, forum categories.</li>
+</ul>
+<h3>Prerequisites</h3>
+<p>None. Python 3.10+, network access to the feed host.</p>
+<h3>How to Run</h3>
+<p>Run through <code>terminal</code> with the skill-relative script path:</p>
+<pre><code class="language-bash">python3 scripts/feed.py read https://hnrss.org/frontpage --limit 10
+python3 scripts/feed.py read https://simonwillison.net/            # page URL → discovers the feed
+python3 scripts/feed.py read URL --since 2026-09-01 --json          # only newer entries, machine-readable
+python3 scripts/feed.py discover https://example.com/               # list candidate feed URLs
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Feed URL pattern</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GitHub releases / commits / tags</td>
+<td><code>https://github.com/OWNER/REPO/releases.atom</code>, <code>…/commits/BRANCH.atom</code>, <code>…/tags.atom</code></td>
+</tr>
+<tr>
+<td>Subreddit / Reddit search</td>
+<td><code>https://www.reddit.com/r/NAME/.rss</code>, <code>https://www.reddit.com/search.rss?q=…</code> (1 req/min anon; see <code>reddit-reading</code>)</td>
+</tr>
+<tr>
+<td>YouTube channel</td>
+<td><code>https://www.youtube.com/feeds/videos.xml?channel_id=UC…</code></td>
+</tr>
+<tr>
+<td>Hacker News</td>
+<td><code>https://hnrss.org/frontpage</code>, <code>https://hnrss.org/newest?q=TERM</code></td>
+</tr>
+<tr>
+<td>arXiv category</td>
+<td><code>https://rss.arxiv.org/rss/cs.CL</code></td>
+</tr>
+<tr>
+<td>Substack / Medium / WordPress / Ghost</td>
+<td><code>SITE/feed</code>, <code>medium.com/feed/@user</code>, <code>SITE/rss/</code></td>
+</tr>
+<tr>
+<td>Podcasts</td>
+<td>the show&#39;s RSS URL from its hosting page (<code>discover</code> finds it)</td>
+</tr>
+</tbody></table>
+<p>Output fields per entry: <code>title</code>, <code>link</code>, <code>published</code> (UTC ISO 8601), <code>author</code>, <code>summary</code>
+(HTML stripped, ≤ 2000 chars). Entries are sorted newest-first.</p>
+<h3>Procedure</h3>
+<p>① If you only have a site URL, run <code>read</code> on it directly; the script discovers the feed
+and reports which URL it used (<code>discovered_from</code>). Use <code>discover</code> when you want to choose
+between several advertised feeds (comments feed vs posts feed, per-category feeds).</p>
+<p>② Bound the request: <code>--limit</code> for &quot;latest N&quot;, <code>--since YYYY-MM-DD</code> for &quot;since last
+check&quot;. For a cron digest persist the last-seen <code>published</code> value and pass it as
+<code>--since</code> next run.</p>
+<p>③ For full text, hand the entry <code>link</code> to <code>web_extract</code>; feed summaries are frequently
+truncated or the first paragraph only.</p>
+<p>④ Cite the entry <code>link</code>, not the feed URL, when the result feeds a report
+(<code>grounded-citations</code>).</p>
+<h3>Pitfalls</h3>
+<ul>
+<li>A 200 response with HTML means the URL is a page, not a feed; the script falls through
+to discovery automatically, but a site with no <code>&lt;link rel=&quot;alternate&quot;&gt;</code> and none of the
+common paths reports <code>no feed found</code> — check the site&#39;s footer or <code>/sitemap.xml</code> before
+concluding there is none.</li>
+<li>Reddit feeds share Reddit&#39;s anonymous throttle (about one request per minute per IP).
+Chain them through <code>reddit-reading</code>, which waits out the window, when you need more
+than one Reddit call.</li>
+<li>Dates: RSS <code>pubDate</code> is RFC 822 and Atom uses ISO 8601; the script normalises both to
+UTC. Feeds that omit dates sort to the bottom and are dropped by <code>--since</code>.</li>
+<li>Some feeds are Cloudflare-fronted and 403 non-browser clients; <code>blocked-page-recovery</code>
+handles that class.</li>
+</ul>
+<h3>Verification</h3>
+<p><code>python3 scripts/feed.py read https://github.com/NousResearch/hermes-agent/releases.atom --limit 1</code> prints one entry with a <code>releases/tag/</code> link and a <code>[atom]</code> format tag;
+<code>discover https://simonwillison.net/</code> prints an <code>/atom/</code> URL.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/rss-feeds</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

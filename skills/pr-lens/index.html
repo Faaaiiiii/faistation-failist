@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pr-lens — Skill Hermes</title>
+<meta name="description" content="Draw code changes as animated architecture/data-flow SVGs.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pr-lens</h1>
+    <p class="lede">Draw code changes as animated architecture/data-flow SVGs.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pr-lens</dd>
+      <dt>Keterangan</dt><dd>Draw code changes as animated architecture/data-flow SVGs.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Coldtea AI (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pr-lens.zip" download>Muat turun ZIP (15.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.5 KB</td></tr>
+<tr><td><code>LICENSE.txt</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/config.md</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>references/example.graph.json</code></td><td class="sz">17.4 KB</td></tr>
+<tr><td><code>references/graph-document.md</code></td><td class="sz">13.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>PR Lens Skill</h2>
+<p>PR Lens draws code as visually rich animated diagrams: diffs, architecture, data flows. You describe the diff or codebase as one JSON document (lanes, nodes, edges, ordered flows) and the CLI renders it as animated SVGs. There is no findings lens — PR Lens is a comprehension layer, not a review bot. There is no field for a bug, risk, or security note, and a document that invents one is rejected.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Asked to diagram, visualise, or explain a code change or a system.</li>
+<li>A pull request should carry an architecture or data-flow diagram.</li>
+<li>Keywords: PR Lens, diagram, architecture, data flow, visualise, pull request.</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Node.js with <code>npx</code> (the CLI runs via <code>npx @coldtea/pr-lens-cli@latest</code>; no install step).</li>
+<li><code>gh</code> (GitHub CLI) — optional, only for attaching diagrams to PRs.</li>
+<li>Optional canvas publishing calls the third-party service prlens.dev (see step 4b).</li>
+</ul>
+<h3>How to Run</h3>
+<p>Run all commands with the terminal tool from the repository root.</p>
+<ol>
+<li><p><strong>Read the diff.</strong> When representing a code change: <code>git diff --find-renames &lt;base&gt;...&lt;head&gt;</code>. The base is the merge base, not the tip of the base branch. If not expressing a diff, read the code to be visualised.</p>
+</li>
+<li><p><strong>Write the document</strong> to <code>.pr-lens/graph.json</code>, following <code>references/graph-document.md</code>. <code>references/example.graph.json</code> is a valid reference with three lanes, all four delta states, a hero edge, a seven-step flow, a nested drill-down tree and a six-step walkthrough. Read it before writing your first document — quicker than reading the reference.</p>
+</li>
+<li><p><strong>Validate, and fix.</strong></p>
+<pre><code class="language-bash">npx @coldtea/pr-lens-cli@latest validate .pr-lens/graph.json
+</code></pre>
+<p>Fix every failure and run it again. Do not render an invalid document; do not &quot;work around&quot; a failure by deleting the element it names.</p>
+</li>
+<li><p><strong>Render.</strong></p>
+<pre><code class="language-bash">npx @coldtea/pr-lens-cli@latest render .pr-lens/graph.json --theme light
+</code></pre>
+<p>Render light by default unless the user requests another theme. The SVGs, the manifest and <code>drawn.graph.json</code> land in <code>.pr-lens/</code>, which the CLI adds to the repository&#39;s .gitignore. Do not commit any of it — these files are rebuilt from the diff on demand. Each SVG is named after its view, theme and content hash; <code>manifest.json</code> lists them by lens and view.</p>
+</li>
+</ol>
+<p>4b. <strong>Canvas push — OPTIONAL, opt-in.</strong> Only when the user explicitly asks for a shareable link. This publishes <code>.pr-lens/drawn.graph.json</code> to the third-party service prlens.dev:</p>
+<pre><code class="language-bash">npx @coldtea/pr-lens-cli@latest canvas push
+</code></pre>
+<p>   It prints three links. Give the user the <strong>view link</strong> (<code>https://prlens.dev/c/{id}</code>): the full-screen diagram, every view on one page, no login. The <strong>edit link</strong> (ending in <code>#w=…</code>) lets its holder overwrite the canvas — it is a secret: leave it out of the reply unless asked, never paste it anywhere public. The embed link serves the top view as an SVG for a README. Pushing the same file again updates the same canvas, so &quot;rename that node&quot; is: edit, validate, render, push — the link stays the same. If the push fails, say so and tell the user where the local SVGs are and which is the top view.</p>
+<ol start="5">
+<li><p><strong>Attach to a PR, when there is one.</strong> Upstream documents <code>gh pr create/edit/comment --attach &lt;path&gt;</code>, but <code>--attach</code> arrived in GitHub CLI 2.99 — check <code>gh --version</code> first (e.g. gh 2.97 does NOT have it). With gh ≥ 2.99: write the body with a Markdown image <code>![alt](.pr-lens/&lt;view&gt;.svg)</code> (an HTML <code>&lt;img&gt;</code> is left as written and the file appended at the bottom instead; alt text is the one-line caption a reader without images gets), then repeat <code>--attach &lt;path&gt;</code> per referenced diagram:</p>
+<pre><code class="language-bash">gh pr create --title &quot;…&quot; --body-file .pr-lens/body.md --attach .pr-lens/overview-light-&lt;hash&gt;.svg
+</code></pre>
+<p>Without <code>--attach</code>, use a commit-free path:</p>
+<ul>
+<li>Upload the SVGs to a gist: <code>gh gist create .pr-lens/&lt;view&gt;.svg</code>, then reference the raw gist URL in the PR body/comment, or</li>
+<li>Publish via the canvas link (step 4b, with user consent) and link the view URL, or</li>
+<li>Note the local <code>.pr-lens/</code> path in the PR body so reviewers can rebuild.</li>
+</ul>
+<p>Once published somewhere durable, let the CLI compose the comment markdown:</p>
+<pre><code class="language-bash">npx @coldtea/pr-lens-cli@latest comment \
+  --graph .pr-lens/drawn.graph.json \
+  --manifest .pr-lens/manifest.json \
+  --asset-base-url &lt;where you published the SVGs&gt;
+</code></pre>
+<p><code>--graph</code> takes <code>drawn.graph.json</code>, not the document you wrote — the CLI refuses a document its manifest does not describe. Leave out <code>--asset-base-url</code> and the markdown points at local paths no reader can fetch. The markdown goes to stdout; posting it is your business.</p>
+<p>Attach the views a reviewer needs and leave the rest in <code>.pr-lens/</code>: the top architecture view first, then a data flow if the change has a sequence worth following. Two diagrams usually beat four.</p>
+</li>
+<li><p><strong>Optional automation:</strong> <code>npx @coldtea/pr-lens-cli@latest analyze --base &lt;ref&gt;</code> does steps 1–2 by asking a provider (Gemini, OpenAI, or any <code>/chat/completions</code> endpoint) with a key of your own. That is the only path here that needs one; normally you author the document yourself.</p>
+</li>
+</ol>
+<h3>What makes a document worth reading</h3>
+<ul>
+<li><strong>Include what did not change.</strong> Unchanged neighbours a change touches are the context; mark them <code>delta: &quot;unchanged&quot;</code>.</li>
+<li><strong>Lanes are the reader&#39;s mental model</strong> (a runtime, a tier, a boundary), not the folder tree.</li>
+<li><strong>One hero edge</strong>, two at the outside: the connection the change is really about.</li>
+<li><strong>Add a flow only when there is a sequence</strong> worth animating. One good flow beats three thin ones.</li>
+<li><strong>Attach file refs</strong>: they become the permalinks a reviewer clicks.</li>
+<li>Architecture views are a C4-inspired decision tree: system context → container → component, each child materially narrower. Skip empty or repetitive levels; keep data-flow views as separate roots; set <code>defaultOpen: true</code> on the highest useful architecture view.</li>
+<li><strong>Walkthroughs</strong> (2–12 steps, aim 3–7): write one for anything non-trivial. Each step = one change (added/removed/moved), headline change first, overview last. Headings ≤48 chars built from change words; bodies ≤140 chars on behaviour, required. Write for a smart twelve-year-old; no &quot;leverages&quot;/&quot;orchestrates&quot;. Keep consecutive steps on the same stage. The walkthrough field needs CLI ≥ 0.4.0 (contract 0.1.1).</li>
+<li><strong>Fixing a wrong map:</strong> never edit the generated document — write corrections into <code>.github/pr-lens.yml</code> (see <code>references/config.md</code>), then validate it: <code>npx @coldtea/pr-lens-cli@latest validate .github/pr-lens.yml</code>. Prefer path globs over <code>id:</code> matches.</li>
+</ul>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>npx @coldtea/pr-lens-cli@latest validate .pr-lens/graph.json</code></td>
+<td>validate the document (also validates <code>.github/pr-lens.yml</code>)</td>
+</tr>
+<tr>
+<td><code>npx @coldtea/pr-lens-cli@latest render .pr-lens/graph.json --theme light</code></td>
+<td>render SVGs + manifest into <code>.pr-lens/</code></td>
+</tr>
+<tr>
+<td><code>npx @coldtea/pr-lens-cli@latest canvas push</code></td>
+<td>OPTIONAL: publish to prlens.dev (opt-in only)</td>
+</tr>
+<tr>
+<td><code>npx @coldtea/pr-lens-cli@latest comment --graph … --manifest … --asset-base-url …</code></td>
+<td>compose PR comment markdown to stdout</td>
+</tr>
+<tr>
+<td><code>npx @coldtea/pr-lens-cli@latest analyze --base &lt;ref&gt;</code></td>
+<td>auto-author document via an LLM provider (needs API key)</td>
+</tr>
+</tbody></table>
+<p>Validator failure codes:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>What you did</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>BROKEN_REFERENCE</code></td>
+<td>an edge, flow step, view or walkthrough step names an id you never declared</td>
+</tr>
+<tr>
+<td><code>INVALID_DOCUMENT</code></td>
+<td>an invented field; the schemas are strict, unknown keys are rejected</td>
+</tr>
+<tr>
+<td><code>DUPLICATE_ID</code></td>
+<td>two nodes, edges or views sharing an id</td>
+</tr>
+<tr>
+<td><code>UNSUPPORTED_SCHEMA_VERSION</code></td>
+<td><code>schemaVersion</code> is not the contract version installed</td>
+</tr>
+</tbody></table>
+<h3>Pitfalls</h3>
+<ul>
+<li>Six rules are parser-only, not in the JSON Schema (referential integrity, inverted line ranges, disagreeing <code>self</code> endpoints, identical patch commits, too many views for a manifest, flow-step focus on the wrong stage) — always run <code>validate</code>, structured output alone is not enough.</li>
+<li>Do not commit anything in <code>.pr-lens/</code>; it is regenerated and gitignored by the CLI.</li>
+<li>The <code>--attach</code> gh flag needs gh ≥ 2.99; older gh silently lacks it — check before writing a body around it.</li>
+<li>The canvas edit link (<code>#w=…</code>) is a write credential — never share it unprompted or paste it publicly.</li>
+<li>A stored map never carries a walkthrough; a walkthrough tells the story of one change.</li>
+<li><code>pr-lens render</code> reports corrections in <code>.github/pr-lens.yml</code> that matched nothing — that is drift worth fixing, not an error.</li>
+</ul>
+<h3>Verification</h3>
+<p>Smoke test (live-verified 2026-09-12 with <code>@coldtea/pr-lens-cli</code> via npx, node on Linux):</p>
+<pre><code class="language-bash">cp references/example.graph.json ~/.hermes/cache/scratch/prlens-smoke/ &amp;&amp; cd ~/.hermes/cache/scratch/prlens-smoke
+npx -y @coldtea/pr-lens-cli@latest validate example.graph.json
+# ✓ example.graph.json — graph document · 3 lanes, 10 nodes, 13 edges, 1 flow · 6 walkthrough steps
+npx -y @coldtea/pr-lens-cli@latest render example.graph.json --theme light
+# ✓ .pr-lens/manifest.json — 4 SVGs across 4 diagrams
+</code></pre>
+<p>Expect exit 0 on both and four <code>*-light-&lt;hash&gt;.svg</code> files plus <code>manifest.json</code> and <code>drawn.graph.json</code> in <code>.pr-lens/</code>.</p>
+<hr>
+<p>Adapted from <a href="https://github.com/coldteadotai/pr-lens">coldteadotai/pr-lens</a> (packages/agent-skill, pinned 0993b4d), MIT License, Copyright (c) 2026 Coldtea AI. See LICENSE.txt.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/software-development/pr-lens</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

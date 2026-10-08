@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>notion — Skill Hermes</title>
+<meta name="description" content="Notion API + ntn CLI: pages, databases, markdown, Workers.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>notion</h1>
+    <p class="lede">Notion API + ntn CLI: pages, databases, markdown, Workers.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>notion</dd>
+      <dt>Keterangan</dt><dd>Notion API + ntn CLI: pages, databases, markdown, Workers.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>community</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/notion.zip" download>Muat turun ZIP (6.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.3 KB</td></tr>
+<tr><td><code>references/block-types.md</code></td><td class="sz">3.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Notion</h2>
+<p>Talk to Notion two ways. Same integration token works for both — pick by what&#39;s available.</p>
+<p>◆ <strong><code>ntn</code> CLI</strong> — Notion&#39;s official CLI. Shorter syntax, one-line file uploads, required for Workers. macOS + Linux only as of May 2026 (Windows support &quot;coming soon&quot;). <strong>Default when installed.</strong>
+◆ <strong>HTTP + curl</strong> — works everywhere including Windows. <strong>Default fallback</strong> when <code>ntn</code> isn&#39;t installed.</p>
+<h3>Setup</h3>
+<h4>1. Get an integration token (required for both paths)</h4>
+<ol>
+<li>Create an integration at <a href="https://notion.so/my-integrations">https://notion.so/my-integrations</a></li>
+<li>Copy the API key (starts with <code>ntn_</code> or <code>secret_</code>)</li>
+<li>Store in <code>${HERMES_HOME:-~/.hermes}/.env</code>:<pre><code>NOTION_API_KEY=ntn_your_key_here
+</code></pre>
+</li>
+<li><strong>Share target pages/databases with the integration</strong> in Notion: page menu <code>...</code> → <code>Connect to</code> → your integration name. Without this, the API returns 404 for that page even though it exists.</li>
+</ol>
+<h4>2. Install <code>ntn</code> (preferred path on macOS / Linux)</h4>
+<pre><code class="language-bash"># Recommended
+curl -fsSL https://ntn.dev | bash
+
+# Or via npm (needs Node 22+, npm 10+)
+npm install --global ntn
+
+ntn --version    # verify
+</code></pre>
+<p><strong>Skip <code>ntn login</code> — use the integration token instead.</strong> This works headlessly, no browser needed:</p>
+<pre><code class="language-bash">export NOTION_API_TOKEN=$NOTION_API_KEY      # ntn reads NOTION_API_TOKEN
+export NOTION_KEYRING=0                       # don&#39;t try to use the OS keychain
+</code></pre>
+<p>Add those exports to your shell profile (or to <code>${HERMES_HOME:-~/.hermes}/.env</code>) so every session inherits them.</p>
+<h4>3. Choose path at runtime</h4>
+<pre><code class="language-bash">if command -v ntn &gt;/dev/null 2&gt;&amp;1; then
+  # use ntn
+else
+  # fall back to curl
+fi
+</code></pre>
+<p>Windows users: skip step 2 entirely until native <code>ntn</code> ships — Path B works fine. If you want CLI ergonomics now, install <code>ntn</code> inside WSL2.</p>
+<h3>API Basics</h3>
+<p><code>Notion-Version: 2025-09-03</code> is required on all HTTP requests. <code>ntn</code> handles this for you. In this version, what users call &quot;databases&quot; are called <strong>data sources</strong> in the API.</p>
+<h3>Path A — <code>ntn</code> CLI (preferred, macOS / Linux)</h3>
+<h4>Raw API calls (shorthand for curl)</h4>
+<pre><code class="language-bash">ntn api v1/users                                  # GET
+# POST with inline body
+ntn api v1/pages parent[page_id]=abc123 \
+  properties[title][0][text][content]=&quot;Notes&quot;
+ntn api v1/pages/abc123 -X PATCH archived:=true   # PATCH; := is non-string (bool/num/null)
+</code></pre>
+<p>Syntax notes:</p>
+<ul>
+<li><code>key=value</code> — string fields</li>
+<li><code>key[nested]=value</code> — nested object fields</li>
+<li><code>key:=value</code> — typed assignment (booleans, numbers, null, arrays)</li>
+</ul>
+<h4>Search</h4>
+<pre><code class="language-bash">ntn api v1/search query=&quot;page title&quot;
+</code></pre>
+<h4>Read page metadata</h4>
+<pre><code class="language-bash">ntn api v1/pages/{page_id}
+</code></pre>
+<h4>Read page as Markdown (agent-friendly)</h4>
+<pre><code class="language-bash">ntn api v1/pages/{page_id}/markdown
+</code></pre>
+<h4>Read page content as blocks</h4>
+<pre><code class="language-bash">ntn api v1/blocks/{page_id}/children
+</code></pre>
+<h4>Create page from Markdown</h4>
+<pre><code class="language-bash">ntn api v1/pages \
+  parent[page_id]=xxx \
+  properties[title][0][text][content]=&quot;Notes from meeting&quot; \
+  markdown=&quot;# Agenda
+
+- Q3 roadmap
+- Hiring&quot;
+</code></pre>
+<h4>Patch a page with Markdown</h4>
+<pre><code class="language-bash">ntn api v1/pages/{page_id}/markdown -X PATCH \
+  markdown=&quot;## Update
+
+Shipped the prototype.&quot;
+</code></pre>
+<h4>Query a database (data source)</h4>
+<pre><code class="language-bash">ntn api v1/data_sources/{data_source_id}/query -X POST \
+  filter[property]=Status filter[select][equals]=Active
+</code></pre>
+<p>For complex queries with <code>sorts</code>, multiple filter clauses, or compound logic, pipe JSON in:</p>
+<pre><code class="language-bash">echo &#39;{&quot;filter&quot;: {&quot;property&quot;: &quot;Status&quot;, &quot;select&quot;: {&quot;equals&quot;: &quot;Active&quot;}}, &quot;sorts&quot;: [{&quot;property&quot;: &quot;Date&quot;, &quot;direction&quot;: &quot;descending&quot;}]}&#39; | \
+  ntn api v1/data_sources/{data_source_id}/query -X POST --json -
+</code></pre>
+<h4>File uploads (one-liner — biggest CLI win)</h4>
+<pre><code class="language-bash">ntn files create &lt; photo.png
+ntn files create --external-url https://example.com/photo.png
+ntn files list
+</code></pre>
+<p>Compare to the 3-step HTTP flow (create upload → PUT bytes → reference).</p>
+<h4>Useful env vars</h4>
+<table>
+<thead>
+<tr>
+<th>Var</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NOTION_API_TOKEN</code></td>
+<td>Auth token (overrides keychain) — set this to your integration token</td>
+</tr>
+<tr>
+<td><code>NOTION_KEYRING=0</code></td>
+<td>File-based creds at <code>~/.config/notion/auth.json</code> instead of OS keychain</td>
+</tr>
+<tr>
+<td><code>NOTION_WORKSPACE_ID</code></td>
+<td>Skip the workspace picker prompt</td>
+</tr>
+</tbody></table>
+<h3>Path B — HTTP + curl (cross-platform, default on Windows)</h3>
+<p>All requests share this pattern:</p>
+<pre><code class="language-bash">curl -s -X GET &quot;https://api.notion.com/v1/...&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot;
+</code></pre>
+<p>On Windows the <code>curl</code> shipped with Windows 10+ works as-is. PowerShell users can also use <code>Invoke-RestMethod</code>.</p>
+<h4>Search</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.notion.com/v1/search&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;query&quot;: &quot;page title&quot;}&#39;
+</code></pre>
+<h4>Read page metadata</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.notion.com/v1/pages/{page_id}&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot;
+</code></pre>
+<h4>Read page as Markdown (agent-friendly)</h4>
+<p>Easier to feed to a model than block JSON.</p>
+<pre><code class="language-bash">curl -s &quot;https://api.notion.com/v1/pages/{page_id}/markdown&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot;
+</code></pre>
+<h4>Read page content as blocks (when you need structure)</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.notion.com/v1/blocks/{page_id}/children&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot;
+</code></pre>
+<h4>Create page from Markdown</h4>
+<p><code>POST /v1/pages</code> accepts a <code>markdown</code> body param.</p>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.notion.com/v1/pages&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;parent&quot;: {&quot;page_id&quot;: &quot;xxx&quot;},
+    &quot;properties&quot;: {&quot;title&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;Notes from meeting&quot;}}]},
+    &quot;markdown&quot;: &quot;# Agenda\n\n- Q3 roadmap\n- Hiring\n\n## Decisions\n- Ship MVP Friday&quot;
+  }&#39;
+</code></pre>
+<h4>Patch a page with Markdown</h4>
+<pre><code class="language-bash">curl -s -X PATCH &quot;https://api.notion.com/v1/pages/{page_id}/markdown&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;markdown&quot;: &quot;## Update\n\nShipped the prototype.&quot;}&#39;
+</code></pre>
+<h4>Create page in a database (typed properties)</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.notion.com/v1/pages&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;parent&quot;: {&quot;database_id&quot;: &quot;xxx&quot;},
+    &quot;properties&quot;: {
+      &quot;Name&quot;: {&quot;title&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;New Item&quot;}}]},
+      &quot;Status&quot;: {&quot;select&quot;: {&quot;name&quot;: &quot;Todo&quot;}}
+    }
+  }&#39;
+</code></pre>
+<h4>Query a database (data source)</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.notion.com/v1/data_sources/{data_source_id}/query&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;filter&quot;: {&quot;property&quot;: &quot;Status&quot;, &quot;select&quot;: {&quot;equals&quot;: &quot;Active&quot;}},
+    &quot;sorts&quot;: [{&quot;property&quot;: &quot;Date&quot;, &quot;direction&quot;: &quot;descending&quot;}]
+  }&#39;
+</code></pre>
+<h4>Create a database</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.notion.com/v1/data_sources&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;parent&quot;: {&quot;page_id&quot;: &quot;xxx&quot;},
+    &quot;title&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;My Database&quot;}}],
+    &quot;properties&quot;: {
+      &quot;Name&quot;: {&quot;title&quot;: {}},
+      &quot;Status&quot;: {&quot;select&quot;: {&quot;options&quot;: [{&quot;name&quot;: &quot;Todo&quot;}, {&quot;name&quot;: &quot;Done&quot;}]}},
+      &quot;Date&quot;: {&quot;date&quot;: {}}
+    }
+  }&#39;
+</code></pre>
+<h4>Update page properties</h4>
+<pre><code class="language-bash">curl -s -X PATCH &quot;https://api.notion.com/v1/pages/{page_id}&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;properties&quot;: {&quot;Status&quot;: {&quot;select&quot;: {&quot;name&quot;: &quot;Done&quot;}}}}&#39;
+</code></pre>
+<h4>Append blocks to a page</h4>
+<pre><code class="language-bash">curl -s -X PATCH &quot;https://api.notion.com/v1/blocks/{page_id}/children&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;children&quot;: [
+      {&quot;object&quot;: &quot;block&quot;, &quot;type&quot;: &quot;paragraph&quot;, &quot;paragraph&quot;: {&quot;rich_text&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;Hello from Hermes!&quot;}}]}}
+    ]
+  }&#39;
+</code></pre>
+<h4>File uploads (3-step flow)</h4>
+<pre><code class="language-bash"># 1. Create upload
+curl -s -X POST &quot;https://api.notion.com/v1/file_uploads&quot; \
+  -H &quot;Authorization: Bearer $NOTION_API_KEY&quot; \
+  -H &quot;Notion-Version: 2025-09-03&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;filename&quot;: &quot;photo.png&quot;, &quot;content_type&quot;: &quot;image/png&quot;}&#39;
+
+# 2. PUT bytes to the upload_url returned above
+curl -s -X PUT &quot;{upload_url}&quot; --data-binary @photo.png
+
+# 3. Reference {file_upload_id} in a page/block payload
+</code></pre>
+<h3>Property Types</h3>
+<p>Common property formats for database items:</p>
+<ul>
+<li><strong>Title:</strong> <code>{&quot;title&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;...&quot;}}]}</code></li>
+<li><strong>Rich text:</strong> <code>{&quot;rich_text&quot;: [{&quot;text&quot;: {&quot;content&quot;: &quot;...&quot;}}]}</code></li>
+<li><strong>Select:</strong> <code>{&quot;select&quot;: {&quot;name&quot;: &quot;Option&quot;}}</code></li>
+<li><strong>Multi-select:</strong> <code>{&quot;multi_select&quot;: [{&quot;name&quot;: &quot;A&quot;}, {&quot;name&quot;: &quot;B&quot;}]}</code></li>
+<li><strong>Date:</strong> <code>{&quot;date&quot;: {&quot;start&quot;: &quot;2026-01-15&quot;, &quot;end&quot;: &quot;2026-01-16&quot;}}</code></li>
+<li><strong>Checkbox:</strong> <code>{&quot;checkbox&quot;: true}</code></li>
+<li><strong>Number:</strong> <code>{&quot;number&quot;: 42}</code></li>
+<li><strong>URL:</strong> <code>{&quot;url&quot;: &quot;https://...&quot;}</code></li>
+<li><strong>Email:</strong> <code>{&quot;email&quot;: &quot;user@example.com&quot;}</code></li>
+<li><strong>Relation:</strong> <code>{&quot;relation&quot;: [{&quot;id&quot;: &quot;page_id&quot;}]}</code></li>
+</ul>
+<h3>API Version 2025-09-03 — Databases vs Data Sources</h3>
+<ul>
+<li><strong>Databases became data sources.</strong> Use <code>/data_sources/</code> endpoints for queries and retrieval.</li>
+<li><strong>Two IDs per database:</strong> <code>database_id</code> and <code>data_source_id</code>.<ul>
+<li><code>database_id</code> when creating pages: <code>parent: {&quot;database_id&quot;: &quot;...&quot;}</code></li>
+<li><code>data_source_id</code> when querying: <code>POST /v1/data_sources/{id}/query</code></li>
+</ul>
+</li>
+<li>Search returns databases as <code>&quot;object&quot;: &quot;data_source&quot;</code> with the <code>data_source_id</code> field.</li>
+</ul>
+<h3>Notion Workers (advanced, requires <code>ntn</code>)</h3>
+<p>Workers are TypeScript programs Notion hosts for you. One worker can expose any combination of:</p>
+<ul>
+<li><strong>Syncs</strong> — pull data from external APIs into a Notion database on a schedule (default 30 min).</li>
+<li><strong>Tools</strong> — appear as callable tools inside Notion&#39;s Custom Agents.</li>
+<li><strong>Webhooks</strong> — receive HTTP events from external services (GitHub, Stripe, etc.) and act in Notion.</li>
+</ul>
+<p><strong>Plan / platform gating:</strong></p>
+<ul>
+<li>CLI works on all plans. <strong>Deploying Workers requires Business or Enterprise.</strong></li>
+<li><code>ntn</code> is macOS/Linux only as of May 2026. Windows users need WSL2 or to wait for native support.</li>
+<li>Free through August 11, 2026; metered on Notion credits after.</li>
+</ul>
+<h4>Minimal Worker</h4>
+<pre><code class="language-bash">ntn workers new my-worker      # scaffold
+cd my-worker
+# Edit src/index.ts
+ntn workers deploy --name my-worker
+</code></pre>
+<p><code>src/index.ts</code>:</p>
+<pre><code class="language-typescript">import { Worker } from &quot;@notionhq/workers&quot;;
+
+const worker = new Worker();
+export default worker;
+
+worker.tool(&quot;greet&quot;, {
+  title: &quot;Greet a User&quot;,
+  description: &quot;Returns a friendly greeting&quot;,
+  inputSchema: { type: &quot;object&quot;, properties: { name: { type: &quot;string&quot; } }, required: [&quot;name&quot;] },
+  execute: async ({ name }) =&gt; `Hello, ${name}!`,
+});
+</code></pre>
+<h4>Webhook capability</h4>
+<pre><code class="language-typescript">worker.webhook(&quot;onGithubPush&quot;, {
+  title: &quot;GitHub Push Handler&quot;,
+  execute: async (events, { notion }) =&gt; {
+    for (const event of events) {
+      // event.body, event.rawBody (for signature verification), event.headers
+      console.log(&quot;got delivery&quot;, event.deliveryId);
+    }
+  },
+});
+</code></pre>
+<p>After deploy: <code>ntn workers webhooks list</code> shows the URL Notion generates. Treat that URL as a secret — anyone with it can POST events unless you add signature verification.</p>
+<h4>Worker lifecycle commands</h4>
+<pre><code class="language-bash">ntn workers deploy
+ntn workers list
+ntn workers exec &lt;capability-key&gt; -d &#39;{&quot;name&quot;: &quot;world&quot;}&#39;
+ntn workers sync trigger &lt;key&gt;            # run a sync now
+ntn workers sync pause &lt;key&gt;
+ntn workers env set GITHUB_WEBHOOK_SECRET=...
+ntn workers runs list                     # recent invocations
+ntn workers runs logs &lt;run-id&gt;
+ntn workers webhooks list
+</code></pre>
+<p>When asked to build a Worker, scaffold with <code>ntn workers new</code>, write the code in <code>src/index.ts</code>, set any secrets with <code>ntn workers env set</code>, and deploy. Notion&#39;s docs at <a href="https://developers.notion.com/workers">https://developers.notion.com/workers</a> cover the full API surface.</p>
+<h3>Notion-Flavored Markdown (used by <code>/markdown</code> endpoints)</h3>
+<p>Standard CommonMark plus XML-like tags for Notion-specific blocks. Use <strong>tabs</strong> for indentation.</p>
+<p><strong>Blocks beyond CommonMark:</strong></p>
+<pre><code>&lt;callout icon=&quot;🎯&quot; color=&quot;blue_bg&quot;&gt;
+	Ship the MVP by **Friday**.
+&lt;/callout&gt;
+
+&lt;details color=&quot;gray&quot;&gt;
+&lt;summary&gt;Toggle title&lt;/summary&gt;
+	Children indented one tab
+&lt;/details&gt;
+
+&lt;columns&gt;
+	&lt;column&gt;Left side&lt;/column&gt;
+	&lt;column&gt;Right side&lt;/column&gt;
+&lt;/columns&gt;
+
+&lt;table_of_contents color=&quot;gray&quot;/&gt;
+</code></pre>
+<p><strong>Inline:</strong></p>
+<ul>
+<li>Mentions: <code>&lt;mention-user url=&quot;...&quot;/&gt;</code>, <code>&lt;mention-page url=&quot;...&quot;&gt;Title&lt;/mention-page&gt;</code>, <code>&lt;mention-date start=&quot;2026-05-15&quot;/&gt;</code></li>
+<li>Underline: <code>&lt;span underline=&quot;true&quot;&gt;text&lt;/span&gt;</code></li>
+<li>Color: <code>&lt;span color=&quot;blue&quot;&gt;text&lt;/span&gt;</code> or block-level <code>{color=&quot;blue&quot;}</code> on the first line</li>
+<li>Math: inline <code>$x^2$</code>, block <code>$$ ... $$</code></li>
+<li>Citations: <code>[^https://example.com]</code></li>
+</ul>
+<p><strong>Colors:</strong> <code>gray brown orange yellow green blue purple pink red</code>, plus <code>*_bg</code> variants for backgrounds.</p>
+<p>Headings 5/6 collapse to H4. Multiple <code>&gt;</code> lines render as separate quote blocks — use <code>&lt;br&gt;</code> inside a single <code>&gt;</code> for multi-line quotes.</p>
+<h3>Choosing the Right Path</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>mac / Linux</th>
+<th>Windows</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Read/write pages, search, query databases</td>
+<td><code>ntn api ...</code></td>
+<td>curl</td>
+</tr>
+<tr>
+<td>Read a page for an agent to summarize</td>
+<td><code>ntn api v1/pages/{id}/markdown</code></td>
+<td>curl <code>/markdown</code> endpoint</td>
+</tr>
+<tr>
+<td>Upload a file</td>
+<td><code>ntn files create &lt; file</code></td>
+<td>3-step HTTP flow</td>
+</tr>
+<tr>
+<td>One-off API exploration</td>
+<td><code>ntn api ...</code></td>
+<td>curl</td>
+</tr>
+<tr>
+<td>Build a sync / webhook / agent tool hosted by Notion</td>
+<td><code>ntn workers ...</code></td>
+<td>WSL2 + <code>ntn workers ...</code></td>
+</tr>
+</tbody></table>
+<h3>Notes</h3>
+<ul>
+<li>Page/database IDs are UUIDs (with or without dashes — both accepted).</li>
+<li>Rate limit: ~3 requests/second average. The CLI doesn&#39;t bypass this.</li>
+<li>The API cannot set database <strong>view</strong> filters — that&#39;s UI-only.</li>
+<li>Use <code>&quot;is_inline&quot;: true</code> when creating data sources to embed them in a page.</li>
+<li>Always pass <code>-s</code> to curl to suppress progress bars (cleaner agent output).</li>
+<li>Pipe JSON through <code>jq</code> when reading: <code>... | jq &#39;.results[0].properties&#39;</code>.</li>
+<li>Notion also ships an MCP server now (<code>Notion MCP</code>, ~91% more token-efficient on DB ops than the previous version) — wire it via Hermes&#39; MCP support if you want streaming Notion access from inside a session, but the paths above are enough for most one-shot tasks.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/notion</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

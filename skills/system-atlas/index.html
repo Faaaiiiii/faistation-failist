@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>system-atlas — Skill Hermes</title>
+<meta name="description" content="Build explorable isometric architecture atlases as HTML.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>system-atlas</h1>
+    <p class="lede">Build explorable isometric architecture atlases as HTML.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>system-atlas</dd>
+      <dt>Keterangan</dt><dd>Build explorable isometric architecture atlases as HTML.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Harshyt Goel (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/system-atlas.zip" download>Muat turun ZIP (27.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (7)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.7 KB</td></tr>
+<tr><td><code>assets/build.mjs</code></td><td class="sz">5.5 KB</td></tr>
+<tr><td><code>assets/data.example.mjs</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>assets/template.html</code></td><td class="sz">37.4 KB</td></tr>
+<tr><td><code>LICENSE.txt</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/design-language.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>references/process-and-lessons.md</code></td><td class="sz">5.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>System Atlas Skill</h2>
+<p>An atlas is one data file (<code>data.mjs</code>) that renders two views: an <strong>interactive isometric map</strong> (a single self-contained <code>atlas.html</code> — hover to read, click to pin, go inside for steps, moving data packets you can inspect, chapters that reveal the system a few structures at a time), and a <strong>generated text twin</strong> (<code>SYSTEM.md</code>) with the decisions table, every structure, the flows, and the open questions by ID. The data file is the only thing anyone edits; both views rebuild from it. It sits beside a hand-written glossary (<code>CONTEXT.md</code>) and ADRs.</p>
+<p><strong>Does:</strong> interactive architecture maps with progressive disclosure, question tracking across feedback rounds, a generated text twin, and a repeatable update loop.
+<strong>Doesn&#39;t:</strong> static one-off diagrams (use the architecture-diagram or excalidraw skill), finished systems that only need a README, or a single diagram for a PR.</p>
+<h3>When to Use</h3>
+<p>Use whenever someone wants to discuss, design, review, or explain an architecture visually — &quot;make an atlas&quot;, &quot;map the system&quot;, &quot;make the architecture explorable&quot;, &quot;visualize the codebase/agent/pipeline so we can talk about it&quot;, &quot;a diagram I can click around&quot;, &quot;walk me through how it fits together&quot; — or when an architecture discussion is producing a pile of open questions that need tracking across feedback rounds. Also use it to update an existing atlas after decisions change. Best when the system is new enough that vocabulary, decisions, and questions are still moving and there will be more than one feedback round.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>Node.js (any recent version; the build uses only <code>node:fs</code>, <code>node:path</code>, <code>node:url</code> — no npm install needed).</li>
+<li>A static server for verification (<code>npx serve</code> or <code>python3 -m http.server</code>).</li>
+</ul>
+<h3>How to Run</h3>
+<pre><code class="language-bash">mkdir -p &lt;atlas home&gt;/atlas
+cp &lt;skill&gt;/assets/{template.html,build.mjs} &lt;atlas home&gt;/atlas/
+cp &lt;skill&gt;/assets/data.example.mjs &lt;atlas home&gt;/atlas/data.mjs   # then fill it in
+node &lt;atlas home&gt;/atlas/build.mjs   # writes ../SYSTEM.md and ../atlas.html
+</code></pre>
+<p>Every field of the data file is documented in <code>assets/data.example.mjs</code>.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Role</th>
+<th>Edit it?</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>atlas/data.mjs</code></td>
+<td>Single source of truth: structures, flows, chapters, decisions, questions, prose</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>atlas/template.html</code> + <code>atlas/build.mjs</code></td>
+<td>Renderer + generator</td>
+<td>Presentation only</td>
+</tr>
+<tr>
+<td><code>atlas.html</code></td>
+<td>Built atlas; republish at the same URL after every rebuild</td>
+<td>No (generated)</td>
+</tr>
+<tr>
+<td><code>SYSTEM.md</code></td>
+<td>Built text twin</td>
+<td>No (generated)</td>
+</tr>
+<tr>
+<td><code>CONTEXT.md</code></td>
+<td>Glossary, one line per noun</td>
+<td>By hand</td>
+</tr>
+<tr>
+<td><code>adr/</code></td>
+<td>Hard-to-reverse decisions</td>
+<td>By hand</td>
+</tr>
+<tr>
+<td><code>research/</code></td>
+<td>Deep-dive evidence</td>
+<td>Append-only</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<p>Follow the order — each step was earned by a correction the first time round.</p>
+<ol>
+<li><strong>Read the inputs before drawing.</strong> The vision doc, the repo&#39;s existing surfaces, and whatever prior art the user allows (ask — they may forbid a branch or a source). If you will build on a framework, read its docs first; hand long docs to a subagent via <code>delegate_task</code> with your specific design questions and have it return a primer with gotchas and a &quot;what it does not give us&quot; list. Drawing before this produces boxes that don&#39;t map to anything real.</li>
+<li><strong>Discuss before drawing.</strong> Propose the structure in chat, mapped to the runtime&#39;s real primitives, and ask only the questions you cannot derive from the repo. Take defaults for the rest and say which.</li>
+<li><strong>First atlas — the whole system.</strong> Copy <code>assets/</code> into the atlas home (rename <code>data.example.mjs</code> to <code>data.mjs</code>), fill the data, build with <code>node</code>, publish. <strong>Where the atlas home is depends on the repo&#39;s docs policy</strong> — ask before committing anything. Docs-friendly repos: <code>docs/{system}/atlas/</code> in-tree. Repos that commit only ADRs and <code>CONTEXT.md</code>: put the atlas, <code>SYSTEM.md</code>, and <code>research/</code> in a git-ignored scratch dir and attach <code>SYSTEM.md</code> + research to the spec issue when published. (Committing the whole set once produced a 3,900-line docs PR and four review rounds reconciling three restatements of one design.) Load the design-md or architecture-diagram skill via skill_view for HTML-artifact guidance if useful; read <code>references/design-language.md</code> for the visual rules either way.</li>
+<li><strong>Progressive disclosure.</strong> A whole system at once reads as noise. Ten-ish chapters; each adds at most three structures and runs one small flow that only touches revealed structures; the last chapter shows everything with a flow picker. Unrevealed structures stay in the index, dimmed, with their chapter number. Panels are summary-first: one sentence, then <em>Read more</em> and <em>Steps</em> folded.</li>
+<li><strong>Shapes and labels.</strong> Letters on boxes are not enough. Give each role a shape and put a readable name label on the canvas under every structure — see design-language.</li>
+<li><strong>Text twin.</strong> <code>CONTEXT.md</code> is a glossary and nothing else (the nouns, one line each); ADRs only for decisions that are hard to reverse, surprising without context, and the result of a real trade-off — these two are the in-tree pieces. <code>SYSTEM.md</code> is generated and <code>research/</code> holds evidence; both live with the atlas (scratch dir or <code>docs/</code>, per step 3). Don&#39;t open issues unless asked.</li>
+<li><strong>Feedback by question ID.</strong> Every question is <code>Q-&lt;code&gt;&lt;n&gt;</code> with a state: open (a string), resolved <code>{q, r}</code> (answer + date), or routed <code>{q, to}</code> (handed to a named next step). Record the user&#39;s words. If they call something &quot;not a question&quot;, drop it; if they say &quot;I don&#39;t get this&quot;, explain with a concrete example <em>before</em> resolving. After each round: rebuild, republish, update memory.</li>
+<li><strong>Deep dives feed back.</strong> Research with subagents (<code>delegate_task</code>) against one shared brief (the interface we own, the requirements that separate candidates, a usage model for cost, a fixed deliverable shape). Write a synthesis with a normalized cost/fit grid. Fold resolutions into the data as <code>{q, r: &#39;… (from the deep dive, date)&#39;}</code>. If the user rejects a proposal, sweep <em>every</em> file and rewrite — a banner on top of a stale section is not enough.</li>
+<li><strong>Keep it current.</strong> One source, rebuild and republish after every change, never hand-edit generated files, and leave a <code>README.md</code> in the docs folder explaining the set (table in <code>references/process-and-lessons.md</code>).</li>
+</ol>
+<h3>Publishing</h3>
+<p><code>atlas.html</code> is one self-contained file — no build step, no external assets beyond a Google Fonts stylesheet. Serve the folder with any static server (<code>npx serve</code>, <code>python3 -m http.server</code>) and hand over the URL, or let the repo&#39;s pages host serve the committed file. One URL, republished after every data change, never a second copy. If you keep a stable published URL, put it in <code>META.artifactUrl</code> so <code>SYSTEM.md</code> links to it.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li>Keep <code>&lt;!doctype html&gt;</code> first and <code>&lt;meta charset=&quot;utf-8&quot;&gt;</code> immediately after — otherwise quirks mode and mojibake arrows.</li>
+<li>The renderer rebuilds its whole scene on every draw: a stray <code>render()</code> in a hover handler detaches the element under the cursor and the browser stops synthesising clicks — the map looks perfect in a screenshot while nothing responds.</li>
+<li>Some in-app browsers render <code>file://</code> as a static snapshot; verify via a static server, not from disk.</li>
+<li>Never delete a question — resolve or mark it dropped, so IDs stay stable.</li>
+<li>After every decision, grep the outputs for stale words (<code>pending</code>, the old model name, the rejected design) — the person reads everything.</li>
+<li>Large HTML/JS via shell heredocs is brittle; use <code>write_file</code> and keep the data block JSON-serializable.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li><code>node &lt;atlas home&gt;/atlas/build.mjs</code> exits 0 and writes both <code>SYSTEM.md</code> and <code>atlas.html</code>.</li>
+<li>Syntax-check the built script (<code>new Function(js)</code>), then open the served page in a real browser at ~1280×800; check a first chapter, a middle chapter, the last chapter, an inside view, and the light theme.</li>
+<li>Click a structure and confirm the panel says <strong>pinned</strong> and offers <em>Go inside</em>; click a packet dot and confirm the payload opens.</li>
+<li>Every structure has <code>one</code>, <code>what</code>, <code>how</code>, a <code>short</code> label, a role <code>kind</code>, and its questions; ghosts are marked; chapters exist with per-chapter flows; the last chapter is the whole system.</li>
+<li><code>SYSTEM.md</code> carries the decisions table, the question index with IDs and states, and the &quot;how this file is maintained&quot; footer.</li>
+<li>Project memory records the atlas URL, docs paths, locked decisions with dates, what the user rejected and why, and the next step.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/system-atlas</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

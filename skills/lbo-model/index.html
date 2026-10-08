@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>lbo-model — Skill Hermes</title>
+<meta name="description" content="Build leveraged buyout workbooks with IRR/MOIC in Excel.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>lbo-model</h1>
+    <p class="lede">Build leveraged buyout workbooks with IRR/MOIC in Excel.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>lbo-model</dd>
+      <dt>Keterangan</dt><dd>Build leveraged buyout workbooks with IRR/MOIC in Excel.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anthropic (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>Apache-2.0</dd>
+      <dt>Kategori</dt><dd>finance · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/lbo-model.zip" download>Muat turun ZIP (7.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h3>Environment</h3>
+<p>This skill assumes <strong>headless openpyxl</strong> — you are producing an .xlsx file on disk.
+Follow the <code>excel-author</code> skill&#39;s conventions for cell coloring, formulas, named ranges, and sensitivity tables.
+Recalculate before delivery: <code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>.</p>
+<hr>
+<h3>TEMPLATE REQUIREMENT</h3>
+<p><strong>This skill uses templates for LBO models. Always check for an attached template file first.</strong></p>
+<p>Before starting any LBO model:</p>
+<ol>
+<li><strong>If a template file is attached/provided</strong>: Use that template&#39;s structure exactly - copy it and populate with the user&#39;s data</li>
+<li><strong>If no template is attached</strong>: Ask the user: <em>&quot;Do you have a specific LBO template you&#39;d like me to use? If not, I can use the standard template which includes Sources &amp; Uses, Operating Model, Debt Schedule, and Returns Analysis.&quot;</em></li>
+<li><strong>If using the standard template</strong>: Copy <code>examples/LBO_Model.xlsx</code> as your starting point and populate it with the user&#39;s assumptions</li>
+</ol>
+<p><strong>IMPORTANT</strong>: When a file like <code>LBO_Model.xlsx</code> is attached, you MUST use it as your template - do not build from scratch. Even if the template seems complex or has more features than needed, copy it and adapt it to the user&#39;s requirements. Never decide to &quot;build from scratch&quot; when a template is provided.</p>
+<hr>
+<h3>CRITICAL INSTRUCTIONS — READ FIRST</h3>
+<p>Use Python/openpyxl. Write formula strings (<code>ws[&quot;D20&quot;] = &quot;=B5*B6&quot;</code>), then run the <code>excel-author</code> skill&#39;s <code>recalc.py</code> helper before delivery.</p>
+<h4>Core Principles</h4>
+<ul>
+<li><strong>Every calculation must be an Excel formula</strong> - NEVER compute values in Python and hardcode results into cells. When using openpyxl, write <code>cell.value = &quot;=B5*B6&quot;</code> (formula string), NOT <code>cell.value = 1250</code> (computed result). The model must be dynamic and update when inputs change.</li>
+<li><strong>Use the template structure</strong> - Follow the organization in <code>examples/LBO_Model.xlsx</code> or the user&#39;s provided template. Do not invent your own layout.</li>
+<li><strong>Use proper cell references</strong> - All formulas should reference the appropriate cells. Never type numbers that should come from other cells.</li>
+<li><strong>Maintain sign convention consistency</strong> - Follow whatever sign convention the template uses (some use negative for outflows, some use positive). Be consistent throughout.</li>
+<li><strong>Work section by section, verify with user at each step</strong> - Complete one section fully, show the user what was built, run the section&#39;s verification checks, and get confirmation BEFORE moving to the next section. Do NOT build the entire model end-to-end and then present it — later sections depend on earlier ones, so catching a mistake in Sources &amp; Uses after the returns are already built means rework everywhere.</li>
+</ul>
+<h4>Formula Color Conventions</h4>
+<ul>
+<li><strong>Blue (0000FF)</strong>: Hardcoded inputs - typed numbers that don&#39;t reference other cells</li>
+<li><strong>Black (000000)</strong>: Formulas with calculations - any formula using operators or functions (<code>=B4*B5</code>, <code>=SUM()</code>, <code>=-MAX(0,B4)</code>)</li>
+<li><strong>Purple (800080)</strong>: Links to cells on the <strong>same tab</strong> - direct references with no calculation (<code>=B9</code>, <code>=B45</code>)</li>
+<li><strong>Green (008000)</strong>: Links to cells on <strong>different tabs</strong> - cross-sheet references (<code>=Assumptions!B5</code>, <code>=&#39;Operating Model&#39;!C10</code>)</li>
+</ul>
+<h4>Fill Color Palette — Professional Blues &amp; Greys (Default unless user/template specifies otherwise)</h4>
+<ul>
+<li><strong>Keep it minimal</strong> — only use blues and greys for cell fills. Do NOT introduce greens, yellows, reds, or multiple accents. A professional LBO model uses restraint.</li>
+<li><strong>Default fill palette:</strong><ul>
+<li><strong>Section headers</strong> (Sources &amp; Uses, Operating Model, etc.): Dark blue <code>#1F4E79</code> with white bold text</li>
+<li><strong>Column headers</strong> (Year 1, Year 2, etc.): Light blue <code>#D9E1F2</code> with black bold text</li>
+<li><strong>Input cells</strong>: Light grey <code>#F2F2F2</code> (or just white) — the blue <em>font</em> is the signal, fill is secondary</li>
+<li><strong>Formula/calculated cells</strong>: White, no fill</li>
+<li><strong>Key outputs</strong> (IRR, MOIC, Exit Equity): Medium blue <code>#BDD7EE</code> with black bold text</li>
+</ul>
+</li>
+<li><strong>That&#39;s the whole palette.</strong> 3 blues + 1 grey + white. If the template uses its own colors, follow the template instead.</li>
+<li>Note: The blue/black/purple/green <strong>font</strong> colors above are for distinguishing inputs vs formulas vs links. Those are separate from the <strong>fill</strong> palette here — both work together.</li>
+</ul>
+<h4>Number Formatting Standards</h4>
+<ul>
+<li><strong>Currency</strong>: <code>$#,##0;($#,##0);&quot;-&quot;</code> or <code>$#,##0.0</code> depending on template</li>
+<li><strong>Percentages</strong>: <code>0.0%</code> (one decimal)</li>
+<li><strong>Multiples</strong>: <code>0.0&quot;x&quot;</code> (one decimal)</li>
+<li><strong>MOIC/Detailed Ratios</strong>: <code>0.00&quot;x&quot;</code> (two decimals for precision)</li>
+<li><strong>All numeric cells</strong>: Right-aligned</li>
+</ul>
+<hr>
+<h4>Clarify Requirements First</h4>
+<p>Before filling any formulas:</p>
+<ul>
+<li><strong>Examine the template structure</strong> - Identify all sections, understand the timeline (which columns are which periods), note any existing formulas</li>
+<li><strong>Ask the user if anything is unclear</strong> - If the template structure, calculation methods, or requirements are ambiguous, ask before proceeding</li>
+<li><strong>Confirm key assumptions</strong> - Any key inputs, calculation preferences, or specific requirements</li>
+<li><strong>ONLY AFTER understanding the template</strong>, proceed to fill in formulas</li>
+</ul>
+<hr>
+<h3>TEMPLATE ANALYSIS PHASE - DO THIS FIRST</h3>
+<p>Before filling any formulas, examine the template thoroughly:</p>
+<ol>
+<li><p><strong>Map the structure</strong> - Identify where each section lives and how they relate to each other. Note which sections feed into others.</p>
+</li>
+<li><p><strong>Understand the timeline</strong> - Which columns represent which periods? Is there a &quot;Closing&quot; or &quot;Pro Forma&quot; column? Where does the projection period start?</p>
+</li>
+<li><p><strong>Identify input vs formula cells</strong> - Templates often use color coding, borders, or shading to indicate which cells need inputs vs formulas. Respect these conventions.</p>
+</li>
+<li><p><strong>Read existing labels carefully</strong> - The row labels tell you exactly what calculation is expected. Don&#39;t assume - read what the template is asking for.</p>
+</li>
+<li><p><strong>Check for existing formulas</strong> - Some templates come partially filled. Don&#39;t overwrite working formulas unless specifically asked.</p>
+</li>
+<li><p><strong>Note template-specific conventions</strong> - Sign conventions, subtotal structures, how sections are organized, whether there are separate tabs for different components, etc.</p>
+</li>
+</ol>
+<hr>
+<h3>FILLING FORMULAS - GENERAL APPROACH</h3>
+<p>For each cell that needs a formula, follow this hierarchy:</p>
+<h4>Step 1: Check the Template</h4>
+<ul>
+<li>Does the cell already have a formula? If yes, verify it&#39;s correct and move on.</li>
+<li>Is there a comment or note indicating the expected calculation?</li>
+<li>Does the row/column label make the calculation obvious?</li>
+<li>Do neighboring cells show a pattern you should follow?</li>
+</ul>
+<h4>Step 2: Check the User&#39;s Instructions</h4>
+<ul>
+<li>Did the user specify a particular calculation method?</li>
+<li>Are there stated assumptions that affect this formula?</li>
+<li>Any special requirements mentioned?</li>
+</ul>
+<h4>Step 3: Apply Standard Practice</h4>
+<ul>
+<li>If neither template nor user specifies, use standard LBO modeling conventions</li>
+<li>Document any assumptions you make</li>
+<li>If genuinely uncertain, ask the user</li>
+</ul>
+<hr>
+<h3>COMMON PROBLEM AREAS</h3>
+<p>The following calculation patterns frequently cause issues across LBO models. Pay special attention when you encounter these:</p>
+<h4>Balancing Sections</h4>
+<ul>
+<li>When two sections must equal (e.g., Sources = Uses), one item is typically the &quot;plug&quot; (balancing figure)</li>
+<li>Identify which item is the plug and calculate it as the difference</li>
+</ul>
+<h4>Tax Calculations</h4>
+<ul>
+<li>Tax formulas should only reference the relevant income line and tax rate</li>
+<li>Should NOT reference unrelated sections (e.g., debt schedules)</li>
+<li>Consider whether losses create tax shields or are simply ignored</li>
+</ul>
+<h4>Interest and Circular References</h4>
+<ul>
+<li>Interest calculations can create circularity if they reference balances affected by cash flows</li>
+<li>Use <strong>Beginning Balance</strong> (not average or ending) to break circular references</li>
+<li>Pattern: Interest → Cash Flow → Paydown → Ending Balance (if interest uses ending balance, this circles back)</li>
+</ul>
+<h4>Debt Paydown / Cash Sweeps</h4>
+<ul>
+<li>When multiple debt tranches exist, there&#39;s usually a priority order</li>
+<li>Cash sweep should respect the priority waterfall</li>
+<li>Balances cannot go negative - use MAX or MIN functions appropriately</li>
+</ul>
+<h4>Returns Calculations (IRR/MOIC)</h4>
+<ul>
+<li>Cash flows must have correct signs: Investment = negative, Proceeds = positive</li>
+<li>If using XIRR, need corresponding dates</li>
+<li>If using IRR, cash flows should be in consecutive periods</li>
+<li>MOIC = Total Proceeds / Total Investment</li>
+</ul>
+<h4>Sensitivity Tables</h4>
+<ul>
+<li><strong>Use ODD dimensions</strong> (5×5 or 7×7) — never 4×4 or 6×6. Odd dimensions guarantee a true center cell.</li>
+<li><strong>Center cell = base case.</strong> Build the row and column axis values symmetrically around the model&#39;s actual assumptions (e.g., if base entry multiple = 10.0x, axis = <code>[8.0x, 9.0x, 10.0x, 11.0x, 12.0x]</code>). The center cell&#39;s IRR/MOIC MUST then equal the model&#39;s actual IRR/MOIC output — this is the proof the table is wired correctly.</li>
+<li><strong>Highlight the center cell</strong> — medium-blue fill (<code>#BDD7EE</code>) + bold font so the base case is visually anchored.</li>
+<li>Excel&#39;s DATA TABLE function may not work with openpyxl — instead write explicit formulas that reference row/column headers</li>
+<li>Each cell should show a DIFFERENT value — if all same, formulas aren&#39;t varying correctly</li>
+<li>Use mixed references (e.g., <code>$A5</code> for row input, <code>B$4</code> for column input)</li>
+</ul>
+<hr>
+<h3>VERIFICATION CHECKLIST - RUN AFTER COMPLETION</h3>
+<h4>Run Formula Validation</h4>
+<pre><code class="language-bash">python /path/to/excel-author/scripts/recalc.py model.xlsx
+</code></pre>
+<p>Must return success with zero errors.</p>
+<h4>Section Balancing</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Any sections that must balance (Sources/Uses, Assets/Liabilities) balance exactly</li>
+<li><input disabled="" type="checkbox"> Plug items are calculated correctly as the balancing figure</li>
+<li><input disabled="" type="checkbox"> Amounts that should match across sections are consistent</li>
+</ul>
+<h4>Income/Operating Projections</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Revenue/top-line builds correctly from drivers or growth rates</li>
+<li><input disabled="" type="checkbox"> All cost and expense items calculated appropriately</li>
+<li><input disabled="" type="checkbox"> Subtotals and totals sum correctly</li>
+<li><input disabled="" type="checkbox"> Margins and ratios are reasonable</li>
+<li><input disabled="" type="checkbox"> Links to assumptions are correct</li>
+</ul>
+<h4>Balance Sheet (if applicable)</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Assets = Liabilities + Equity (must balance)</li>
+<li><input disabled="" type="checkbox"> All items link to appropriate schedules or roll-forwards</li>
+<li><input disabled="" type="checkbox"> Beginning balances = prior period ending balances</li>
+<li><input disabled="" type="checkbox"> Check row included and shows zero</li>
+</ul>
+<h4>Cash Flow (if applicable)</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Starts with correct income figure</li>
+<li><input disabled="" type="checkbox"> Non-cash items added/subtracted appropriately</li>
+<li><input disabled="" type="checkbox"> Working capital changes have correct signs</li>
+<li><input disabled="" type="checkbox"> Ending Cash = Beginning Cash + Net Cash Flow</li>
+<li><input disabled="" type="checkbox"> Cash balances are consistent across statements</li>
+</ul>
+<h4>Supporting Schedules</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Roll-forward schedules balance (Beginning + Changes = Ending)</li>
+<li><input disabled="" type="checkbox"> Schedules link correctly to main statements</li>
+<li><input disabled="" type="checkbox"> Calculated items use appropriate drivers</li>
+<li><input disabled="" type="checkbox"> All periods are calculated consistently</li>
+</ul>
+<h4>Debt/Financing Schedules (if applicable)</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Beginning balances tie to sources or prior period</li>
+<li><input disabled="" type="checkbox"> Interest calculated on appropriate balance (typically beginning)</li>
+<li><input disabled="" type="checkbox"> Paydowns respect cash availability and priority</li>
+<li><input disabled="" type="checkbox"> Ending balances cannot be negative</li>
+<li><input disabled="" type="checkbox"> Totals sum tranches correctly</li>
+</ul>
+<h4>Returns/Output Analysis</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Exit/terminal values calculated correctly</li>
+<li><input disabled="" type="checkbox"> All relevant adjustments included</li>
+<li><input disabled="" type="checkbox"> Cash flow signs are correct (negative for investment, positive for proceeds)</li>
+<li><input disabled="" type="checkbox"> IRR/MOIC formulas reference complete ranges</li>
+<li><input disabled="" type="checkbox"> Results are reasonable for the scenario</li>
+</ul>
+<h4>Sensitivity Tables (if applicable)</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Grid dimensions are ODD (5×5 or 7×7) — there is a true center cell</li>
+<li><input disabled="" type="checkbox"> Row and column axis values are symmetric around the base case (<code>[base-2Δ, base-Δ, base, base+Δ, base+2Δ]</code>)</li>
+<li><input disabled="" type="checkbox"> Center cell output equals the model&#39;s actual IRR/MOIC — confirms the table is wired correctly</li>
+<li><input disabled="" type="checkbox"> Center cell is highlighted (medium-blue fill <code>#BDD7EE</code>, bold font)</li>
+<li><input disabled="" type="checkbox"> Row and column headers contain appropriate input values</li>
+<li><input disabled="" type="checkbox"> Each data cell contains a formula (not hardcoded)</li>
+<li><input disabled="" type="checkbox"> Each data cell shows a DIFFERENT value</li>
+<li><input disabled="" type="checkbox"> Values move in expected directions (higher exit multiple → higher IRR, etc.)</li>
+</ul>
+<h4>Formatting</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Hardcoded inputs are blue (0000FF)</li>
+<li><input disabled="" type="checkbox"> Calculated formulas are black (000000)</li>
+<li><input disabled="" type="checkbox"> Same-tab links are purple (800080)</li>
+<li><input disabled="" type="checkbox"> Cross-tab links are green (008000)</li>
+<li><input disabled="" type="checkbox"> All numbers are right-aligned</li>
+<li><input disabled="" type="checkbox"> Appropriate number formats applied throughout</li>
+<li><input disabled="" type="checkbox"> No cells show error values (#REF!, #DIV/0!, #VALUE!, #NAME?)</li>
+</ul>
+<h4>Logical Sanity Checks</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Numbers are reasonable order of magnitude</li>
+<li><input disabled="" type="checkbox"> Trends make sense (growth, decline, stabilization as expected)</li>
+<li><input disabled="" type="checkbox"> No obviously wrong values (negative where should be positive, impossible percentages, etc.)</li>
+<li><input disabled="" type="checkbox"> Key outputs are within reasonable ranges for the type of analysis</li>
+</ul>
+<hr>
+<h3>COMMON ERRORS TO AVOID</h3>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>What Goes Wrong</th>
+<th>How to Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Hardcoding calculated values</td>
+<td>Model doesn&#39;t update when inputs change</td>
+<td>Always use formulas that reference source cells</td>
+</tr>
+<tr>
+<td>Wrong cell references after copying</td>
+<td>Formulas point to wrong cells</td>
+<td>Verify all links, use appropriate $ anchoring</td>
+</tr>
+<tr>
+<td>Circular reference errors</td>
+<td>Model can&#39;t calculate</td>
+<td>Use beginning balances for interest-type calcs, break the circle</td>
+</tr>
+<tr>
+<td>Sections don&#39;t balance</td>
+<td>Totals that should match don&#39;t</td>
+<td>Ensure one item is the plug (calculated as difference)</td>
+</tr>
+<tr>
+<td>Negative balances where impossible</td>
+<td>Paying/using more than available</td>
+<td>Use MAX(0, ...) or MIN functions appropriately</td>
+</tr>
+<tr>
+<td>IRR/return errors</td>
+<td>Wrong signs or incomplete ranges</td>
+<td>Check cash flow signs and ensure formula covers all periods</td>
+</tr>
+<tr>
+<td>Sensitivity table shows same value</td>
+<td>Formula not varying with inputs</td>
+<td>Check cell references - need mixed references ($A5, B$4)</td>
+</tr>
+<tr>
+<td>Roll-forwards don&#39;t tie</td>
+<td>Beginning ≠ prior ending</td>
+<td>Verify links between periods</td>
+</tr>
+<tr>
+<td>Inconsistent sign conventions</td>
+<td>Additions become subtractions or vice versa</td>
+<td>Follow template&#39;s convention consistently throughout</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>WORKING WITH THE USER — SECTION-BY-SECTION CHECKPOINTS</h3>
+<ul>
+<li><strong>If the template structure is unclear</strong>, ask before proceeding</li>
+<li><strong>If the user&#39;s requirements conflict with the template</strong>, confirm their preference</li>
+<li><strong>After completing each major section</strong>, STOP and verify with the user before continuing:<ul>
+<li><strong>After Sources &amp; Uses</strong> → show the balanced table, confirm the plug is correct, get sign-off before building the operating model</li>
+<li><strong>After Operating Model / Projections</strong> → show the projected P&amp;L, confirm growth rates and margins look right, get sign-off before the debt schedule</li>
+<li><strong>After Debt Schedule</strong> → show beginning/ending balances and interest, confirm the waterfall logic, get sign-off before returns</li>
+<li><strong>After Returns (IRR/MOIC)</strong> → show the cash flow series and outputs, confirm signs and ranges, get sign-off before sensitivity tables</li>
+<li><strong>After Sensitivity Tables</strong> → show that each cell varies, confirm the base case lands where expected</li>
+</ul>
+</li>
+<li><strong>If errors are found during verification</strong>, fix them before moving to the next section</li>
+<li><strong>Show your work</strong> - explain key formulas or assumptions when helpful</li>
+<li><strong>Never present a completed model without having checked in at each section</strong> — it&#39;s faster to catch a wrong cell reference at the source than to trace it backwards from a broken IRR</li>
+</ul>
+<hr>
+<p><strong>This skill produces investment banking-quality LBO models by filling templates with correct formulas, proper formatting, and validated calculations. The skill adapts to any template structure while ensuring financial accuracy and professional presentation standards.</strong></p>
+<h3>Data sources — MCP first, web fallback</h3>
+<p>Many passages below say &quot;use the S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;. Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:</p>
+<ul>
+<li><strong>If you have any structured financial-data MCP configured</strong> (Hermes supports MCP — see <code>native-mcp</code> skill), prefer it for point-in-time comps, precedent transactions, and filings.</li>
+<li><strong>Otherwise</strong>, fall back to:<ul>
+<li><code>web_search</code> / <code>web_extract</code> against SEC EDGAR (<code>https://www.sec.gov/cgi-bin/browse-edgar</code>) for US filings</li>
+<li>Company IR pages for press releases, earnings decks</li>
+<li><code>browser_navigate</code> for interactive data portals</li>
+<li>User-provided data (explicitly ask when the context doesn&#39;t have it)</li>
+</ul>
+</li>
+<li><strong>Never fabricate</strong>. If a multiple, precedent, or filing number can&#39;t be sourced, flag the cell as <code>[UNSOURCED]</code> and surface it to the user.</li>
+</ul>
+<h3>Attribution</h3>
+<p>This skill is adapted from Anthropic&#39;s Claude for Financial Services plugin suite (Apache-2.0). The Office-JS / Cowork live-Excel paths have been removed; this version targets headless openpyxl via the <code>excel-author</code> skill&#39;s conventions. Original: <a href="https://github.com/anthropics/financial-services">https://github.com/anthropics/financial-services</a></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/finance/lbo-model</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

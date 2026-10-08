@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>grill-me — Skill Hermes</title>
+<meta name="description" content="Adversarial plan interview before implementation.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>grill-me</h1>
+    <p class="lede">Adversarial plan interview before implementation.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>grill-me</dd>
+      <dt>Keterangan</dt><dd>Adversarial plan interview before implementation.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>Rafael Zendron (rafaumeu) + Matt Pocock (mattpocock/skills, grilling) + Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/grill-me.zip" download>Muat turun ZIP (2.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Grill Me</h2>
+<p>Stress-tests a plan through structured adversarial questioning before any
+code is written. Models the plan as a <strong>design tree</strong> — every decision
+branches into the decisions that hang off it — and interviews the user in
+rounds until every branch is resolved and nothing is silently assumed.</p>
+<p>Combines the phase discipline of the original with the frontier-rounds
+mechanic from mattpocock/skills&#39; <code>grilling</code>.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User says &quot;grill me&quot;, &quot;interview my plan&quot;, &quot;stress test this idea&quot;</li>
+<li>Before complex work: auth flows, schema changes, migrations, payments</li>
+<li>A plan has unresolved decisions or seems vague</li>
+<li>Before <code>subagent-driven-development</code> decomposition</li>
+</ul>
+<p>Do NOT use for existing code (use <code>requesting-code-review</code>) or simple one-off
+tasks.</p>
+<h3>Prerequisites</h3>
+<p>None. The skill works on any plan or raw idea.</p>
+<h3>Core Mechanic: Frontier Rounds</h3>
+<p>Map the plan as a design tree. The <strong>frontier</strong> is every decision whose
+prerequisites are already settled — the questions you can ask NOW without
+guessing at answers you haven&#39;t heard yet.</p>
+<p>Work in <strong>rounds</strong>: ask the whole current frontier in one message, numbered,
+each question carrying your recommended answer. Then wait. A question whose
+answer depends on another question still open in this round belongs to a
+LATER round, not this one.</p>
+<p>Format each round like so:</p>
+<pre><code>❓ Q1 — &lt;question title&gt;: &lt;question body, options if relevant&gt;
+➡️ Recommendation: &lt;your recommended answer + one-line why&gt;
+
+❓ Q2 — &lt;question title&gt;: &lt;question body&gt;
+➡️ Recommendation: &lt;...&gt;
+</code></pre>
+<p>Each answer reshapes the tree: settled decisions push the frontier outward
+and unblock dependent questions. Recompute the frontier and ask the next
+round.</p>
+<p><strong>Facts are your job; decisions are the user&#39;s.</strong> When a frontier question
+needs a fact from the environment (codebase, filesystem, config, docs), find
+it yourself with <code>search_files</code> / <code>read_file</code> / <code>terminal</code> — or dispatch a
+subagent via <code>delegate_task</code> for a heavy exploration. Never ask the user for
+anything you could look up. Don&#39;t block on an exploration: only the questions
+downstream of it wait; ask the rest of the frontier now.</p>
+<h3>Question Coverage (work these branches into the tree)</h3>
+<p><strong>Understanding</strong> — the real goal and boundaries:</p>
+<ul>
+<li>What is the ACTUAL objective? What is explicitly IN and OUT of scope?</li>
+<li>What are the constraints (time, tech, team, budget)? Who are the users?</li>
+</ul>
+<p><strong>Technical decisions</strong> — for each architectural choice:</p>
+<ul>
+<li>&quot;Why this approach and not X?&quot; / &quot;What happens if Y fails?&quot;</li>
+<li>&quot;What&#39;s the worst case?&quot; / &quot;How would you roll back?&quot;</li>
+<li>Cross-reference the existing codebase; if the project already has a
+pattern for this, call it out.</li>
+</ul>
+<p><strong>Edge cases:</strong></p>
+<ul>
+<li>&quot;What happens if the user does Z?&quot; / &quot;What if dependency X goes down?&quot;</li>
+<li>&quot;What if volume is 100x expected?&quot; / &quot;What are the security implications?&quot;</li>
+</ul>
+<h3>Synthesis (when the frontier is empty)</h3>
+<ol>
+<li>Summarize ALL decisions in bullet points</li>
+<li>List anything left open, and what is explicitly OUT of scope</li>
+<li>Ask: &quot;Aligned? Should I start implementing, or adjust anything?&quot;</li>
+</ol>
+<p>Do not act on the plan until the user confirms shared understanding.</p>
+<h3>Pitfalls</h3>
+<ol>
+<li><strong>Asking questions out of dependency order.</strong> A question that depends on
+an unanswered question is a guess wearing a question mark. Keep it for a
+later round.</li>
+<li><strong>Skipping the codebase.</strong> Find facts in code with Hermes tools instead of
+asking the user.</li>
+<li><strong>Accepting &quot;I don&#39;t know&quot; as final.</strong> Suggest options, explain
+trade-offs, make a recommendation.</li>
+<li><strong>Writing code during the interrogation.</strong> Alignment only — code after the
+explicit green light.</li>
+<li><strong>Being too agreeable.</strong> Your job is to find problems. If everything looks
+fine, look harder.</li>
+<li><strong>Not adapting to the user&#39;s language.</strong> Interview in whatever language
+the user speaks.</li>
+</ol>
+<h3>Verification</h3>
+<ul>
+<li><input disabled="" type="checkbox"> Every question in a round had all its prerequisites already settled</li>
+<li><input disabled="" type="checkbox"> Provided a recommendation with each question</li>
+<li><input disabled="" type="checkbox"> Explored the codebase for facts instead of asking the user</li>
+<li><input disabled="" type="checkbox"> Frontier empty (no branch silently assumed) before synthesizing</li>
+<li><input disabled="" type="checkbox"> Produced a clear summary of all decisions and open items</li>
+<li><input disabled="" type="checkbox"> Confirmed user alignment before stopping</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/software-development/grill-me</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

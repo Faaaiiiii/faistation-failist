@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>reddit-reading — Skill Hermes</title>
+<meta name="description" content="Read Reddit: subreddits, search, threads, users. No browser.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>reddit-reading</h1>
+    <p class="lede">Read Reddit: subreddits, search, threads, users. No browser.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>reddit-reading</dd>
+      <dt>Keterangan</dt><dd>Read Reddit: subreddits, search, threads, users. No browser.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>social-media · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/reddit-reading.zip" download>Muat turun ZIP (7.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>scripts/reddit.py</code></td><td class="sz">13.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Reddit Reading Skill</h2>
+<p>Reads Reddit content — subreddit listings, site or subreddit search, full threads with
+comments, and user activity — from a server or headless machine where the normal routes
+are dead. It does not post, vote, or log in as a user. Idea credit: the per-platform
+backend routing in <a href="https://github.com/Panniantong/Agent-Reach">Agent Reach</a>.</p>
+<h3>When to Use</h3>
+<ul>
+<li>&quot;What is r/LocalLLaMA saying about X&quot;, &quot;find Reddit threads on Y&quot;, &quot;summarise this
+Reddit thread&quot;, &quot;what has u/someone posted lately&quot;.</li>
+<li>Any <code>reddit.com</code> URL the user shares. <code>web_extract</code>, <code>browser_navigate</code> and the
+<code>.json</code> endpoints all fail from server IPs (403 or a &quot;Prove your humanity&quot; wall);
+this skill is the working path.</li>
+<li>Not for posting, voting, messaging, or anything needing a user login.</li>
+</ul>
+<h3>Prerequisites</h3>
+<p><strong>None.</strong> No Reddit account, login, cookie, or API key is needed. The default backend is
+Reddit&#39;s public Atom feeds (<code>.rss</code> endpoints), the only unauthenticated route Reddit still
+serves to non-residential IPs. It is throttled to about one request per minute per IP and
+returns thinner data (no scores, top-level comments only), which is fine for a few calls.</p>
+<p><strong>Optional upgrade (app credentials, still no user login):</strong> for sustained use or full
+data, register a free &quot;script&quot; type app at <a href="https://www.reddit.com/prefs/apps">https://www.reddit.com/prefs/apps</a> and put its
+two values in <code>~/.hermes/.env</code>:</p>
+<pre><code>REDDIT_CLIENT_ID=...
+REDDIT_CLIENT_SECRET=...
+</code></pre>
+<p>This is an application registration, not a login: the script uses the app-only
+<code>client_credentials</code> grant, never a username, password, or browser cookie, and never
+acts as the user. With both values set it switches to the OAuth API automatically
+(~100 requests per minute, scores, nested comments, <code>num_comments</code>); if they are
+missing or rejected it falls back to the anonymous feeds and says so on stderr.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Anonymous feeds (default)</th>
+<th>OAuth app credentials</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Setup</td>
+<td>nothing</td>
+<td>1-minute app registration, two <code>.env</code> values</td>
+</tr>
+<tr>
+<td>Rate limit</td>
+<td>~1 request / minute / IP</td>
+<td>~100 requests / minute</td>
+</tr>
+<tr>
+<td>Thread data</td>
+<td>post + top-level comments, no scores</td>
+<td>nested comments, scores, comment counts</td>
+</tr>
+<tr>
+<td>Acts as a user</td>
+<td>no</td>
+<td>no</td>
+</tr>
+</tbody></table>
+<h3>How to Run</h3>
+<p>Run every command through <code>terminal</code> with the skill-relative script path:</p>
+<pre><code class="language-bash">python3 scripts/reddit.py doctor                                  # which backend, current rate-limit window
+python3 scripts/reddit.py sub LocalLLaMA --sort hot --limit 15
+python3 scripts/reddit.py search &quot;hermes agent&quot; --sub LocalLLaMA --sort new
+python3 scripts/reddit.py thread https://www.reddit.com/r/x/comments/abc123/slug/ --limit 40
+python3 scripts/reddit.py user spez --limit 10
+python3 scripts/reddit.py --json search &quot;topic&quot;                  # machine-readable
+</code></pre>
+<h3>Quick Reference</h3>
+<p>Every command works on both backends; the script chooses the backend, you never pass a flag.</p>
+<table>
+<thead>
+<tr>
+<th>Need</th>
+<th>Command</th>
+<th>Anonymous</th>
+<th>OAuth</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subreddit front page</td>
+<td><code>sub NAME --sort hot|new|top|rising [--time week]</code></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Search all of Reddit</td>
+<td><code>search &quot;q&quot; --sort relevance|new|top|comments</code></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Search one subreddit</td>
+<td><code>search &quot;q&quot; --sub NAME</code></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Thread + comments</td>
+<td><code>thread URL --limit N</code></td>
+<td>✔ top-level only, no scores</td>
+<td>✔ nested, scores</td>
+</tr>
+<tr>
+<td>User posts/comments</td>
+<td><code>user NAME</code></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>Backend + rate limit</td>
+<td><code>doctor</code></td>
+<td>✔</td>
+<td>✔</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<p>① <code>doctor</code> once per task if you have not called it this session — it tells you which
+backend is live and how many seconds remain in the anonymous window.</p>
+<p>② Plan your calls before making them. Anonymous Reddit allows roughly <strong>one request per
+minute per IP</strong>; the script sleeps until the window resets on a 429 and retries once, so
+a five-call plan costs about five minutes. Prefer one <code>search --sub</code> over several <code>sub</code>
+listings, and read one thread rather than the whole listing.</p>
+<p>③ For &quot;what is the community saying&quot; questions, read the thread bodies (<code>thread</code>) rather
+than stopping at titles; the listing only carries the first ~300 characters of each post.</p>
+<p>④ Cite the permalink (<code>url</code> field), not the listing page, when the result feeds a report.
+<code>grounded-citations</code> registers these URLs like any other source.</p>
+<p>⑤ If the user needs sustained Reddit access (monitoring, more than ~10 calls), stop and
+ask them to register the app credentials (Prerequisites) rather than grinding through the
+throttle. Tell them plainly: it is a free app registration, not logging Hermes into their
+account. Never ask for a Reddit password or browser cookies.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><code>www.reddit.com/…/.json</code>, <code>api.reddit.com</code> and <code>old.reddit.com</code> return 403 or an
+empty &quot;Welcome to Reddit&quot; shell for datacentre IPs. Do not fall back to them; do not
+spoof a browser User-Agent (also 403).</li>
+<li><code>r.jina.ai</code> and the <code>browser_navigate</code> tool hit the same block (&quot;blocked by network
+security&quot; / humanity check). <code>blocked-page-recovery</code>&#39;s Wayback route can still recover
+an <strong>old</strong> thread that was archived; it cannot fetch fresh ones.</li>
+<li>Anonymous thread feeds only contain the post plus top-level comments (Reddit caps the
+feed at a handful of entries); scores and reply nesting are OAuth-only.</li>
+<li>Reddit&#39;s <code>limit</code> on feeds is advisory — expect 5–25 entries regardless of what you ask.</li>
+<li>Never paste <code>REDDIT_CLIENT_SECRET</code> into a chat or log; the script reads it from the
+environment only.</li>
+<li>Do not &quot;fix&quot; a 429 by retrying in a loop or adding a proxy; the throttle is per IP and
+the script already waits out the window once. More than one 429 in a row means the
+task needs the app credentials.</li>
+</ul>
+<h3>Verification</h3>
+<p><code>python3 scripts/reddit.py doctor</code> prints <code>anonymous_feed: ok</code> and an
+<code>x-ratelimit-reset</code> value; <code>sub announcements --limit 1</code> returns one entry with a
+<code>reddit.com/r/announcements/comments/</code> URL. With credentials set, <code>doctor</code> prints
+<code>active_backend: oauth</code> and <code>thread …</code> output shows numeric scores.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/social-media/reddit-reading</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

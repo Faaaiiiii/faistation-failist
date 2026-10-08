@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>llm-wiki — Skill Hermes</title>
+<meta name="description" content="Karpathy&#39;s LLM Wiki: build/query interlinked markdown KB.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>llm-wiki</h1>
+    <p class="lede">Karpathy&#39;s LLM Wiki: build/query interlinked markdown KB.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>llm-wiki</dd>
+      <dt>Keterangan</dt><dd>Karpathy&#39;s LLM Wiki: build/query interlinked markdown KB.</dd>
+      <dt>Versi</dt><dd>2.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/llm-wiki.zip" download>Muat turun ZIP (8.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">19.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Karpathy&#39;s LLM Wiki</h2>
+<p>Build and maintain a persistent, compounding knowledge base as interlinked markdown files.
+Based on <a href="https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f">Andrej Karpathy&#39;s LLM Wiki pattern</a>.</p>
+<p>Unlike traditional RAG (which rediscovers knowledge from scratch per query), the wiki
+compiles knowledge once and keeps it current. Cross-references are already there.
+Contradictions have already been flagged. Synthesis reflects everything ingested.</p>
+<p><strong>Division of labor:</strong> The human curates sources and directs analysis. The agent
+summarizes, cross-references, files, and maintains consistency.</p>
+<h3>When This Skill Activates</h3>
+<p>Use this skill when the user:</p>
+<ul>
+<li>Asks to create, build, or start a wiki or knowledge base</li>
+<li>Asks to ingest, add, or process a source into their wiki</li>
+<li>Asks a question and an existing wiki is present at the configured path</li>
+<li>Asks to lint, audit, or health-check their wiki</li>
+<li>References their wiki, knowledge base, or &quot;notes&quot; in a research context</li>
+</ul>
+<h3>Wiki Location</h3>
+<p><strong>Location:</strong> Set via <code>WIKI_PATH</code> environment variable (e.g. in <code>${HERMES_HOME:-~/.hermes}/.env</code>).</p>
+<p>If unset, defaults to <code>~/wiki</code>.</p>
+<pre><code class="language-bash">WIKI=&quot;${WIKI_PATH:-$HOME/wiki}&quot;
+</code></pre>
+<p>The wiki is just a directory of markdown files — open it in Obsidian, VS Code, or
+any editor. No database, no special tooling required.</p>
+<h3>Architecture: Three Layers</h3>
+<pre><code>wiki/
+├── SCHEMA.md           # Conventions, structure rules, domain config
+├── index.md            # Sectioned content catalog with one-line summaries
+├── log.md              # Chronological action log (append-only, rotated yearly)
+├── raw/                # Layer 1: Immutable source material
+│   ├── articles/       # Web articles, clippings
+│   ├── papers/         # PDFs, arxiv papers
+│   ├── transcripts/    # Meeting notes, interviews
+│   └── assets/         # Images, diagrams referenced by sources
+├── entities/           # Layer 2: Entity pages (people, orgs, products, models)
+├── concepts/           # Layer 2: Concept/topic pages
+├── comparisons/        # Layer 2: Side-by-side analyses
+└── queries/            # Layer 2: Filed query results worth keeping
+</code></pre>
+<p><strong>Layer 1 — Raw Sources:</strong> Immutable. The agent reads but never modifies these.
+<strong>Layer 2 — The Wiki:</strong> Agent-owned markdown files. Created, updated, and
+cross-referenced by the agent.
+<strong>Layer 3 — The Schema:</strong> <code>SCHEMA.md</code> defines structure, conventions, and tag taxonomy.</p>
+<h3>Resuming an Existing Wiki (CRITICAL — do this every session)</h3>
+<p>When the user has an existing wiki, <strong>always orient yourself before doing anything</strong>:</p>
+<p>① <strong>Read <code>SCHEMA.md</code></strong> — understand the domain, conventions, and tag taxonomy.
+② <strong>Read <code>index.md</code></strong> — learn what pages exist and their summaries.
+③ <strong>Scan recent <code>log.md</code></strong> — read the last 20-30 entries to understand recent activity.</p>
+<pre><code class="language-bash">WIKI=&quot;${WIKI_PATH:-$HOME/wiki}&quot;
+# Orientation reads at session start
+read_file &quot;$WIKI/SCHEMA.md&quot;
+read_file &quot;$WIKI/index.md&quot;
+read_file &quot;$WIKI/log.md&quot; offset=&lt;last 30 lines&gt;
+</code></pre>
+<p>Only after orientation should you ingest, query, or lint. This prevents:</p>
+<ul>
+<li>Creating duplicate pages for entities that already exist</li>
+<li>Missing cross-references to existing content</li>
+<li>Contradicting the schema&#39;s conventions</li>
+<li>Repeating work already logged</li>
+</ul>
+<p>For large wikis (100+ pages), also run a quick <code>search_files</code> for the topic
+at hand before creating anything new.</p>
+<h3>Initializing a New Wiki</h3>
+<p>When the user asks to create or start a wiki:</p>
+<ol>
+<li>Determine the wiki path (from <code>$WIKI_PATH</code> env var, or ask the user; default <code>~/wiki</code>)</li>
+<li>Create the directory structure above</li>
+<li>Ask the user what domain the wiki covers — be specific</li>
+<li>Write <code>SCHEMA.md</code> customized to the domain (see template below)</li>
+<li>Write initial <code>index.md</code> with sectioned header</li>
+<li>Write initial <code>log.md</code> with creation entry</li>
+<li>Confirm the wiki is ready and suggest first sources to ingest</li>
+</ol>
+<h4>SCHEMA.md Template</h4>
+<p>Adapt to the user&#39;s domain. The schema constrains agent behavior and ensures consistency:</p>
+<pre><code class="language-markdown"># Wiki Schema
+
+## Domain
+[What this wiki covers — e.g., &quot;AI/ML research&quot;, &quot;personal health&quot;, &quot;startup intelligence&quot;]
+
+## Conventions
+- File names: lowercase, hyphens, no spaces (e.g., `transformer-architecture.md`)
+- Every wiki page starts with YAML frontmatter (see below)
+- Use `[[wikilinks]]` to link between pages (minimum 2 outbound links per page)
+- When updating a page, always bump the `updated` date
+- Every new page must be added to `index.md` under the correct section
+- Every action must be appended to `log.md`
+- **Provenance markers:** On pages that synthesize 3+ sources, append `^[raw/articles/source-file.md]`
+  at the end of paragraphs whose claims come from a specific source. This lets a reader trace each
+  claim back without re-reading the whole raw file. Optional on single-source pages where the
+  `sources:` frontmatter is enough.
+
+## Frontmatter
+  ```yaml
+  ---
+  title: Page Title
+  created: YYYY-MM-DD
+  updated: YYYY-MM-DD
+  type: entity | concept | comparison | query | summary
+  tags: [from taxonomy below]
+  sources: [raw/articles/source-name.md]
+  # Optional quality signals:
+  confidence: high | medium | low        # how well-supported the claims are
+  contested: true                        # set when the page has unresolved contradictions
+  contradictions: [other-page-slug]      # pages this one conflicts with
+  ---
+</code></pre>
+<p><code>confidence</code> and <code>contested</code> are optional but recommended for opinion-heavy or fast-moving
+topics. Lint surfaces <code>contested: true</code> and <code>confidence: low</code> pages for review so weak claims
+don&#39;t silently harden into accepted wiki fact.</p>
+<h4>raw/ Frontmatter</h4>
+<p>Raw sources ALSO get a small frontmatter block so re-ingests can detect drift:</p>
+<pre><code class="language-yaml">---
+source_url: https://example.com/article   # original URL, if applicable
+ingested: YYYY-MM-DD
+sha256: &lt;hex digest of the raw content below the frontmatter&gt;
+---
+</code></pre>
+<p>The <code>sha256:</code> lets a future re-ingest of the same URL skip processing when content is unchanged,
+and flag drift when it has changed. Compute over the body only (everything after the closing
+<code>---</code>), not the frontmatter itself.</p>
+<h3>Tag Taxonomy</h3>
+<p>[Define 10-20 top-level tags for the domain. Add new tags here BEFORE using them.]</p>
+<p>Example for AI/ML:</p>
+<ul>
+<li>Models: model, architecture, benchmark, training</li>
+<li>People/Orgs: person, company, lab, open-source</li>
+<li>Techniques: optimization, fine-tuning, inference, alignment, data</li>
+<li>Meta: comparison, timeline, controversy, prediction</li>
+</ul>
+<p>Rule: every tag on a page must appear in this taxonomy. If a new tag is needed,
+add it here first, then use it. This prevents tag sprawl.</p>
+<h3>Page Thresholds</h3>
+<ul>
+<li><strong>Create a page</strong> when an entity/concept appears in 2+ sources OR is central to one source</li>
+<li><strong>Add to existing page</strong> when a source mentions something already covered</li>
+<li><strong>DON&#39;T create a page</strong> for passing mentions, minor details, or things outside the domain</li>
+<li><strong>Split a page</strong> when it exceeds ~200 lines — break into sub-topics with cross-links</li>
+<li><strong>Archive a page</strong> when its content is fully superseded — move to <code>_archive/</code>, remove from index</li>
+</ul>
+<h3>Entity Pages</h3>
+<p>One page per notable entity. Include:</p>
+<ul>
+<li>Overview / what it is</li>
+<li>Key facts and dates</li>
+<li>Relationships to other entities ([[wikilinks]])</li>
+<li>Source references</li>
+</ul>
+<h3>Concept Pages</h3>
+<p>One page per concept or topic. Include:</p>
+<ul>
+<li>Definition / explanation</li>
+<li>Current state of knowledge</li>
+<li>Open questions or debates</li>
+<li>Related concepts ([[wikilinks]])</li>
+</ul>
+<h3>Comparison Pages</h3>
+<p>Side-by-side analyses. Include:</p>
+<ul>
+<li>What is being compared and why</li>
+<li>Dimensions of comparison (table format preferred)</li>
+<li>Verdict or synthesis</li>
+<li>Sources</li>
+</ul>
+<h3>Update Policy</h3>
+<p>When new information conflicts with existing content:</p>
+<ol>
+<li>Check the dates — newer sources generally supersede older ones</li>
+<li>If genuinely contradictory, note both positions with dates and sources</li>
+<li>Mark the contradiction in frontmatter: <code>contradictions: [page-name]</code></li>
+<li>Flag for user review in the lint report</li>
+</ol>
+<pre><code>
+### index.md Template
+
+The index is sectioned by type. Each entry is one line: wikilink + summary.
+
+```markdown
+# Wiki Index
+
+&gt; Content catalog. Every wiki page listed under its type with a one-line summary.
+&gt; Read this first to find relevant pages for any query.
+&gt; Last updated: YYYY-MM-DD | Total pages: N
+
+## Entities
+&lt;!-- Alphabetical within section --&gt;
+
+## Concepts
+
+## Comparisons
+
+## Queries
+</code></pre>
+<p><strong>Scaling rule:</strong> When any section exceeds 50 entries, split it into sub-sections
+by first letter or sub-domain. When the index exceeds 200 entries total, create
+a <code>_meta/topic-map.md</code> that groups pages by theme for faster navigation.</p>
+<h4>log.md Template</h4>
+<pre><code class="language-markdown"># Wiki Log
+
+&gt; Chronological record of all wiki actions. Append-only.
+&gt; Format: `## [YYYY-MM-DD] action | subject`
+&gt; Actions: ingest, update, query, lint, create, archive, delete
+&gt; When this file exceeds 500 entries, rotate: rename to log-YYYY.md, start fresh.
+
+## [YYYY-MM-DD] create | Wiki initialized
+- Domain: [domain]
+- Structure created with SCHEMA.md, index.md, log.md
+</code></pre>
+<h3>Core Operations</h3>
+<h4>1. Ingest</h4>
+<p>When the user provides a source (URL, file, paste), integrate it into the wiki:</p>
+<p>① <strong>Capture the raw source:</strong></p>
+<ul>
+<li>URL → use <code>web_extract</code> to get markdown, save to <code>raw/articles/</code></li>
+<li>PDF → use <code>web_extract</code> (handles PDFs), save to <code>raw/papers/</code></li>
+<li>Pasted text → save to appropriate <code>raw/</code> subdirectory</li>
+<li>Name the file descriptively: <code>raw/articles/karpathy-llm-wiki-2026.md</code></li>
+<li><strong>Add raw frontmatter</strong> (<code>source_url</code>, <code>ingested</code>, <code>sha256</code> of the body).
+On re-ingest of the same URL: recompute the sha256, compare to the stored value —
+skip if identical, flag drift and update if different. This is cheap enough to
+do on every re-ingest and catches silent source changes.</li>
+</ul>
+<p>② <strong>Discuss takeaways</strong> with the user — what&#39;s interesting, what matters for
+   the domain. (Skip this in automated/cron contexts — proceed directly.)</p>
+<p>③ <strong>Check what already exists</strong> — search index.md and use <code>search_files</code> to find
+   existing pages for mentioned entities/concepts. This is the difference between
+   a growing wiki and a pile of duplicates.</p>
+<p>④ <strong>Write or update wiki pages:</strong></p>
+<ul>
+<li><strong>New entities/concepts:</strong> Create pages only if they meet the Page Thresholds
+in SCHEMA.md (2+ source mentions, or central to one source)</li>
+<li><strong>Existing pages:</strong> Add new information, update facts, bump <code>updated</code> date.
+When new info contradicts existing content, follow the Update Policy.</li>
+<li><strong>Cross-reference:</strong> Every new or updated page must link to at least 2 other
+pages via <code>[[wikilinks]]</code>. Check that existing pages link back.</li>
+<li><strong>Tags:</strong> Only use tags from the taxonomy in SCHEMA.md</li>
+<li><strong>Provenance:</strong> On pages synthesizing 3+ sources, append <code>^[raw/articles/source.md]</code>
+markers to paragraphs whose claims trace to a specific source.</li>
+<li><strong>Confidence:</strong> For opinion-heavy, fast-moving, or single-source claims, set
+<code>confidence: medium</code> or <code>low</code> in frontmatter. Don&#39;t mark <code>high</code> unless the
+claim is well-supported across multiple sources.</li>
+</ul>
+<p>⑤ <strong>Update navigation:</strong></p>
+<ul>
+<li>Add new pages to <code>index.md</code> under the correct section, alphabetically</li>
+<li>Update the &quot;Total pages&quot; count and &quot;Last updated&quot; date in index header</li>
+<li>Append to <code>log.md</code>: <code>## [YYYY-MM-DD] ingest | Source Title</code></li>
+<li>List every file created or updated in the log entry</li>
+</ul>
+<p>⑥ <strong>Report what changed</strong> — list every file created or updated to the user.</p>
+<p>A single source can trigger updates across 5-15 wiki pages. This is normal
+and desired — it&#39;s the compounding effect.</p>
+<h4>2. Query</h4>
+<p>When the user asks a question about the wiki&#39;s domain:</p>
+<p>① <strong>Read <code>index.md</code></strong> to identify relevant pages.
+② <strong>For wikis with 100+ pages</strong>, also <code>search_files</code> across all <code>.md</code> files
+   for key terms — the index alone may miss relevant content.
+③ <strong>Read the relevant pages</strong> using <code>read_file</code>.
+④ <strong>Synthesize an answer</strong> from the compiled knowledge. Cite the wiki pages
+   you drew from: &quot;Based on [[page-a]] and [[page-b]]...&quot;
+⑤ <strong>File valuable answers back</strong> — if the answer is a substantial comparison,
+   deep dive, or novel synthesis, create a page in <code>queries/</code> or <code>comparisons/</code>.
+   Don&#39;t file trivial lookups — only answers that would be painful to re-derive.
+⑥ <strong>Update log.md</strong> with the query and whether it was filed.</p>
+<h4>3. Lint</h4>
+<p>When the user asks to lint, health-check, or audit the wiki:</p>
+<p>① <strong>Orphan pages:</strong> Find pages with no inbound <code>[[wikilinks]]</code> from other pages.</p>
+<pre><code class="language-python"># Use execute_code for this — programmatic scan across all wiki pages
+import os, re
+from collections import defaultdict
+wiki = &quot;&lt;WIKI_PATH&gt;&quot;
+# Scan all .md files in entities/, concepts/, comparisons/, queries/
+# Extract all [[wikilinks]] — build inbound link map
+# Pages with zero inbound links are orphans
+</code></pre>
+<p>② <strong>Broken wikilinks:</strong> Find <code>[[links]]</code> that point to pages that don&#39;t exist.</p>
+<p>③ <strong>Index completeness:</strong> Every wiki page should appear in <code>index.md</code>. Compare
+   the filesystem against index entries.</p>
+<p>④ <strong>Frontmatter validation:</strong> Every wiki page must have all required fields
+   (title, created, updated, type, tags, sources). Tags must be in the taxonomy.</p>
+<p>⑤ <strong>Stale content:</strong> Pages whose <code>updated</code> date is &gt;90 days older than the most
+   recent source that mentions the same entities.</p>
+<p>⑥ <strong>Contradictions:</strong> Pages on the same topic with conflicting claims. Look for
+   pages that share tags/entities but state different facts. Surface all pages
+   with <code>contested: true</code> or <code>contradictions:</code> frontmatter for user review.</p>
+<p>⑦ <strong>Quality signals:</strong> List pages with <code>confidence: low</code> and any page that cites
+   only a single source but has no confidence field set — these are candidates
+   for either finding corroboration or demoting to <code>confidence: medium</code>.</p>
+<p>⑧ <strong>Source drift:</strong> For each file in <code>raw/</code> with a <code>sha256:</code> frontmatter, recompute
+   the hash and flag mismatches. Mismatches indicate the raw file was edited
+   (shouldn&#39;t happen — raw/ is immutable) or ingested from a URL that has since
+   changed. Not a hard error, but worth reporting.</p>
+<p>⑨ <strong>Page size:</strong> Flag pages over 200 lines — candidates for splitting.</p>
+<p>⑩ <strong>Tag audit:</strong> List all tags in use, flag any not in the SCHEMA.md taxonomy.</p>
+<p>⑪ <strong>Log rotation:</strong> If log.md exceeds 500 entries, rotate it.</p>
+<p>⑫ <strong>Report findings</strong> with specific file paths and suggested actions, grouped by
+   severity (broken links &gt; orphans &gt; source drift &gt; contested pages &gt; stale content &gt; style issues).</p>
+<p>⑬ <strong>Append to log.md:</strong> <code>## [YYYY-MM-DD] lint | N issues found</code></p>
+<h3>Working with the Wiki</h3>
+<h4>Searching</h4>
+<pre><code class="language-bash"># Find pages by content
+search_files &quot;transformer&quot; path=&quot;$WIKI&quot; file_glob=&quot;*.md&quot;
+
+# Find pages by filename
+search_files &quot;*.md&quot; target=&quot;files&quot; path=&quot;$WIKI&quot;
+
+# Find pages by tag
+search_files &quot;tags:.*alignment&quot; path=&quot;$WIKI&quot; file_glob=&quot;*.md&quot;
+
+# Recent activity
+read_file &quot;$WIKI/log.md&quot; offset=&lt;last 20 lines&gt;
+</code></pre>
+<h4>Bulk Ingest</h4>
+<p>When ingesting multiple sources at once, batch the updates:</p>
+<ol>
+<li>Read all sources first</li>
+<li>Identify all entities and concepts across all sources</li>
+<li>Check existing pages for all of them (one search pass, not N)</li>
+<li>Create/update pages in one pass (avoids redundant updates)</li>
+<li>Update index.md once at the end</li>
+<li>Write a single log entry covering the batch</li>
+</ol>
+<h4>Archiving</h4>
+<p>When content is fully superseded or the domain scope changes:</p>
+<ol>
+<li>Create <code>_archive/</code> directory if it doesn&#39;t exist</li>
+<li>Move the page to <code>_archive/</code> with its original path (e.g., <code>_archive/entities/old-page.md</code>)</li>
+<li>Remove from <code>index.md</code></li>
+<li>Update any pages that linked to it — replace wikilink with plain text + &quot;(archived)&quot;</li>
+<li>Log the archive action</li>
+</ol>
+<h4>Obsidian Integration</h4>
+<p>The wiki directory works as an Obsidian vault out of the box:</p>
+<ul>
+<li><code>[[wikilinks]]</code> render as clickable links</li>
+<li>Graph View visualizes the knowledge network</li>
+<li>YAML frontmatter powers Dataview queries</li>
+<li>The <code>raw/assets/</code> folder holds images referenced via <code>![[image.png]]</code></li>
+</ul>
+<p>For best results:</p>
+<ul>
+<li>Set Obsidian&#39;s attachment folder to <code>raw/assets/</code></li>
+<li>Enable &quot;Wikilinks&quot; in Obsidian settings (usually on by default)</li>
+<li>Install Dataview plugin for queries like <code>TABLE tags FROM &quot;entities&quot; WHERE contains(tags, &quot;company&quot;)</code></li>
+</ul>
+<p>If using the Obsidian skill alongside this one, set <code>OBSIDIAN_VAULT_PATH</code> to the
+same directory as the wiki path.</p>
+<h4>Obsidian Headless (servers and headless machines)</h4>
+<p>On machines without a display, use <code>obsidian-headless</code> instead of the desktop app.
+It syncs vaults via Obsidian Sync without a GUI — perfect for agents running on
+servers that write to the wiki while Obsidian desktop reads it on another device.</p>
+<p><strong>Setup:</strong></p>
+<pre><code class="language-bash"># Requires Node.js 22+
+npm install -g obsidian-headless
+
+# Login (requires Obsidian account with Sync subscription)
+ob login --email &lt;email&gt; --password &#39;&lt;password&gt;&#39;
+
+# Create a remote vault for the wiki
+ob sync-create-remote --name &quot;LLM Wiki&quot;
+
+# Connect the wiki directory to the vault
+cd ~/wiki
+ob sync-setup --vault &quot;&lt;vault-id&gt;&quot;
+
+# Initial sync
+ob sync
+
+# Continuous sync (foreground — use systemd for background)
+ob sync --continuous
+</code></pre>
+<p><strong>Continuous background sync via systemd:</strong></p>
+<pre><code class="language-ini"># ~/.config/systemd/user/obsidian-wiki-sync.service
+[Unit]
+Description=Obsidian LLM Wiki Sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/path/to/ob sync --continuous
+WorkingDirectory=%h/wiki
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=default.target
+</code></pre>
+<pre><code class="language-bash">systemctl --user daemon-reload
+systemctl --user enable --now obsidian-wiki-sync
+# Enable linger so sync survives logout:
+sudo loginctl enable-linger $USER
+</code></pre>
+<p>This lets the agent write to <code>~/wiki</code> on a server while you browse the same
+vault in Obsidian on your laptop/phone — changes appear within seconds.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Never modify files in <code>raw/</code></strong> — sources are immutable. Corrections go in wiki pages.</li>
+<li><strong>Always orient first</strong> — read SCHEMA + index + recent log before any operation in a new session.
+Skipping this causes duplicates and missed cross-references.</li>
+<li><strong>Always update index.md and log.md</strong> — skipping this makes the wiki degrade. These are the
+navigational backbone.</li>
+<li><strong>Don&#39;t create pages for passing mentions</strong> — follow the Page Thresholds in SCHEMA.md. A name
+appearing once in a footnote doesn&#39;t warrant an entity page.</li>
+<li><strong>Don&#39;t create pages without cross-references</strong> — isolated pages are invisible. Every page must
+link to at least 2 other pages.</li>
+<li><strong>Frontmatter is required</strong> — it enables search, filtering, and staleness detection.</li>
+<li><strong>Tags must come from the taxonomy</strong> — freeform tags decay into noise. Add new tags to SCHEMA.md
+first, then use them.</li>
+<li><strong>Keep pages scannable</strong> — a wiki page should be readable in 30 seconds. Split pages over
+200 lines. Move detailed analysis to dedicated deep-dive pages.</li>
+<li><strong>Ask before mass-updating</strong> — if an ingest would touch 10+ existing pages, confirm
+the scope with the user first.</li>
+<li><strong>Rotate the log</strong> — when log.md exceeds 500 entries, rename it <code>log-YYYY.md</code> and start fresh.
+The agent should check log size during lint.</li>
+<li><strong>Handle contradictions explicitly</strong> — don&#39;t silently overwrite. Note both claims with dates,
+mark in frontmatter, flag for user review.</li>
+</ul>
+<h3>Related Tools</h3>
+<p><a href="https://github.com/atomicmemory/llm-wiki-compiler">llm-wiki-compiler</a> is a Node.js CLI that
+compiles sources into a concept wiki with the same Karpathy inspiration. It&#39;s Obsidian-compatible,
+so users who want a scheduled/CLI-driven compile pipeline can point it at the same vault this
+skill maintains. Trade-offs: it owns page generation (replaces the agent&#39;s judgment on page
+creation) and is tuned for small corpora. Use this skill when you want agent-in-the-loop curation;
+use llmwiki when you want batch compile of a source directory.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/research/llm-wiki</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

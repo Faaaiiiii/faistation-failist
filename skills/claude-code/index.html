@@ -1,0 +1,1298 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>claude-code — Skill Hermes</title>
+<meta name="description" content="Delegate coding to Claude Code CLI (features, PRs).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>claude-code</h1>
+    <p class="lede">Delegate coding to Claude Code CLI (features, PRs).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>claude-code</dd>
+      <dt>Keterangan</dt><dd>Delegate coding to Claude Code CLI (features, PRs).</dd>
+      <dt>Versi</dt><dd>2.2.1</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/claude-code.zip" download>Muat turun ZIP (12.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">34.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Claude Code — Hermes Orchestration Guide</h2>
+<p>Delegate coding tasks to <a href="https://code.claude.com/docs/en/cli-reference">Claude Code</a> (Anthropic&#39;s autonomous coding agent CLI) via the Hermes terminal. Claude Code v2.x can read files, write code, run shell commands, spawn subagents, and manage git workflows autonomously.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>Install:</strong> <code>npm install -g @anthropic-ai/claude-code</code></li>
+<li><strong>Auth:</strong> run <code>claude</code> once to log in (browser OAuth for Pro/Max, or set <code>ANTHROPIC_API_KEY</code>)</li>
+<li><strong>Console auth:</strong> <code>claude auth login --console</code> for API key billing</li>
+<li><strong>SSO auth:</strong> <code>claude auth login --sso</code> for Enterprise</li>
+<li><strong>Check status:</strong> <code>claude auth status</code> (JSON) or <code>claude auth status --text</code> (human-readable)</li>
+<li><strong>Health check:</strong> <code>claude doctor</code> — checks auto-updater and installation health</li>
+<li><strong>Version check:</strong> <code>claude --version</code> (requires v2.x+)</li>
+<li><strong>Update:</strong> <code>claude update</code> or <code>claude upgrade</code></li>
+</ul>
+<h3>Two Orchestration Modes</h3>
+<p>Hermes interacts with Claude Code in two fundamentally different ways. Choose based on the task.</p>
+<h4>Mode 1: Print Mode (<code>-p</code>) — Non-Interactive (PREFERRED for most tasks)</h4>
+<p>Print mode runs a one-shot task, returns the result, and exits. No PTY needed. No interactive prompts. This is the cleanest integration path.</p>
+<pre><code>terminal(command=&quot;claude -p &#39;Add error handling to all API calls in src/&#39; --allowedTools &#39;Read,Edit&#39; --max-turns 10&quot;, workdir=&quot;/path/to/project&quot;, timeout=120)
+</code></pre>
+<p><strong>When to use print mode:</strong></p>
+<ul>
+<li>One-shot coding tasks (fix a bug, add a feature, refactor)</li>
+<li>CI/CD automation and scripting</li>
+<li>Structured data extraction with <code>--json-schema</code></li>
+<li>Piped input processing (<code>cat file | claude -p &quot;analyze this&quot;</code>)</li>
+<li>Any task where you don&#39;t need multi-turn conversation</li>
+</ul>
+<p><strong>Print mode skips ALL interactive dialogs</strong> — no workspace trust prompt, no permission confirmations. This makes it ideal for automation.</p>
+<h4>Mode 2: Interactive PTY via tmux — Multi-Turn Sessions</h4>
+<p>Interactive mode gives you a full conversational REPL where you can send follow-up prompts, use slash commands, and watch Claude work in real time. <strong>Requires tmux orchestration.</strong></p>
+<pre><code># Start a tmux session
+terminal(command=&quot;tmux new-session -d -s claude-work -x 140 -y 40&quot;)
+
+# Launch Claude Code inside it
+terminal(command=&quot;tmux send-keys -t claude-work &#39;cd /path/to/project &amp;&amp; claude&#39; Enter&quot;)
+
+# Wait for startup, then send your task
+# (after ~3-5 seconds for the welcome screen)
+terminal(command=&quot;sleep 5 &amp;&amp; tmux send-keys -t claude-work &#39;Refactor the auth module to use JWT tokens&#39; Enter&quot;)
+
+# Monitor progress by capturing the pane
+terminal(command=&quot;sleep 15 &amp;&amp; tmux capture-pane -t claude-work -p -S -50&quot;)
+
+# Send follow-up tasks
+terminal(command=&quot;tmux send-keys -t claude-work &#39;Now add unit tests for the new JWT code&#39; Enter&quot;)
+
+# Exit when done
+terminal(command=&quot;tmux send-keys -t claude-work &#39;/exit&#39; Enter&quot;)
+</code></pre>
+<p><strong>When to use interactive mode:</strong></p>
+<ul>
+<li>Multi-turn iterative work (refactor → review → fix → test cycle)</li>
+<li>Tasks requiring human-in-the-loop decisions</li>
+<li>Exploratory coding sessions</li>
+<li>When you need to use Claude&#39;s slash commands (<code>/compact</code>, <code>/review</code>, <code>/model</code>)</li>
+</ul>
+<h3>PTY Dialog Handling (CRITICAL for Interactive Mode)</h3>
+<p>Claude Code presents up to two confirmation dialogs on first launch. You MUST handle these via tmux send-keys:</p>
+<h4>Dialog 1: Workspace Trust (first visit to a directory)</h4>
+<pre><code>❯ 1. Yes, I trust this folder    ← DEFAULT (just press Enter)
+  2. No, exit
+</code></pre>
+<p><strong>Handling:</strong> <code>tmux send-keys -t &lt;session&gt; Enter</code> — default selection is correct.</p>
+<h4>Dialog 2: Individual Permission Prompts (normal flow)</h4>
+<p>Each tool use that needs approval (file write, shell command, network) shows a prompt. Answer that one prompt — this is different from disabling prompts for the whole run:</p>
+<pre><code># Read the prompt before answering it
+terminal(command=&quot;tmux capture-pane -t &lt;session&gt; -p -S -30&quot;)
+# Allow this one action (Enter = default &quot;Yes&quot;); Esc declines it
+terminal(command=&quot;tmux send-keys -t &lt;session&gt; Enter&quot;)
+</code></pre>
+<p>Never send a blind <code>Enter</code> on a timer to approve prompts you have not read — that is the bypass flag with extra steps.</p>
+<p>A narrower opt-in than the full bypass is <code>--permission-mode acceptEdits</code>: file edits in the working directory are accepted, shell and other tool calls still prompt. Use it only in a dedicated worktree after reviewing the task.</p>
+<h4>Robust Dialog Handling Pattern</h4>
+<pre><code># Default launch — keep permission prompts enabled
+terminal(command=&quot;tmux send-keys -t claude-work &#39;claude \&quot;your task\&quot;&#39; Enter&quot;)
+
+# Handle trust dialog (Enter for default &quot;Yes&quot;)
+terminal(command=&quot;sleep 4 &amp;&amp; tmux send-keys -t claude-work Enter&quot;)
+
+# Now wait for Claude to work
+terminal(command=&quot;sleep 15 &amp;&amp; tmux capture-pane -t claude-work -p -S -60&quot;)
+</code></pre>
+<p><strong>Note:</strong> After the first trust acceptance for a directory, the trust dialog won&#39;t appear again.</p>
+<h4>Opt-in: --dangerously-skip-permissions (isolated environments only)</h4>
+<p>This disables permission prompts for the whole run — grants filesystem, shell, and network access with no prompts. Acceptable only in a throwaway worktree or isolated container.</p>
+<pre><code>❯ 1. No, exit                    ← DEFAULT (safe choice)
+  2. Yes, I accept
+</code></pre>
+<p>To accept: <code>tmux send-keys -t &lt;session&gt; Down &amp;&amp; sleep 0.3 &amp;&amp; tmux send-keys -t &lt;session&gt; Enter</code></p>
+<h3>CLI Subcommands</h3>
+<table>
+<thead>
+<tr>
+<th>Subcommand</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>claude</code></td>
+<td>Start interactive REPL</td>
+</tr>
+<tr>
+<td><code>claude &quot;query&quot;</code></td>
+<td>Start REPL with initial prompt</td>
+</tr>
+<tr>
+<td><code>claude -p &quot;query&quot;</code></td>
+<td>Print mode (non-interactive, exits when done)</td>
+</tr>
+<tr>
+<td><code>cat file | claude -p &quot;query&quot;</code></td>
+<td>Pipe content as stdin context</td>
+</tr>
+<tr>
+<td><code>claude -c</code></td>
+<td>Continue the most recent conversation in this directory</td>
+</tr>
+<tr>
+<td><code>claude -r &quot;id&quot;</code></td>
+<td>Resume a specific session by ID or name</td>
+</tr>
+<tr>
+<td><code>claude auth login</code></td>
+<td>Sign in (add <code>--console</code> for API billing, <code>--sso</code> for Enterprise)</td>
+</tr>
+<tr>
+<td><code>claude auth status</code></td>
+<td>Check login status (returns JSON; <code>--text</code> for human-readable)</td>
+</tr>
+<tr>
+<td><code>claude mcp add &lt;name&gt; -- &lt;cmd&gt;</code></td>
+<td>Add an MCP server</td>
+</tr>
+<tr>
+<td><code>claude mcp list</code></td>
+<td>List configured MCP servers</td>
+</tr>
+<tr>
+<td><code>claude mcp remove &lt;name&gt;</code></td>
+<td>Remove an MCP server</td>
+</tr>
+<tr>
+<td><code>claude agents</code></td>
+<td>List configured agents</td>
+</tr>
+<tr>
+<td><code>claude doctor</code></td>
+<td>Run health checks on installation and auto-updater</td>
+</tr>
+<tr>
+<td><code>claude update</code> / <code>claude upgrade</code></td>
+<td>Update Claude Code to latest version</td>
+</tr>
+<tr>
+<td><code>claude remote-control</code></td>
+<td>Start server to control Claude from claude.ai or mobile app</td>
+</tr>
+<tr>
+<td><code>claude install [target]</code></td>
+<td>Install native build (stable, latest, or specific version)</td>
+</tr>
+<tr>
+<td><code>claude setup-token</code></td>
+<td>Set up long-lived auth token (requires subscription)</td>
+</tr>
+<tr>
+<td><code>claude plugin</code> / <code>claude plugins</code></td>
+<td>Manage Claude Code plugins</td>
+</tr>
+<tr>
+<td><code>claude auto-mode</code></td>
+<td>Inspect auto mode classifier configuration</td>
+</tr>
+</tbody></table>
+<h3>Print Mode Deep Dive</h3>
+<h4>Structured JSON Output</h4>
+<pre><code>terminal(command=&quot;claude -p &#39;Analyze auth.py for security issues&#39; --output-format json --max-turns 5&quot;, workdir=&quot;/project&quot;, timeout=120)
+</code></pre>
+<p>Returns a JSON object with:</p>
+<pre><code class="language-json">{
+  &quot;type&quot;: &quot;result&quot;,
+  &quot;subtype&quot;: &quot;success&quot;,
+  &quot;result&quot;: &quot;The analysis text...&quot;,
+  &quot;session_id&quot;: &quot;75e2167f-...&quot;,
+  &quot;num_turns&quot;: 3,
+  &quot;total_cost_usd&quot;: 0.0787,
+  &quot;duration_ms&quot;: 10276,
+  &quot;stop_reason&quot;: &quot;end_turn&quot;,
+  &quot;terminal_reason&quot;: &quot;completed&quot;,
+  &quot;usage&quot;: { &quot;input_tokens&quot;: 5, &quot;output_tokens&quot;: 603, ... },
+  &quot;modelUsage&quot;: { &quot;claude-sonnet-4-6&quot;: { &quot;costUSD&quot;: 0.078, &quot;contextWindow&quot;: 200000 } }
+}
+</code></pre>
+<p><strong>Key fields:</strong> <code>session_id</code> for resumption, <code>num_turns</code> for agentic loop count, <code>total_cost_usd</code> for spend tracking, <code>subtype</code> for success/error detection (<code>success</code>, <code>error_max_turns</code>, <code>error_budget</code>).</p>
+<h4>Streaming JSON Output</h4>
+<p>For real-time token streaming, use <code>stream-json</code> with <code>--verbose</code>:</p>
+<pre><code>terminal(command=&quot;claude -p &#39;Write a summary&#39; --output-format stream-json --verbose --include-partial-messages&quot;, timeout=60)
+</code></pre>
+<p>Returns newline-delimited JSON events. Filter with jq for live text:</p>
+<pre><code>claude -p &quot;Explain X&quot; --output-format stream-json --verbose --include-partial-messages | \
+  jq -rj &#39;select(.type == &quot;stream_event&quot; and .event.delta.type? == &quot;text_delta&quot;) | .event.delta.text&#39;
+</code></pre>
+<p>Stream events include <code>system/api_retry</code> with <code>attempt</code>, <code>max_retries</code>, and <code>error</code> fields (e.g., <code>rate_limit</code>, <code>billing_error</code>).</p>
+<h4>Bidirectional Streaming</h4>
+<p>For real-time input AND output streaming:</p>
+<pre><code>claude -p &quot;task&quot; --input-format stream-json --output-format stream-json --replay-user-messages
+</code></pre>
+<p><code>--replay-user-messages</code> re-emits user messages on stdout for acknowledgment.</p>
+<h4>Piped Input</h4>
+<pre><code># Pipe a file for analysis
+terminal(command=&quot;cat src/auth.py | claude -p &#39;Review this code for bugs&#39; --max-turns 1&quot;, timeout=60)
+
+# Pipe multiple files
+terminal(command=&quot;cat src/*.py | claude -p &#39;Find all TODO comments&#39; --max-turns 1&quot;, timeout=60)
+
+# Pipe command output
+terminal(command=&quot;git diff HEAD~3 | claude -p &#39;Summarize these changes&#39; --max-turns 1&quot;, timeout=60)
+</code></pre>
+<h4>JSON Schema for Structured Extraction</h4>
+<pre><code>terminal(command=&quot;claude -p &#39;List all functions in src/&#39; --output-format json --json-schema &#39;{\&quot;type\&quot;:\&quot;object\&quot;,\&quot;properties\&quot;:{\&quot;functions\&quot;:{\&quot;type\&quot;:\&quot;array\&quot;,\&quot;items\&quot;:{\&quot;type\&quot;:\&quot;string\&quot;}}},\&quot;required\&quot;:[\&quot;functions\&quot;]}&#39; --max-turns 5&quot;, workdir=&quot;/project&quot;, timeout=90)
+</code></pre>
+<p>Parse <code>structured_output</code> from the JSON result. Claude validates output against the schema before returning.</p>
+<h4>Session Continuation</h4>
+<pre><code># Start a task
+terminal(command=&quot;claude -p &#39;Start refactoring the database layer&#39; --output-format json --max-turns 10 &gt; ~/.hermes/cache/scratch/session.json&quot;, workdir=&quot;/project&quot;, timeout=180)
+
+# Resume with session ID
+terminal(command=&quot;claude -p &#39;Continue and add connection pooling&#39; --resume $(cat ~/.hermes/cache/scratch/session.json | python -c &#39;import json,sys; print(json.load(sys.stdin)[\&quot;session_id\&quot;])&#39;) --max-turns 5&quot;, workdir=&quot;/project&quot;, timeout=120)
+
+# Or resume the most recent session in the same directory
+terminal(command=&quot;claude -p &#39;What did you do last time?&#39; --continue --max-turns 1&quot;, workdir=&quot;/project&quot;, timeout=30)
+
+# Fork a session (new ID, keeps history)
+terminal(command=&quot;claude -p &#39;Try a different approach&#39; --resume &lt;id&gt; --fork-session --max-turns 10&quot;, workdir=&quot;/project&quot;, timeout=120)
+</code></pre>
+<h4>Bare Mode for CI/Scripting</h4>
+<pre><code>terminal(command=&quot;claude --bare -p &#39;Run all tests and report failures&#39; --allowedTools &#39;Read,Bash&#39; --max-turns 10&quot;, workdir=&quot;/project&quot;, timeout=180)
+</code></pre>
+<p><code>--bare</code> skips hooks, plugins, MCP discovery, and CLAUDE.md loading. Fastest startup. Requires <code>ANTHROPIC_API_KEY</code> (skips OAuth).</p>
+<p>To selectively load context in bare mode:</p>
+<table>
+<thead>
+<tr>
+<th>To load</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>System prompt additions</td>
+<td><code>--append-system-prompt &quot;text&quot;</code> or <code>--append-system-prompt-file path</code></td>
+</tr>
+<tr>
+<td>Settings</td>
+<td><code>--settings &lt;file-or-json&gt;</code></td>
+</tr>
+<tr>
+<td>MCP servers</td>
+<td><code>--mcp-config &lt;file-or-json&gt;</code></td>
+</tr>
+<tr>
+<td>Custom agents</td>
+<td><code>--agents &#39;&lt;json&gt;&#39;</code></td>
+</tr>
+</tbody></table>
+<h4>Fallback Model for Overload</h4>
+<pre><code>terminal(command=&quot;claude -p &#39;task&#39; --fallback-model haiku --max-turns 5&quot;, timeout=90)
+</code></pre>
+<p>Automatically falls back to the specified model when the default is overloaded (print mode only).</p>
+<h3>Complete CLI Flags Reference</h3>
+<h4>Session &amp; Environment</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-p, --print</code></td>
+<td>Non-interactive one-shot mode (exits when done)</td>
+</tr>
+<tr>
+<td><code>-c, --continue</code></td>
+<td>Resume most recent conversation in current directory</td>
+</tr>
+<tr>
+<td><code>-r, --resume &lt;id&gt;</code></td>
+<td>Resume specific session by ID or name (interactive picker if no ID)</td>
+</tr>
+<tr>
+<td><code>--fork-session</code></td>
+<td>When resuming, create new session ID instead of reusing original</td>
+</tr>
+<tr>
+<td><code>--session-id &lt;uuid&gt;</code></td>
+<td>Use a specific UUID for the conversation</td>
+</tr>
+<tr>
+<td><code>--no-session-persistence</code></td>
+<td>Don&#39;t save session to disk (print mode only)</td>
+</tr>
+<tr>
+<td><code>--add-dir &lt;paths...&gt;</code></td>
+<td>Grant Claude access to additional working directories</td>
+</tr>
+<tr>
+<td><code>-w, --worktree [name]</code></td>
+<td>Run in an isolated git worktree at <code>.claude/worktrees/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td><code>--tmux</code></td>
+<td>Create a tmux session for the worktree (requires <code>--worktree</code>)</td>
+</tr>
+<tr>
+<td><code>--ide</code></td>
+<td>Auto-connect to a valid IDE on startup</td>
+</tr>
+<tr>
+<td><code>--chrome</code> / <code>--no-chrome</code></td>
+<td>Enable/disable Chrome browser integration for web testing</td>
+</tr>
+<tr>
+<td><code>--from-pr [number]</code></td>
+<td>Resume session linked to a specific GitHub PR</td>
+</tr>
+<tr>
+<td><code>--file &lt;specs...&gt;</code></td>
+<td>File resources to download at startup (format: <code>file_id:relative_path</code>)</td>
+</tr>
+</tbody></table>
+<h4>Model &amp; Performance</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--model &lt;alias&gt;</code></td>
+<td>Model selection: <code>sonnet</code>, <code>opus</code>, <code>haiku</code>, or full name like <code>claude-sonnet-4-6</code></td>
+</tr>
+<tr>
+<td><code>--effort &lt;level&gt;</code></td>
+<td>Reasoning depth: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code></td>
+</tr>
+<tr>
+<td><code>--max-turns &lt;n&gt;</code></td>
+<td>Limit agentic loops (print mode only; prevents runaway)</td>
+</tr>
+<tr>
+<td><code>--max-budget-usd &lt;n&gt;</code></td>
+<td>Cap API spend in dollars (print mode only)</td>
+</tr>
+<tr>
+<td><code>--fallback-model &lt;model&gt;</code></td>
+<td>Auto-fallback when default model is overloaded (print mode only)</td>
+</tr>
+<tr>
+<td><code>--betas &lt;betas...&gt;</code></td>
+<td>Beta headers to include in API requests (API key users only)</td>
+</tr>
+</tbody></table>
+<h4>Permission &amp; Safety</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--dangerously-skip-permissions</code></td>
+<td>Opt-in only: disables ALL permission prompts (file writes, bash, network). Throwaway worktree / isolated container only — see &quot;Opt-in&quot; above</td>
+</tr>
+<tr>
+<td><code>--allow-dangerously-skip-permissions</code></td>
+<td>Enable bypass as an <em>option</em> without enabling it by default</td>
+</tr>
+<tr>
+<td><code>--permission-mode &lt;mode&gt;</code></td>
+<td><code>default</code>, <code>acceptEdits</code>, <code>plan</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code></td>
+</tr>
+<tr>
+<td><code>--allowedTools &lt;tools...&gt;</code></td>
+<td>Whitelist specific tools (comma or space-separated)</td>
+</tr>
+<tr>
+<td><code>--disallowedTools &lt;tools...&gt;</code></td>
+<td>Blacklist specific tools</td>
+</tr>
+<tr>
+<td><code>--tools &lt;tools...&gt;</code></td>
+<td>Override built-in tool set (<code>&quot;&quot;</code> = none, <code>&quot;default&quot;</code> = all, or tool names)</td>
+</tr>
+</tbody></table>
+<h4>Output &amp; Input Format</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--output-format &lt;fmt&gt;</code></td>
+<td><code>text</code> (default), <code>json</code> (single result object), <code>stream-json</code> (newline-delimited)</td>
+</tr>
+<tr>
+<td><code>--input-format &lt;fmt&gt;</code></td>
+<td><code>text</code> (default) or <code>stream-json</code> (real-time streaming input)</td>
+</tr>
+<tr>
+<td><code>--json-schema &lt;schema&gt;</code></td>
+<td>Force structured JSON output matching a schema</td>
+</tr>
+<tr>
+<td><code>--verbose</code></td>
+<td>Full turn-by-turn output</td>
+</tr>
+<tr>
+<td><code>--include-partial-messages</code></td>
+<td>Include partial message chunks as they arrive (stream-json + print)</td>
+</tr>
+<tr>
+<td><code>--replay-user-messages</code></td>
+<td>Re-emit user messages on stdout (stream-json bidirectional)</td>
+</tr>
+</tbody></table>
+<h4>System Prompt &amp; Context</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--append-system-prompt &lt;text&gt;</code></td>
+<td><strong>Add</strong> to the default system prompt (preserves built-in capabilities)</td>
+</tr>
+<tr>
+<td><code>--append-system-prompt-file &lt;path&gt;</code></td>
+<td><strong>Add</strong> file contents to the default system prompt</td>
+</tr>
+<tr>
+<td><code>--system-prompt &lt;text&gt;</code></td>
+<td><strong>Replace</strong> the entire system prompt (use --append instead usually)</td>
+</tr>
+<tr>
+<td><code>--system-prompt-file &lt;path&gt;</code></td>
+<td><strong>Replace</strong> the system prompt with file contents</td>
+</tr>
+<tr>
+<td><code>--bare</code></td>
+<td>Skip hooks, plugins, MCP discovery, CLAUDE.md, OAuth (fastest startup)</td>
+</tr>
+<tr>
+<td><code>--agents &#39;&lt;json&gt;&#39;</code></td>
+<td>Define custom subagents dynamically as JSON</td>
+</tr>
+<tr>
+<td><code>--mcp-config &lt;path&gt;</code></td>
+<td>Load MCP servers from JSON file (repeatable)</td>
+</tr>
+<tr>
+<td><code>--strict-mcp-config</code></td>
+<td>Only use MCP servers from <code>--mcp-config</code>, ignoring all other MCP configs</td>
+</tr>
+<tr>
+<td><code>--settings &lt;file-or-json&gt;</code></td>
+<td>Load additional settings from a JSON file or inline JSON</td>
+</tr>
+<tr>
+<td><code>--setting-sources &lt;sources&gt;</code></td>
+<td>Comma-separated sources to load: <code>user</code>, <code>project</code>, <code>local</code></td>
+</tr>
+<tr>
+<td><code>--plugin-dir &lt;paths...&gt;</code></td>
+<td>Load plugins from directories for this session only</td>
+</tr>
+<tr>
+<td><code>--disable-slash-commands</code></td>
+<td>Disable all skills/slash commands</td>
+</tr>
+</tbody></table>
+<h4>Debugging</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-d, --debug [filter]</code></td>
+<td>Enable debug logging with optional category filter (e.g., <code>&quot;api,hooks&quot;</code>, <code>&quot;!1p,!file&quot;</code>)</td>
+</tr>
+<tr>
+<td><code>--debug-file &lt;path&gt;</code></td>
+<td>Write debug logs to file (implicitly enables debug mode)</td>
+</tr>
+</tbody></table>
+<h4>Agent Teams</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--teammate-mode &lt;mode&gt;</code></td>
+<td>How agent teams display: <code>auto</code>, <code>in-process</code>, or <code>tmux</code></td>
+</tr>
+<tr>
+<td><code>--brief</code></td>
+<td>Enable <code>SendUserMessage</code> tool for agent-to-user communication</td>
+</tr>
+</tbody></table>
+<h4>Tool Name Syntax for --allowedTools / --disallowedTools</h4>
+<pre><code>Read                    # All file reading
+Edit                    # File editing (existing files)
+Write                   # File creation (new files)
+Bash                    # All shell commands
+Bash(git *)             # Only git commands
+Bash(git commit *)      # Only git commit commands
+Bash(npm run lint:*)    # Pattern matching with wildcards
+WebSearch               # Web search capability
+WebFetch                # Web page fetching
+mcp__&lt;server&gt;__{tool}   # Specific MCP tool
+</code></pre>
+<h3>Settings &amp; Configuration</h3>
+<h4>Settings Hierarchy (highest to lowest priority)</h4>
+<ol>
+<li><strong>CLI flags</strong> — override everything</li>
+<li><strong>Local project:</strong> <code>.claude/settings.local.json</code> (personal, gitignored)</li>
+<li><strong>Project:</strong> <code>.claude/settings.json</code> (shared, git-tracked)</li>
+<li><strong>User:</strong> <code>~/.claude/settings.json</code> (global)</li>
+</ol>
+<h4>Permissions in Settings</h4>
+<pre><code class="language-json">{
+  &quot;permissions&quot;: {
+    &quot;allow&quot;: [&quot;Bash(npm run lint:*)&quot;, &quot;WebSearch&quot;, &quot;Read&quot;],
+    &quot;ask&quot;: [&quot;Write(*.ts)&quot;, &quot;Bash(git push*)&quot;],
+    &quot;deny&quot;: [&quot;Read(.env)&quot;, &quot;Bash(rm -rf *)&quot;]
+  }
+}
+</code></pre>
+<h4>Memory Files (CLAUDE.md) Hierarchy</h4>
+<ol>
+<li><strong>Global:</strong> <code>~/.claude/CLAUDE.md</code> — applies to all projects</li>
+<li><strong>Project:</strong> <code>./CLAUDE.md</code> — project-specific context (git-tracked)</li>
+<li><strong>Local:</strong> <code>.claude/CLAUDE.local.md</code> — personal project overrides (gitignored)</li>
+</ol>
+<p>Use the <code>#</code> prefix in interactive mode to quickly add to memory: <code># Always use 2-space indentation</code>.</p>
+<h3>Interactive Session: Slash Commands</h3>
+<h4>Session &amp; Context</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/help</code></td>
+<td>Show all commands (including custom and MCP commands)</td>
+</tr>
+<tr>
+<td><code>/compact [focus]</code></td>
+<td>Compress context to save tokens; CLAUDE.md survives compaction. E.g., <code>/compact focus on auth logic</code></td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>Wipe conversation history for a fresh start</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>Visualize context usage as a colored grid with optimization tips</td>
+</tr>
+<tr>
+<td><code>/cost</code></td>
+<td>View token usage with per-model and cache-hit breakdowns</td>
+</tr>
+<tr>
+<td><code>/resume</code></td>
+<td>Switch to or resume a different session</td>
+</tr>
+<tr>
+<td><code>/rewind</code></td>
+<td>Revert to a previous checkpoint in conversation or code</td>
+</tr>
+<tr>
+<td><code>/btw &lt;question&gt;</code></td>
+<td>Ask a side question without adding to context cost</td>
+</tr>
+<tr>
+<td><code>/status</code></td>
+<td>Show version, connectivity, and session info</td>
+</tr>
+<tr>
+<td><code>/todos</code></td>
+<td>List tracked action items from the conversation</td>
+</tr>
+<tr>
+<td><code>/exit</code> or <code>Ctrl+D</code></td>
+<td>End session</td>
+</tr>
+</tbody></table>
+<h4>Development &amp; Review</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/review</code></td>
+<td>Request code review of current changes</td>
+</tr>
+<tr>
+<td><code>/security-review</code></td>
+<td>Perform security analysis of current changes</td>
+</tr>
+<tr>
+<td><code>/plan [description]</code></td>
+<td>Enter Plan mode with auto-start for task planning</td>
+</tr>
+<tr>
+<td><code>/loop [interval]</code></td>
+<td>Schedule recurring tasks within the session</td>
+</tr>
+<tr>
+<td><code>/batch</code></td>
+<td>Auto-create worktrees for large parallel changes (5-30 worktrees)</td>
+</tr>
+</tbody></table>
+<h4>Configuration &amp; Tools</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>/model [model]</code></td>
+<td>Switch models mid-session (use arrow keys to adjust effort)</td>
+</tr>
+<tr>
+<td><code>/effort [level]</code></td>
+<td>Set reasoning effort: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, or <code>max</code></td>
+</tr>
+<tr>
+<td><code>/init</code></td>
+<td>Create a CLAUDE.md file for project memory</td>
+</tr>
+<tr>
+<td><code>/memory</code></td>
+<td>Open CLAUDE.md for editing</td>
+</tr>
+<tr>
+<td><code>/config</code></td>
+<td>Open interactive settings configuration</td>
+</tr>
+<tr>
+<td><code>/permissions</code></td>
+<td>View/update tool permissions</td>
+</tr>
+<tr>
+<td><code>/agents</code></td>
+<td>Manage specialized subagents</td>
+</tr>
+<tr>
+<td><code>/mcp</code></td>
+<td>Interactive UI to manage MCP servers</td>
+</tr>
+<tr>
+<td><code>/add-dir</code></td>
+<td>Add additional working directories (useful for monorepos)</td>
+</tr>
+<tr>
+<td><code>/usage</code></td>
+<td>Show plan limits and rate limit status</td>
+</tr>
+<tr>
+<td><code>/voice</code></td>
+<td>Enable push-to-talk voice mode (20 languages; hold Space to record, release to send)</td>
+</tr>
+<tr>
+<td><code>/release-notes</code></td>
+<td>Interactive picker for version release notes</td>
+</tr>
+</tbody></table>
+<h4>Custom Slash Commands</h4>
+<p>Create <code>.claude/commands/&lt;name&gt;.md</code> (project-shared) or <code>~/.claude/commands/&lt;name&gt;.md</code> (personal):</p>
+<pre><code class="language-markdown"># .claude/commands/deploy.md
+Run the deploy pipeline:
+1. Run all tests
+2. Build the Docker image
+3. Push to registry
+4. Update the $ARGUMENTS environment (default: staging)
+</code></pre>
+<p>Usage: <code>/deploy production</code> — <code>$ARGUMENTS</code> is replaced with the user&#39;s input.</p>
+<h4>Skills (Natural Language Invocation)</h4>
+<p>Unlike slash commands (manually invoked), skills in <code>.claude/skills/</code> are markdown guides that Claude invokes automatically via natural language when the task matches:</p>
+<pre><code class="language-markdown"># .claude/skills/database-migration.md
+When asked to create or modify database migrations:
+1. Use Alembic for migration generation
+2. Always create a rollback function
+3. Test migrations against a local database copy
+</code></pre>
+<h3>Interactive Session: Keyboard Shortcuts</h3>
+<h4>General Controls</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Ctrl+C</code></td>
+<td>Cancel current input or generation</td>
+</tr>
+<tr>
+<td><code>Ctrl+D</code></td>
+<td>Exit session</td>
+</tr>
+<tr>
+<td><code>Ctrl+R</code></td>
+<td>Reverse search command history</td>
+</tr>
+<tr>
+<td><code>Ctrl+B</code></td>
+<td>Background a running task</td>
+</tr>
+<tr>
+<td><code>Ctrl+V</code></td>
+<td>Paste image into conversation</td>
+</tr>
+<tr>
+<td><code>Ctrl+O</code></td>
+<td>Transcript mode — see Claude&#39;s thinking process</td>
+</tr>
+<tr>
+<td><code>Ctrl+G</code> or <code>Ctrl+X Ctrl+E</code></td>
+<td>Open prompt in external editor</td>
+</tr>
+<tr>
+<td><code>Esc Esc</code></td>
+<td>Rewind conversation or code state / summarize</td>
+</tr>
+</tbody></table>
+<h4>Mode Toggles</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Shift+Tab</code></td>
+<td>Cycle permission modes (Normal → Auto-Accept → Plan)</td>
+</tr>
+<tr>
+<td><code>Alt+P</code></td>
+<td>Switch model</td>
+</tr>
+<tr>
+<td><code>Alt+T</code></td>
+<td>Toggle thinking mode</td>
+</tr>
+<tr>
+<td><code>Alt+O</code></td>
+<td>Toggle Fast Mode</td>
+</tr>
+</tbody></table>
+<h4>Multiline Input</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>\</code> + <code>Enter</code></td>
+<td>Quick newline</td>
+</tr>
+<tr>
+<td><code>Shift+Enter</code></td>
+<td>Newline (alternative)</td>
+</tr>
+<tr>
+<td><code>Ctrl+J</code></td>
+<td>Newline (alternative)</td>
+</tr>
+</tbody></table>
+<h4>Input Prefixes</h4>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>!</code></td>
+<td>Execute bash directly, bypassing AI (e.g., <code>!npm test</code>). Use <code>!</code> alone to toggle shell mode.</td>
+</tr>
+<tr>
+<td><code>@</code></td>
+<td>Reference files/directories with autocomplete (e.g., <code>@./src/api/</code>)</td>
+</tr>
+<tr>
+<td><code>#</code></td>
+<td>Quick add to CLAUDE.md memory (e.g., <code># Use 2-space indentation</code>)</td>
+</tr>
+<tr>
+<td><code>/</code></td>
+<td>Slash commands</td>
+</tr>
+</tbody></table>
+<h4>Pro Tip: &quot;ultrathink&quot;</h4>
+<p>Use the keyword &quot;ultrathink&quot; in your prompt for maximum reasoning effort on a specific turn. This triggers the deepest thinking mode regardless of the current <code>/effort</code> setting.</p>
+<h3>PR Review Pattern</h3>
+<h4>Quick Review (Print Mode)</h4>
+<pre><code>terminal(command=&quot;cd /path/to/repo &amp;&amp; git diff main...feature-branch | claude -p &#39;Review this diff for bugs, security issues, and style problems. Be thorough.&#39; --max-turns 1&quot;, timeout=60)
+</code></pre>
+<h4>Deep Review (Interactive + Worktree)</h4>
+<pre><code>terminal(command=&quot;tmux new-session -d -s review -x 140 -y 40&quot;)
+terminal(command=&quot;tmux send-keys -t review &#39;cd /path/to/repo &amp;&amp; claude -w pr-review&#39; Enter&quot;)
+terminal(command=&quot;sleep 5 &amp;&amp; tmux send-keys -t review Enter&quot;)  # Trust dialog
+terminal(command=&quot;sleep 2 &amp;&amp; tmux send-keys -t review &#39;Review all changes vs main. Check for bugs, security issues, race conditions, and missing tests.&#39; Enter&quot;)
+terminal(command=&quot;sleep 30 &amp;&amp; tmux capture-pane -t review -p -S -60&quot;)
+</code></pre>
+<h4>PR Review from Number</h4>
+<pre><code>terminal(command=&quot;claude -p &#39;Review this PR thoroughly&#39; --from-pr 42 --max-turns 10&quot;, workdir=&quot;/path/to/repo&quot;, timeout=120)
+</code></pre>
+<h4>Claude Worktree with tmux</h4>
+<pre><code>terminal(command=&quot;claude -w feature-x --tmux&quot;, workdir=&quot;/path/to/repo&quot;)
+</code></pre>
+<p>Creates an isolated git worktree at <code>.claude/worktrees/feature-x</code> AND a tmux session for it. Uses iTerm2 native panes when available; add <code>--tmux=classic</code> for traditional tmux.</p>
+<h3>Parallel Claude Instances</h3>
+<p>Run multiple independent Claude tasks simultaneously:</p>
+<pre><code># Task 1: Fix backend
+terminal(command=&quot;tmux new-session -d -s task1 -x 140 -y 40 &amp;&amp; tmux send-keys -t task1 &#39;cd ~/project &amp;&amp; claude -p \&quot;Fix the auth bug in src/auth.py\&quot; --allowedTools \&quot;Read,Edit\&quot; --max-turns 10&#39; Enter&quot;)
+
+# Task 2: Write tests
+terminal(command=&quot;tmux new-session -d -s task2 -x 140 -y 40 &amp;&amp; tmux send-keys -t task2 &#39;cd ~/project &amp;&amp; claude -p \&quot;Write integration tests for the API endpoints\&quot; --allowedTools \&quot;Read,Write,Bash\&quot; --max-turns 15&#39; Enter&quot;)
+
+# Task 3: Update docs
+terminal(command=&quot;tmux new-session -d -s task3 -x 140 -y 40 &amp;&amp; tmux send-keys -t task3 &#39;cd ~/project &amp;&amp; claude -p \&quot;Update README.md with the new API endpoints\&quot; --allowedTools \&quot;Read,Edit\&quot; --max-turns 5&#39; Enter&quot;)
+
+# Monitor all
+terminal(command=&quot;sleep 30 &amp;&amp; for s in task1 task2 task3; do echo &#39;=== &#39;$s&#39; ===&#39;; tmux capture-pane -t $s -p -S -5 2&gt;/dev/null; done&quot;)
+</code></pre>
+<h3>CLAUDE.md — Project Context File</h3>
+<p>Claude Code auto-loads <code>CLAUDE.md</code> from the project root. Use it to persist project context:</p>
+<pre><code class="language-markdown"># Project: My API
+
+## Architecture
+- FastAPI backend with SQLAlchemy ORM
+- PostgreSQL database, Redis cache
+- pytest for testing with 90% coverage target
+
+## Key Commands
+- `make test` — run full test suite
+- `make lint` — ruff + mypy
+- `make dev` — start dev server on :8000
+
+## Code Standards
+- Type hints on all public functions
+- Docstrings in Google style
+- 2-space indentation for YAML, 4-space for Python
+- No wildcard imports
+</code></pre>
+<p><strong>Be specific.</strong> Instead of &quot;Write good code&quot;, use &quot;Use 2-space indentation for JS&quot; or &quot;Name test files with <code>.test.ts</code> suffix.&quot; Specific instructions save correction cycles.</p>
+<h4>Rules Directory (Modular CLAUDE.md)</h4>
+<p>For projects with many rules, use the rules directory instead of one massive CLAUDE.md:</p>
+<ul>
+<li><strong>Project rules:</strong> <code>.claude/rules/*.md</code> — team-shared, git-tracked</li>
+<li><strong>User rules:</strong> <code>~/.claude/rules/*.md</code> — personal, global</li>
+</ul>
+<p>Each <code>.md</code> file in the rules directory is loaded as additional context. This is cleaner than cramming everything into a single CLAUDE.md.</p>
+<h4>Auto-Memory</h4>
+<p>Claude automatically stores learned project context in <code>~/.claude/projects/&lt;project&gt;/memory/</code>.</p>
+<ul>
+<li><strong>Limit:</strong> 25KB or 200 lines per project</li>
+<li>This is separate from CLAUDE.md — it&#39;s Claude&#39;s own notes about the project, accumulated across sessions</li>
+</ul>
+<h3>Custom Subagents</h3>
+<p>Define specialized agents in <code>.claude/agents/</code> (project), <code>~/.claude/agents/</code> (personal), or via <code>--agents</code> CLI flag (session):</p>
+<h4>Agent Location Priority</h4>
+<ol>
+<li><code>.claude/agents/</code> — project-level, team-shared</li>
+<li><code>--agents</code> CLI flag — session-specific, dynamic</li>
+<li><code>~/.claude/agents/</code> — user-level, personal</li>
+</ol>
+<h4>Creating an Agent</h4>
+<pre><code class="language-markdown"># .claude/agents/security-reviewer.md
+---
+name: security-reviewer
+description: Security-focused code review
+model: opus
+tools: [Read, Bash]
+---
+You are a senior security engineer. Review code for:
+- Injection vulnerabilities (SQL, XSS, command injection)
+- Authentication/authorization flaws
+- Secrets in code
+- Unsafe deserialization
+</code></pre>
+<p>Invoke via: <code>@security-reviewer review the auth module</code></p>
+<h4>Dynamic Agents via CLI</h4>
+<pre><code>terminal(command=&quot;claude --agents &#39;{\&quot;reviewer\&quot;: {\&quot;description\&quot;: \&quot;Reviews code\&quot;, \&quot;prompt\&quot;: \&quot;You are a code reviewer focused on performance\&quot;}}&#39; -p &#39;Use @reviewer to check auth.py&#39;&quot;, timeout=120)
+</code></pre>
+<p>Claude can orchestrate multiple agents: &quot;Use @db-expert to optimize queries, then @security to audit the changes.&quot;</p>
+<h3>Hooks — Automation on Events</h3>
+<p>Configure in <code>.claude/settings.json</code> (project) or <code>~/.claude/settings.json</code> (global):</p>
+<pre><code class="language-json">{
+  &quot;hooks&quot;: {
+    &quot;PostToolUse&quot;: [{
+      &quot;matcher&quot;: &quot;Write(*.py)&quot;,
+      &quot;hooks&quot;: [{&quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;ruff check --fix $CLAUDE_FILE_PATHS&quot;}]
+    }],
+    &quot;PreToolUse&quot;: [{
+      &quot;matcher&quot;: &quot;Bash&quot;,
+      &quot;hooks&quot;: [{&quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;if echo \&quot;$CLAUDE_TOOL_INPUT\&quot; | grep -q &#39;rm -rf&#39;; then echo &#39;Blocked!&#39; &amp;&amp; exit 2; fi&quot;}]
+    }],
+    &quot;Stop&quot;: [{
+      &quot;hooks&quot;: [{&quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;echo &#39;Claude finished a response&#39; &gt;&gt; ~/.hermes/cache/scratch/claude-activity.log&quot;}]
+    }]
+  }
+}
+</code></pre>
+<h4>All 8 Hook Types</h4>
+<table>
+<thead>
+<tr>
+<th>Hook</th>
+<th>When it fires</th>
+<th>Common use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>UserPromptSubmit</code></td>
+<td>Before Claude processes a user prompt</td>
+<td>Input validation, logging</td>
+</tr>
+<tr>
+<td><code>PreToolUse</code></td>
+<td>Before tool execution</td>
+<td>Security gates, block dangerous commands (exit 2 = block)</td>
+</tr>
+<tr>
+<td><code>PostToolUse</code></td>
+<td>After a tool finishes</td>
+<td>Auto-format code, run linters</td>
+</tr>
+<tr>
+<td><code>Notification</code></td>
+<td>On permission requests or input waits</td>
+<td>Desktop notifications, alerts</td>
+</tr>
+<tr>
+<td><code>Stop</code></td>
+<td>When Claude finishes a response</td>
+<td>Completion logging, status updates</td>
+</tr>
+<tr>
+<td><code>SubagentStop</code></td>
+<td>When a subagent completes</td>
+<td>Agent orchestration</td>
+</tr>
+<tr>
+<td><code>PreCompact</code></td>
+<td>Before context memory is cleared</td>
+<td>Backup session transcripts</td>
+</tr>
+<tr>
+<td><code>SessionStart</code></td>
+<td>When a session begins</td>
+<td>Load dev context (e.g., <code>git status</code>)</td>
+</tr>
+</tbody></table>
+<h4>Hook Environment Variables</h4>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>CLAUDE_PROJECT_DIR</code></td>
+<td>Current project path</td>
+</tr>
+<tr>
+<td><code>CLAUDE_FILE_PATHS</code></td>
+<td>Files being modified</td>
+</tr>
+<tr>
+<td><code>CLAUDE_TOOL_INPUT</code></td>
+<td>Tool parameters as JSON</td>
+</tr>
+</tbody></table>
+<h4>Security Hook Examples</h4>
+<pre><code class="language-json">{
+  &quot;PreToolUse&quot;: [{
+    &quot;matcher&quot;: &quot;Bash&quot;,
+    &quot;hooks&quot;: [{&quot;type&quot;: &quot;command&quot;, &quot;command&quot;: &quot;if echo \&quot;$CLAUDE_TOOL_INPUT\&quot; | grep -qE &#39;rm -rf|git push.*--force|:(){ :|:&amp; };:&#39;; then echo &#39;Dangerous command blocked!&#39; &amp;&amp; exit 2; fi&quot;}]
+  }]
+}
+</code></pre>
+<h3>MCP Integration</h3>
+<p>Add external tool servers for databases, APIs, and services:</p>
+<pre><code># GitHub integration
+terminal(command=&quot;claude mcp add -s user github -- npx @modelcontextprotocol/server-github&quot;, timeout=30)
+
+# PostgreSQL queries
+terminal(command=&quot;claude mcp add -s local postgres -- npx @anthropic-ai/server-postgres --connection-string postgresql://localhost/mydb&quot;, timeout=30)
+
+# Puppeteer for web testing
+terminal(command=&quot;claude mcp add puppeteer -- npx @anthropic-ai/server-puppeteer&quot;, timeout=30)
+</code></pre>
+<h4>MCP Scopes</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Scope</th>
+<th>Storage</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-s user</code></td>
+<td>Global (all projects)</td>
+<td><code>~/.claude.json</code></td>
+</tr>
+<tr>
+<td><code>-s local</code></td>
+<td>This project (personal)</td>
+<td><code>.claude/settings.local.json</code> (gitignored)</td>
+</tr>
+<tr>
+<td><code>-s project</code></td>
+<td>This project (team-shared)</td>
+<td><code>.claude/settings.json</code> (git-tracked)</td>
+</tr>
+</tbody></table>
+<h4>MCP in Print/CI Mode</h4>
+<pre><code>terminal(command=&quot;claude --bare -p &#39;Query database&#39; --mcp-config mcp-servers.json --strict-mcp-config&quot;, timeout=60)
+</code></pre>
+<p><code>--strict-mcp-config</code> ignores all MCP servers except those from <code>--mcp-config</code>.</p>
+<p>Reference MCP resources in chat: <code>@github:issue://123</code></p>
+<h4>MCP Limits &amp; Tuning</h4>
+<ul>
+<li><strong>Tool descriptions:</strong> 2KB cap per server for tool descriptions and server instructions</li>
+<li><strong>Result size:</strong> Default capped; use <code>maxResultSizeChars</code> annotation to allow up to <strong>500K</strong> characters for large outputs</li>
+<li><strong>Output tokens:</strong> <code>export MAX_MCP_OUTPUT_TOKENS=50000</code> — cap output from MCP servers to prevent context flooding</li>
+<li><strong>Transports:</strong> <code>stdio</code> (local process), <code>http</code> (remote), <code>sse</code> (server-sent events)</li>
+</ul>
+<h3>Monitoring Interactive Sessions</h3>
+<h4>Reading the TUI Status</h4>
+<pre><code># Periodic capture to check if Claude is still working or waiting for input
+terminal(command=&quot;tmux capture-pane -t dev -p -S -10&quot;)
+</code></pre>
+<p>Look for these indicators:</p>
+<ul>
+<li><code>❯</code> at bottom = waiting for your input (Claude is done or asking a question)</li>
+<li><code>●</code> lines = Claude is actively using tools (reading, writing, running commands)</li>
+<li><code>⏵⏵ bypass permissions on</code> = status bar showing permissions mode</li>
+<li><code>◐ medium · /effort</code> = current effort level in status bar</li>
+<li><code>ctrl+o to expand</code> = tool output was truncated (can be expanded interactively)</li>
+</ul>
+<h4>Context Window Health</h4>
+<p>Use <code>/context</code> in interactive mode to see a colored grid of context usage. Key thresholds:</p>
+<ul>
+<li><strong>&lt; 70%</strong> — Normal operation, full precision</li>
+<li><strong>70-85%</strong> — Precision starts dropping, consider <code>/compact</code></li>
+<li><strong>&gt; 85%</strong> — Hallucination risk spikes significantly, use <code>/compact</code> or <code>/clear</code></li>
+</ul>
+<h3>Environment Variables</h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>API key for authentication (alternative to OAuth)</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_EFFORT_LEVEL</code></td>
+<td>Default effort: <code>low</code>, <code>medium</code>, <code>high</code>, <code>max</code>, or <code>auto</code></td>
+</tr>
+<tr>
+<td><code>MAX_THINKING_TOKENS</code></td>
+<td>Cap thinking tokens (set to <code>0</code> to disable thinking entirely)</td>
+</tr>
+<tr>
+<td><code>MAX_MCP_OUTPUT_TOKENS</code></td>
+<td>Cap output from MCP servers (default varies; set e.g., <code>50000</code>)</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_NO_FLICKER=1</code></td>
+<td>Enable alt-screen rendering to eliminate terminal flicker</td>
+</tr>
+<tr>
+<td><code>CLAUDE_CODE_SUBPROCESS_ENV_SCRUB</code></td>
+<td>Strip credentials from sub-processes for security</td>
+</tr>
+</tbody></table>
+<h3>Cost &amp; Performance Tips</h3>
+<ol>
+<li><strong>Use <code>--max-turns</code></strong> in print mode to prevent runaway loops. Start with 5-10 for most tasks.</li>
+<li><strong>Use <code>--max-budget-usd</code></strong> for cost caps. Note: minimum ~$0.05 for system prompt cache creation.</li>
+<li><strong>Use <code>--effort low</code></strong> for simple tasks (faster, cheaper). <code>high</code> or <code>max</code> for complex reasoning.</li>
+<li><strong>Use <code>--bare</code></strong> for CI/scripting to skip plugin/hook discovery overhead.</li>
+<li><strong>Use <code>--allowedTools</code></strong> to restrict to only what&#39;s needed (e.g., <code>Read</code> only for reviews).</li>
+<li><strong>Use <code>/compact</code></strong> in interactive sessions when context gets large.</li>
+<li><strong>Pipe input</strong> instead of having Claude read files when you just need analysis of known content.</li>
+<li><strong>Use <code>--model haiku</code></strong> for simple tasks (cheaper) and <code>--model opus</code> for complex multi-step work.</li>
+<li><strong>Use <code>--fallback-model haiku</code></strong> in print mode to gracefully handle model overload.</li>
+<li><strong>Start new sessions for distinct tasks</strong> — sessions last 5 hours; fresh context is more efficient.</li>
+<li><strong>Use <code>--no-session-persistence</code></strong> in CI to avoid accumulating saved sessions on disk.</li>
+</ol>
+<h3>Pitfalls &amp; Gotchas</h3>
+<ol>
+<li><strong>Interactive mode REQUIRES tmux</strong> — Claude Code is a full TUI app. Using <code>pty=true</code> alone in Hermes terminal works but tmux gives you <code>capture-pane</code> for monitoring and <code>send-keys</code> for input, which is essential for orchestration.</li>
+<li><strong>The <code>--dangerously-skip-permissions</code> warning dialog defaults to &quot;No, exit&quot;</strong> — that default is the safe answer; only send Down then Enter when you deliberately opted into the bypass in an isolated environment. Print mode (<code>-p</code>) skips the dialog entirely.</li>
+<li><strong><code>--max-budget-usd</code> minimum is ~$0.05</strong> — system prompt cache creation alone costs this much. Setting lower will error immediately.</li>
+<li><strong><code>--max-turns</code> is print-mode only</strong> — ignored in interactive sessions.</li>
+<li><strong>Claude may use <code>python</code> instead of <code>python</code></strong> — on systems without a <code>python</code> symlink, Claude&#39;s bash commands will fail on first try but it self-corrects.</li>
+<li><strong>Session resumption requires same directory</strong> — <code>--continue</code> finds the most recent session for the current working directory.</li>
+<li><strong><code>--json-schema</code> needs enough <code>--max-turns</code></strong> — Claude must read files before producing structured output, which takes multiple turns.</li>
+<li><strong>Trust dialog only appears once per directory</strong> — first-time only, then cached.</li>
+<li><strong>Background tmux sessions persist</strong> — always clean up with <code>tmux kill-session -t &lt;name&gt;</code> when done.</li>
+<li><strong>Slash commands (like <code>/commit</code>) only work in interactive mode</strong> — in <code>-p</code> mode, describe the task in natural language instead.</li>
+<li><strong><code>--bare</code> skips OAuth</strong> — requires <code>ANTHROPIC_API_KEY</code> env var or an <code>apiKeyHelper</code> in settings.</li>
+<li><strong>Context degradation is real</strong> — AI output quality measurably degrades above 70% context window usage. Monitor with <code>/context</code> and proactively <code>/compact</code>.</li>
+</ol>
+<h3>Rules for Hermes Agents</h3>
+<ol>
+<li><strong>Prefer print mode (<code>-p</code>) for single tasks</strong> — cleaner, no dialog handling, structured output</li>
+<li><strong>Use tmux for multi-turn interactive work</strong> — the only reliable way to orchestrate the TUI</li>
+<li><strong>Always set <code>workdir</code></strong> — keep Claude focused on the right project directory</li>
+<li><strong>Set <code>--max-turns</code> in print mode</strong> — prevents infinite loops and runaway costs</li>
+<li><strong>Monitor tmux sessions</strong> — use <code>tmux capture-pane -t &lt;session&gt; -p -S -50</code> to check progress</li>
+<li><strong>Look for the <code>❯</code> prompt</strong> — indicates Claude is waiting for input (done or asking a question)</li>
+<li><strong>Clean up tmux sessions</strong> — kill them when done to avoid resource leaks</li>
+<li><strong>Report results to user</strong> — after completion, summarize what Claude did and what changed</li>
+<li><strong>Don&#39;t kill slow sessions</strong> — Claude may be doing multi-step work; check progress instead</li>
+<li><strong>Use <code>--allowedTools</code></strong> — restrict capabilities to what the task actually needs</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/autonomous-ai-agents/claude-code</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

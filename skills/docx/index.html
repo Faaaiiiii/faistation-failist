@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>docx — Skill Hermes</title>
+<meta name="description" content="Create, read, edit, template, and review Word .docx files.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>docx</h1>
+    <p class="lede">Create, read, edit, template, and review Word .docx files.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>docx</dd>
+      <dt>Keterangan</dt><dd>Create, read, edit, template, and review Word .docx files.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Nous Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/docx.zip" download>Muat turun ZIP (29.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (12)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.2 KB</td></tr>
+<tr><td><code>LICENSE</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/revisions-and-comments.md</code></td><td class="sz">3.9 KB</td></tr>
+<tr><td><code>scripts/docx_comments.py</code></td><td class="sz">10.4 KB</td></tr>
+<tr><td><code>scripts/docx_common.py</code></td><td class="sz">3.3 KB</td></tr>
+<tr><td><code>scripts/docx_create.py</code></td><td class="sz">6.2 KB</td></tr>
+<tr><td><code>scripts/docx_edit.py</code></td><td class="sz">8.4 KB</td></tr>
+<tr><td><code>scripts/docx_read.py</code></td><td class="sz">5.3 KB</td></tr>
+<tr><td><code>scripts/docx_revisions.py</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>scripts/docx_template.py</code></td><td class="sz">2.4 KB</td></tr>
+<tr><td><code>scripts/docx_validate.py</code></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>tests/test_docx_skill.py</code></td><td class="sz">20.8 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Docx Skill</h2>
+<p>Create, read, edit, and template Microsoft Word <code>.docx</code> files with
+python-docx via small CLIs. It handles text, styles, lists, tables,
+images, headers/footers, <code>{{token}}</code> templating, tracked changes
+(list/accept/reject), comments (list/add/delete), TOC and page-number
+fields, and package health checks. It does not render documents itself
+(PDF needs LibreOffice — see Converting to PDF) or edit legacy <code>.doc</code>.</p>
+<h3>When to Use</h3>
+<ul>
+<li>The user asks to generate a Word document (report, letter, contract).</li>
+<li>You need the text, outline, styles, or embedded images of a <code>.docx</code>.</li>
+<li>You must change an existing <code>.docx</code>: replace text, edit table cells,
+insert/delete paragraphs, apply styles, merge fragmented runs.</li>
+<li>You have a <code>.docx</code> template with <code>{{placeholders}}</code> to fill from data.</li>
+<li>The document has tracked changes to review, accept, or reject.</li>
+<li>You need to read reviewers&#39; comments, or add/delete comments.</li>
+<li>A <code>.docx</code> won&#39;t open or behaves oddly and you need corruption triage.</li>
+<li>The document needs a table of contents or &quot;Page X of Y&quot; footers.</li>
+<li>Not for: <code>.doc</code> (legacy), <code>.odt</code>, or WYSIWYG layout work.</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Python 3.10+ with <code>python-docx</code> installed:
+<code>pip install python-docx</code> (import name is <code>docx</code>; lxml comes with it).</li>
+<li>Comments <code>add</code> uses the native API on python-docx &gt;= 1.2 and an XML
+fallback on older versions — both are automatic.</li>
+<li>For image blocks: the image files must exist locally (PNG/JPEG).</li>
+</ul>
+<h3>How to Run</h3>
+<p>All helpers live in <code>scripts/</code> next to this file. Run them with the
+<code>terminal</code> tool; each supports <code>--help</code> and prints JSON to stdout.</p>
+<pre><code class="language-bash">python scripts/docx_create.py spec.json out.docx
+python scripts/docx_read.py out.docx --text
+python scripts/docx_edit.py replace out.docx --find old --replace new
+python scripts/docx_template.py tpl.docx values.json filled.docx
+python scripts/docx_revisions.py list out.docx
+python scripts/docx_comments.py list out.docx
+python scripts/docx_validate.py out.docx
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create from JSON spec</td>
+<td><code>docx_create.py spec.json out.docx</code></td>
+</tr>
+<tr>
+<td>Full text (body+tables+headers/footers)</td>
+<td><code>docx_read.py f.docx --text</code></td>
+</tr>
+<tr>
+<td>Heading outline + table shapes</td>
+<td><code>docx_read.py f.docx --structure</code></td>
+</tr>
+<tr>
+<td>Styles actually used</td>
+<td><code>docx_read.py f.docx --styles</code></td>
+</tr>
+<tr>
+<td>Extract embedded images</td>
+<td><code>docx_read.py f.docx --images outdir/</code></td>
+</tr>
+<tr>
+<td>Detect tracked changes/comments</td>
+<td><code>docx_read.py f.docx --revisions</code></td>
+</tr>
+<tr>
+<td>Find/replace (formatting kept)</td>
+<td><code>docx_edit.py replace f.docx --find A --replace B -o out.docx</code></td>
+</tr>
+<tr>
+<td>Set a table cell</td>
+<td><code>docx_edit.py set-cell f.docx --table 0 --row 1 --col 2 --text X</code></td>
+</tr>
+<tr>
+<td>Insert paragraph before index N</td>
+<td><code>docx_edit.py insert f.docx --index N --text X --style Normal</code></td>
+</tr>
+<tr>
+<td>Delete paragraph N</td>
+<td><code>docx_edit.py delete f.docx --index N</code></td>
+</tr>
+<tr>
+<td>Apply style to paragraph N</td>
+<td><code>docx_edit.py style f.docx --index N --style &quot;Heading 1&quot;</code></td>
+</tr>
+<tr>
+<td>Merge equal-format adjacent runs</td>
+<td><code>docx_edit.py normalize f.docx -o out.docx</code></td>
+</tr>
+<tr>
+<td>Insert TOC field before para N</td>
+<td><code>docx_edit.py toc f.docx --index N -o out.docx</code></td>
+</tr>
+<tr>
+<td>&quot;Page X of Y&quot; footer fields</td>
+<td><code>docx_edit.py page-numbers f.docx</code></td>
+</tr>
+<tr>
+<td>Fill <code>{{tokens}}</code></td>
+<td><code>docx_template.py tpl.docx values.json out.docx --strict</code></td>
+</tr>
+<tr>
+<td>List revisions (id/author/date/text)</td>
+<td><code>docx_revisions.py list f.docx</code></td>
+</tr>
+<tr>
+<td>Accept / reject all revisions</td>
+<td><code>docx_revisions.py accept-all f.docx -o out.docx</code> (or <code>reject-all</code>)</td>
+</tr>
+<tr>
+<td>Accept / reject one revision</td>
+<td><code>docx_revisions.py accept f.docx --id 3 -o out.docx</code></td>
+</tr>
+<tr>
+<td>List comments (+anchored text)</td>
+<td><code>docx_comments.py list f.docx</code></td>
+</tr>
+<tr>
+<td>Add comment anchored to text</td>
+<td><code>docx_comments.py add f.docx --target &quot;phrase&quot; --text &quot;note&quot; --author You</code></td>
+</tr>
+<tr>
+<td>Delete comment by id</td>
+<td><code>docx_comments.py delete f.docx --id 0</code></td>
+</tr>
+<tr>
+<td>Health-check the package</td>
+<td><code>docx_validate.py f.docx</code> (exit 1 on errors)</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<ol>
+<li><strong>Create.</strong> Write a JSON spec with <code>write_file</code>, then run
+<code>scripts/docx_create.py</code>. The spec supports: <code>page</code> (size + margins in
+mm), <code>header</code>/<code>footer</code> strings, <code>footer_page_numbers</code> (adds a
+&quot;Page X of Y&quot; field footer), <code>styles</code> (custom paragraph styles with
+font, size, bold/italic, hex <code>color</code>), and <code>blocks</code> — <code>heading</code>
+(level 1-9), <code>paragraph</code> (either <code>text</code> or a <code>runs</code> list where each run
+may set <code>bold</code>/<code>italic</code>/<code>underline</code>), <code>bullet_list</code>, <code>numbered_list</code>,
+<code>table</code> (<code>header</code> row rendered bold, <code>rows</code>, optional built-in table
+<code>style</code> such as <code>Table Grid</code>), <code>image</code> (<code>path</code>, optional <code>width_mm</code>),
+<code>toc</code> (Table of Contents field), and <code>page_break</code>. The full spec
+format is documented at the top of <code>scripts/docx_create.py</code>.</li>
+<li><strong>Read.</strong> Use <code>scripts/docx_read.py</code> with exactly one mode flag.
+<code>--text</code> returns body paragraphs, all table cell text, and
+header/footer text as JSON. <code>--structure</code> returns the heading outline
+plus paragraph/table/section counts. <code>--images DIR</code> copies every file
+under <code>word/media/</code> out of the package.</li>
+<li><strong>Edit.</strong> Use <code>scripts/docx_edit.py</code>. <code>replace</code> walks body, tables
+(nested included), headers and footers, and preserves run formatting;
+add <code>--body-only</code> to skip headers/footers. Pass <code>-o out.docx</code> to keep
+the original; omit it to edit in place. Paragraph indices for
+<code>insert</code>/<code>delete</code>/<code>style</code>/<code>toc</code> refer to <code>--structure</code>/<code>--text</code> body
+order. Run <code>normalize</code> first on documents that came out of heavy Word
+editing — it merges adjacent runs with identical formatting so later
+find-replace matches reliably.</li>
+<li><strong>Review revisions.</strong> <code>docx_revisions.py list</code> reports every <code>w:ins</code>
+and <code>w:del</code> (id, author, date, affected text) anywhere in body,
+tables, headers, or footers. <code>accept-all</code> / <code>reject-all</code> resolve them
+in bulk; <code>accept</code>/<code>reject --id N</code> handles a single revision. Accept
+keeps insertions and drops deleted text; reject does the reverse.</li>
+<li><strong>Comments.</strong> <code>docx_comments.py list</code> returns each comment&#39;s id,
+author, date, body text, and the document text it is anchored to.
+<code>add --target &quot;some phrase&quot;</code> anchors a new comment to the first
+occurrence of that phrase (runs are split as needed; formatting is
+preserved). <code>delete --id N</code> removes the comment and its markers
+without touching document text.</li>
+<li><strong>Template.</strong> Put <code>{{name}}</code>-style tokens in the document. Run
+<code>scripts/docx_template.py</code> with a JSON object of values. Use
+<code>--strict</code> to fail when tokens remain unfilled; the JSON output lists
+<code>filled</code> counts and <code>unfilled_tokens</code> either way.</li>
+<li><strong>Verify</strong> (always): re-read the output with <code>--text</code> or
+<code>--structure</code>, and run <code>docx_validate.py</code> on anything you produced
+via revision/comment surgery.</li>
+</ol>
+<h3>Converting to PDF</h3>
+<p>No script needed. When LibreOffice is installed, convert headlessly:</p>
+<pre><code class="language-bash">soffice --headless --convert-to pdf --outdir outdir/ file.docx
+</code></pre>
+<p>Check availability first (<code>command -v soffice || command -v libreoffice</code>). If neither exists, tell the user PDF conversion is
+unavailable in this environment rather than improvising — python-docx
+cannot render PDFs, and layout fidelity requires a real renderer.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Tokens split across runs.</strong> Word often fragments text into several
+runs. The replace helpers collapse matched runs (replacement inherits
+the first run&#39;s formatting); running <code>docx_edit.py normalize</code> first
+reduces fragmentation for all later edits.</li>
+<li><strong>Revision coverage.</strong> <code>docx_revisions.py</code> resolves run-level
+insertions and deletions (the overwhelming majority). Paragraph-mark
+and table-row revisions, format-change records, and moves are detected
+by <code>--revisions</code> but not auto-resolved — see
+<code>references/revisions-and-comments.md</code> and hand those to Word.</li>
+<li><strong>Comment threading.</strong> Replies and &quot;resolved&quot; status live in
+<code>commentsExtended.xml</code>, which this skill ignores; comments it adds are
+plain top-level comments.</li>
+<li><strong>Field results are computed by Word.</strong> <code>toc</code>, <code>page-numbers</code>, and the
+<code>toc</code>/<code>footer_page_numbers</code> spec options write <em>field codes</em>.
+Word/LibreOffice populates the actual entries and numbers when the
+file is opened (Word may prompt to update fields); python-docx never
+computes them, so placeholder text shows until then.</li>
+<li><strong>Validation is a health check, not schema validation.</strong>
+<code>docx_validate.py</code> verifies the zip, required parts, relationship
+targets, image magic bytes, and referenced styles. It is NOT XSD
+validation — a file can pass and still contain XML Word dislikes.</li>
+<li><strong>Style names must exist.</strong> Applying a style that isn&#39;t defined in the
+document raises <code>KeyError</code>. Built-ins like <code>Heading 1</code>, <code>List Bullet</code>,
+<code>List Number</code>, <code>Table Grid</code> exist in the default template; custom
+styles must be declared in the create spec first.</li>
+<li><strong>Numbered lists restart.</strong> <code>List Number</code> relies on Word&#39;s default
+numbering; separate lists in one document may continue numbering
+instead of restarting. Warn users needing precise multi-list numbering.</li>
+<li><strong>Cell writes replace formatting.</strong> <code>set-cell</code> uses <code>cell.text = ...</code>,
+which resets runs in that cell to plain formatting.</li>
+<li><strong>Encoding.</strong> All JSON specs/values files are read as UTF-8 explicitly;
+never rely on locale defaults when writing your own glue code.</li>
+<li><strong>Don&#39;t unzip-and-sed the XML.</strong> Edit through the scripts (or
+python-docx); raw text substitution in <code>document.xml</code> corrupts files
+easily. Use <code>patch</code>/<code>write_file</code> only for the JSON inputs, never on the
+<code>.docx</code> itself.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>After create/edit/template, run <code>docx_read.py out.docx --text</code> and
+check the expected strings appear (and old strings are gone).</li>
+<li>After accept/reject, <code>docx_revisions.py list</code> should return <code>[]</code> (or
+only the ids you intentionally left); after comment surgery,
+<code>docx_comments.py list</code> should reflect the change and <code>--text</code> output
+must be unchanged.</li>
+<li><code>docx_validate.py out.docx</code> exits 0 with <code>&quot;ok&quot;: true</code> on a healthy
+package — run it after any revision/comment/field manipulation.</li>
+<li>For templates run with <code>--strict</code>, or check <code>unfilled_tokens == []</code>.</li>
+<li>Structure checks: <code>--structure</code> should show the expected heading
+outline and table shapes; <code>--styles</code> confirms custom styles applied.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/docx</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

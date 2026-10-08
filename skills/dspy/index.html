@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dspy — Skill Hermes</title>
+<meta name="description" content="DSPy: declarative LM programs, auto-optimize prompts, RAG.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>dspy</h1>
+    <p class="lede">DSPy: declarative LM programs, auto-optimize prompts, RAG.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>dspy</dd>
+      <dt>Keterangan</dt><dd>DSPy: declarative LM programs, auto-optimize prompts, RAG.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/dspy.zip" download>Muat turun ZIP (19.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.9 KB</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">18.5 KB</td></tr>
+<tr><td><code>references/modules.md</code></td><td class="sz">12.1 KB</td></tr>
+<tr><td><code>references/optimizers.md</code></td><td class="sz">14.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>DSPy: Declarative Language Model Programming</h2>
+<h3>When to Use This Skill</h3>
+<p>Use DSPy when you need to:</p>
+<ul>
+<li><strong>Build complex AI systems</strong> with multiple components and workflows</li>
+<li><strong>Program LMs declaratively</strong> instead of manual prompt engineering</li>
+<li><strong>Optimize prompts automatically</strong> using data-driven methods</li>
+<li><strong>Create modular AI pipelines</strong> that are maintainable and portable</li>
+<li><strong>Improve model outputs systematically</strong> with optimizers</li>
+<li><strong>Build RAG systems, agents, or classifiers</strong> with better reliability</li>
+</ul>
+<p><strong>GitHub Stars</strong>: 22,000+ | <strong>Created By</strong>: Stanford NLP</p>
+<h3>Installation</h3>
+<pre><code class="language-bash"># Stable release
+pip install dspy
+
+# Latest development version
+pip install git+https://github.com/stanfordnlp/dspy.git
+
+# With specific LM providers
+pip install dspy[openai]        # OpenAI
+pip install dspy[anthropic]     # Anthropic Claude
+pip install dspy[all]           # All providers
+</code></pre>
+<h3>Quick Start</h3>
+<h4>Basic Example: Question Answering</h4>
+<pre><code class="language-python">import dspy
+
+# Configure your language model
+lm = dspy.Claude(model=&quot;claude-sonnet-4-5-20250929&quot;)
+dspy.settings.configure(lm=lm)
+
+# Define a signature (input → output)
+class QA(dspy.Signature):
+    &quot;&quot;&quot;Answer questions with short factual answers.&quot;&quot;&quot;
+    question = dspy.InputField()
+    answer = dspy.OutputField(desc=&quot;often between 1 and 5 words&quot;)
+
+# Create a module
+qa = dspy.Predict(QA)
+
+# Use it
+response = qa(question=&quot;What is the capital of France?&quot;)
+print(response.answer)  # &quot;Paris&quot;
+</code></pre>
+<h4>Chain of Thought Reasoning</h4>
+<pre><code class="language-python">import dspy
+
+lm = dspy.Claude(model=&quot;claude-sonnet-4-5-20250929&quot;)
+dspy.settings.configure(lm=lm)
+
+# Use ChainOfThought for better reasoning
+class MathProblem(dspy.Signature):
+    &quot;&quot;&quot;Solve math word problems.&quot;&quot;&quot;
+    problem = dspy.InputField()
+    answer = dspy.OutputField(desc=&quot;numerical answer&quot;)
+
+# ChainOfThought generates reasoning steps automatically
+cot = dspy.ChainOfThought(MathProblem)
+
+response = cot(problem=&quot;If John has 5 apples and gives 2 to Mary, how many does he have?&quot;)
+print(response.rationale)  # Shows reasoning steps
+print(response.answer)     # &quot;3&quot;
+</code></pre>
+<h3>Core Concepts</h3>
+<h4>1. Signatures</h4>
+<p>Signatures define the structure of your AI task (inputs → outputs):</p>
+<pre><code class="language-python"># Inline signature (simple)
+qa = dspy.Predict(&quot;question -&gt; answer&quot;)
+
+# Class signature (detailed)
+class Summarize(dspy.Signature):
+    &quot;&quot;&quot;Summarize text into key points.&quot;&quot;&quot;
+    text = dspy.InputField()
+    summary = dspy.OutputField(desc=&quot;bullet points, 3-5 items&quot;)
+
+summarizer = dspy.ChainOfThought(Summarize)
+</code></pre>
+<p><strong>When to use each:</strong></p>
+<ul>
+<li><strong>Inline</strong>: Quick prototyping, simple tasks</li>
+<li><strong>Class</strong>: Complex tasks, type hints, better documentation</li>
+</ul>
+<h4>2. Modules</h4>
+<p>Modules are reusable components that transform inputs to outputs:</p>
+<h5>dspy.Predict</h5>
+<p>Basic prediction module:</p>
+<pre><code class="language-python">predictor = dspy.Predict(&quot;context, question -&gt; answer&quot;)
+result = predictor(context=&quot;Paris is the capital of France&quot;,
+                   question=&quot;What is the capital?&quot;)
+</code></pre>
+<h5>dspy.ChainOfThought</h5>
+<p>Generates reasoning steps before answering:</p>
+<pre><code class="language-python">cot = dspy.ChainOfThought(&quot;question -&gt; answer&quot;)
+result = cot(question=&quot;Why is the sky blue?&quot;)
+print(result.rationale)  # Reasoning steps
+print(result.answer)     # Final answer
+</code></pre>
+<h5>dspy.ReAct</h5>
+<p>Agent-like reasoning with tools:</p>
+<pre><code class="language-python">from dspy.predict import ReAct
+
+class SearchQA(dspy.Signature):
+    &quot;&quot;&quot;Answer questions using search.&quot;&quot;&quot;
+    question = dspy.InputField()
+    answer = dspy.OutputField()
+
+def search_tool(query: str) -&gt; str:
+    &quot;&quot;&quot;Search Wikipedia.&quot;&quot;&quot;
+    # Your search implementation
+    return results
+
+react = ReAct(SearchQA, tools=[search_tool])
+result = react(question=&quot;When was Python created?&quot;)
+</code></pre>
+<h5>dspy.ProgramOfThought</h5>
+<p>Generates and executes code for reasoning:</p>
+<pre><code class="language-python">pot = dspy.ProgramOfThought(&quot;question -&gt; answer&quot;)
+result = pot(question=&quot;What is 15% of 240?&quot;)
+# Generates: answer = 240 * 0.15
+</code></pre>
+<h4>3. Optimizers</h4>
+<p>Optimizers improve your modules automatically using training data:</p>
+<h5>BootstrapFewShot</h5>
+<p>Learns from examples:</p>
+<pre><code class="language-python">from dspy.teleprompt import BootstrapFewShot
+
+# Training data
+trainset = [
+    dspy.Example(question=&quot;What is 2+2?&quot;, answer=&quot;4&quot;).with_inputs(&quot;question&quot;),
+    dspy.Example(question=&quot;What is 3+5?&quot;, answer=&quot;8&quot;).with_inputs(&quot;question&quot;),
+]
+
+# Define metric
+def validate_answer(example, pred, trace=None):
+    return example.answer == pred.answer
+
+# Optimize
+optimizer = BootstrapFewShot(metric=validate_answer, max_bootstrapped_demos=3)
+optimized_qa = optimizer.compile(qa, trainset=trainset)
+
+# Now optimized_qa performs better!
+</code></pre>
+<h5>MIPRO (Most Important Prompt Optimization)</h5>
+<p>Iteratively improves prompts:</p>
+<pre><code class="language-python">from dspy.teleprompt import MIPRO
+
+optimizer = MIPRO(
+    metric=validate_answer,
+    num_candidates=10,
+    init_temperature=1.0
+)
+
+optimized_cot = optimizer.compile(
+    cot,
+    trainset=trainset,
+    num_trials=100
+)
+</code></pre>
+<h5>BootstrapFinetune</h5>
+<p>Creates datasets for model fine-tuning:</p>
+<pre><code class="language-python">from dspy.teleprompt import BootstrapFinetune
+
+optimizer = BootstrapFinetune(metric=validate_answer)
+optimized_module = optimizer.compile(qa, trainset=trainset)
+
+# Exports training data for fine-tuning
+</code></pre>
+<h4>4. Building Complex Systems</h4>
+<h5>Multi-Stage Pipeline</h5>
+<pre><code class="language-python">import dspy
+
+class MultiHopQA(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.retrieve = dspy.Retrieve(k=3)
+        self.generate_query = dspy.ChainOfThought(&quot;question -&gt; search_query&quot;)
+        self.generate_answer = dspy.ChainOfThought(&quot;context, question -&gt; answer&quot;)
+
+    def forward(self, question):
+        # Stage 1: Generate search query
+        search_query = self.generate_query(question=question).search_query
+
+        # Stage 2: Retrieve context
+        passages = self.retrieve(search_query).passages
+        context = &quot;\n&quot;.join(passages)
+
+        # Stage 3: Generate answer
+        answer = self.generate_answer(context=context, question=question).answer
+        return dspy.Prediction(answer=answer, context=context)
+
+# Use the pipeline
+qa_system = MultiHopQA()
+result = qa_system(question=&quot;Who wrote the book that inspired the movie Blade Runner?&quot;)
+</code></pre>
+<h5>RAG System with Optimization</h5>
+<pre><code class="language-python">import dspy
+from dspy.retrieve.chromadb_rm import ChromadbRM
+
+# Configure retriever
+retriever = ChromadbRM(
+    collection_name=&quot;documents&quot;,
+    persist_directory=&quot;./chroma_db&quot;
+)
+
+class RAG(dspy.Module):
+    def __init__(self, num_passages=3):
+        super().__init__()
+        self.retrieve = dspy.Retrieve(k=num_passages)
+        self.generate = dspy.ChainOfThought(&quot;context, question -&gt; answer&quot;)
+
+    def forward(self, question):
+        context = self.retrieve(question).passages
+        return self.generate(context=context, question=question)
+
+# Create and optimize
+rag = RAG()
+
+# Optimize with training data
+from dspy.teleprompt import BootstrapFewShot
+
+optimizer = BootstrapFewShot(metric=validate_answer)
+optimized_rag = optimizer.compile(rag, trainset=trainset)
+</code></pre>
+<h3>LM Provider Configuration</h3>
+<h4>Anthropic Claude</h4>
+<pre><code class="language-python">import dspy
+
+lm = dspy.Claude(
+    model=&quot;claude-sonnet-4-5-20250929&quot;,
+    api_key=&quot;your-api-key&quot;,  # Or set ANTHROPIC_API_KEY env var
+    max_tokens=1000,
+    temperature=0.7
+)
+dspy.settings.configure(lm=lm)
+</code></pre>
+<h4>OpenAI</h4>
+<pre><code class="language-python">lm = dspy.OpenAI(
+    model=&quot;gpt-4&quot;,
+    api_key=&quot;your-api-key&quot;,
+    max_tokens=1000
+)
+dspy.settings.configure(lm=lm)
+</code></pre>
+<h4>Local Models (Ollama)</h4>
+<pre><code class="language-python">lm = dspy.OllamaLocal(
+    model=&quot;llama3.1&quot;,
+    base_url=&quot;http://localhost:11434&quot;
+)
+dspy.settings.configure(lm=lm)
+</code></pre>
+<h4>Multiple Models</h4>
+<pre><code class="language-python"># Different models for different tasks
+cheap_lm = dspy.OpenAI(model=&quot;gpt-3.5-turbo&quot;)
+strong_lm = dspy.Claude(model=&quot;claude-sonnet-4-5-20250929&quot;)
+
+# Use cheap model for retrieval, strong model for reasoning
+with dspy.settings.context(lm=cheap_lm):
+    context = retriever(question)
+
+with dspy.settings.context(lm=strong_lm):
+    answer = generator(context=context, question=question)
+</code></pre>
+<h3>Common Patterns</h3>
+<h4>Pattern 1: Structured Output</h4>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class PersonInfo(BaseModel):
+    name: str = Field(description=&quot;Full name&quot;)
+    age: int = Field(description=&quot;Age in years&quot;)
+    occupation: str = Field(description=&quot;Current job&quot;)
+
+class ExtractPerson(dspy.Signature):
+    &quot;&quot;&quot;Extract person information from text.&quot;&quot;&quot;
+    text = dspy.InputField()
+    person: PersonInfo = dspy.OutputField()
+
+extractor = dspy.TypedPredictor(ExtractPerson)
+result = extractor(text=&quot;John Doe is a 35-year-old software engineer.&quot;)
+print(result.person.name)  # &quot;John Doe&quot;
+print(result.person.age)   # 35
+</code></pre>
+<h4>Pattern 2: Assertion-Driven Optimization</h4>
+<pre><code class="language-python">import dspy
+from dspy.primitives.assertions import assert_transform_module, backtrack_handler
+
+class MathQA(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.solve = dspy.ChainOfThought(&quot;problem -&gt; solution: float&quot;)
+
+    def forward(self, problem):
+        solution = self.solve(problem=problem).solution
+
+        # Assert solution is numeric
+        dspy.Assert(
+            isinstance(float(solution), float),
+            &quot;Solution must be a number&quot;,
+            backtrack=backtrack_handler
+        )
+
+        return dspy.Prediction(solution=solution)
+</code></pre>
+<h4>Pattern 3: Self-Consistency</h4>
+<pre><code class="language-python">import dspy
+from collections import Counter
+
+class ConsistentQA(dspy.Module):
+    def __init__(self, num_samples=5):
+        super().__init__()
+        self.qa = dspy.ChainOfThought(&quot;question -&gt; answer&quot;)
+        self.num_samples = num_samples
+
+    def forward(self, question):
+        # Generate multiple answers
+        answers = []
+        for _ in range(self.num_samples):
+            result = self.qa(question=question)
+            answers.append(result.answer)
+
+        # Return most common answer
+        most_common = Counter(answers).most_common(1)[0][0]
+        return dspy.Prediction(answer=most_common)
+</code></pre>
+<h4>Pattern 4: Retrieval with Reranking</h4>
+<pre><code class="language-python">class RerankedRAG(dspy.Module):
+    def __init__(self):
+        super().__init__()
+        self.retrieve = dspy.Retrieve(k=10)
+        self.rerank = dspy.Predict(&quot;question, passage -&gt; relevance_score: float&quot;)
+        self.answer = dspy.ChainOfThought(&quot;context, question -&gt; answer&quot;)
+
+    def forward(self, question):
+        # Retrieve candidates
+        passages = self.retrieve(question).passages
+
+        # Rerank passages
+        scored = []
+        for passage in passages:
+            score = float(self.rerank(question=question, passage=passage).relevance_score)
+            scored.append((score, passage))
+
+        # Take top 3
+        top_passages = [p for _, p in sorted(scored, reverse=True)[:3]]
+        context = &quot;\n\n&quot;.join(top_passages)
+
+        # Generate answer
+        return self.answer(context=context, question=question)
+</code></pre>
+<h3>Evaluation and Metrics</h3>
+<h4>Custom Metrics</h4>
+<pre><code class="language-python">def exact_match(example, pred, trace=None):
+    &quot;&quot;&quot;Exact match metric.&quot;&quot;&quot;
+    return example.answer.lower() == pred.answer.lower()
+
+def f1_score(example, pred, trace=None):
+    &quot;&quot;&quot;F1 score for text overlap.&quot;&quot;&quot;
+    pred_tokens = set(pred.answer.lower().split())
+    gold_tokens = set(example.answer.lower().split())
+
+    if not pred_tokens:
+        return 0.0
+
+    precision = len(pred_tokens &amp; gold_tokens) / len(pred_tokens)
+    recall = len(pred_tokens &amp; gold_tokens) / len(gold_tokens)
+
+    if precision + recall == 0:
+        return 0.0
+
+    return 2 * (precision * recall) / (precision + recall)
+</code></pre>
+<h4>Evaluation</h4>
+<pre><code class="language-python">from dspy.evaluate import Evaluate
+
+# Create evaluator
+evaluator = Evaluate(
+    devset=testset,
+    metric=exact_match,
+    num_threads=4,
+    display_progress=True
+)
+
+# Evaluate model
+score = evaluator(qa_system)
+print(f&quot;Accuracy: {score}&quot;)
+
+# Compare optimized vs unoptimized
+score_before = evaluator(qa)
+score_after = evaluator(optimized_qa)
+print(f&quot;Improvement: {score_after - score_before:.2%}&quot;)
+</code></pre>
+<h3>Best Practices</h3>
+<h4>1. Start Simple, Iterate</h4>
+<pre><code class="language-python"># Start with Predict
+qa = dspy.Predict(&quot;question -&gt; answer&quot;)
+
+# Add reasoning if needed
+qa = dspy.ChainOfThought(&quot;question -&gt; answer&quot;)
+
+# Add optimization when you have data
+optimized_qa = optimizer.compile(qa, trainset=data)
+</code></pre>
+<h4>2. Use Descriptive Signatures</h4>
+<pre><code class="language-python"># ❌ Bad: Vague
+class Task(dspy.Signature):
+    input = dspy.InputField()
+    output = dspy.OutputField()
+
+# ✅ Good: Descriptive
+class SummarizeArticle(dspy.Signature):
+    &quot;&quot;&quot;Summarize news articles into 3-5 key points.&quot;&quot;&quot;
+    article = dspy.InputField(desc=&quot;full article text&quot;)
+    summary = dspy.OutputField(desc=&quot;bullet points, 3-5 items&quot;)
+</code></pre>
+<h4>3. Optimize with Representative Data</h4>
+<pre><code class="language-python"># Create diverse training examples
+trainset = [
+    dspy.Example(question=&quot;factual&quot;, answer=&quot;...).with_inputs(&quot;question&quot;),
+    dspy.Example(question=&quot;reasoning&quot;, answer=&quot;...&quot;).with_inputs(&quot;question&quot;),
+    dspy.Example(question=&quot;calculation&quot;, answer=&quot;...&quot;).with_inputs(&quot;question&quot;),
+]
+
+# Use validation set for metric
+def metric(example, pred, trace=None):
+    return example.answer in pred.answer
+</code></pre>
+<h4>4. Save and Load Optimized Models</h4>
+<pre><code class="language-python"># Save
+optimized_qa.save(&quot;models/qa_v1.json&quot;)
+
+# Load
+loaded_qa = dspy.ChainOfThought(&quot;question -&gt; answer&quot;)
+loaded_qa.load(&quot;models/qa_v1.json&quot;)
+</code></pre>
+<h4>5. Monitor and Debug</h4>
+<pre><code class="language-python"># Enable tracing
+dspy.settings.configure(lm=lm, trace=[])
+
+# Run prediction
+result = qa(question=&quot;...&quot;)
+
+# Inspect trace
+for call in dspy.settings.trace:
+    print(f&quot;Prompt: {call[&#39;prompt&#39;]}&quot;)
+    print(f&quot;Response: {call[&#39;response&#39;]}&quot;)
+</code></pre>
+<h3>Comparison to Other Approaches</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Manual Prompting</th>
+<th>LangChain</th>
+<th>DSPy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Prompt Engineering</td>
+<td>Manual</td>
+<td>Manual</td>
+<td>Automatic</td>
+</tr>
+<tr>
+<td>Optimization</td>
+<td>Trial &amp; error</td>
+<td>None</td>
+<td>Data-driven</td>
+</tr>
+<tr>
+<td>Modularity</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Type Safety</td>
+<td>No</td>
+<td>Limited</td>
+<td>Yes (Signatures)</td>
+</tr>
+<tr>
+<td>Portability</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+<tr>
+<td>Learning Curve</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Medium-High</td>
+</tr>
+</tbody></table>
+<p><strong>When to choose DSPy:</strong></p>
+<ul>
+<li>You have training data or can generate it</li>
+<li>You need systematic prompt improvement</li>
+<li>You&#39;re building complex multi-stage systems</li>
+<li>You want to optimize across different LMs</li>
+</ul>
+<p><strong>When to choose alternatives:</strong></p>
+<ul>
+<li>Quick prototypes (manual prompting)</li>
+<li>Simple chains with existing tools (LangChain)</li>
+<li>Custom optimization logic needed</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://dspy.ai">https://dspy.ai</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/stanfordnlp/dspy">https://github.com/stanfordnlp/dspy</a> (22k+ stars)</li>
+<li><strong>Discord</strong>: <a href="https://discord.gg/XCGy2WDCQB">https://discord.gg/XCGy2WDCQB</a></li>
+<li><strong>Twitter</strong>: @DSPyOSS</li>
+<li><strong>Paper</strong>: &quot;DSPy: Compiling Declarative Language Model Calls into Self-Improving Pipelines&quot;</li>
+</ul>
+<h3>See Also</h3>
+<ul>
+<li><code>references/modules.md</code> - Detailed module guide (Predict, ChainOfThought, ReAct, ProgramOfThought)</li>
+<li><code>references/optimizers.md</code> - Optimization algorithms (BootstrapFewShot, MIPRO, BootstrapFinetune)</li>
+<li><code>references/examples.md</code> - Real-world examples (RAG, agents, classifiers)</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/research/dspy</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

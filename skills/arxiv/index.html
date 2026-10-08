@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>arxiv — Skill Hermes</title>
+<meta name="description" content="Search arXiv papers by keyword, author, category, or ID.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>arxiv</h1>
+    <p class="lede">Search arXiv papers by keyword, author, category, or ID.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>arxiv</dd>
+      <dt>Keterangan</dt><dd>Search arXiv papers by keyword, author, category, or ID.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/arxiv.zip" download>Muat turun ZIP (5.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.8 KB</td></tr>
+<tr><td><code>scripts/search_arxiv.py</code></td><td class="sz">4.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>arXiv Research</h2>
+<p>Search and retrieve academic papers from arXiv via their free REST API. No API key, no dependencies — just curl.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Search papers</td>
+<td><code>curl &quot;https://export.arxiv.org/api/query?search_query=all:QUERY&amp;max_results=5&quot;</code></td>
+</tr>
+<tr>
+<td>Get specific paper</td>
+<td><code>curl &quot;https://export.arxiv.org/api/query?id_list=2402.03300&quot;</code></td>
+</tr>
+<tr>
+<td>Read abstract (web)</td>
+<td><code>web_extract(urls=[&quot;https://arxiv.org/abs/2402.03300&quot;])</code></td>
+</tr>
+<tr>
+<td>Read full paper (PDF)</td>
+<td><code>web_extract(urls=[&quot;https://arxiv.org/pdf/2402.03300&quot;])</code></td>
+</tr>
+</tbody></table>
+<h3>Searching Papers</h3>
+<p>The API returns Atom XML. Parse with <code>grep</code>/<code>sed</code> or pipe through <code>python</code> for clean output.</p>
+<h4>Basic search</h4>
+<pre><code class="language-bash">curl -s &quot;https://export.arxiv.org/api/query?search_query=all:GRPO+reinforcement+learning&amp;max_results=5&quot;
+</code></pre>
+<h4>Clean output (parse XML to readable format)</h4>
+<pre><code class="language-bash">curl -s &quot;https://export.arxiv.org/api/query?search_query=all:GRPO+reinforcement+learning&amp;max_results=5&amp;sortBy=submittedDate&amp;sortOrder=descending&quot; | python -c &quot;
+import sys, xml.etree.ElementTree as ET
+ns = {&#39;a&#39;: &#39;http://www.w3.org/2005/Atom&#39;}
+root = ET.parse(sys.stdin).getroot()
+for i, entry in enumerate(root.findall(&#39;a:entry&#39;, ns)):
+    title = entry.find(&#39;a:title&#39;, ns).text.strip().replace(&#39;\n&#39;, &#39; &#39;)
+    arxiv_id = entry.find(&#39;a:id&#39;, ns).text.strip().split(&#39;/abs/&#39;)[-1]
+    published = entry.find(&#39;a:published&#39;, ns).text[:10]
+    authors = &#39;, &#39;.join(a.find(&#39;a:name&#39;, ns).text for a in entry.findall(&#39;a:author&#39;, ns))
+    summary = entry.find(&#39;a:summary&#39;, ns).text.strip()[:200]
+    cats = &#39;, &#39;.join(c.get(&#39;term&#39;) for c in entry.findall(&#39;a:category&#39;, ns))
+    print(f&#39;{i+1}. [{arxiv_id}] {title}&#39;)
+    print(f&#39;   Authors: {authors}&#39;)
+    print(f&#39;   Published: {published} | Categories: {cats}&#39;)
+    print(f&#39;   Abstract: {summary}...&#39;)
+    print(f&#39;   PDF: https://arxiv.org/pdf/{arxiv_id}&#39;)
+    print()
+&quot;
+</code></pre>
+<h3>Search Query Syntax</h3>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Searches</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>all:</code></td>
+<td>All fields</td>
+<td><code>all:transformer+attention</code></td>
+</tr>
+<tr>
+<td><code>ti:</code></td>
+<td>Title</td>
+<td><code>ti:large+language+models</code></td>
+</tr>
+<tr>
+<td><code>au:</code></td>
+<td>Author</td>
+<td><code>au:vaswani</code></td>
+</tr>
+<tr>
+<td><code>abs:</code></td>
+<td>Abstract</td>
+<td><code>abs:reinforcement+learning</code></td>
+</tr>
+<tr>
+<td><code>cat:</code></td>
+<td>Category</td>
+<td><code>cat:cs.AI</code></td>
+</tr>
+<tr>
+<td><code>co:</code></td>
+<td>Comment</td>
+<td><code>co:accepted+NeurIPS</code></td>
+</tr>
+</tbody></table>
+<h4>Boolean operators</h4>
+<pre><code># AND (default when using +)
+search_query=all:transformer+attention
+
+# OR
+search_query=all:GPT+OR+all:BERT
+
+# AND NOT
+search_query=all:language+model+ANDNOT+all:vision
+
+# Exact phrase
+search_query=ti:&quot;chain+of+thought&quot;
+
+# Combined
+search_query=au:hinton+AND+cat:cs.LG
+</code></pre>
+<h3>Sort and Pagination</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Options</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sortBy</code></td>
+<td><code>relevance</code>, <code>lastUpdatedDate</code>, <code>submittedDate</code></td>
+</tr>
+<tr>
+<td><code>sortOrder</code></td>
+<td><code>ascending</code>, <code>descending</code></td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>Result offset (0-based)</td>
+</tr>
+<tr>
+<td><code>max_results</code></td>
+<td>Number of results (default 10, max 30000)</td>
+</tr>
+</tbody></table>
+<pre><code class="language-bash"># Latest 10 papers in cs.AI
+curl -s &quot;https://export.arxiv.org/api/query?search_query=cat:cs.AI&amp;sortBy=submittedDate&amp;sortOrder=descending&amp;max_results=10&quot;
+</code></pre>
+<h3>Fetching Specific Papers</h3>
+<pre><code class="language-bash"># By arXiv ID
+curl -s &quot;https://export.arxiv.org/api/query?id_list=2402.03300&quot;
+
+# Multiple papers
+curl -s &quot;https://export.arxiv.org/api/query?id_list=2402.03300,2401.12345,2403.00001&quot;
+</code></pre>
+<h3>BibTeX Generation</h3>
+<p>After fetching metadata for a paper, generate a BibTeX entry:</p>
+<p>{% raw %}</p>
+<pre><code class="language-bash">curl -s &quot;https://export.arxiv.org/api/query?id_list=1706.03762&quot; | python -c &quot;
+import sys, xml.etree.ElementTree as ET
+ns = {&#39;a&#39;: &#39;http://www.w3.org/2005/Atom&#39;, &#39;arxiv&#39;: &#39;http://arxiv.org/schemas/atom&#39;}
+root = ET.parse(sys.stdin).getroot()
+entry = root.find(&#39;a:entry&#39;, ns)
+if entry is None: sys.exit(&#39;Paper not found&#39;)
+title = entry.find(&#39;a:title&#39;, ns).text.strip().replace(&#39;\n&#39;, &#39; &#39;)
+authors = &#39; and &#39;.join(a.find(&#39;a:name&#39;, ns).text for a in entry.findall(&#39;a:author&#39;, ns))
+year = entry.find(&#39;a:published&#39;, ns).text[:4]
+raw_id = entry.find(&#39;a:id&#39;, ns).text.strip().split(&#39;/abs/&#39;)[-1]
+cat = entry.find(&#39;arxiv:primary_category&#39;, ns)
+primary = cat.get(&#39;term&#39;) if cat is not None else &#39;cs.LG&#39;
+last_name = entry.find(&#39;a:author&#39;, ns).find(&#39;a:name&#39;, ns).text.split()[-1]
+print(f&#39;@article{{{last_name}{year}_{raw_id.replace(\&quot;.\&quot;, \&quot;\&quot;)},&#39;)
+print(f&#39;  title     = {{{title}}},&#39;)
+print(f&#39;  author    = {{{authors}}},&#39;)
+print(f&#39;  year      = {{{year}}},&#39;)
+print(f&#39;  eprint    = {{{raw_id}}},&#39;)
+print(f&#39;  archivePrefix = {{arXiv}},&#39;)
+print(f&#39;  primaryClass  = {{{primary}}},&#39;)
+print(f&#39;  url       = {{https://arxiv.org/abs/{raw_id}}}&#39;)
+print(&#39;}&#39;)
+&quot;
+</code></pre>
+<p>{% endraw %}</p>
+<h3>Reading Paper Content</h3>
+<p>After finding a paper, read it:</p>
+<pre><code># Abstract page (fast, metadata + abstract)
+web_extract(urls=[&quot;https://arxiv.org/abs/2402.03300&quot;])
+
+# Full paper (PDF → markdown via Firecrawl)
+web_extract(urls=[&quot;https://arxiv.org/pdf/2402.03300&quot;])
+</code></pre>
+<p>For local PDF processing, see the <code>ocr-and-documents</code> skill.</p>
+<h3>Common Categories</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Field</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cs.AI</code></td>
+<td>Artificial Intelligence</td>
+</tr>
+<tr>
+<td><code>cs.CL</code></td>
+<td>Computation and Language (NLP)</td>
+</tr>
+<tr>
+<td><code>cs.CV</code></td>
+<td>Computer Vision</td>
+</tr>
+<tr>
+<td><code>cs.LG</code></td>
+<td>Machine Learning</td>
+</tr>
+<tr>
+<td><code>cs.CR</code></td>
+<td>Cryptography and Security</td>
+</tr>
+<tr>
+<td><code>stat.ML</code></td>
+<td>Machine Learning (Statistics)</td>
+</tr>
+<tr>
+<td><code>math.OC</code></td>
+<td>Optimization and Control</td>
+</tr>
+<tr>
+<td><code>physics.comp-ph</code></td>
+<td>Computational Physics</td>
+</tr>
+</tbody></table>
+<p>Full list: <a href="https://arxiv.org/category_taxonomy">https://arxiv.org/category_taxonomy</a></p>
+<h3>Helper Script</h3>
+<p>The <code>scripts/search_arxiv.py</code> script handles XML parsing and provides clean output:</p>
+<pre><code class="language-bash">python scripts/search_arxiv.py &quot;GRPO reinforcement learning&quot;
+python scripts/search_arxiv.py &quot;transformer attention&quot; --max 10 --sort date
+python scripts/search_arxiv.py --author &quot;Yann LeCun&quot; --max 5
+python scripts/search_arxiv.py --category cs.AI --sort date
+python scripts/search_arxiv.py --id 2402.03300
+python scripts/search_arxiv.py --id 2402.03300,2401.12345
+</code></pre>
+<p>No dependencies — uses only Python stdlib.</p>
+<hr>
+<h3>Semantic Scholar (Citations, Related Papers, Author Profiles)</h3>
+<p>arXiv doesn&#39;t provide citation data or recommendations. Use the <strong>Semantic Scholar API</strong> for that — free, no key needed for basic use (1 req/sec), returns JSON.</p>
+<h4>Get paper details + citations</h4>
+<pre><code class="language-bash"># By arXiv ID
+curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/arXiv:2402.03300?fields=title,authors,citationCount,referenceCount,influentialCitationCount,year,abstract&quot; | python -m json.tool
+
+# By Semantic Scholar paper ID or DOI
+curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/DOI:10.1234/example?fields=title,citationCount&quot;
+</code></pre>
+<h4>Get citations OF a paper (who cited it)</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/arXiv:2402.03300/citations?fields=title,authors,year,citationCount&amp;limit=10&quot; | python -m json.tool
+</code></pre>
+<h4>Get references FROM a paper (what it cites)</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/arXiv:2402.03300/references?fields=title,authors,year,citationCount&amp;limit=10&quot; | python -m json.tool
+</code></pre>
+<h4>Search papers (alternative to arXiv search, returns JSON)</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/search?query=GRPO+reinforcement+learning&amp;limit=5&amp;fields=title,authors,year,citationCount,externalIds&quot; | python -m json.tool
+</code></pre>
+<h4>Get paper recommendations</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.semanticscholar.org/recommendations/v1/papers/&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;positivePaperIds&quot;: [&quot;arXiv:2402.03300&quot;], &quot;negativePaperIds&quot;: []}&#39; | python -m json.tool
+</code></pre>
+<h4>Author profile</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.semanticscholar.org/graph/v1/author/search?query=Yann+LeCun&amp;fields=name,hIndex,citationCount,paperCount&quot; | python -m json.tool
+</code></pre>
+<h4>Useful Semantic Scholar fields</h4>
+<p><code>title</code>, <code>authors</code>, <code>year</code>, <code>abstract</code>, <code>citationCount</code>, <code>referenceCount</code>, <code>influentialCitationCount</code>, <code>isOpenAccess</code>, <code>openAccessPdf</code>, <code>fieldsOfStudy</code>, <code>publicationVenue</code>, <code>externalIds</code> (contains arXiv ID, DOI, etc.)</p>
+<hr>
+<h3>Complete Research Workflow</h3>
+<ol>
+<li><strong>Discover</strong>: <code>python scripts/search_arxiv.py &quot;your topic&quot; --sort date --max 10</code></li>
+<li><strong>Assess impact</strong>: <code>curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/arXiv:ID?fields=citationCount,influentialCitationCount&quot;</code></li>
+<li><strong>Read abstract</strong>: <code>web_extract(urls=[&quot;https://arxiv.org/abs/ID&quot;])</code></li>
+<li><strong>Read full paper</strong>: <code>web_extract(urls=[&quot;https://arxiv.org/pdf/ID&quot;])</code></li>
+<li><strong>Find related work</strong>: <code>curl -s &quot;https://api.semanticscholar.org/graph/v1/paper/arXiv:ID/references?fields=title,citationCount&amp;limit=20&quot;</code></li>
+<li><strong>Get recommendations</strong>: POST to Semantic Scholar recommendations endpoint</li>
+<li><strong>Track authors</strong>: <code>curl -s &quot;https://api.semanticscholar.org/graph/v1/author/search?query=NAME&quot;</code></li>
+</ol>
+<h3>Rate Limits</h3>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>Rate</th>
+<th>Auth</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>arXiv</td>
+<td>~1 req / 3 seconds</td>
+<td>None needed</td>
+</tr>
+<tr>
+<td>Semantic Scholar</td>
+<td>1 req / second</td>
+<td>None (100/sec with API key)</td>
+</tr>
+</tbody></table>
+<h3>Notes</h3>
+<ul>
+<li>arXiv returns Atom XML — use the helper script or parsing snippet for clean output</li>
+<li>Semantic Scholar returns JSON — pipe through <code>python -m json.tool</code> for readability</li>
+<li>arXiv IDs: old format (<code>hep-th/0601001</code>) vs new (<code>2402.03300</code>)</li>
+<li>PDF: <code>https://arxiv.org/pdf/{id}</code> — Abstract: <code>https://arxiv.org/abs/{id}</code></li>
+<li>HTML (when available): <code>https://arxiv.org/html/{id}</code></li>
+<li>For local PDF processing, see the <code>ocr-and-documents</code> skill</li>
+</ul>
+<h3>ID Versioning</h3>
+<ul>
+<li><code>arxiv.org/abs/1706.03762</code> always resolves to the <strong>latest</strong> version</li>
+<li><code>arxiv.org/abs/1706.03762v1</code> points to a <strong>specific</strong> immutable version</li>
+<li>When generating citations, preserve the version suffix you actually read to prevent citation drift (a later version may substantially change content)</li>
+<li>The API <code>&lt;id&gt;</code> field returns the versioned URL (e.g., <code>http://arxiv.org/abs/1706.03762v7</code>)</li>
+</ul>
+<h3>Withdrawn Papers</h3>
+<p>Papers can be withdrawn after submission. When this happens:</p>
+<ul>
+<li>The <code>&lt;summary&gt;</code> field contains a withdrawal notice (look for &quot;withdrawn&quot; or &quot;retracted&quot;)</li>
+<li>Metadata fields may be incomplete</li>
+<li>Always check the summary before treating a result as a valid paper</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/research/arxiv</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

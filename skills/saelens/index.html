@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>saelens — Skill Hermes</title>
+<meta name="description" content="Train sparse autoencoders to interpret model features.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>saelens</h1>
+    <p class="lede">Train sparse autoencoders to interpret model features.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>saelens</dd>
+      <dt>Keterangan</dt><dd>Train sparse autoencoders to interpret model features.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/saelens.zip" download>Muat turun ZIP (12.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.7 KB</td></tr>
+<tr><td><code>references/api.md</code></td><td class="sz">6.8 KB</td></tr>
+<tr><td><code>references/README.md</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>references/tutorials.md</code></td><td class="sz">9.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>SAELens: Sparse Autoencoders for Mechanistic Interpretability</h2>
+<p>SAELens is the primary library for training and analyzing Sparse Autoencoders (SAEs) - a technique for decomposing polysemantic neural network activations into sparse, interpretable features. Based on Anthropic&#39;s groundbreaking research on monosemanticity.</p>
+<p><strong>GitHub</strong>: <a href="https://github.com/jbloomAus/SAELens">jbloomAus/SAELens</a> (1,100+ stars)</p>
+<h3>The Problem: Polysemanticity &amp; Superposition</h3>
+<p>Individual neurons in neural networks are <strong>polysemantic</strong> - they activate in multiple, semantically distinct contexts. This happens because models use <strong>superposition</strong> to represent more features than they have neurons, making interpretability difficult.</p>
+<p><strong>SAEs solve this</strong> by decomposing dense activations into sparse, monosemantic features - typically only a small number of features activate for any given input, and each feature corresponds to an interpretable concept.</p>
+<h3>When to Use SAELens</h3>
+<p><strong>Use SAELens when you need to:</strong></p>
+<ul>
+<li>Discover interpretable features in model activations</li>
+<li>Understand what concepts a model has learned</li>
+<li>Study superposition and feature geometry</li>
+<li>Perform feature-based steering or ablation</li>
+<li>Analyze safety-relevant features (deception, bias, harmful content)</li>
+</ul>
+<p><strong>Consider alternatives when:</strong></p>
+<ul>
+<li>You need basic activation analysis → Use <strong>TransformerLens</strong> directly</li>
+<li>You want causal intervention experiments → Use <strong>pyvene</strong> or <strong>TransformerLens</strong></li>
+<li>You need production steering → Consider direct activation engineering</li>
+</ul>
+<h3>Installation</h3>
+<pre><code class="language-bash">pip install sae-lens
+</code></pre>
+<p>Requirements: Python 3.10+, transformer-lens&gt;=2.0.0</p>
+<h3>Core Concepts</h3>
+<h4>What SAEs Learn</h4>
+<p>SAEs are trained to reconstruct model activations through a sparse bottleneck:</p>
+<pre><code>Input Activation → Encoder → Sparse Features → Decoder → Reconstructed Activation
+    (d_model)       ↓        (d_sae &gt;&gt; d_model)    ↓         (d_model)
+                 sparsity                      reconstruction
+                 penalty                          loss
+</code></pre>
+<p><strong>Loss Function</strong>: <code>MSE(original, reconstructed) + L1_coefficient × L1(features)</code></p>
+<h4>Key Validation (Anthropic Research)</h4>
+<p>In &quot;Towards Monosemanticity&quot;, human evaluators found <strong>70% of SAE features genuinely interpretable</strong>. Features discovered include:</p>
+<ul>
+<li>DNA sequences, legal language, HTTP requests</li>
+<li>Hebrew text, nutrition statements, code syntax</li>
+<li>Sentiment, named entities, grammatical structures</li>
+</ul>
+<h3>Workflow 1: Loading and Analyzing Pre-trained SAEs</h3>
+<h4>Step-by-Step</h4>
+<pre><code class="language-python">from transformer_lens import HookedTransformer
+from sae_lens import SAE
+
+# 1. Load model and pre-trained SAE
+model = HookedTransformer.from_pretrained(&quot;gpt2-small&quot;, device=&quot;cuda&quot;)
+# In sae-lens v6, SAE.from_pretrained() returns JUST the SAE (not a tuple).
+sae = SAE.from_pretrained(
+    release=&quot;gpt2-small-res-jb&quot;,
+    sae_id=&quot;blocks.8.hook_resid_pre&quot;,
+    device=&quot;cuda&quot;
+)
+# If you also need the cfg dict and feature sparsity, use:
+# sae, cfg_dict, sparsity = SAE.from_pretrained_with_cfg_and_sparsity(...)
+
+# 2. Get model activations
+tokens = model.to_tokens(&quot;The capital of France is Paris&quot;)
+_, cache = model.run_with_cache(tokens)
+activations = cache[&quot;resid_pre&quot;, 8]  # [batch, pos, d_model]
+
+# 3. Encode to SAE features
+sae_features = sae.encode(activations)  # [batch, pos, d_sae]
+print(f&quot;Active features: {(sae_features &gt; 0).sum()}&quot;)
+
+# 4. Find top features for each position
+for pos in range(tokens.shape[1]):
+    top_features = sae_features[0, pos].topk(5)
+    token = model.to_str_tokens(tokens[0, pos:pos+1])[0]
+    print(f&quot;Token &#39;{token}&#39;: features {top_features.indices.tolist()}&quot;)
+
+# 5. Reconstruct activations
+reconstructed = sae.decode(sae_features)
+reconstruction_error = (activations - reconstructed).norm()
+</code></pre>
+<h4>Available Pre-trained SAEs</h4>
+<table>
+<thead>
+<tr>
+<th>Release</th>
+<th>Model</th>
+<th>Layers</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gpt2-small-res-jb</code></td>
+<td>GPT-2 Small</td>
+<td>Multiple residual streams</td>
+</tr>
+<tr>
+<td><code>gemma-2b-res</code></td>
+<td>Gemma 2B</td>
+<td>Residual streams</td>
+</tr>
+<tr>
+<td>Various on HuggingFace</td>
+<td>Search tag <code>saelens</code></td>
+<td>Various</td>
+</tr>
+</tbody></table>
+<h4>Checklist</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Load model with TransformerLens</li>
+<li><input disabled="" type="checkbox"> Load matching SAE for target layer</li>
+<li><input disabled="" type="checkbox"> Encode activations to sparse features</li>
+<li><input disabled="" type="checkbox"> Identify top-activating features per token</li>
+<li><input disabled="" type="checkbox"> Validate reconstruction quality</li>
+</ul>
+<h3>Workflow 2: Training a Custom SAE</h3>
+<h4>Step-by-Step</h4>
+<pre><code class="language-python">from sae_lens import (
+    LanguageModelSAETrainingRunner,
+    LanguageModelSAERunnerConfig,
+    StandardTrainingSAEConfig,
+    LoggingConfig,
+)
+
+# 1. Configure training (v6 uses a NESTED config: SAE-specific options live in a
+#    `sae=` sub-config, and logging options live in a `logger=` sub-config).
+#    Note: `architecture`, `d_sae`, `l1_coefficient` etc. are now on the SAE sub-config,
+#    and legacy flat options like `hook_layer`, `activation_fn`, `log_to_wandb` were removed.
+cfg = LanguageModelSAERunnerConfig(
+    # SAE architecture + sparsity (nested)
+    sae=StandardTrainingSAEConfig(
+        d_in=768,          # Model dimension
+        d_sae=768 * 8,     # Expansion factor of 8
+        l1_coefficient=8e-5,  # Sparsity penalty
+        apply_b_dec_to_input=True,
+        normalize_activations=&quot;expected_average_only_in&quot;,
+    ),
+
+    # Data-generating function (model + hook point)
+    model_name=&quot;gpt2-small&quot;,
+    hook_name=&quot;blocks.8.hook_resid_pre&quot;,  # layer is inferred from hook_name (no hook_layer)
+
+    # Training
+    lr=4e-4,
+    l1_warm_up_steps=1000,
+    train_batch_size_tokens=4096,
+    training_tokens=100_000_000,
+
+    # Data
+    dataset_path=&quot;monology/pile-uncopyrighted&quot;,
+    context_size=128,
+
+    # Logging (nested)
+    logger=LoggingConfig(
+        log_to_wandb=True,
+        wandb_project=&quot;sae-training&quot;,
+    ),
+
+    # Checkpointing
+    checkpoint_path=&quot;checkpoints&quot;,
+    n_checkpoints=5,
+)
+
+# 2. Train
+trainer = LanguageModelSAETrainingRunner(cfg)  # SAETrainingRunner still works as an alias
+sae = trainer.run()
+
+# 3. Evaluate
+print(f&quot;L0 (avg active features): {trainer.metrics[&#39;l0&#39;]}&quot;)
+print(f&quot;CE Loss Recovered: {trainer.metrics[&#39;ce_loss_score&#39;]}&quot;)
+</code></pre>
+<blockquote>
+<p><strong>v6 migration note:</strong> For other SAE types swap the <code>sae=</code> sub-config —
+<code>GatedTrainingSAEConfig</code>, <code>TopKTrainingSAEConfig</code> (set <code>k</code> directly), or
+<code>JumpReLUTrainingSAEConfig</code> (uses <code>l0_coefficient</code>). Legacy flat options
+(<code>architecture</code>, <code>expansion_factor</code>, <code>hook_layer</code>, <code>activation_fn</code>/<code>activation_fn_kwargs</code>,
+<code>use_ghost_grads</code>, ghost grads, b_dec/decoder init options) were removed in v6.</p>
+</blockquote>
+<h4>Key Hyperparameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Typical Value</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>d_sae</code></td>
+<td>4-16× d_model</td>
+<td>More features, higher capacity</td>
+</tr>
+<tr>
+<td><code>l1_coefficient</code></td>
+<td>5e-5 to 1e-4</td>
+<td>Higher = sparser, less accurate</td>
+</tr>
+<tr>
+<td><code>lr</code></td>
+<td>1e-4 to 1e-3</td>
+<td>Standard optimizer LR</td>
+</tr>
+<tr>
+<td><code>l1_warm_up_steps</code></td>
+<td>500-2000</td>
+<td>Prevents early feature death</td>
+</tr>
+</tbody></table>
+<h4>Evaluation Metrics</h4>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>L0</strong></td>
+<td>50-200</td>
+<td>Average active features per token</td>
+</tr>
+<tr>
+<td><strong>CE Loss Score</strong></td>
+<td>80-95%</td>
+<td>Cross-entropy recovered vs original</td>
+</tr>
+<tr>
+<td><strong>Dead Features</strong></td>
+<td>&lt;5%</td>
+<td>Features that never activate</td>
+</tr>
+<tr>
+<td><strong>Explained Variance</strong></td>
+<td>&gt;90%</td>
+<td>Reconstruction quality</td>
+</tr>
+</tbody></table>
+<h4>Checklist</h4>
+<ul>
+<li><input disabled="" type="checkbox"> Choose target layer and hook point</li>
+<li><input disabled="" type="checkbox"> Set expansion factor (d_sae = 4-16× d_model)</li>
+<li><input disabled="" type="checkbox"> Tune L1 coefficient for desired sparsity</li>
+<li><input disabled="" type="checkbox"> Enable L1 warm-up to prevent dead features</li>
+<li><input disabled="" type="checkbox"> Monitor metrics during training (W&amp;B)</li>
+<li><input disabled="" type="checkbox"> Validate L0 and CE loss recovery</li>
+<li><input disabled="" type="checkbox"> Check dead feature ratio</li>
+</ul>
+<h3>Workflow 3: Feature Analysis and Steering</h3>
+<h4>Analyzing Individual Features</h4>
+<pre><code class="language-python">from transformer_lens import HookedTransformer
+from sae_lens import SAE
+import torch
+
+model = HookedTransformer.from_pretrained(&quot;gpt2-small&quot;, device=&quot;cuda&quot;)
+sae = SAE.from_pretrained(  # v6 returns just the SAE
+    release=&quot;gpt2-small-res-jb&quot;,
+    sae_id=&quot;blocks.8.hook_resid_pre&quot;,
+    device=&quot;cuda&quot;
+)
+
+# Find what activates a specific feature
+feature_idx = 1234
+test_texts = [
+    &quot;The scientist conducted an experiment&quot;,
+    &quot;I love chocolate cake&quot;,
+    &quot;The code compiles successfully&quot;,
+    &quot;Paris is beautiful in spring&quot;,
+]
+
+for text in test_texts:
+    tokens = model.to_tokens(text)
+    _, cache = model.run_with_cache(tokens)
+    features = sae.encode(cache[&quot;resid_pre&quot;, 8])
+    activation = features[0, :, feature_idx].max().item()
+    print(f&quot;{activation:.3f}: {text}&quot;)
+</code></pre>
+<h4>Feature Steering</h4>
+<pre><code class="language-python">def steer_with_feature(model, sae, prompt, feature_idx, strength=5.0):
+    &quot;&quot;&quot;Add SAE feature direction to residual stream.&quot;&quot;&quot;
+    tokens = model.to_tokens(prompt)
+
+    # Get feature direction from decoder
+    feature_direction = sae.W_dec[feature_idx]  # [d_model]
+
+    def steering_hook(activation, hook):
+        # Add scaled feature direction at all positions
+        activation += strength * feature_direction
+        return activation
+
+    # Generate with steering
+    output = model.generate(
+        tokens,
+        max_new_tokens=50,
+        fwd_hooks=[(&quot;blocks.8.hook_resid_pre&quot;, steering_hook)]
+    )
+    return model.to_string(output[0])
+</code></pre>
+<h4>Feature Attribution</h4>
+<pre><code class="language-python"># Which features most affect a specific output?
+tokens = model.to_tokens(&quot;The capital of France is&quot;)
+_, cache = model.run_with_cache(tokens)
+
+# Get features at final position
+features = sae.encode(cache[&quot;resid_pre&quot;, 8])[0, -1]  # [d_sae]
+
+# Get logit attribution per feature
+# Feature contribution = feature_activation × decoder_weight × unembedding
+W_dec = sae.W_dec  # [d_sae, d_model]
+W_U = model.W_U    # [d_model, vocab]
+
+# Contribution to &quot;Paris&quot; logit
+paris_token = model.to_single_token(&quot; Paris&quot;)
+feature_contributions = features * (W_dec @ W_U[:, paris_token])
+
+top_features = feature_contributions.topk(10)
+print(&quot;Top features for &#39;Paris&#39; prediction:&quot;)
+for idx, val in zip(top_features.indices, top_features.values):
+    print(f&quot;  Feature {idx.item()}: {val.item():.3f}&quot;)
+</code></pre>
+<h3>Common Issues &amp; Solutions</h3>
+<blockquote>
+<p>All examples below use the v6 nested config: SAE-specific options go in the <code>sae=</code>
+sub-config (<code>StandardTrainingSAEConfig</code> / <code>TopKTrainingSAEConfig</code> / etc.), training
+knobs stay on the top-level <code>LanguageModelSAERunnerConfig</code>.</p>
+</blockquote>
+<h4>Issue: High dead feature ratio</h4>
+<pre><code class="language-python">from sae_lens import LanguageModelSAERunnerConfig, StandardTrainingSAEConfig
+
+# WRONG: no warm-up, features die early
+cfg = LanguageModelSAERunnerConfig(
+    sae=StandardTrainingSAEConfig(d_in=768, d_sae=768*8, l1_coefficient=1e-4),
+    l1_warm_up_steps=0,  # Bad!
+)
+
+# RIGHT: warm up the L1 penalty (v6 removed ghost grads; warm-up is the lever now)
+cfg = LanguageModelSAERunnerConfig(
+    sae=StandardTrainingSAEConfig(d_in=768, d_sae=768*8, l1_coefficient=8e-5),
+    l1_warm_up_steps=1000,  # Gradually increase
+)
+</code></pre>
+<h4>Issue: Poor reconstruction (low CE recovery)</h4>
+<pre><code class="language-python"># Reduce sparsity penalty and/or add capacity (both on the SAE sub-config)
+cfg = LanguageModelSAERunnerConfig(
+    sae=StandardTrainingSAEConfig(
+        d_in=768,
+        d_sae=768 * 16,       # More capacity
+        l1_coefficient=5e-5,  # Lower = better reconstruction
+    ),
+)
+</code></pre>
+<h4>Issue: Features not interpretable</h4>
+<pre><code class="language-python">from sae_lens import LanguageModelSAERunnerConfig, StandardTrainingSAEConfig, TopKTrainingSAEConfig
+
+# Increase sparsity (higher L1)
+cfg = LanguageModelSAERunnerConfig(
+    sae=StandardTrainingSAEConfig(d_in=768, d_sae=768*8, l1_coefficient=1e-4),
+)
+# Or use a TopK SAE (k is set directly in v6, not via activation_fn_kwargs)
+cfg = LanguageModelSAERunnerConfig(
+    sae=TopKTrainingSAEConfig(d_in=768, d_sae=768*8, k=50),  # Exactly 50 active features
+)
+</code></pre>
+<h4>Issue: Memory errors during training</h4>
+<pre><code class="language-python">cfg = LanguageModelSAERunnerConfig(
+    sae=StandardTrainingSAEConfig(d_in=768, d_sae=768*8, l1_coefficient=8e-5),
+    train_batch_size_tokens=2048,  # Reduce batch size
+    store_batch_size_prompts=4,    # Fewer prompts in buffer
+    n_batches_in_buffer=8,         # Smaller activation buffer
+)
+</code></pre>
+<h3>Integration with Neuronpedia</h3>
+<p>Browse pre-trained SAE features at <a href="https://neuronpedia.org">neuronpedia.org</a>:</p>
+<pre><code class="language-python"># Features are indexed by SAE ID
+# Example: gpt2-small layer 8 feature 1234
+# → neuronpedia.org/gpt2-small/8-res-jb/1234
+</code></pre>
+<h3>Key Classes Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>SAE</code></td>
+<td>Sparse Autoencoder model</td>
+</tr>
+<tr>
+<td><code>LanguageModelSAERunnerConfig</code></td>
+<td>Top-level training configuration (nests <code>sae=</code> and <code>logger=</code>)</td>
+</tr>
+<tr>
+<td><code>StandardTrainingSAEConfig</code> / <code>TopKTrainingSAEConfig</code> / <code>GatedTrainingSAEConfig</code> / <code>JumpReLUTrainingSAEConfig</code></td>
+<td>SAE-type-specific sub-configs (v6)</td>
+</tr>
+<tr>
+<td><code>LoggingConfig</code></td>
+<td>Logging/W&amp;B sub-config (v6)</td>
+</tr>
+<tr>
+<td><code>LanguageModelSAETrainingRunner</code></td>
+<td>Training loop manager (alias: <code>SAETrainingRunner</code>)</td>
+</tr>
+<tr>
+<td><code>ActivationsStore</code></td>
+<td>Activation collection and batching</td>
+</tr>
+<tr>
+<td><code>HookedSAETransformer</code></td>
+<td>TransformerLens + SAE integration</td>
+</tr>
+</tbody></table>
+<h3>Reference Documentation</h3>
+<p>For detailed API documentation, tutorials, and advanced usage, see the <code>references/</code> folder:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a href="references/README.md">references/README.md</a></td>
+<td>Overview and quick start guide</td>
+</tr>
+<tr>
+<td><a href="references/api.md">references/api.md</a></td>
+<td>Complete API reference for SAE, TrainingSAE, configurations</td>
+</tr>
+<tr>
+<td><a href="references/tutorials.md">references/tutorials.md</a></td>
+<td>Step-by-step tutorials for training, analysis, steering</td>
+</tr>
+</tbody></table>
+<h3>External Resources</h3>
+<h4>Tutorials</h4>
+<ul>
+<li><a href="https://github.com/jbloomAus/SAELens/blob/main/tutorials/basic_loading_and_analysing.ipynb">Basic Loading &amp; Analysis</a></li>
+<li><a href="https://github.com/jbloomAus/SAELens/blob/main/tutorials/training_a_sparse_autoencoder.ipynb">Training a Sparse Autoencoder</a></li>
+<li><a href="https://www.lesswrong.com/posts/LnHowHgmrMbWtpkxx/intro-to-superposition-and-sparse-autoencoders-colab">ARENA SAE Curriculum</a></li>
+</ul>
+<h4>Papers</h4>
+<ul>
+<li><a href="https://transformer-circuits.pub/2023/monosemantic-features">Towards Monosemanticity</a> - Anthropic (2023)</li>
+<li><a href="https://transformer-circuits.pub/2024/scaling-monosemanticity/">Scaling Monosemanticity</a> - Anthropic (2024)</li>
+<li><a href="https://arxiv.org/abs/2309.08600">Sparse Autoencoders Find Highly Interpretable Features</a> - Cunningham et al. (ICLR 2024)</li>
+</ul>
+<h4>Official Documentation</h4>
+<ul>
+<li><a href="https://jbloomaus.github.io/SAELens/">SAELens Docs</a></li>
+<li><a href="https://neuronpedia.org">Neuronpedia</a> - Feature browser</li>
+</ul>
+<h3>SAE Architectures</h3>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Standard</strong></td>
+<td>ReLU + L1 penalty</td>
+<td>General purpose</td>
+</tr>
+<tr>
+<td><strong>Gated</strong></td>
+<td>Learned gating mechanism</td>
+<td>Better sparsity control</td>
+</tr>
+<tr>
+<td><strong>TopK</strong></td>
+<td>Exactly K active features</td>
+<td>Consistent sparsity</td>
+</tr>
+</tbody></table>
+<pre><code class="language-python">from sae_lens import LanguageModelSAERunnerConfig, TopKTrainingSAEConfig
+
+# TopK SAE (exactly 50 features active) — `k` is set on the SAE sub-config in v6
+cfg = LanguageModelSAERunnerConfig(
+    sae=TopKTrainingSAEConfig(d_in=768, d_sae=768*8, k=50),
+)
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/saelens</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>huggingface-tokenizers — Skill Hermes</title>
+<meta name="description" content="Fast BPE/WordPiece tokenization and custom vocab training.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>huggingface-tokenizers</h1>
+    <p class="lede">Fast BPE/WordPiece tokenization and custom vocab training.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>huggingface-tokenizers</dd>
+      <dt>Keterangan</dt><dd>Fast BPE/WordPiece tokenization and custom vocab training.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/huggingface-tokenizers.zip" download>Muat turun ZIP (24.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.1 KB</td></tr>
+<tr><td><code>references/algorithms.md</code></td><td class="sz">14.8 KB</td></tr>
+<tr><td><code>references/integration.md</code></td><td class="sz">15.0 KB</td></tr>
+<tr><td><code>references/pipeline.md</code></td><td class="sz">16.4 KB</td></tr>
+<tr><td><code>references/training.md</code></td><td class="sz">14.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>HuggingFace Tokenizers - Fast Tokenization for NLP</h2>
+<p>Fast, production-ready tokenizers with Rust performance and Python ease-of-use.</p>
+<h3>When to use HuggingFace Tokenizers</h3>
+<p><strong>Use HuggingFace Tokenizers when:</strong></p>
+<ul>
+<li>Need extremely fast tokenization (&lt;20s per GB of text)</li>
+<li>Training custom tokenizers from scratch</li>
+<li>Want alignment tracking (token → original text position)</li>
+<li>Building production NLP pipelines</li>
+<li>Need to tokenize large corpora efficiently</li>
+</ul>
+<p><strong>Performance</strong>:</p>
+<ul>
+<li><strong>Speed</strong>: &lt;20 seconds to tokenize 1GB on CPU</li>
+<li><strong>Implementation</strong>: Rust core with Python/Node.js bindings</li>
+<li><strong>Efficiency</strong>: 10-100× faster than pure Python implementations</li>
+</ul>
+<p><strong>Use alternatives instead</strong>:</p>
+<ul>
+<li><strong>SentencePiece</strong>: Language-independent, used by T5/ALBERT</li>
+<li><strong>tiktoken</strong>: OpenAI&#39;s BPE tokenizer for GPT models</li>
+<li><strong>transformers AutoTokenizer</strong>: Loading pretrained only (uses this library internally)</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># Install tokenizers
+pip install tokenizers
+
+# With transformers integration
+pip install tokenizers transformers
+</code></pre>
+<h4>Load pretrained tokenizer</h4>
+<pre><code class="language-python">from tokenizers import Tokenizer
+
+# Load from HuggingFace Hub
+tokenizer = Tokenizer.from_pretrained(&quot;bert-base-uncased&quot;)
+
+# Encode text
+output = tokenizer.encode(&quot;Hello, how are you?&quot;)
+print(output.tokens)  # [&#39;hello&#39;, &#39;,&#39;, &#39;how&#39;, &#39;are&#39;, &#39;you&#39;, &#39;?&#39;]
+print(output.ids)     # [7592, 1010, 2129, 2024, 2017, 1029]
+
+# Decode back
+text = tokenizer.decode(output.ids)
+print(text)  # &quot;hello, how are you?&quot;
+</code></pre>
+<h4>Train custom BPE tokenizer</h4>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from tokenizers.models import BPE
+from tokenizers.trainers import BpeTrainer
+from tokenizers.pre_tokenizers import Whitespace
+
+# Initialize tokenizer with BPE model
+tokenizer = Tokenizer(BPE(unk_token=&quot;[UNK]&quot;))
+tokenizer.pre_tokenizer = Whitespace()
+
+# Configure trainer
+trainer = BpeTrainer(
+    vocab_size=30000,
+    special_tokens=[&quot;[UNK]&quot;, &quot;[CLS]&quot;, &quot;[SEP]&quot;, &quot;[PAD]&quot;, &quot;[MASK]&quot;],
+    min_frequency=2
+)
+
+# Train on files
+files = [&quot;train.txt&quot;, &quot;validation.txt&quot;]
+tokenizer.train(files, trainer)
+
+# Save
+tokenizer.save(&quot;my-tokenizer.json&quot;)
+</code></pre>
+<p><strong>Training time</strong>: ~1-2 minutes for 100MB corpus, ~10-20 minutes for 1GB</p>
+<h4>Batch encoding with padding</h4>
+<pre><code class="language-python"># Enable padding
+tokenizer.enable_padding(pad_id=3, pad_token=&quot;[PAD]&quot;)
+
+# Encode batch
+texts = [&quot;Hello world&quot;, &quot;This is a longer sentence&quot;]
+encodings = tokenizer.encode_batch(texts)
+
+for encoding in encodings:
+    print(encoding.ids)
+# [101, 7592, 2088, 102, 3, 3, 3]
+# [101, 2023, 2003, 1037, 2936, 6251, 102]
+</code></pre>
+<h3>Tokenization algorithms</h3>
+<h4>BPE (Byte-Pair Encoding)</h4>
+<p><strong>How it works</strong>:</p>
+<ol>
+<li>Start with character-level vocabulary</li>
+<li>Find most frequent character pair</li>
+<li>Merge into new token, add to vocabulary</li>
+<li>Repeat until vocabulary size reached</li>
+</ol>
+<p><strong>Used by</strong>: GPT-2, GPT-3, RoBERTa, BART, DeBERTa</p>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from tokenizers.models import BPE
+from tokenizers.trainers import BpeTrainer
+from tokenizers.pre_tokenizers import ByteLevel
+
+tokenizer = Tokenizer(BPE(unk_token=&quot;&lt;|endoftext|&gt;&quot;))
+tokenizer.pre_tokenizer = ByteLevel()
+
+trainer = BpeTrainer(
+    vocab_size=50257,
+    special_tokens=[&quot;&lt;|endoftext|&gt;&quot;],
+    min_frequency=2
+)
+
+tokenizer.train(files=[&quot;data.txt&quot;], trainer=trainer)
+</code></pre>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>Handles OOV words well (breaks into subwords)</li>
+<li>Flexible vocabulary size</li>
+<li>Good for morphologically rich languages</li>
+</ul>
+<p><strong>Trade-offs</strong>:</p>
+<ul>
+<li>Tokenization depends on merge order</li>
+<li>May split common words unexpectedly</li>
+</ul>
+<h4>WordPiece</h4>
+<p><strong>How it works</strong>:</p>
+<ol>
+<li>Start with character vocabulary</li>
+<li>Score merge pairs: <code>frequency(pair) / (frequency(first) × frequency(second))</code></li>
+<li>Merge highest scoring pair</li>
+<li>Repeat until vocabulary size reached</li>
+</ol>
+<p><strong>Used by</strong>: BERT, DistilBERT, MobileBERT</p>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from tokenizers.models import WordPiece
+from tokenizers.trainers import WordPieceTrainer
+from tokenizers.pre_tokenizers import Whitespace
+from tokenizers.normalizers import BertNormalizer
+
+tokenizer = Tokenizer(WordPiece(unk_token=&quot;[UNK]&quot;))
+tokenizer.normalizer = BertNormalizer(lowercase=True)
+tokenizer.pre_tokenizer = Whitespace()
+
+trainer = WordPieceTrainer(
+    vocab_size=30522,
+    special_tokens=[&quot;[UNK]&quot;, &quot;[CLS]&quot;, &quot;[SEP]&quot;, &quot;[PAD]&quot;, &quot;[MASK]&quot;],
+    continuing_subword_prefix=&quot;##&quot;
+)
+
+tokenizer.train(files=[&quot;corpus.txt&quot;], trainer=trainer)
+</code></pre>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>Prioritizes meaningful merges (high score = semantically related)</li>
+<li>Used successfully in BERT (state-of-the-art results)</li>
+</ul>
+<p><strong>Trade-offs</strong>:</p>
+<ul>
+<li>Unknown words become <code>[UNK]</code> if no subword match</li>
+<li>Saves vocabulary, not merge rules (larger files)</li>
+</ul>
+<h4>Unigram</h4>
+<p><strong>How it works</strong>:</p>
+<ol>
+<li>Start with large vocabulary (all substrings)</li>
+<li>Compute loss for corpus with current vocabulary</li>
+<li>Remove tokens with minimal impact on loss</li>
+<li>Repeat until vocabulary size reached</li>
+</ol>
+<p><strong>Used by</strong>: ALBERT, T5, mBART, XLNet (via SentencePiece)</p>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from tokenizers.models import Unigram
+from tokenizers.trainers import UnigramTrainer
+
+tokenizer = Tokenizer(Unigram())
+
+trainer = UnigramTrainer(
+    vocab_size=8000,
+    special_tokens=[&quot;&lt;unk&gt;&quot;, &quot;&lt;s&gt;&quot;, &quot;&lt;/s&gt;&quot;],
+    unk_token=&quot;&lt;unk&gt;&quot;
+)
+
+tokenizer.train(files=[&quot;data.txt&quot;], trainer=trainer)
+</code></pre>
+<p><strong>Advantages</strong>:</p>
+<ul>
+<li>Probabilistic (finds most likely tokenization)</li>
+<li>Works well for languages without word boundaries</li>
+<li>Handles diverse linguistic contexts</li>
+</ul>
+<p><strong>Trade-offs</strong>:</p>
+<ul>
+<li>Computationally expensive to train</li>
+<li>More hyperparameters to tune</li>
+</ul>
+<h3>Tokenization pipeline</h3>
+<p>Complete pipeline: <strong>Normalization → Pre-tokenization → Model → Post-processing</strong></p>
+<h4>Normalization</h4>
+<p>Clean and standardize text:</p>
+<pre><code class="language-python">from tokenizers.normalizers import NFD, StripAccents, Lowercase, Sequence
+
+tokenizer.normalizer = Sequence([
+    NFD(),           # Unicode normalization (decompose)
+    Lowercase(),     # Convert to lowercase
+    StripAccents()   # Remove accents
+])
+
+# Input: &quot;Héllo WORLD&quot;
+# After normalization: &quot;hello world&quot;
+</code></pre>
+<p><strong>Common normalizers</strong>:</p>
+<ul>
+<li><code>NFD</code>, <code>NFC</code>, <code>NFKD</code>, <code>NFKC</code> - Unicode normalization forms</li>
+<li><code>Lowercase()</code> - Convert to lowercase</li>
+<li><code>StripAccents()</code> - Remove accents (é → e)</li>
+<li><code>Strip()</code> - Remove whitespace</li>
+<li><code>Replace(pattern, content)</code> - Regex replacement</li>
+</ul>
+<h4>Pre-tokenization</h4>
+<p>Split text into word-like units:</p>
+<pre><code class="language-python">from tokenizers.pre_tokenizers import Whitespace, Punctuation, Sequence, ByteLevel
+
+# Split on whitespace and punctuation
+tokenizer.pre_tokenizer = Sequence([
+    Whitespace(),
+    Punctuation()
+])
+
+# Input: &quot;Hello, world!&quot;
+# After pre-tokenization: [&quot;Hello&quot;, &quot;,&quot;, &quot;world&quot;, &quot;!&quot;]
+</code></pre>
+<p><strong>Common pre-tokenizers</strong>:</p>
+<ul>
+<li><code>Whitespace()</code> - Split on spaces, tabs, newlines</li>
+<li><code>ByteLevel()</code> - GPT-2 style byte-level splitting</li>
+<li><code>Punctuation()</code> - Isolate punctuation</li>
+<li><code>Digits(individual_digits=True)</code> - Split digits individually</li>
+<li><code>Metaspace()</code> - Replace spaces with ▁ (SentencePiece style)</li>
+</ul>
+<h4>Post-processing</h4>
+<p>Add special tokens for model input:</p>
+<pre><code class="language-python">from tokenizers.processors import TemplateProcessing
+
+# BERT-style: [CLS] sentence [SEP]
+tokenizer.post_processor = TemplateProcessing(
+    single=&quot;[CLS] $A [SEP]&quot;,
+    pair=&quot;[CLS] $A [SEP] $B [SEP]&quot;,
+    special_tokens=[
+        (&quot;[CLS]&quot;, 1),
+        (&quot;[SEP]&quot;, 2),
+    ],
+)
+</code></pre>
+<p><strong>Common patterns</strong>:</p>
+<pre><code class="language-python"># GPT-2: sentence &lt;|endoftext|&gt;
+TemplateProcessing(
+    single=&quot;$A &lt;|endoftext|&gt;&quot;,
+    special_tokens=[(&quot;&lt;|endoftext|&gt;&quot;, 50256)]
+)
+
+# RoBERTa: &lt;s&gt; sentence &lt;/s&gt;
+TemplateProcessing(
+    single=&quot;&lt;s&gt; $A &lt;/s&gt;&quot;,
+    pair=&quot;&lt;s&gt; $A &lt;/s&gt; &lt;/s&gt; $B &lt;/s&gt;&quot;,
+    special_tokens=[(&quot;&lt;s&gt;&quot;, 0), (&quot;&lt;/s&gt;&quot;, 2)]
+)
+</code></pre>
+<h3>Alignment tracking</h3>
+<p>Track token positions in original text:</p>
+<pre><code class="language-python">output = tokenizer.encode(&quot;Hello, world!&quot;)
+
+# Get token offsets
+for token, offset in zip(output.tokens, output.offsets):
+    start, end = offset
+    print(f&quot;{token:10} → [{start:2}, {end:2}): {text[start:end]!r}&quot;)
+
+# Output:
+# hello      → [ 0,  5): &#39;Hello&#39;
+# ,          → [ 5,  6): &#39;,&#39;
+# world      → [ 7, 12): &#39;world&#39;
+# !          → [12, 13): &#39;!&#39;
+</code></pre>
+<p><strong>Use cases</strong>:</p>
+<ul>
+<li>Named entity recognition (map predictions back to text)</li>
+<li>Question answering (extract answer spans)</li>
+<li>Token classification (align labels to original positions)</li>
+</ul>
+<h3>Integration with transformers</h3>
+<h4>Load with AutoTokenizer</h4>
+<pre><code class="language-python">from transformers import AutoTokenizer
+
+# AutoTokenizer automatically uses fast tokenizers
+tokenizer = AutoTokenizer.from_pretrained(&quot;bert-base-uncased&quot;)
+
+# Check if using fast tokenizer
+print(tokenizer.is_fast)  # True
+
+# Access underlying tokenizers.Tokenizer
+fast_tokenizer = tokenizer.backend_tokenizer
+print(type(fast_tokenizer))  # &lt;class &#39;tokenizers.Tokenizer&#39;&gt;
+</code></pre>
+<h4>Convert custom tokenizer to transformers</h4>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from transformers import PreTrainedTokenizerFast
+
+# Train custom tokenizer
+tokenizer = Tokenizer(BPE())
+# ... train tokenizer ...
+tokenizer.save(&quot;my-tokenizer.json&quot;)
+
+# Wrap for transformers
+transformers_tokenizer = PreTrainedTokenizerFast(
+    tokenizer_file=&quot;my-tokenizer.json&quot;,
+    unk_token=&quot;[UNK]&quot;,
+    pad_token=&quot;[PAD]&quot;,
+    cls_token=&quot;[CLS]&quot;,
+    sep_token=&quot;[SEP]&quot;,
+    mask_token=&quot;[MASK]&quot;
+)
+
+# Use like any transformers tokenizer
+outputs = transformers_tokenizer(
+    &quot;Hello world&quot;,
+    padding=True,
+    truncation=True,
+    max_length=512,
+    return_tensors=&quot;pt&quot;
+)
+</code></pre>
+<h3>Common patterns</h3>
+<h4>Train from iterator (large datasets)</h4>
+<pre><code class="language-python">from datasets import load_dataset
+
+# Load dataset
+dataset = load_dataset(&quot;wikitext&quot;, &quot;wikitext-103-raw-v1&quot;, split=&quot;train&quot;)
+
+# Create batch iterator
+def batch_iterator(batch_size=1000):
+    for i in range(0, len(dataset), batch_size):
+        yield dataset[i:i + batch_size][&quot;text&quot;]
+
+# Train tokenizer
+tokenizer.train_from_iterator(
+    batch_iterator(),
+    trainer=trainer,
+    length=len(dataset)  # For progress bar
+)
+</code></pre>
+<p><strong>Performance</strong>: Processes 1GB in ~10-20 minutes</p>
+<h4>Enable truncation and padding</h4>
+<pre><code class="language-python"># Enable truncation
+tokenizer.enable_truncation(max_length=512)
+
+# Enable padding
+tokenizer.enable_padding(
+    pad_id=tokenizer.token_to_id(&quot;[PAD]&quot;),
+    pad_token=&quot;[PAD]&quot;,
+    length=512  # Fixed length, or None for batch max
+)
+
+# Encode with both
+output = tokenizer.encode(&quot;This is a long sentence that will be truncated...&quot;)
+print(len(output.ids))  # 512
+</code></pre>
+<h4>Multi-processing</h4>
+<pre><code class="language-python">from tokenizers import Tokenizer
+from multiprocessing import Pool
+
+# Load tokenizer
+tokenizer = Tokenizer.from_file(&quot;tokenizer.json&quot;)
+
+def encode_batch(texts):
+    return tokenizer.encode_batch(texts)
+
+# Process large corpus in parallel
+with Pool(8) as pool:
+    # Split corpus into chunks
+    chunk_size = 1000
+    chunks = [corpus[i:i+chunk_size] for i in range(0, len(corpus), chunk_size)]
+
+    # Encode in parallel
+    results = pool.map(encode_batch, chunks)
+</code></pre>
+<p><strong>Speedup</strong>: 5-8× with 8 cores</p>
+<h3>Performance benchmarks</h3>
+<h4>Training speed</h4>
+<table>
+<thead>
+<tr>
+<th>Corpus Size</th>
+<th>BPE (30k vocab)</th>
+<th>WordPiece (30k)</th>
+<th>Unigram (8k)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>10 MB</td>
+<td>15 sec</td>
+<td>18 sec</td>
+<td>25 sec</td>
+</tr>
+<tr>
+<td>100 MB</td>
+<td>1.5 min</td>
+<td>2 min</td>
+<td>4 min</td>
+</tr>
+<tr>
+<td>1 GB</td>
+<td>15 min</td>
+<td>20 min</td>
+<td>40 min</td>
+</tr>
+</tbody></table>
+<p><strong>Hardware</strong>: 16-core CPU, tested on English Wikipedia</p>
+<h4>Tokenization speed</h4>
+<table>
+<thead>
+<tr>
+<th>Implementation</th>
+<th>1 GB corpus</th>
+<th>Throughput</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pure Python</td>
+<td>~20 minutes</td>
+<td>~50 MB/min</td>
+</tr>
+<tr>
+<td>HF Tokenizers</td>
+<td>~15 seconds</td>
+<td>~4 GB/min</td>
+</tr>
+<tr>
+<td><strong>Speedup</strong></td>
+<td><strong>80×</strong></td>
+<td><strong>80×</strong></td>
+</tr>
+</tbody></table>
+<p><strong>Test</strong>: English text, average sentence length 20 words</p>
+<h4>Memory usage</h4>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Load tokenizer</td>
+<td>~10 MB</td>
+</tr>
+<tr>
+<td>Train BPE (30k vocab)</td>
+<td>~200 MB</td>
+</tr>
+<tr>
+<td>Encode 1M sentences</td>
+<td>~500 MB</td>
+</tr>
+</tbody></table>
+<h3>Supported models</h3>
+<p>Pre-trained tokenizers available via <code>from_pretrained()</code>:</p>
+<p><strong>BERT family</strong>:</p>
+<ul>
+<li><code>bert-base-uncased</code>, <code>bert-large-cased</code></li>
+<li><code>distilbert-base-uncased</code></li>
+<li><code>roberta-base</code>, <code>roberta-large</code></li>
+</ul>
+<p><strong>GPT family</strong>:</p>
+<ul>
+<li><code>gpt2</code>, <code>gpt2-medium</code>, <code>gpt2-large</code></li>
+<li><code>distilgpt2</code></li>
+</ul>
+<p><strong>T5 family</strong>:</p>
+<ul>
+<li><code>t5-small</code>, <code>t5-base</code>, <code>t5-large</code></li>
+<li><code>google/flan-t5-xxl</code></li>
+</ul>
+<p><strong>Other</strong>:</p>
+<ul>
+<li><code>facebook/bart-base</code>, <code>facebook/mbart-large-cc25</code></li>
+<li><code>albert-base-v2</code>, <code>albert-xlarge-v2</code></li>
+<li><code>xlm-roberta-base</code>, <code>xlm-roberta-large</code></li>
+</ul>
+<p>Browse all: <a href="https://huggingface.co/models?library=tokenizers">https://huggingface.co/models?library=tokenizers</a></p>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/training.md">Training Guide</a></strong> - Train custom tokenizers, configure trainers, handle large datasets</li>
+<li><strong><a href="references/algorithms.md">Algorithms Deep Dive</a></strong> - BPE, WordPiece, Unigram explained in detail</li>
+<li><strong><a href="references/pipeline.md">Pipeline Components</a></strong> - Normalizers, pre-tokenizers, post-processors, decoders</li>
+<li><strong><a href="references/integration.md">Transformers Integration</a></strong> - AutoTokenizer, PreTrainedTokenizerFast, special tokens</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Docs</strong>: <a href="https://huggingface.co/docs/tokenizers">https://huggingface.co/docs/tokenizers</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/huggingface/tokenizers">https://github.com/huggingface/tokenizers</a> ⭐ 9,000+</li>
+<li><strong>Version</strong>: 0.20.0+</li>
+<li><strong>Course</strong>: <a href="https://huggingface.co/learn/nlp-course/chapter6/1">https://huggingface.co/learn/nlp-course/chapter6/1</a></li>
+<li><strong>Paper</strong>: BPE (Sennrich et al., 2016), WordPiece (Schuster &amp; Nakajima, 2012)</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/huggingface-tokenizers</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

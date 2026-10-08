@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>airtable — Skill Hermes</title>
+<meta name="description" content="Airtable REST API via curl. Records CRUD, filters, upserts.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>airtable</h1>
+    <p class="lede">Airtable REST API via curl. Records CRUD, filters, upserts.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>airtable</dd>
+      <dt>Keterangan</dt><dd>Airtable REST API via curl. Records CRUD, filters, upserts.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>community</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/airtable.zip" download>Muat turun ZIP (4.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Airtable — Bases, Tables &amp; Records</h2>
+<p>Work with Airtable&#39;s REST API directly via <code>curl</code> using the <code>terminal</code> tool. No MCP server, no OAuth flow, no Python SDK — just <code>curl</code> and a personal access token.</p>
+<h3>Prerequisites</h3>
+<ol>
+<li>Create a <strong>Personal Access Token (PAT)</strong> at <a href="https://airtable.com/create/tokens">https://airtable.com/create/tokens</a> (tokens start with <code>pat...</code>).</li>
+<li>Grant these scopes (minimum):<ul>
+<li><code>data.records:read</code> — read rows</li>
+<li><code>data.records:write</code> — create / update / delete rows</li>
+<li><code>schema.bases:read</code> — list bases and tables</li>
+</ul>
+</li>
+<li><strong>Important:</strong> in the same token UI, add each base you want to access to the token&#39;s <strong>Access</strong> list. PATs are scoped per-base — a valid token on the wrong base returns <code>403</code>.</li>
+<li>Store the token in <code>${HERMES_HOME:-~/.hermes}/.env</code> (or via <code>hermes setup</code>):<pre><code>AIRTABLE_API_KEY=pat_your_token_here
+</code></pre>
+</li>
+</ol>
+<blockquote>
+<p>Note: legacy <code>key...</code> API keys were deprecated Feb 2024. Only PATs and OAuth tokens work now.</p>
+</blockquote>
+<h3>API Basics</h3>
+<ul>
+<li><strong>Endpoint:</strong> <code>https://api.airtable.com/v0</code></li>
+<li><strong>Auth header:</strong> <code>Authorization: Bearer $AIRTABLE_API_KEY</code></li>
+<li><strong>All requests</strong> use JSON (<code>Content-Type: application/json</code> for any POST/PATCH/PUT body).</li>
+<li><strong>Object IDs:</strong> bases <code>app...</code>, tables <code>tbl...</code>, records <code>rec...</code>, fields <code>fld...</code>. IDs never change; names can. Prefer IDs in automations.</li>
+<li><strong>Rate limit:</strong> 5 requests/sec/base. <code>429</code> → back off. Burst on a single base will be throttled.</li>
+</ul>
+<p>Base curl pattern:</p>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?maxRecords=5&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<p><code>-s</code> suppresses curl&#39;s progress bar — keep it set for every call so the tool output stays clean for Hermes. Pipe through <code>python -m json.tool</code> (always present) or <code>jq</code> (if installed) for readable JSON.</p>
+<h3>Field Types (request body shapes)</h3>
+<table>
+<thead>
+<tr>
+<th>Field type</th>
+<th>Write shape</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Single line text</td>
+<td><code>&quot;Name&quot;: &quot;hello&quot;</code></td>
+</tr>
+<tr>
+<td>Long text</td>
+<td><code>&quot;Notes&quot;: &quot;multi\nline&quot;</code></td>
+</tr>
+<tr>
+<td>Number</td>
+<td><code>&quot;Score&quot;: 42</code></td>
+</tr>
+<tr>
+<td>Checkbox</td>
+<td><code>&quot;Done&quot;: true</code></td>
+</tr>
+<tr>
+<td>Single select</td>
+<td><code>&quot;Status&quot;: &quot;Todo&quot;</code> (name must already exist unless <code>typecast: true</code>)</td>
+</tr>
+<tr>
+<td>Multi-select</td>
+<td><code>&quot;Tags&quot;: [&quot;urgent&quot;, &quot;bug&quot;]</code></td>
+</tr>
+<tr>
+<td>Date</td>
+<td><code>&quot;Due&quot;: &quot;2026-04-01&quot;</code></td>
+</tr>
+<tr>
+<td>DateTime (UTC)</td>
+<td><code>&quot;At&quot;: &quot;2026-04-01T14:30:00.000Z&quot;</code></td>
+</tr>
+<tr>
+<td>URL / Email / Phone</td>
+<td><code>&quot;Link&quot;: &quot;https://…&quot;</code></td>
+</tr>
+<tr>
+<td>Attachment</td>
+<td><code>&quot;Files&quot;: [{&quot;url&quot;: &quot;https://…&quot;}]</code> (Airtable fetches + rehosts)</td>
+</tr>
+<tr>
+<td>Linked record</td>
+<td><code>&quot;Owner&quot;: [&quot;recXXXXXXXXXXXXXX&quot;]</code> (array of record IDs)</td>
+</tr>
+<tr>
+<td>User</td>
+<td><code>&quot;AssignedTo&quot;: {&quot;id&quot;: &quot;usrXXXXXXXXXXXXXX&quot;}</code></td>
+</tr>
+</tbody></table>
+<p>Pass <code>&quot;typecast&quot;: true</code> at the top level of a create/update body to let Airtable auto-coerce values (e.g. create a new select option on the fly, convert <code>&quot;42&quot;</code> → <code>42</code>).</p>
+<h3>Common Queries</h3>
+<h4>List bases the token can see</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/meta/bases&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<h4>List tables + schema for a base</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/meta/bases/$BASE_ID/tables&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<p>Use this BEFORE mutating — confirms exact field names and IDs, surfaces <code>options.choices</code> for select fields, and shows primary-field names.</p>
+<h4>List records (first 10)</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?maxRecords=10&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<h4>Get a single record</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE/$RECORD_ID&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<h4>Filter records (filterByFormula)</h4>
+<p>Airtable formulas must be URL-encoded. Let Python stdlib do it — never hand-encode:</p>
+<pre><code class="language-bash">FORMULA=&quot;{Status}=&#39;Todo&#39;&quot;
+ENC=$(python -c &#39;import sys, urllib.parse; print(urllib.parse.quote(sys.argv[1], safe=&quot;&quot;))&#39; &quot;$FORMULA&quot;)
+curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?filterByFormula=$ENC&amp;maxRecords=20&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<p>Useful formula patterns:</p>
+<ul>
+<li>Exact match: <code>{Email}=&#39;user@example.com&#39;</code></li>
+<li>Contains: <code>FIND(&#39;bug&#39;, LOWER({Title}))</code></li>
+<li>Multiple conditions: <code>AND({Status}=&#39;Todo&#39;, {Priority}=&#39;High&#39;)</code></li>
+<li>Or: <code>OR({Owner}=&#39;alice&#39;, {Owner}=&#39;bob&#39;)</code></li>
+<li>Not empty: <code>NOT({Assignee}=&#39;&#39;)</code></li>
+<li>Date comparison: <code>IS_AFTER({Due}, TODAY())</code></li>
+</ul>
+<h4>Sort + select specific fields</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?sort%5B0%5D%5Bfield%5D=Priority&amp;sort%5B0%5D%5Bdirection%5D=asc&amp;fields%5B%5D=Name&amp;fields%5B%5D=Status&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<p>Square brackets in query params MUST be URL-encoded (<code>%5B</code> / <code>%5D</code>).</p>
+<h4>Use a named view</h4>
+<pre><code class="language-bash">curl -s &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?view=Grid%20view&amp;maxRecords=50&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<p>Views apply their saved filter + sort server-side.</p>
+<h3>Common Mutations</h3>
+<h4>Create a record</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;fields&quot;:{&quot;Name&quot;:&quot;New task&quot;,&quot;Status&quot;:&quot;Todo&quot;,&quot;Priority&quot;:&quot;High&quot;}}&#39; | python -m json.tool
+</code></pre>
+<h4>Create up to 10 records in one call</h4>
+<pre><code class="language-bash">curl -s -X POST &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;typecast&quot;: true,
+    &quot;records&quot;: [
+      {&quot;fields&quot;: {&quot;Name&quot;: &quot;Task A&quot;, &quot;Status&quot;: &quot;Todo&quot;}},
+      {&quot;fields&quot;: {&quot;Name&quot;: &quot;Task B&quot;, &quot;Status&quot;: &quot;In progress&quot;}}
+    ]
+  }&#39; | python -m json.tool
+</code></pre>
+<p>Batch endpoints are capped at <strong>10 records per request</strong>. For larger inserts, loop in batches of 10 with a short sleep to respect 5 req/sec/base.</p>
+<h4>Update a record (PATCH — merges, preserves unchanged fields)</h4>
+<pre><code class="language-bash">curl -s -X PATCH &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE/$RECORD_ID&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;fields&quot;:{&quot;Status&quot;:&quot;Done&quot;}}&#39; | python -m json.tool
+</code></pre>
+<h4>Upsert by a merge field (no ID needed)</h4>
+<pre><code class="language-bash">curl -s -X PATCH &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{
+    &quot;performUpsert&quot;: {&quot;fieldsToMergeOn&quot;: [&quot;Email&quot;]},
+    &quot;records&quot;: [
+      {&quot;fields&quot;: {&quot;Email&quot;: &quot;user@example.com&quot;, &quot;Status&quot;: &quot;Active&quot;}}
+    ]
+  }&#39; | python -m json.tool
+</code></pre>
+<p><code>performUpsert</code> creates records whose merge-field values are new, patches records whose merge-field values already exist. Great for idempotent syncs.</p>
+<h4>Delete a record</h4>
+<pre><code class="language-bash">curl -s -X DELETE &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE/$RECORD_ID&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<h4>Delete up to 10 records in one call</h4>
+<pre><code class="language-bash">curl -s -X DELETE &quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?records%5B%5D=rec1&amp;records%5B%5D=rec2&quot; \
+  -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot; | python -m json.tool
+</code></pre>
+<h3>Pagination</h3>
+<p>List endpoints return at most <strong>100 records per page</strong>. If the response includes <code>&quot;offset&quot;: &quot;...&quot;</code>, pass it back on the next call. Loop until the field is absent:</p>
+<pre><code class="language-bash">OFFSET=&quot;&quot;
+while :; do
+  URL=&quot;https://api.airtable.com/v0/$BASE_ID/$TABLE?pageSize=100&quot;
+  [ -n &quot;$OFFSET&quot; ] &amp;&amp; URL=&quot;$URL&amp;offset=$OFFSET&quot;
+  RESP=$(curl -s &quot;$URL&quot; -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot;)
+  echo &quot;$RESP&quot; | python -c &#39;import json,sys; d=json.load(sys.stdin); [print(r[&quot;id&quot;], r[&quot;fields&quot;].get(&quot;Name&quot;,&quot;&quot;)) for r in d[&quot;records&quot;]]&#39;
+  OFFSET=$(echo &quot;$RESP&quot; | python -c &#39;import json,sys; d=json.load(sys.stdin); print(d.get(&quot;offset&quot;,&quot;&quot;))&#39;)
+  [ -z &quot;$OFFSET&quot; ] &amp;&amp; break
+done
+</code></pre>
+<h3>Typical Hermes Workflow</h3>
+<ol>
+<li><strong>Confirm auth.</strong> <code>curl -s -o /dev/null -w &quot;%{http_code}\n&quot; https://api.airtable.com/v0/meta/bases -H &quot;Authorization: Bearer $AIRTABLE_API_KEY&quot;</code> — expect <code>200</code>.</li>
+<li><strong>Find the base.</strong> List bases (step above) OR ask the user for the <code>app...</code> ID directly if the token lacks <code>schema.bases:read</code>.</li>
+<li><strong>Inspect the schema.</strong> <code>GET /v0/meta/bases/$BASE_ID/tables</code> — cache the exact field names and primary-field name locally in the session before mutating anything.</li>
+<li><strong>Read before you write.</strong> For &quot;update X where Y&quot;, <code>filterByFormula</code> first to resolve the <code>rec...</code> ID, then <code>PATCH /v0/$BASE_ID/$TABLE/$RECORD_ID</code>. Never guess record IDs.</li>
+<li><strong>Batch writes.</strong> Combine related creates into one 10-record POST to stay under the 5 req/sec budget.</li>
+<li><strong>Destructive ops.</strong> Deletions can&#39;t be undone via API. If the user says &quot;delete all Xs&quot;, echo back the filter + record count and confirm before firing.</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong><code>filterByFormula</code> MUST be URL-encoded.</strong> Field names with spaces or non-ASCII also need encoding (<code>{My Field}</code> → <code>%7BMy%20Field%7D</code>). Use Python stdlib (pattern above) — never hand-escape.</li>
+<li><strong>Empty fields are omitted from responses.</strong> A missing <code>&quot;Assignee&quot;</code> key doesn&#39;t mean the field doesn&#39;t exist — it means this record&#39;s value is empty. Check the schema (step 3) before concluding a field is missing.</li>
+<li><strong>PATCH vs PUT.</strong> <code>PATCH</code> merges supplied fields into the record. <code>PUT</code> replaces the record entirely and clears any field you didn&#39;t include. Default to <code>PATCH</code>.</li>
+<li><strong>Single-select options must exist.</strong> Writing <code>&quot;Status&quot;: &quot;Shipping&quot;</code> when <code>Shipping</code> isn&#39;t in the field&#39;s option list errors with <code>INVALID_MULTIPLE_CHOICE_OPTIONS</code> unless you pass <code>&quot;typecast&quot;: true</code> (which auto-creates the option).</li>
+<li><strong>Per-base token scoping.</strong> A <code>403</code> on one base while another works means the token&#39;s Access list doesn&#39;t include that base — not a scope or auth issue. Send the user to <a href="https://airtable.com/create/tokens">https://airtable.com/create/tokens</a> to grant it.</li>
+<li><strong>Rate limits are per base, not per token.</strong> 5 req/sec on <code>baseA</code> and 5 req/sec on <code>baseB</code> is fine; 6 req/sec on <code>baseA</code> alone will throttle. Monitor the <code>Retry-After</code> header on <code>429</code>.</li>
+</ul>
+<h3>Important Notes for Hermes</h3>
+<ul>
+<li><strong>Always use the <code>terminal</code> tool with <code>curl</code>.</strong> Do NOT use <code>web_extract</code> (it can&#39;t send auth headers) or <code>browser_navigate</code> (needs UI auth and is slow).</li>
+<li><strong><code>AIRTABLE_API_KEY</code> flows from <code>${HERMES_HOME:-~/.hermes}/.env</code> into the subprocess automatically</strong> when this skill is loaded — no need to re-export it before each <code>curl</code> call.</li>
+<li><strong>Escape curly braces in formulas carefully.</strong> In a heredoc body, <code>{Status}</code> is literal. In a shell argument, <code>{Status}</code> is safe outside <code>{...}</code> brace-expansion context — but pass dynamic strings through <code>python urllib.parse.quote</code> before splicing into a URL.</li>
+<li><strong>Pretty-print with <code>python -m json.tool</code></strong> (always present) rather than <code>jq</code> (optional). Only reach for <code>jq</code> when you need filtering/projection.</li>
+<li><strong>Pagination is per-page, not global.</strong> Airtable&#39;s 100-record cap is a hard limit; there is no way to bump it. Loop with <code>offset</code> until the field is absent.</li>
+<li><strong>Read the <code>errors</code> array</strong> on non-2xx responses — Airtable returns structured error codes like <code>AUTHENTICATION_REQUIRED</code>, <code>INVALID_PERMISSIONS</code>, <code>MODEL_ID_NOT_FOUND</code>, <code>INVALID_MULTIPLE_CHOICE_OPTIONS</code> that tell you exactly what&#39;s wrong.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/airtable</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>opencode — Skill Hermes</title>
+<meta name="description" content="Delegate coding to OpenCode CLI (features, PR review).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>opencode</h1>
+    <p class="lede">Delegate coding to OpenCode CLI (features, PR review).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>opencode</dd>
+      <dt>Keterangan</dt><dd>Delegate coding to OpenCode CLI (features, PR review).</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/opencode.zip" download>Muat turun ZIP (3.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">7.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OpenCode CLI</h2>
+<p>Use <a href="https://opencode.ai">OpenCode</a> as an autonomous coding worker orchestrated by Hermes terminal/process tools. OpenCode is a provider-agnostic, open-source AI coding agent with a TUI and CLI.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User explicitly asks to use OpenCode</li>
+<li>You want an external coding agent to implement/refactor/review code</li>
+<li>You need long-running coding sessions with progress checks</li>
+<li>You want parallel task execution in isolated workdirs/worktrees</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>OpenCode installed: <code>npm i -g opencode-ai@latest</code> or <code>brew install anomalyco/tap/opencode</code></li>
+<li>Auth configured: <code>opencode auth login</code> or set provider env vars (OPENROUTER_API_KEY, etc.)</li>
+<li>Verify: <code>opencode auth list</code> should show at least one provider</li>
+<li>Git repository for code tasks (recommended)</li>
+<li><code>pty=true</code> for interactive TUI sessions</li>
+</ul>
+<h3>Binary Resolution (Important)</h3>
+<p>Shell environments may resolve different OpenCode binaries. If behavior differs between your terminal and Hermes, check:</p>
+<pre><code>terminal(command=&quot;which -a opencode&quot;)
+terminal(command=&quot;opencode --version&quot;)
+</code></pre>
+<p>If needed, pin an explicit binary path:</p>
+<pre><code>terminal(command=&quot;$HOME/.opencode/bin/opencode run &#39;...&#39;&quot;, workdir=&quot;~/project&quot;, pty=true)
+</code></pre>
+<h3>One-Shot Tasks</h3>
+<p>Use <code>opencode run</code> for bounded, non-interactive tasks:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Add retry logic to API calls and update tests&#39;&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<p>Attach context files with <code>-f</code>:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Review this config for security issues&#39; -f config.yaml -f .env.example&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<p>Show model thinking with <code>--thinking</code>:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Debug why tests fail in CI&#39; --thinking&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<p>Force a specific model:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Refactor auth module&#39; --model openrouter/anthropic/claude-sonnet-4&quot;, workdir=&quot;~/project&quot;)
+</code></pre>
+<h3>Interactive Sessions (Background)</h3>
+<p>For iterative work requiring multiple exchanges, start the TUI in background:</p>
+<pre><code>terminal(command=&quot;opencode&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)
+# Returns session_id
+
+# Send a prompt
+process(action=&quot;submit&quot;, session_id=&quot;&lt;id&gt;&quot;, data=&quot;Implement OAuth refresh flow and add tests&quot;)
+
+# Monitor progress
+process(action=&quot;poll&quot;, session_id=&quot;&lt;id&gt;&quot;)
+process(action=&quot;log&quot;, session_id=&quot;&lt;id&gt;&quot;)
+
+# Send follow-up input
+process(action=&quot;submit&quot;, session_id=&quot;&lt;id&gt;&quot;, data=&quot;Now add error handling for token expiry&quot;)
+
+# Exit cleanly — Ctrl+C
+process(action=&quot;write&quot;, session_id=&quot;&lt;id&gt;&quot;, data=&quot;\x03&quot;)
+# Or just kill the process
+process(action=&quot;kill&quot;, session_id=&quot;&lt;id&gt;&quot;)
+</code></pre>
+<p><strong>Important:</strong> Do NOT use <code>/exit</code> — it is not a valid OpenCode command and will open an agent selector dialog instead. Use Ctrl+C (<code>\x03</code>) or <code>process(action=&quot;kill&quot;)</code> to exit.</p>
+<h4>TUI Keybindings</h4>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>Enter</code></td>
+<td>Submit message (press twice if needed)</td>
+</tr>
+<tr>
+<td><code>Tab</code></td>
+<td>Switch between agents (build/plan)</td>
+</tr>
+<tr>
+<td><code>Ctrl+P</code></td>
+<td>Open command palette</td>
+</tr>
+<tr>
+<td><code>Ctrl+X L</code></td>
+<td>Switch session</td>
+</tr>
+<tr>
+<td><code>Ctrl+X M</code></td>
+<td>Switch model</td>
+</tr>
+<tr>
+<td><code>Ctrl+X N</code></td>
+<td>New session</td>
+</tr>
+<tr>
+<td><code>Ctrl+X E</code></td>
+<td>Open editor</td>
+</tr>
+<tr>
+<td><code>Ctrl+C</code></td>
+<td>Exit OpenCode</td>
+</tr>
+</tbody></table>
+<h4>Resuming Sessions</h4>
+<p>After exiting, OpenCode prints a session ID. Resume with:</p>
+<pre><code>terminal(command=&quot;opencode -c&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)  # Continue last session
+terminal(command=&quot;opencode -s ses_abc123&quot;, workdir=&quot;~/project&quot;, background=true, pty=true)  # Specific session
+</code></pre>
+<h3>Common Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>run &#39;prompt&#39;</code></td>
+<td>One-shot execution and exit</td>
+</tr>
+<tr>
+<td><code>--continue</code> / <code>-c</code></td>
+<td>Continue the last OpenCode session</td>
+</tr>
+<tr>
+<td><code>--session &lt;id&gt;</code> / <code>-s</code></td>
+<td>Continue a specific session</td>
+</tr>
+<tr>
+<td><code>--agent &lt;name&gt;</code></td>
+<td>Choose OpenCode agent (build or plan)</td>
+</tr>
+<tr>
+<td><code>--model provider/model</code></td>
+<td>Force specific model</td>
+</tr>
+<tr>
+<td><code>--format json</code></td>
+<td>Machine-readable output/events</td>
+</tr>
+<tr>
+<td><code>--file &lt;path&gt;</code> / <code>-f</code></td>
+<td>Attach file(s) to the message</td>
+</tr>
+<tr>
+<td><code>--thinking</code></td>
+<td>Show model thinking blocks</td>
+</tr>
+<tr>
+<td><code>--variant &lt;level&gt;</code></td>
+<td>Reasoning effort (high, max, minimal)</td>
+</tr>
+<tr>
+<td><code>--title &lt;name&gt;</code></td>
+<td>Name the session</td>
+</tr>
+<tr>
+<td><code>--attach &lt;url&gt;</code></td>
+<td>Connect to a running opencode server</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<ol>
+<li>Verify tool readiness:<ul>
+<li><code>terminal(command=&quot;opencode --version&quot;)</code></li>
+<li><code>terminal(command=&quot;opencode auth list&quot;)</code></li>
+</ul>
+</li>
+<li>For bounded tasks, use <code>opencode run &#39;...&#39;</code> (no pty needed).</li>
+<li>For iterative tasks, start <code>opencode</code> with <code>background=true, pty=true</code>.</li>
+<li>Monitor long tasks with <code>process(action=&quot;poll&quot;|&quot;log&quot;)</code>.</li>
+<li>If OpenCode asks for input, respond via <code>process(action=&quot;submit&quot;, ...)</code>.</li>
+<li>Exit with <code>process(action=&quot;write&quot;, data=&quot;\x03&quot;)</code> or <code>process(action=&quot;kill&quot;)</code>.</li>
+<li>Summarize file changes, test results, and next steps back to user.</li>
+</ol>
+<h3>PR Review Workflow</h3>
+<p>OpenCode has a built-in PR command:</p>
+<pre><code>terminal(command=&quot;opencode pr 42&quot;, workdir=&quot;~/project&quot;, pty=true)
+</code></pre>
+<p>Or review in a temporary clone for isolation:</p>
+<pre><code>terminal(command=&quot;REVIEW=$(mktemp -d) &amp;&amp; git clone https://github.com/user/repo.git $REVIEW &amp;&amp; cd $REVIEW &amp;&amp; opencode run &#39;Review this PR vs main. Report bugs, security risks, test gaps, and style issues.&#39; -f $(git diff origin/main --name-only | head -20 | tr &#39;\n&#39; &#39; &#39;)&quot;, pty=true)
+</code></pre>
+<h3>Parallel Work Pattern</h3>
+<p>Use separate workdirs/worktrees to avoid collisions:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Fix issue #101 and commit&#39;&quot;, workdir=&quot;~/.hermes/cache/scratch/issue-101&quot;, background=true, pty=true)
+terminal(command=&quot;opencode run &#39;Add parser regression tests and commit&#39;&quot;, workdir=&quot;~/.hermes/cache/scratch/issue-102&quot;, background=true, pty=true)
+process(action=&quot;list&quot;)
+</code></pre>
+<h3>Session &amp; Cost Management</h3>
+<p>List past sessions:</p>
+<pre><code>terminal(command=&quot;opencode session list&quot;)
+</code></pre>
+<p>Check token usage and costs:</p>
+<pre><code>terminal(command=&quot;opencode stats&quot;)
+terminal(command=&quot;opencode stats --days 7 --models anthropic/claude-sonnet-4&quot;)
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>Interactive <code>opencode</code> (TUI) sessions require <code>pty=true</code>. The <code>opencode run</code> command does NOT need pty.</li>
+<li><code>/exit</code> is NOT a valid command — it opens an agent selector. Use Ctrl+C to exit the TUI.</li>
+<li>PATH mismatch can select the wrong OpenCode binary/model config.</li>
+<li>If OpenCode appears stuck, inspect logs before killing:<ul>
+<li><code>process(action=&quot;log&quot;, session_id=&quot;&lt;id&gt;&quot;)</code></li>
+</ul>
+</li>
+<li>Avoid sharing one working directory across parallel OpenCode sessions.</li>
+<li>Enter may need to be pressed twice to submit in the TUI (once to finalize text, once to send).</li>
+</ul>
+<h3>Verification</h3>
+<p>Smoke test:</p>
+<pre><code>terminal(command=&quot;opencode run &#39;Respond with exactly: OPENCODE_SMOKE_OK&#39;&quot;)
+</code></pre>
+<p>Success criteria:</p>
+<ul>
+<li>Output includes <code>OPENCODE_SMOKE_OK</code></li>
+<li>Command exits without provider/model errors</li>
+<li>For code tasks: expected files changed and tests pass</li>
+</ul>
+<h3>Rules</h3>
+<ol>
+<li>Prefer <code>opencode run</code> for one-shot automation — it&#39;s simpler and doesn&#39;t need pty.</li>
+<li>Use interactive background mode only when iteration is needed.</li>
+<li>Always scope OpenCode sessions to a single repo/workdir.</li>
+<li>For long tasks, provide progress updates from <code>process</code> logs.</li>
+<li>Report concrete outcomes (files changed, tests, remaining risks).</li>
+<li>Exit interactive sessions with Ctrl+C or kill, never <code>/exit</code>.</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/autonomous-ai-agents/opencode</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

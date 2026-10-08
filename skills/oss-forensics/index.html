@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>oss-forensics — Skill Hermes</title>
+<meta name="description" content="GitHub supply-chain forensics: recovery, IOCs, reporting.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>oss-forensics</h1>
+    <p class="lede">GitHub supply-chain forensics: recovery, IOCs, reporting.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>oss-forensics</dd>
+      <dt>Keterangan</dt><dd>GitHub supply-chain forensics: recovery, IOCs, reporting.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>security · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/oss-forensics.zip" download>Muat turun ZIP (24.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (8)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">19.4 KB</td></tr>
+<tr><td><code>references/evidence-types.md</code></td><td class="sz">5.0 KB</td></tr>
+<tr><td><code>references/github-archive-guide.md</code></td><td class="sz">5.9 KB</td></tr>
+<tr><td><code>references/investigation-templates.md</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>references/recovery-techniques.md</code></td><td class="sz">5.6 KB</td></tr>
+<tr><td><code>scripts/evidence-store.py</code></td><td class="sz">11.8 KB</td></tr>
+<tr><td><code>templates/forensic-report.md</code></td><td class="sz">4.7 KB</td></tr>
+<tr><td><code>templates/malicious-package-report.md</code></td><td class="sz">1.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OSS Security Forensics Skill</h2>
+<p>A 7-phase multi-agent investigation framework for researching open-source supply chain attacks.
+Adapted from RAPTOR&#39;s forensics system. Covers GitHub Archive, Wayback Machine, GitHub API,
+local git analysis, IOC extraction, evidence-backed hypothesis formation and validation,
+and final forensic report generation.</p>
+<hr>
+<h3>⚠️ Anti-Hallucination Guardrails</h3>
+<p>Read these before every investigation step. Violating them invalidates the report.</p>
+<ol>
+<li><strong>Evidence-First Rule</strong>: Every claim in any report, hypothesis, or summary MUST cite at least one evidence ID (<code>EV-XXXX</code>). Assertions without citations are forbidden.</li>
+<li><strong>STAY IN YOUR LANE</strong>: Each sub-agent (investigator) has a single data source. Do NOT mix sources. The GH Archive investigator does not query the GitHub API, and vice versa. Role boundaries are hard.</li>
+<li><strong>Fact vs. Hypothesis Separation</strong>: Mark all unverified inferences with <code>[HYPOTHESIS]</code>. Only statements verified against original sources may be stated as facts.</li>
+<li><strong>No Evidence Fabrication</strong>: The hypothesis validator MUST mechanically check that every cited evidence ID actually exists in the evidence store before accepting a hypothesis.</li>
+<li><strong>Proof-Required Disproval</strong>: A hypothesis cannot be dismissed without a specific, evidence-backed counter-argument. &quot;No evidence found&quot; is not sufficient to disprove—it only makes a hypothesis inconclusive.</li>
+<li><strong>SHA/URL Double-Verification</strong>: Any commit SHA, URL, or external identifier cited as evidence must be independently confirmed from at least two sources before being marked as verified.</li>
+<li><strong>Suspicious Code Rule</strong>: Never run code found inside the investigated repository locally. Analyze statically only, or use <code>execute_code</code> in a sandboxed environment.</li>
+<li><strong>Secret Redaction</strong>: Any API keys, tokens, or credentials discovered during investigation must be redacted in the final report. Log them internally only.</li>
+</ol>
+<hr>
+<h3>Example Scenarios</h3>
+<ul>
+<li><strong>Scenario A: Dependency Confusion</strong>: A malicious package <code>internal-lib-v2</code> is uploaded to NPM with a higher version than the internal one. The investigator must track when this package was first seen and if any PushEvents in the target repo updated <code>package.json</code> to this version.</li>
+<li><strong>Scenario B: Maintainer Takeover</strong>: A long-term contributor&#39;s account is used to push a backdoored <code>.github/workflows/build.yml</code>. The investigator looks for PushEvents from this user after a long period of inactivity or from a new IP/location (if detectable via BigQuery).</li>
+<li><strong>Scenario C: Force-Push Hide</strong>: A developer accidentally commits a production secret, then force-pushes to &quot;fix&quot; it. The investigator uses <code>git fsck</code> and GH Archive to recover the original commit SHA and verify what was leaked.</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>Path convention</strong>: Throughout this skill, <code>SKILL_DIR</code> refers to the root of this skill&#39;s
+installation directory (the folder containing this <code>SKILL.md</code>). When the skill is loaded,
+resolve <code>SKILL_DIR</code> to the actual path — e.g. <code>~/.hermes/skills/security/oss-forensics/</code>
+or the <code>optional-skills/</code> equivalent. All script and template references are relative to it.</p>
+</blockquote>
+<h3>Phase 0: Initialization</h3>
+<ol>
+<li>Create investigation working directory:<pre><code class="language-bash">mkdir investigation_$(echo &quot;REPO_NAME&quot; | tr &#39;/&#39; &#39;_&#39;)
+cd investigation_$(echo &quot;REPO_NAME&quot; | tr &#39;/&#39; &#39;_&#39;)
+</code></pre>
+</li>
+<li>Initialize the evidence store:<pre><code class="language-bash">python SKILL_DIR/scripts/evidence-store.py --store evidence.json list
+</code></pre>
+</li>
+<li>Copy the forensic report template:<pre><code class="language-bash">cp SKILL_DIR/templates/forensic-report.md ./investigation-report.md
+</code></pre>
+</li>
+<li>Create an <code>iocs.md</code> file to track Indicators of Compromise as they are discovered.</li>
+<li>Record the investigation start time, target repository, and stated investigation goal.</li>
+</ol>
+<hr>
+<h3>Phase 1: Prompt Parsing and IOC Extraction</h3>
+<p><strong>Goal</strong>: Extract all structured investigative targets from the user&#39;s request.</p>
+<p><strong>Actions</strong>:</p>
+<ul>
+<li>Parse the user prompt and extract:<ul>
+<li>Target repository (<code>owner/repo</code>)</li>
+<li>Target actors (GitHub handles, email addresses)</li>
+<li>Time window of interest (commit date ranges, PR timestamps)</li>
+<li>Provided Indicators of Compromise: commit SHAs, file paths, package names, IP addresses, domains, API keys/tokens, malicious URLs</li>
+<li>Any linked vendor security reports or blog posts</li>
+</ul>
+</li>
+</ul>
+<p><strong>Tools</strong>: Reasoning only, or <code>execute_code</code> for regex extraction from large text blocks.</p>
+<p><strong>Output</strong>: Populate <code>iocs.md</code> with extracted IOCs. Each IOC must have:</p>
+<ul>
+<li>Type (from: COMMIT_SHA, FILE_PATH, API_KEY, SECRET, IP_ADDRESS, DOMAIN, PACKAGE_NAME, ACTOR_USERNAME, MALICIOUS_URL, OTHER)</li>
+<li>Value</li>
+<li>Source (user-provided, inferred)</li>
+</ul>
+<p><strong>Reference</strong>: See <a href="./references/evidence-types.md">evidence-types.md</a> for IOC taxonomy.</p>
+<hr>
+<h3>Phase 2: Parallel Evidence Collection</h3>
+<p>Spawn up to 5 specialist investigator sub-agents using <code>delegate_task</code> (batch mode, max 3 concurrent). Each investigator has a <strong>single data source</strong> and must not mix sources.</p>
+<blockquote>
+<p><strong>Orchestrator note</strong>: Pass the IOC list from Phase 1 and the investigation time window in the <code>context</code> field of each delegated task.</p>
+</blockquote>
+<hr>
+<h4>Investigator 1: Local Git Investigator</h4>
+<p><strong>ROLE BOUNDARY</strong>: You query the LOCAL GIT REPOSITORY ONLY. Do not call any external APIs.</p>
+<p><strong>Actions</strong>:</p>
+<pre><code class="language-bash"># Clone repository
+git clone https://github.com/OWNER/REPO.git target_repo &amp;&amp; cd target_repo
+
+# Full commit log with stats
+git log --all --full-history --stat --format=&quot;%H|%ae|%an|%ai|%s&quot; &gt; ../git_log.txt
+
+# Detect force-push evidence (orphaned/dangling commits)
+git fsck --lost-found --unreachable 2&gt;&amp;1 | grep commit &gt; ../dangling_commits.txt
+
+# Check reflog for rewritten history
+git reflog --all &gt; ../reflog.txt
+
+# List ALL branches including deleted remote refs
+git branch -a -v &gt; ../branches.txt
+
+# Find suspicious large binary additions
+git log --all --diff-filter=A --name-only --format=&quot;%H %ai&quot; -- &quot;*.so&quot; &quot;*.dll&quot; &quot;*.exe&quot; &quot;*.bin&quot; &gt; ../binary_additions.txt
+
+# Check for GPG signature anomalies
+git log --show-signature --format=&quot;%H %ai %aN&quot; &gt; ../signature_check.txt 2&gt;&amp;1
+</code></pre>
+<p><strong>Evidence to collect</strong> (add via <code>python SKILL_DIR/scripts/evidence-store.py add</code>):</p>
+<ul>
+<li>Each dangling commit SHA → type: <code>git</code></li>
+<li>Force-push evidence (reflog showing history rewrite) → type: <code>git</code></li>
+<li>Unsigned commits from verified contributors → type: <code>git</code></li>
+<li>Suspicious binary file additions → type: <code>git</code></li>
+</ul>
+<p><strong>Reference</strong>: See <a href="./references/recovery-techniques.md">recovery-techniques.md</a> for accessing force-pushed commits.</p>
+<hr>
+<h4>Investigator 2: GitHub API Investigator</h4>
+<p><strong>ROLE BOUNDARY</strong>: You query the GITHUB REST API ONLY. Do not run git commands locally.</p>
+<p><strong>Actions</strong>:</p>
+<pre><code class="language-bash"># Commits (paginated)
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/commits?per_page=100&quot; &gt; api_commits.json
+
+# Pull Requests including closed/deleted
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/pulls?state=all&amp;per_page=100&quot; &gt; api_prs.json
+
+# Issues
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/issues?state=all&amp;per_page=100&quot; &gt; api_issues.json
+
+# Contributors and collaborator changes
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/contributors&quot; &gt; api_contributors.json
+
+# Repository events (last 300)
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/events?per_page=100&quot; &gt; api_events.json
+
+# Check specific suspicious commit SHA details
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/git/commits/SHA&quot; &gt; commit_detail.json
+
+# Releases
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/releases?per_page=100&quot; &gt; api_releases.json
+
+# Check if a specific commit exists (force-pushed commits may 404 on commits/ but succeed on git/commits/)
+curl -s &quot;https://api.github.com/repos/OWNER/REPO/commits/SHA&quot; | jq .sha
+</code></pre>
+<p><strong>Cross-reference targets</strong> (flag discrepancies as evidence):</p>
+<ul>
+<li>PR exists in archive but missing from API → evidence of deletion</li>
+<li>Contributor in archive events but not in contributors list → evidence of permission revocation</li>
+<li>Commit in archive PushEvents but not in API commit list → evidence of force-push/deletion</li>
+</ul>
+<p><strong>Reference</strong>: See <a href="./references/evidence-types.md">evidence-types.md</a> for GH event types.</p>
+<hr>
+<h4>Investigator 3: Wayback Machine Investigator</h4>
+<p><strong>ROLE BOUNDARY</strong>: You query the WAYBACK MACHINE CDX API ONLY. Do not use the GitHub API.</p>
+<p><strong>Goal</strong>: Recover deleted GitHub pages (READMEs, issues, PRs, releases, wiki pages).</p>
+<p><strong>Actions</strong>:</p>
+<pre><code class="language-bash"># Search for archived snapshots of the repo main page
+curl -s &quot;https://web.archive.org/cdx/search/cdx?url=github.com/OWNER/REPO&amp;output=json&amp;limit=100&amp;from=YYYYMMDD&amp;to=YYYYMMDD&quot; &gt; wayback_main.json
+
+# Search for a specific deleted issue
+curl -s &quot;https://web.archive.org/cdx/search/cdx?url=github.com/OWNER/REPO/issues/NUM&amp;output=json&amp;limit=50&quot; &gt; wayback_issue_NUM.json
+
+# Search for a specific deleted PR
+curl -s &quot;https://web.archive.org/cdx/search/cdx?url=github.com/OWNER/REPO/pull/NUM&amp;output=json&amp;limit=50&quot; &gt; wayback_pr_NUM.json
+
+# Fetch the best snapshot of a page
+# Use the Wayback Machine URL: https://web.archive.org/web/TIMESTAMP/ORIGINAL_URL
+# Example: https://web.archive.org/web/20240101000000*/github.com/OWNER/REPO
+
+# Advanced: Search for deleted releases/tags
+curl -s &quot;https://web.archive.org/cdx/search/cdx?url=github.com/OWNER/REPO/releases/tag/*&amp;output=json&quot; &gt; wayback_tags.json
+
+# Advanced: Search for historical wiki changes
+curl -s &quot;https://web.archive.org/cdx/search/cdx?url=github.com/OWNER/REPO/wiki/*&amp;output=json&quot; &gt; wayback_wiki.json
+</code></pre>
+<p><strong>Evidence to collect</strong>:</p>
+<ul>
+<li>Archived snapshots of deleted issues/PRs with their content</li>
+<li>Historical README versions showing changes</li>
+<li>Evidence of content present in archive but missing from current GitHub state</li>
+</ul>
+<p><strong>Reference</strong>: See <a href="./references/github-archive-guide.md">github-archive-guide.md</a> for CDX API parameters.</p>
+<hr>
+<h4>Investigator 4: GH Archive / BigQuery Investigator</h4>
+<p><strong>ROLE BOUNDARY</strong>: You query GITHUB ARCHIVE via BIGQUERY ONLY. This is a tamper-proof record of all public GitHub events.</p>
+<blockquote>
+<p><strong>Prerequisites</strong>: Requires Google Cloud credentials with BigQuery access (<code>gcloud auth application-default login</code>). If unavailable, skip this investigator and note it in the report.</p>
+</blockquote>
+<p><strong>Cost Optimization Rules</strong> (MANDATORY):</p>
+<ol>
+<li>ALWAYS run a <code>--dry_run</code> before every query to estimate cost.</li>
+<li>Use <code>_TABLE_SUFFIX</code> to filter by date range and minimize scanned data.</li>
+<li>Only SELECT the columns you need.</li>
+<li>Add a LIMIT unless aggregating.</li>
+</ol>
+<pre><code class="language-bash"># Template: safe BigQuery query for PushEvents to OWNER/REPO
+bq query --use_legacy_sql=false --dry_run &quot;
+SELECT created_at, actor.login, payload.commits, payload.before, payload.head,
+       payload.size, payload.distinct_size
+FROM \`githubarchive.month.*\`
+WHERE _TABLE_SUFFIX BETWEEN &#39;YYYYMM&#39; AND &#39;YYYYMM&#39;
+  AND type = &#39;PushEvent&#39;
+  AND repo.name = &#39;OWNER/REPO&#39;
+LIMIT 1000
+&quot;
+# If cost is acceptable, re-run without --dry_run
+
+# Detect force-pushes: zero-distinct_size PushEvents mean commits were force-erased
+# payload.distinct_size = 0 AND payload.size &gt; 0 → force push indicator
+
+# Check for deleted branch events
+bq query --use_legacy_sql=false &quot;
+SELECT created_at, actor.login, payload.ref, payload.ref_type
+FROM \`githubarchive.month.*\`
+WHERE _TABLE_SUFFIX BETWEEN &#39;YYYYMM&#39; AND &#39;YYYYMM&#39;
+  AND type = &#39;DeleteEvent&#39;
+  AND repo.name = &#39;OWNER/REPO&#39;
+LIMIT 200
+&quot;
+</code></pre>
+<p><strong>Evidence to collect</strong>:</p>
+<ul>
+<li>Force-push events (payload.size &gt; 0, payload.distinct_size = 0)</li>
+<li>DeleteEvents for branches/tags</li>
+<li>WorkflowRunEvents for suspicious CI/CD automation</li>
+<li>PushEvents that precede a &quot;gap&quot; in the git log (evidence of rewrite)</li>
+</ul>
+<p><strong>Reference</strong>: See <a href="./references/github-archive-guide.md">github-archive-guide.md</a> for all 12 event types and query patterns.</p>
+<hr>
+<h4>Investigator 5: IOC Enrichment Investigator</h4>
+<p><strong>ROLE BOUNDARY</strong>: You enrich EXISTING IOCs from Phase 1 using passive public sources ONLY. Do not execute any code from the target repository.</p>
+<p><strong>Actions</strong>:</p>
+<ul>
+<li>For each commit SHA: attempt recovery via direct GitHub URL (<code>github.com/OWNER/REPO/commit/SHA.patch</code>)</li>
+<li>For each domain/IP: check passive DNS, WHOIS records (via <code>web_extract</code> on public WHOIS services)</li>
+<li>For each package name: check npm/PyPI for matching malicious package reports</li>
+<li>For each actor username: check GitHub profile, contribution history, account age</li>
+<li>Recover force-pushed commits using 3 methods (see <a href="./references/recovery-techniques.md">recovery-techniques.md</a>)</li>
+</ul>
+<hr>
+<h3>Phase 3: Evidence Consolidation</h3>
+<p>After all investigators complete:</p>
+<ol>
+<li>Run <code>python SKILL_DIR/scripts/evidence-store.py --store evidence.json list</code> to see all collected evidence.</li>
+<li>For each piece of evidence, verify the <code>content_sha256</code> hash matches the original source.</li>
+<li>Group evidence by:<ul>
+<li><strong>Timeline</strong>: Sort all timestamped evidence chronologically</li>
+<li><strong>Actor</strong>: Group by GitHub handle or email</li>
+<li><strong>IOC</strong>: Link evidence to the IOC it relates to</li>
+</ul>
+</li>
+<li>Identify <strong>discrepancies</strong>: items present in one source but absent in another (key deletion indicators).</li>
+<li>Flag evidence as <code>[VERIFIED]</code> (confirmed from 2+ independent sources) or <code>[UNVERIFIED]</code> (single source only).</li>
+</ol>
+<hr>
+<h3>Phase 4: Hypothesis Formation</h3>
+<p>A hypothesis must:</p>
+<ul>
+<li>State a specific claim (e.g., &quot;Actor X force-pushed to BRANCH on DATE to erase commit SHA&quot;)</li>
+<li>Cite at least 2 evidence IDs that support it (<code>EV-XXXX</code>, <code>EV-YYYY</code>)</li>
+<li>Identify what evidence would disprove it</li>
+<li>Be labeled <code>[HYPOTHESIS]</code> until validated</li>
+</ul>
+<p><strong>Common hypothesis templates</strong> (see <a href="./references/investigation-templates.md">investigation-templates.md</a>):</p>
+<ul>
+<li>Maintainer Compromise: legitimate account used post-takeover to inject malicious code</li>
+<li>Dependency Confusion: package name squatting to intercept installs</li>
+<li>CI/CD Injection: malicious workflow changes to run code during builds</li>
+<li>Typosquatting: near-identical package name targeting misspellers</li>
+<li>Credential Leak: token/key accidentally committed then force-pushed to erase</li>
+</ul>
+<p>For each hypothesis, spawn a <code>delegate_task</code> sub-agent to attempt to find disconfirming evidence before confirming.</p>
+<hr>
+<h3>Phase 5: Hypothesis Validation</h3>
+<p>The validator sub-agent MUST mechanically check:</p>
+<ol>
+<li>For each hypothesis, extract all cited evidence IDs.</li>
+<li>Verify each ID exists in <code>evidence.json</code> (hard failure if any ID is missing → hypothesis rejected as potentially fabricated).</li>
+<li>Verify each <code>[VERIFIED]</code> piece of evidence was confirmed from 2+ sources.</li>
+<li>Check logical consistency: does the timeline depicted by the evidence support the hypothesis?</li>
+<li>Check for alternative explanations: could the same evidence pattern arise from a benign cause?</li>
+</ol>
+<p><strong>Output</strong>:</p>
+<ul>
+<li><code>VALIDATED</code>: All evidence cited, verified, logically consistent, no plausible alternative explanation.</li>
+<li><code>INCONCLUSIVE</code>: Evidence supports hypothesis but alternative explanations exist or evidence is insufficient.</li>
+<li><code>REJECTED</code>: Missing evidence IDs, unverified evidence cited as fact, logical inconsistency detected.</li>
+</ul>
+<p>Rejected hypotheses feed back into Phase 4 for refinement (max 3 iterations).</p>
+<hr>
+<h3>Phase 6: Final Report Generation</h3>
+<p>Populate <code>investigation-report.md</code> using the template in <a href="./templates/forensic-report.md">forensic-report.md</a>.</p>
+<p><strong>Mandatory sections</strong>:</p>
+<ul>
+<li>Executive Summary: one-paragraph verdict (Compromised / Clean / Inconclusive) with confidence level</li>
+<li>Timeline: chronological reconstruction of all significant events with evidence citations</li>
+<li>Validated Hypotheses: each with status and supporting evidence IDs</li>
+<li>Evidence Registry: table of all <code>EV-XXXX</code> entries with source, type, and verification status</li>
+<li>IOC List: all extracted and enriched Indicators of Compromise</li>
+<li>Chain of Custody: how evidence was collected, from what sources, at what timestamps</li>
+<li>Recommendations: immediate mitigations if compromise detected; monitoring recommendations</li>
+</ul>
+<p><strong>Report rules</strong>:</p>
+<ul>
+<li>Every factual claim must have at least one <code>[EV-XXXX]</code> citation</li>
+<li>Executive Summary must state confidence level (High / Medium / Low)</li>
+<li>All secrets/credentials must be redacted to <code>[REDACTED]</code></li>
+</ul>
+<hr>
+<h3>Phase 7: Completion</h3>
+<ol>
+<li>Run final evidence count: <code>python SKILL_DIR/scripts/evidence-store.py --store evidence.json list</code></li>
+<li>Archive the full investigation directory.</li>
+<li>If compromise is confirmed:<ul>
+<li>List immediate mitigations (rotate credentials, pin dependency hashes, notify affected users)</li>
+<li>Identify affected versions/packages</li>
+<li>Note disclosure obligations (if a public package: coordinate with the package registry)</li>
+</ul>
+</li>
+<li>Present the final <code>investigation-report.md</code> to the user.</li>
+</ol>
+<hr>
+<h3>Ethical Use Guidelines</h3>
+<p>This skill is designed for <strong>defensive security investigation</strong> — protecting open-source software from supply chain attacks. It must not be used for:</p>
+<ul>
+<li><strong>Harassment or stalking</strong> of contributors or maintainers</li>
+<li><strong>Doxing</strong> — correlating GitHub activity to real identities for malicious purposes</li>
+<li><strong>Competitive intelligence</strong> — investigating proprietary or internal repositories without authorization</li>
+<li><strong>False accusations</strong> — publishing investigation results without validated evidence (see anti-hallucination guardrails)</li>
+</ul>
+<p>Investigations should be conducted with the principle of <strong>minimal intrusion</strong>: collect only the evidence necessary to validate or refute the hypothesis. When publishing results, follow responsible disclosure practices and coordinate with affected maintainers before public disclosure.</p>
+<p>If the investigation reveals a genuine compromise, follow the coordinated vulnerability disclosure process:</p>
+<ol>
+<li>Notify the repository maintainers privately first</li>
+<li>Allow reasonable time for remediation (typically 90 days)</li>
+<li>Coordinate with package registries (npm, PyPI, etc.) if published packages are affected</li>
+<li>File a CVE if appropriate</li>
+</ol>
+<hr>
+<h3>API Rate Limiting</h3>
+<p>GitHub REST API enforces rate limits that will interrupt large investigations if not managed.</p>
+<p><strong>Authenticated requests</strong>: 5,000/hour (requires <code>GITHUB_TOKEN</code> env var or <code>gh</code> CLI auth)
+<strong>Unauthenticated requests</strong>: 60/hour (unusable for investigations)</p>
+<p><strong>Best practices</strong>:</p>
+<ul>
+<li>Always authenticate: <code>export GITHUB_TOKEN=ghp_...</code> or use <code>gh</code> CLI (auto-authenticates)</li>
+<li>Use conditional requests (<code>If-None-Match</code> / <code>If-Modified-Since</code> headers) to avoid consuming quota on unchanged data</li>
+<li>For paginated endpoints, fetch all pages in sequence — don&#39;t parallelize against the same endpoint</li>
+<li>Check <code>X-RateLimit-Remaining</code> header; if below 100, pause for <code>X-RateLimit-Reset</code> timestamp</li>
+<li>BigQuery has its own quotas (10 TiB/day free tier) — always dry-run first</li>
+<li>Wayback Machine CDX API: no formal rate limit, but be courteous (1-2 req/sec max)</li>
+</ul>
+<p>If rate-limited mid-investigation, record the partial results in the evidence store and note the limitation in the report.</p>
+<hr>
+<h3>Reference Materials</h3>
+<ul>
+<li><a href="./references/github-archive-guide.md">github-archive-guide.md</a> — BigQuery queries, CDX API, 12 event types</li>
+<li><a href="./references/evidence-types.md">evidence-types.md</a> — IOC taxonomy, evidence source types, observation types</li>
+<li><a href="./references/recovery-techniques.md">recovery-techniques.md</a> — Recovering deleted commits, PRs, issues</li>
+<li><a href="./references/investigation-templates.md">investigation-templates.md</a> — Pre-built hypothesis templates per attack type</li>
+<li><a href="./scripts/evidence-store.py">evidence-store.py</a> — CLI tool for managing the evidence JSON store</li>
+<li><a href="./templates/forensic-report.md">forensic-report.md</a> — Structured report template</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/security/oss-forensics</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

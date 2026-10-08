@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ascii-art — Skill Hermes</title>
+<meta name="description" content="ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>ascii-art</h1>
+    <p class="lede">ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>ascii-art</dd>
+      <dt>Keterangan</dt><dd>ASCII art: pyfiglet, cowsay, boxes, image-to-ascii.</dd>
+      <dt>Versi</dt><dd>4.0.0</dd>
+      <dt>Pengarang</dt><dd>0xbyt4, Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/ascii-art.zip" download>Muat turun ZIP (4.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.4 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>ASCII Art Skill</h2>
+<p>Multiple tools for different ASCII art needs. All tools are local CLI programs or free REST APIs — no API keys required.</p>
+<h3>Tool 1: Text Banners (pyfiglet — local)</h3>
+<p>Render text as large ASCII art banners. 571 built-in fonts.</p>
+<h4>Setup</h4>
+<pre><code class="language-bash">pip install pyfiglet --break-system-packages -q
+</code></pre>
+<h4>Usage</h4>
+<pre><code class="language-bash">python -m pyfiglet &quot;YOUR TEXT&quot; -f slant
+python -m pyfiglet &quot;TEXT&quot; -f doom -w 80    # Set width
+python -m pyfiglet --list_fonts             # List all 571 fonts
+</code></pre>
+<h4>Recommended fonts</h4>
+<table>
+<thead>
+<tr>
+<th>Style</th>
+<th>Font</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Clean &amp; modern</td>
+<td><code>slant</code></td>
+<td>Project names, headers</td>
+</tr>
+<tr>
+<td>Bold &amp; blocky</td>
+<td><code>doom</code></td>
+<td>Titles, logos</td>
+</tr>
+<tr>
+<td>Big &amp; readable</td>
+<td><code>big</code></td>
+<td>Banners</td>
+</tr>
+<tr>
+<td>Classic banner</td>
+<td><code>banner3</code></td>
+<td>Wide displays</td>
+</tr>
+<tr>
+<td>Compact</td>
+<td><code>small</code></td>
+<td>Subtitles</td>
+</tr>
+<tr>
+<td>Cyberpunk</td>
+<td><code>cyberlarge</code></td>
+<td>Tech themes</td>
+</tr>
+<tr>
+<td>3D effect</td>
+<td><code>3-d</code></td>
+<td>Splash screens</td>
+</tr>
+<tr>
+<td>Gothic</td>
+<td><code>gothic</code></td>
+<td>Dramatic text</td>
+</tr>
+</tbody></table>
+<h4>Tips</h4>
+<ul>
+<li>Preview 2-3 fonts and let the user pick their favorite</li>
+<li>Short text (1-8 chars) works best with detailed fonts like <code>doom</code> or <code>block</code></li>
+<li>Long text works better with compact fonts like <code>small</code> or <code>mini</code></li>
+</ul>
+<h3>Tool 2: Text Banners (asciified API — remote, no install)</h3>
+<p>Free REST API that converts text to ASCII art. 250+ FIGlet fonts. Returns plain text directly — no parsing needed. Use this when pyfiglet is not installed or as a quick alternative.</p>
+<h4>Usage (via terminal curl)</h4>
+<pre><code class="language-bash"># Basic text banner (default font)
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello+World&quot;
+
+# With a specific font
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello&amp;font=Slant&quot;
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello&amp;font=Doom&quot;
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello&amp;font=Star+Wars&quot;
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello&amp;font=3-D&quot;
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=Hello&amp;font=Banner3&quot;
+
+# List all available fonts (returns JSON array)
+curl -s &quot;https://asciified.thelicato.io/api/v2/fonts&quot;
+</code></pre>
+<h4>Tips</h4>
+<ul>
+<li>URL-encode spaces as <code>+</code> in the text parameter</li>
+<li>The response is plain text ASCII art — no JSON wrapping, ready to display</li>
+<li>Font names are case-sensitive; use the fonts endpoint to get exact names</li>
+<li>Works from any terminal with curl — no Python or pip needed</li>
+</ul>
+<h3>Tool 3: Cowsay (Message Art)</h3>
+<p>Classic tool that wraps text in a speech bubble with an ASCII character.</p>
+<h4>Setup</h4>
+<pre><code class="language-bash">sudo apt install cowsay -y    # Debian/Ubuntu
+# brew install cowsay         # macOS
+</code></pre>
+<h4>Usage</h4>
+<pre><code class="language-bash">cowsay &quot;Hello World&quot;
+cowsay -f tux &quot;Linux rules&quot;       # Tux the penguin
+cowsay -f dragon &quot;Rawr!&quot;          # Dragon
+cowsay -f stegosaurus &quot;Roar!&quot;     # Stegosaurus
+cowthink &quot;Hmm...&quot;                  # Thought bubble
+cowsay -l                          # List all characters
+</code></pre>
+<h4>Available characters (50+)</h4>
+<p><code>beavis.zen</code>, <code>bong</code>, <code>bunny</code>, <code>cheese</code>, <code>daemon</code>, <code>default</code>, <code>dragon</code>,
+<code>dragon-and-cow</code>, <code>elephant</code>, <code>eyes</code>, <code>flaming-skull</code>, <code>ghostbusters</code>,
+<code>hellokitty</code>, <code>kiss</code>, <code>kitty</code>, <code>koala</code>, <code>luke-koala</code>, <code>mech-and-cow</code>,
+<code>meow</code>, <code>moofasa</code>, <code>moose</code>, <code>ren</code>, <code>sheep</code>, <code>skeleton</code>, <code>small</code>,
+<code>stegosaurus</code>, <code>stimpy</code>, <code>supermilker</code>, <code>surgery</code>, <code>three-eyes</code>,
+<code>turkey</code>, <code>turtle</code>, <code>tux</code>, <code>udder</code>, <code>vader</code>, <code>vader-koala</code>, <code>www</code></p>
+<h4>Eye/tongue modifiers</h4>
+<pre><code class="language-bash">cowsay -b &quot;Borg&quot;       # =_= eyes
+cowsay -d &quot;Dead&quot;       # x_x eyes
+cowsay -g &quot;Greedy&quot;     # $_$ eyes
+cowsay -p &quot;Paranoid&quot;   # @_@ eyes
+cowsay -s &quot;Stoned&quot;     # *_* eyes
+cowsay -w &quot;Wired&quot;      # O_O eyes
+cowsay -e &quot;OO&quot; &quot;Msg&quot;   # Custom eyes
+cowsay -T &quot;U &quot; &quot;Msg&quot;   # Custom tongue
+</code></pre>
+<h3>Tool 4: Boxes (Decorative Borders)</h3>
+<p>Draw decorative ASCII art borders/frames around any text. 70+ built-in designs.</p>
+<h4>Setup</h4>
+<pre><code class="language-bash">sudo apt install boxes -y    # Debian/Ubuntu
+# brew install boxes         # macOS
+</code></pre>
+<h4>Usage</h4>
+<pre><code class="language-bash">echo &quot;Hello World&quot; | boxes                    # Default box
+echo &quot;Hello World&quot; | boxes -d stone           # Stone border
+echo &quot;Hello World&quot; | boxes -d parchment       # Parchment scroll
+echo &quot;Hello World&quot; | boxes -d cat             # Cat border
+echo &quot;Hello World&quot; | boxes -d dog             # Dog border
+echo &quot;Hello World&quot; | boxes -d unicornsay      # Unicorn
+echo &quot;Hello World&quot; | boxes -d diamonds        # Diamond pattern
+echo &quot;Hello World&quot; | boxes -d c-cmt           # C-style comment
+echo &quot;Hello World&quot; | boxes -d html-cmt        # HTML comment
+echo &quot;Hello World&quot; | boxes -a c               # Center text
+boxes -l                                       # List all 70+ designs
+</code></pre>
+<h4>Combine with pyfiglet or asciified</h4>
+<pre><code class="language-bash">python -m pyfiglet &quot;HERMES&quot; -f slant | boxes -d stone
+# Or without pyfiglet installed:
+curl -s &quot;https://asciified.thelicato.io/api/v2/ascii?text=HERMES&amp;font=Slant&quot; | boxes -d stone
+</code></pre>
+<h3>Tool 5: TOIlet (Colored Text Art)</h3>
+<p>Like pyfiglet but with ANSI color effects and visual filters. Great for terminal eye candy.</p>
+<h4>Setup</h4>
+<pre><code class="language-bash">sudo apt install toilet toilet-fonts -y    # Debian/Ubuntu
+# brew install toilet                      # macOS
+</code></pre>
+<h4>Usage</h4>
+<pre><code class="language-bash">toilet &quot;Hello World&quot;                    # Basic text art
+toilet -f bigmono12 &quot;Hello&quot;            # Specific font
+toilet --gay &quot;Rainbow!&quot;                 # Rainbow coloring
+toilet --metal &quot;Metal!&quot;                 # Metallic effect
+toilet -F border &quot;Bordered&quot;             # Add border
+toilet -F border --gay &quot;Fancy!&quot;         # Combined effects
+toilet -f pagga &quot;Block&quot;                 # Block-style font (unique to toilet)
+toilet -F list                          # List available filters
+</code></pre>
+<h4>Filters</h4>
+<p><code>crop</code>, <code>gay</code> (rainbow), <code>metal</code>, <code>flip</code>, <code>flop</code>, <code>180</code>, <code>left</code>, <code>right</code>, <code>border</code></p>
+<p><strong>Note</strong>: toilet outputs ANSI escape codes for colors — works in terminals but may not render in all contexts (e.g., plain text files, some chat platforms).</p>
+<h3>Tool 6: Image to ASCII Art</h3>
+<p>Convert images (PNG, JPEG, GIF, WEBP) to ASCII art.</p>
+<h4>Option A: ascii-image-converter (recommended, modern)</h4>
+<pre><code class="language-bash"># Install
+sudo snap install ascii-image-converter
+# OR: go install github.com/TheZoraiz/ascii-image-converter@latest
+</code></pre>
+<pre><code class="language-bash">ascii-image-converter image.png                  # Basic
+ascii-image-converter image.png -C               # Color output
+ascii-image-converter image.png -d 60,30         # Set dimensions
+ascii-image-converter image.png -b               # Braille characters
+ascii-image-converter image.png -n               # Negative/inverted
+ascii-image-converter https://url/image.jpg      # Direct URL
+ascii-image-converter image.png --save-txt out   # Save as text
+</code></pre>
+<h4>Option B: jp2a (lightweight, JPEG only)</h4>
+<pre><code class="language-bash">sudo apt install jp2a -y
+jp2a --width=80 image.jpg
+jp2a --colors image.jpg              # Colorized
+</code></pre>
+<h3>Tool 7: Search Pre-Made ASCII Art</h3>
+<p>Search curated ASCII art from the web. Use <code>terminal</code> with <code>curl</code>.</p>
+<h4>Source A: ascii.co.uk (recommended for pre-made art)</h4>
+<p>Large collection of classic ASCII art organized by subject. Art is inside HTML <code>&lt;pre&gt;</code> tags. Fetch the page with curl, then extract art with a small Python snippet.</p>
+<p><strong>URL pattern:</strong> <code>https://ascii.co.uk/art/{subject}</code></p>
+<p><strong>Step 1 — Fetch the page:</strong></p>
+<pre><code class="language-bash">curl -s &#39;https://ascii.co.uk/art/cat&#39; -o ~/.hermes/cache/scratch/ascii_art.html
+</code></pre>
+<p><strong>Step 2 — Extract art from pre tags:</strong></p>
+<pre><code class="language-python">import os, re, html
+with open(os.path.expanduser(&#39;~/.hermes/cache/scratch/ascii_art.html&#39;)) as f:
+    text = f.read()
+arts = re.findall(r&#39;&lt;pre[^&gt;]*&gt;(.*?)&lt;/pre&gt;&#39;, text, re.DOTALL)
+for art in arts:
+    clean = re.sub(r&#39;&lt;[^&gt;]+&gt;&#39;, &#39;&#39;, art)
+    clean = html.unescape(clean).strip()
+    if len(clean) &gt; 30:
+        print(clean)
+        print(&#39;\n---\n&#39;)
+</code></pre>
+<p><strong>Available subjects</strong> (use as URL path):</p>
+<ul>
+<li>Animals: <code>cat</code>, <code>dog</code>, <code>horse</code>, <code>bird</code>, <code>fish</code>, <code>dragon</code>, <code>snake</code>, <code>rabbit</code>, <code>elephant</code>, <code>dolphin</code>, <code>butterfly</code>, <code>owl</code>, <code>wolf</code>, <code>bear</code>, <code>penguin</code>, <code>turtle</code></li>
+<li>Objects: <code>car</code>, <code>ship</code>, <code>airplane</code>, <code>rocket</code>, <code>guitar</code>, <code>computer</code>, <code>coffee</code>, <code>beer</code>, <code>cake</code>, <code>house</code>, <code>castle</code>, <code>sword</code>, <code>crown</code>, <code>key</code></li>
+<li>Nature: <code>tree</code>, <code>flower</code>, <code>sun</code>, <code>moon</code>, <code>star</code>, <code>mountain</code>, <code>ocean</code>, <code>rainbow</code></li>
+<li>Characters: <code>skull</code>, <code>robot</code>, <code>angel</code>, <code>wizard</code>, <code>pirate</code>, <code>ninja</code>, <code>alien</code></li>
+<li>Holidays: <code>christmas</code>, <code>halloween</code>, <code>valentine</code></li>
+</ul>
+<p><strong>Tips:</strong></p>
+<ul>
+<li>Preserve artist signatures/initials — important etiquette</li>
+<li>Multiple art pieces per page — pick the best one for the user</li>
+<li>Works reliably via curl, no JavaScript needed</li>
+</ul>
+<h4>Source B: GitHub Octocat API (fun easter egg)</h4>
+<p>Returns a random GitHub Octocat with a wise quote. No auth needed.</p>
+<pre><code class="language-bash">curl -s https://api.github.com/octocat
+</code></pre>
+<h3>Tool 8: Fun ASCII Utilities (via curl)</h3>
+<p>These free services return ASCII art directly — great for fun extras.</p>
+<h4>QR Codes as ASCII Art</h4>
+<pre><code class="language-bash">curl -s &quot;qrenco.de/Hello+World&quot;
+curl -s &quot;qrenco.de/https://example.com&quot;
+</code></pre>
+<h4>Weather as ASCII Art</h4>
+<pre><code class="language-bash">curl -s &quot;wttr.in/London&quot;          # Full weather report with ASCII graphics
+curl -s &quot;wttr.in/Moon&quot;            # Moon phase in ASCII art
+curl -s &quot;v2.wttr.in/London&quot;       # Detailed version
+</code></pre>
+<h3>Tool 9: LLM-Generated Custom Art (Fallback)</h3>
+<p>When tools above don&#39;t have what&#39;s needed, generate ASCII art directly using these Unicode characters:</p>
+<h4>Character Palette</h4>
+<p><strong>Box Drawing:</strong> <code>╔ ╗ ╚ ╝ ║ ═ ╠ ╣ ╦ ╩ ╬ ┌ ┐ └ ┘ │ ─ ├ ┤ ┬ ┴ ┼ ╭ ╮ ╰ ╯</code></p>
+<p><strong>Block Elements:</strong> <code>░ ▒ ▓ █ ▄ ▀ ▌ ▐ ▖ ▗ ▘ ▝ ▚ ▞</code></p>
+<p><strong>Geometric &amp; Symbols:</strong> <code>◆ ◇ ◈ ● ○ ◉ ■ □ ▲ △ ▼ ▽ ★ ☆ ✦ ✧ ◀ ▶ ◁ ▷ ⬡ ⬢ ⌂</code></p>
+<h4>Rules</h4>
+<ul>
+<li>Max width: 60 characters per line (terminal-safe)</li>
+<li>Max height: 15 lines for banners, 25 for scenes</li>
+<li>Monospace only: output must render correctly in fixed-width fonts</li>
+</ul>
+<h3>Decision Flow</h3>
+<ol>
+<li><strong>Text as a banner</strong> → pyfiglet if installed, otherwise asciified API via curl</li>
+<li><strong>Wrap a message in fun character art</strong> → cowsay</li>
+<li><strong>Add decorative border/frame</strong> → boxes (can combine with pyfiglet/asciified)</li>
+<li><strong>Art of a specific thing</strong> (cat, rocket, dragon) → ascii.co.uk via curl + parsing</li>
+<li><strong>Convert an image to ASCII</strong> → ascii-image-converter or jp2a</li>
+<li><strong>QR code</strong> → qrenco.de via curl</li>
+<li><strong>Weather/moon art</strong> → wttr.in via curl</li>
+<li><strong>Something custom/creative</strong> → LLM generation with Unicode palette</li>
+<li><strong>Any tool not installed</strong> → install it, or fall back to next option</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/ascii-art</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

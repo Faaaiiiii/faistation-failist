@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>code-wiki — Skill Hermes</title>
+<meta name="description" content="Generate wiki docs + Mermaid diagrams for any codebase.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>code-wiki</h1>
+    <p class="lede">Generate wiki docs + Mermaid diagrams for any codebase.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>code-wiki</dd>
+      <dt>Keterangan</dt><dd>Generate wiki docs + Mermaid diagrams for any codebase.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/code-wiki.zip" download>Muat turun ZIP (8.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.8 KB</td></tr>
+<tr><td><code>templates/architecture.md</code></td><td class="sz">654 B</td></tr>
+<tr><td><code>templates/getting-started.md</code></td><td class="sz">658 B</td></tr>
+<tr><td><code>templates/module.md</code></td><td class="sz">634 B</td></tr>
+<tr><td><code>templates/README.md</code></td><td class="sz">667 B</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Code Wiki Skill</h2>
+<p>Generate a full wiki for any codebase — overview, architecture, per-module deep-dives, Mermaid class and sequence diagrams. Inspired by Google CodeWiki, but works on local repos, private repos, and any language. Uses only existing Hermes tools (<code>terminal</code>, <code>read_file</code>, <code>search_files</code>, <code>write_file</code>); no Docker, no external services, no extra dependencies.</p>
+<p>This skill produces <strong>reference documentation</strong> (what/how). It does not produce strategic narrative (why — that&#39;s a different skill).</p>
+<h3>When to Use</h3>
+<ul>
+<li>User says &quot;document this codebase&quot;, &quot;generate a wiki&quot;, &quot;make architecture diagrams&quot;</li>
+<li>Onboarding to an unfamiliar repo and wants a structured reference</li>
+<li>User points at a GitHub URL and asks for documentation</li>
+<li>Need a stable artifact (markdown + Mermaid) that renders on GitHub</li>
+</ul>
+<p>Do NOT use this for:</p>
+<ul>
+<li>Single-file or single-function documentation — just answer directly</li>
+<li>API reference for one specific endpoint — use <code>read_file</code> and answer inline</li>
+<li>Strategic &quot;why does this exist&quot; narrative — different skill, different purpose</li>
+<li>Codebases the user is actively developing in this session — just answer questions as they come</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>No env vars required.</li>
+<li><code>git</code> on PATH for repo SHA tracking and remote clones.</li>
+<li>Optional: <code>pygount</code> for language-breakdown stats (see the <code>codebase-inspection</code> skill).</li>
+</ul>
+<h3>How to Run</h3>
+<p>Invoke through the <code>terminal</code> tool from the target repo&#39;s root, then use <code>read_file</code> / <code>search_files</code> / <code>write_file</code> to produce the wiki. Default output location is <code>~/.hermes/wikis/&lt;repo-name&gt;/</code>. Only write into the repo (<code>docs/wiki/</code>) when the user explicitly requests it.</p>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Resolve target — local cwd, given path, or <code>git clone --depth 50 &lt;url&gt;</code> to a temp dir</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Scan structure — <code>ls</code>, <code>find -maxdepth 3</code>, manifest files, README</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Pick 8–10 modules to document</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Write <code>README.md</code> (overview + module map)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Write <code>architecture.md</code> with Mermaid flowchart</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Write per-module docs in <code>modules/</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Write <code>diagrams/class-diagram.md</code> (Mermaid classDiagram)</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Write <code>diagrams/sequences.md</code> (Mermaid sequenceDiagram, 2–4 workflows)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Write <code>getting-started.md</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td>Write <code>api.md</code> if applicable, else skip</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Write <code>.codewiki-state.json</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td>Report paths to user</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<h4>1. Resolve the target</h4>
+<p>For a GitHub URL:</p>
+<pre><code class="language-bash">WIKI_TMP=$(mktemp -d)
+git clone --depth 50 &lt;url&gt; &quot;$WIKI_TMP/repo&quot;
+cd &quot;$WIKI_TMP/repo&quot;
+REPO_SHA=$(git rev-parse HEAD)
+REPO_NAME=$(basename &lt;url&gt; .git)
+</code></pre>
+<p>For a local path (or cwd if none given):</p>
+<pre><code class="language-bash">cd &lt;path&gt;
+REPO_SHA=$(git rev-parse HEAD 2&gt;/dev/null || echo &quot;uncommitted&quot;)
+REPO_NAME=$(basename &quot;$PWD&quot;)
+</code></pre>
+<p>Then set the output dir:</p>
+<pre><code class="language-bash">OUTPUT_DIR=&quot;$HOME/.hermes/wikis/$REPO_NAME&quot;
+mkdir -p &quot;$OUTPUT_DIR/modules&quot; &quot;$OUTPUT_DIR/diagrams&quot;
+</code></pre>
+<h4>2. Scan repo structure</h4>
+<p>Use the <code>terminal</code> tool for the shell work, <code>read_file</code> for manifests:</p>
+<pre><code class="language-bash"># Shallow tree first
+ls -la
+
+# Deeper tree, noise filtered
+find . -type d \
+  -not -path &#39;*/\.*&#39; \
+  -not -path &#39;*/node_modules*&#39; \
+  -not -path &#39;*/venv*&#39; \
+  -not -path &#39;*/__pycache__*&#39; \
+  -not -path &#39;*/dist*&#39; \
+  -not -path &#39;*/build*&#39; \
+  -not -path &#39;*/target*&#39; \
+  -maxdepth 3 | sort
+
+# Language breakdown (skip if pygount unavailable)
+pygount --format=summary \
+  --folders-to-skip=&quot;.git,node_modules,venv,.venv,__pycache__,.cache,dist,build,target&quot; \
+  . 2&gt;/dev/null || true
+</code></pre>
+<p>Then <code>read_file</code> the relevant manifests (<code>package.json</code>, <code>pyproject.toml</code>, <code>setup.py</code>, <code>Cargo.toml</code>, <code>go.mod</code>, <code>pom.xml</code>, <code>build.gradle</code>) and the project README. Use <code>search_files target=&#39;files&#39;</code> to find them rather than guessing names.</p>
+<h4>3. Pick modules to document</h4>
+<p>Cap initial pass at <strong>8–10 modules</strong>. Heuristics by language:</p>
+<ul>
+<li>Python: top-level packages (dirs with <code>__init__.py</code>), plus subsystem dirs</li>
+<li>JS/TS: <code>src/&lt;subdir&gt;</code>, top-level workspace dirs</li>
+<li>Rust: each crate in a workspace, or top-level <code>src/&lt;module&gt;</code> dirs</li>
+<li>Go: each top-level package directory</li>
+<li>Mixed/unfamiliar: top-level directories that contain source code (not config, not tests)</li>
+</ul>
+<p>For very large repos, prioritize by:</p>
+<ol>
+<li>Imported-from count (a module imported by many is core)</li>
+<li>LOC (bigger modules usually warrant their own doc)</li>
+<li>Mentions in README / top-level docs</li>
+</ol>
+<p>State the module list to the user before generating per-module docs on big repos — gives them a chance to redirect.</p>
+<h4>4. Write <code>README.md</code></h4>
+<p><code>read_file</code> the actual project README plus the top 2–3 entry-point files. Then <code>write_file</code>:</p>
+<pre><code class="language-markdown"># &lt;Project Name&gt;
+
+&lt;One paragraph: what it is and what it&#39;s for. Self-contained — don&#39;t assume the
+reader has the source README.&gt;
+
+## Key Concepts
+
+- **&lt;Concept 1&gt;** — &lt;one line&gt;
+- **&lt;Concept 2&gt;** — &lt;one line&gt;
+
+## Entry Points
+
+- [`path/to/main.py`](&lt;link&gt;) — &lt;what runs when you start it&gt;
+- [`path/to/cli.py`](&lt;link&gt;) — &lt;CLI surface&gt;
+
+## High-Level Architecture
+
+&lt;2-3 sentences. Detail goes in architecture.md.&gt;
+
+See [architecture.md](architecture.md).
+
+## Module Map
+
+| Module | Purpose |
+|---|---|
+| [`&lt;module&gt;`](modules/&lt;module&gt;.md) | &lt;one-line purpose&gt; |
+
+## Getting Started
+
+See [getting-started.md](getting-started.md).
+</code></pre>
+<p>For link targets in local mode use relative paths. For cloned repos use <code>https://github.com/&lt;owner&gt;/&lt;repo&gt;/blob/&lt;sha&gt;/&lt;path&gt;</code> so links survive future commits.</p>
+<h4>5. Write <code>architecture.md</code></h4>
+<pre><code class="language-markdown"># Architecture
+
+&lt;2-3 paragraphs: shape of the system. What talks to what. Where data enters,
+where it exits, where state lives.&gt;
+
+## Components
+
+- **&lt;Component&gt;** — &lt;1-2 sentences&gt;. See [`modules/&lt;module&gt;.md`](modules/&lt;module&gt;.md).
+
+## System Diagram
+
+```mermaid
+flowchart TD
+    User([User]) --&gt; Entry[Entry Point]
+    Entry --&gt; Core[Core Engine]
+    Core --&gt; StorageA[(Database)]
+    Core --&gt; ExternalAPI{{External API}}
+```
+
+## Data Flow
+
+1. **&lt;Step&gt;** — [`&lt;file&gt;`](&lt;link&gt;)
+2. **&lt;Step&gt;** — [`&lt;file&gt;`](&lt;link&gt;)
+
+## Key Design Decisions
+
+- &lt;Anything load-bearing the reader should know&gt;
+</code></pre>
+<p><strong>Mermaid shape semantics:</strong></p>
+<ul>
+<li><code>[]</code> = component</li>
+<li><code>[()]</code> = database / storage</li>
+<li><code>{{}}</code> = external service</li>
+<li><code>(())</code> = entry point or terminal</li>
+<li><code>--&gt;</code> = sync call, <code>-.-&gt;</code> = async/event</li>
+</ul>
+<p>Cap at ~20 nodes per diagram. Split into sub-diagrams if larger.</p>
+<h4>6. Write per-module docs in <code>modules/</code></h4>
+<p>For each selected module, inspect its layout with <code>ls</code>, identify 3–5 most important files (by size, by being named <code>core.py</code> / <code>main.py</code> / <code>__init__.py</code>, by being imported a lot), then <code>read_file</code> those files (use <code>offset</code> / <code>limit</code> to read only what you need; prefer <code>search_files</code> for specific symbols).</p>
+<pre><code class="language-markdown"># Module: `&lt;module&gt;`
+
+&lt;1-2 sentence purpose.&gt;
+
+## Responsibilities
+
+- &lt;bullet&gt;
+- &lt;bullet&gt;
+
+## Key Files
+
+- [`&lt;module&gt;/&lt;file&gt;`](&lt;link&gt;) — &lt;what it does&gt;
+
+## Public API
+
+&lt;Functions/classes/constants other code uses. Group related items. Show
+signatures, not full implementations.&gt;
+
+## Internal Structure
+
+&lt;How the module is organized internally. State management.&gt;
+
+## Dependencies
+
+- **Used by:** &lt;other modules&gt;
+- **Uses:** &lt;other modules + external libs&gt;
+
+## Notable Patterns / Gotchas
+
+- &lt;Anything non-obvious&gt;
+</code></pre>
+<h4>7. Write <code>diagrams/class-diagram.md</code></h4>
+<p>Pick the 5–10 most important classes/types. <code>read_file</code> them, then write:</p>
+<pre><code class="language-markdown"># Class Diagram
+
+## Core Types
+
+```mermaid
+classDiagram
+    class Agent {
+        +string name
+        +list~Tool~ tools
+        +chat(message) string
+    }
+    class Tool {
+        &lt;&lt;interface&gt;&gt;
+        +name string
+        +execute(args) any
+    }
+    Agent --&gt; Tool : uses
+    Tool &lt;|-- TerminalTool
+    Tool &lt;|-- WebTool
+```
+
+## Notes
+
+&lt;Anything the diagram can&#39;t express — lifecycle, threading, etc.&gt;
+</code></pre>
+<p>For languages without classes (Go, C, Rust): use the diagram for struct relationships, or skip class-diagram.md and explain it in prose in architecture.md. Don&#39;t force-fit.</p>
+<h4>8. Write <code>diagrams/sequences.md</code></h4>
+<p>Pick 2–4 of the most important workflows. Trace each call path through the code (read entry point, follow function calls), then:</p>
+<pre><code class="language-markdown"># Sequence Diagrams
+
+## Workflow: &lt;Name&gt;
+
+&lt;1 sentence describing what this does and when it runs.&gt;
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI
+    participant Agent
+    participant LLM
+    User-&gt;&gt;CLI: types message
+    CLI-&gt;&gt;Agent: chat(message)
+    Agent-&gt;&gt;LLM: API call
+    LLM--&gt;&gt;Agent: response + tool_calls
+    Agent-&gt;&gt;Agent: execute tools
+    Agent--&gt;&gt;CLI: final response
+```
+
+### Walkthrough
+
+1. **User input** — [`cli.py:HermesCLI.run_session`](&lt;link&gt;)
+2. **Message dispatch** — [`run_agent.py:AIAgent.chat`](&lt;link&gt;)
+</code></pre>
+<p>Don&#39;t invent participants. Every box must correspond to a real component the reader can find in the code.</p>
+<h4>9. Write <code>getting-started.md</code></h4>
+<pre><code class="language-markdown"># Getting Started
+
+## Prerequisites
+
+&lt;From manifest files + README. Be specific — versions if pinned.&gt;
+
+## Installation
+
+```bash
+&lt;exact commands&gt;
+```
+
+## First Run
+
+```bash
+&lt;minimum command to see the system do something useful&gt;
+```
+
+## Common Workflows
+
+### &lt;Workflow 1&gt;
+&lt;commands&gt;
+
+## Configuration
+
+- `&lt;config-file&gt;` — &lt;what it controls&gt;
+- Env var `&lt;VAR&gt;` — &lt;what it controls&gt;
+
+## Where to Go Next
+
+- Architecture: [architecture.md](architecture.md)
+- Module reference: [README.md#module-map](README.md#module-map)
+</code></pre>
+<h4>10. Write <code>api.md</code> (skip if not applicable)</h4>
+<p>Only write this if the project is a library or API server. If it is:</p>
+<ul>
+<li>Find the public API surface (<code>__init__.py</code> exports, OpenAPI specs, route handlers, exported types)</li>
+<li>Document each public entry with signature, parameters, return type, one-line description</li>
+<li>Group by category</li>
+</ul>
+<h4>11. Write the state file</h4>
+<pre><code class="language-bash">cat &gt; &quot;$OUTPUT_DIR/.codewiki-state.json&quot; &lt;&lt;EOF
+{
+  &quot;repo_name&quot;: &quot;$REPO_NAME&quot;,
+  &quot;source_path&quot;: &quot;$PWD&quot;,
+  &quot;source_sha&quot;: &quot;$REPO_SHA&quot;,
+  &quot;generated_at&quot;: &quot;$(date -u +%Y-%m-%dT%H:%M:%SZ)&quot;,
+  &quot;generator&quot;: &quot;hermes-agent code-wiki skill v0.1.0&quot;,
+  &quot;modules_documented&quot;: []
+}
+EOF
+</code></pre>
+<h4>12. Report to user</h4>
+<p>State exactly what was generated and where:</p>
+<pre><code>Generated wiki at ~/.hermes/wikis/&lt;repo-name&gt;/:
+  README.md                   project overview, module map
+  architecture.md             system architecture + flowchart
+  getting-started.md          setup, first run, workflows
+  modules/&lt;N files&gt;           per-module deep-dives
+  diagrams/architecture.md    Mermaid flowchart
+  diagrams/class-diagram.md   Mermaid class diagram
+  diagrams/sequences.md       Mermaid sequence diagrams
+</code></pre>
+<p>If you cloned to a temp dir, remind the user it can be removed (<code>rm -rf &quot;$WIKI_TMP&quot;</code>) after they&#39;ve reviewed the wiki.</p>
+<h3>Scope Control</h3>
+<p>Generating a full wiki for a 500K-LOC monorepo is wildly token-expensive. Default to bounded scope:</p>
+<ul>
+<li>Initial scan: max depth 3 directories</li>
+<li>Per-module docs: cap at 10 modules unless user expands scope</li>
+<li>Per-file reads: prefer <code>search_files</code> for symbols + <code>read_file</code> with <code>offset</code>/<code>limit</code> over full reads</li>
+<li>Skip vendored code (<code>vendor/</code>, <code>third_party/</code>, generated code, <code>_pb2.py</code>, <code>.min.js</code>)</li>
+</ul>
+<p>If the user says &quot;do the whole thing exhaustively&quot;, believe them — but ballpark the cost first: &quot;this repo has ~340 source files, comprehensive coverage will be expensive — confirm?&quot;</p>
+<h3>Re-Run / Update</h3>
+<p>If <code>.codewiki-state.json</code> already exists at the target path:</p>
+<ul>
+<li>Read it for previous SHA and module list</li>
+<li>If source SHA matches: ask user if they want to regenerate or skip</li>
+<li>If SHA differs: offer to regenerate only modules with changed files (<code>git diff --name-only &lt;old-sha&gt; HEAD</code>)</li>
+</ul>
+<p>Full incremental-regeneration is a future enhancement — for now, regenerating the whole thing is acceptable.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Fabricating components.</strong> Every diagram node and claimed function call must be in the source. <code>read_file</code> before writing. The single biggest failure mode for auto-generated docs is plausible-sounding fabrication.</li>
+<li><strong>Generic AI prose.</strong> &quot;This module is responsible for...&quot; is content-free. Say what the module actually does in domain-specific terms.</li>
+<li><strong>Restating code as prose.</strong> A module doc that says &quot;the <code>process</code> function processes things by calling <code>process_item</code> on each item&quot; is worse than just linking to the function.</li>
+<li><strong>Mermaid &gt; 50 nodes.</strong> They don&#39;t render legibly. Split them.</li>
+<li><strong>Documenting tests, generated code, or vendored deps as if they were product code.</strong> Skip them.</li>
+<li><strong>In-repo output without asking.</strong> Default is <code>~/.hermes/wikis/</code>. Only write into the repo when the user explicitly requests it.</li>
+<li><strong>Mermaid special chars need quotes:</strong> <code>A[&quot;Tool / Agent&quot;]</code> not <code>A[Tool / Agent]</code>. <code>&lt;br&gt;</code> for line breaks inside a node.</li>
+<li><strong>Nested code fences in SKILL.md.</strong> When writing a markdown example that contains a Mermaid block, use 4-backtick outer fences so the 3-backtick inner <code>```mermaid</code> doesn&#39;t close the outer. (This SKILL.md does it.)</li>
+<li><strong>classDiagram generics</strong> render as <code>~T~</code> (e.g. <code>List~Tool~</code>), not <code>&lt;T&gt;</code>.</li>
+<li><strong>GitHub Mermaid theme is fixed</strong> — don&#39;t include <code>%%{init: ...}%%</code> blocks; they&#39;re stripped on render.</li>
+</ul>
+<h3>Verification</h3>
+<p>After writing, verify:</p>
+<ol>
+<li><strong>Mermaid blocks balance</strong> — opens equal closes per file:<pre><code class="language-bash">for f in &quot;$OUTPUT_DIR&quot;/diagrams/*.md &quot;$OUTPUT_DIR&quot;/architecture.md; do
+  opens=$(grep -c &#39;^```mermaid&#39; &quot;$f&quot;)
+  total=$(grep -c &#39;^```&#39; &quot;$f&quot;)
+  echo &quot;$f: $opens mermaid blocks, $total total fences (expect total = opens*2)&quot;
+done
+</code></pre>
+</li>
+<li><strong>All expected files exist</strong> —<pre><code class="language-bash">ls &quot;$OUTPUT_DIR&quot;/{README.md,architecture.md,getting-started.md,.codewiki-state.json} \
+   &quot;$OUTPUT_DIR&quot;/modules/ &quot;$OUTPUT_DIR&quot;/diagrams/
+</code></pre>
+</li>
+<li><strong>Module count matches what you intended</strong> — <code>ls &quot;$OUTPUT_DIR/modules&quot; | wc -l</code> should equal the number of modules you committed to in Step 3.</li>
+<li><strong>No fabricated paths</strong> — sanity-check 2–3 source links resolve to real files.</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/software-development/code-wiki</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

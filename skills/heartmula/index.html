@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>heartmula — Skill Hermes</title>
+<meta name="description" content="HeartMuLa: Suno-like song generation from lyrics + tags.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>heartmula</h1>
+    <p class="lede">HeartMuLa: Suno-like song generation from lyrics + tags.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>heartmula</dd>
+      <dt>Keterangan</dt><dd>HeartMuLa: Suno-like song generation from lyrics + tags.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/heartmula.zip" download>Muat turun ZIP (3.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>HeartMuLa - Open-Source Music Generation</h2>
+<h3>Overview</h3>
+<p>HeartMuLa is a family of open-source music foundation models (Apache-2.0) that generates music conditioned on lyrics and tags, with multilingual support. Generates full songs from lyrics + tags. Comparable to Suno for open-source. Includes:</p>
+<ul>
+<li><strong>HeartMuLa</strong> - Music language model (3B/7B) for generation from lyrics + tags</li>
+<li><strong>HeartCodec</strong> - 12.5Hz music codec for high-fidelity audio reconstruction</li>
+<li><strong>HeartTranscriptor</strong> - Whisper-based lyrics transcription</li>
+<li><strong>HeartCLAP</strong> - Audio-text alignment model</li>
+</ul>
+<h3>When to Use</h3>
+<ul>
+<li>User wants to generate music/songs from text descriptions</li>
+<li>User wants an open-source Suno alternative</li>
+<li>User wants local/offline music generation</li>
+<li>User asks about HeartMuLa, heartlib, or AI music generation</li>
+</ul>
+<h3>Hardware Requirements</h3>
+<ul>
+<li><strong>Minimum</strong>: 8GB VRAM with <code>--lazy_load true</code> (loads/unloads models sequentially)</li>
+<li><strong>Recommended</strong>: 16GB+ VRAM for comfortable single-GPU usage</li>
+<li><strong>Multi-GPU</strong>: Use <code>--mula_device cuda:0 --codec_device cuda:1</code> to split across GPUs</li>
+<li>3B model with lazy_load peaks at ~6.2GB VRAM</li>
+</ul>
+<h3>Installation Steps</h3>
+<h4>1. Clone Repository</h4>
+<pre><code class="language-bash">cd ~/  # or desired directory
+git clone https://github.com/HeartMuLa/heartlib.git
+cd heartlib
+</code></pre>
+<h4>2. Create Virtual Environment (Python 3.10 required)</h4>
+<pre><code class="language-bash">uv venv --python 3.10 .venv
+. .venv/bin/activate
+uv pip install -e .
+</code></pre>
+<h4>3. Fix Dependency Compatibility Issues</h4>
+<p><strong>IMPORTANT</strong>: As of Feb 2026, the pinned dependencies have conflicts with newer packages. Apply these fixes:</p>
+<pre><code class="language-bash"># Upgrade datasets (old version incompatible with current pyarrow)
+uv pip install --upgrade datasets
+
+# Upgrade transformers (needed for huggingface-hub 1.x compatibility)
+uv pip install --upgrade transformers
+</code></pre>
+<h4>4. Patch Source Code (Required for transformers 5.x)</h4>
+<p><strong>Patch 1 - RoPE cache fix</strong> in <code>src/heartlib/heartmula/modeling_heartmula.py</code>:</p>
+<p>In the <code>setup_caches</code> method of the <code>HeartMuLa</code> class, add RoPE reinitialization after the <code>reset_caches</code> try/except block and before the <code>with device:</code> block:</p>
+<pre><code class="language-python"># Re-initialize RoPE caches that were skipped during meta-device loading
+from torchtune.models.llama3_1._position_embeddings import Llama3ScaledRoPE
+for module in self.modules():
+    if isinstance(module, Llama3ScaledRoPE) and not module.is_cache_built:
+        module.rope_init()
+        module.to(device)
+</code></pre>
+<p><strong>Why</strong>: <code>from_pretrained</code> creates model on meta device first; <code>Llama3ScaledRoPE.rope_init()</code> skips cache building on meta tensors, then never rebuilds after weights are loaded to real device.</p>
+<p><strong>Patch 2 - HeartCodec loading fix</strong> in <code>src/heartlib/pipelines/music_generation.py</code>:</p>
+<p>Add <code>ignore_mismatched_sizes=True</code> to ALL <code>HeartCodec.from_pretrained()</code> calls (there are 2: the eager load in <code>__init__</code> and the lazy load in the <code>codec</code> property).</p>
+<p><strong>Why</strong>: VQ codebook <code>initted</code> buffers have shape <code>[1]</code> in checkpoint vs <code>[]</code> in model. Same data, just scalar vs 0-d tensor. Safe to ignore.</p>
+<h4>5. Download Model Checkpoints</h4>
+<pre><code class="language-bash">cd heartlib  # project root
+hf download --local-dir &#39;./ckpt&#39; &#39;HeartMuLa/HeartMuLaGen&#39;
+hf download --local-dir &#39;./ckpt/HeartMuLa-oss-3B&#39; &#39;HeartMuLa/HeartMuLa-oss-3B-happy-new-year&#39;
+hf download --local-dir &#39;./ckpt/HeartCodec-oss&#39; &#39;HeartMuLa/HeartCodec-oss-20260123&#39;
+</code></pre>
+<p>All 3 can be downloaded in parallel. Total size is several GB.</p>
+<h3>GPU / CUDA</h3>
+<p>HeartMuLa uses CUDA by default (<code>--mula_device cuda --codec_device cuda</code>). No extra setup needed if the user has an NVIDIA GPU with PyTorch CUDA support installed.</p>
+<ul>
+<li>The installed <code>torch==2.4.1</code> includes CUDA 12.1 support out of the box</li>
+<li><code>torchtune</code> may report version <code>0.4.0+cpu</code> — this is just package metadata, it still uses CUDA via PyTorch</li>
+<li>To verify GPU is being used, look for &quot;CUDA memory&quot; lines in the output (e.g. &quot;CUDA memory before unloading: 6.20 GB&quot;)</li>
+<li><strong>No GPU?</strong> You can run on CPU with <code>--mula_device cpu --codec_device cpu</code>, but expect generation to be <strong>extremely slow</strong> (potentially 30-60+ minutes for a single song vs <del>4 minutes on GPU). CPU mode also requires significant RAM (</del>12GB+ free). If the user has no NVIDIA GPU, recommend using a cloud GPU service (Google Colab free tier with T4, Lambda Labs, etc.) or the online demo at <a href="https://heartmula.github.io/">https://heartmula.github.io/</a> instead.</li>
+</ul>
+<h3>Usage</h3>
+<h4>Basic Generation</h4>
+<pre><code class="language-bash">cd heartlib
+. .venv/bin/activate
+python ./examples/run_music_generation.py \
+  --model_path=./ckpt \
+  --version=&quot;3B&quot; \
+  --lyrics=&quot;./assets/lyrics.txt&quot; \
+  --tags=&quot;./assets/tags.txt&quot; \
+  --save_path=&quot;./assets/output.mp3&quot; \
+  --lazy_load true
+</code></pre>
+<h4>Input Formatting</h4>
+<p><strong>Tags</strong> (comma-separated, no spaces):</p>
+<pre><code>piano,happy,wedding,synthesizer,romantic
+</code></pre>
+<p>or</p>
+<pre><code>rock,energetic,guitar,drums,male-vocal
+</code></pre>
+<p><strong>Lyrics</strong> (use bracketed structural tags):</p>
+<pre><code>[Intro]
+
+[Verse]
+Your lyrics here...
+
+[Chorus]
+Chorus lyrics...
+
+[Bridge]
+Bridge lyrics...
+
+[Outro]
+</code></pre>
+<h4>Key Parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--max_audio_length_ms</code></td>
+<td>240000</td>
+<td>Max length in ms (240s = 4 min)</td>
+</tr>
+<tr>
+<td><code>--topk</code></td>
+<td>50</td>
+<td>Top-k sampling</td>
+</tr>
+<tr>
+<td><code>--temperature</code></td>
+<td>1.0</td>
+<td>Sampling temperature</td>
+</tr>
+<tr>
+<td><code>--cfg_scale</code></td>
+<td>1.5</td>
+<td>Classifier-free guidance scale</td>
+</tr>
+<tr>
+<td><code>--lazy_load</code></td>
+<td>false</td>
+<td>Load/unload models on demand (saves VRAM)</td>
+</tr>
+<tr>
+<td><code>--mula_dtype</code></td>
+<td>bfloat16</td>
+<td>Dtype for HeartMuLa (bf16 recommended)</td>
+</tr>
+<tr>
+<td><code>--codec_dtype</code></td>
+<td>float32</td>
+<td>Dtype for HeartCodec (fp32 recommended for quality)</td>
+</tr>
+</tbody></table>
+<h4>Performance</h4>
+<ul>
+<li>RTF (Real-Time Factor) ≈ 1.0 — a 4-minute song takes ~4 minutes to generate</li>
+<li>Output: MP3, 48kHz stereo, 128kbps</li>
+</ul>
+<h3>Pitfalls</h3>
+<ol>
+<li><strong>Do NOT use bf16 for HeartCodec</strong> — degrades audio quality. Use fp32 (default).</li>
+<li><strong>Tags may be ignored</strong> — known issue (#90). Lyrics tend to dominate; experiment with tag ordering.</li>
+<li><strong>Triton not available on macOS</strong> — Linux/CUDA only for GPU acceleration.</li>
+<li><strong>RTX 5080 incompatibility</strong> reported in upstream issues.</li>
+<li>The dependency pin conflicts require the manual upgrades and patches described above.</li>
+</ol>
+<h3>Links</h3>
+<ul>
+<li>Repo: <a href="https://github.com/HeartMuLa/heartlib">https://github.com/HeartMuLa/heartlib</a></li>
+<li>Models: <a href="https://huggingface.co/HeartMuLa">https://huggingface.co/HeartMuLa</a></li>
+<li>Paper: <a href="https://arxiv.org/abs/2601.10547">https://arxiv.org/abs/2601.10547</a></li>
+<li>License: Apache-2.0</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/heartmula</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

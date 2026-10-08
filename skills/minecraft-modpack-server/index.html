@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>minecraft-modpack-server — Skill Hermes</title>
+<meta name="description" content="Host modded Minecraft servers (CurseForge, Modrinth).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>minecraft-modpack-server</h1>
+    <p class="lede">Host modded Minecraft servers (CurseForge, Modrinth).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>minecraft-modpack-server</dd>
+      <dt>Keterangan</dt><dd>Host modded Minecraft servers (CurseForge, Modrinth).</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>gaming · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/minecraft-modpack-server.zip" download>Muat turun ZIP (3.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Minecraft Modpack Server Setup</h2>
+<h3>When to use</h3>
+<ul>
+<li>User wants to set up a modded Minecraft server from a server pack zip</li>
+<li>User needs help with NeoForge/Forge server configuration</li>
+<li>User asks about Minecraft server performance tuning or backups</li>
+</ul>
+<h3>Gather User Preferences First</h3>
+<p>Before starting setup, ask the user for:</p>
+<ul>
+<li><strong>Server name / MOTD</strong> — what should it say in the server list?</li>
+<li><strong>Seed</strong> — specific seed or random?</li>
+<li><strong>Difficulty</strong> — peaceful / easy / normal / hard?</li>
+<li><strong>Gamemode</strong> — survival / creative / adventure?</li>
+<li><strong>Online mode</strong> — true (Mojang auth, legit accounts) or false (LAN/cracked friendly)?</li>
+<li><strong>Player count</strong> — how many players expected? (affects RAM &amp; view distance tuning)</li>
+<li><strong>RAM allocation</strong> — or let agent decide based on mod count &amp; available RAM?</li>
+<li><strong>View distance / simulation distance</strong> — or let agent pick based on player count &amp; hardware?</li>
+<li><strong>PvP</strong> — on or off?</li>
+<li><strong>Whitelist</strong> — open server or whitelist only?</li>
+<li><strong>Backups</strong> — want automated backups? How often?</li>
+</ul>
+<p>Use sensible defaults if the user doesn&#39;t care, but always ask before generating the config.</p>
+<h3>Steps</h3>
+<h4>1. Download &amp; Inspect the Pack</h4>
+<pre><code class="language-bash">mkdir -p ~/minecraft-server
+cd ~/minecraft-server
+wget -O serverpack.zip &quot;&lt;URL&gt;&quot;
+unzip -o serverpack.zip -d server
+ls server/
+</code></pre>
+<p>Look for: <code>startserver.sh</code>, installer jar (neoforge/forge), <code>user_jvm_args.txt</code>, <code>mods/</code> folder.
+Check the script to determine: mod loader type, version, and required Java version.</p>
+<h4>2. Install Java</h4>
+<ul>
+<li>Minecraft 1.21+ → Java 21: <code>sudo apt install openjdk-21-jre-headless</code></li>
+<li>Minecraft 1.18-1.20 → Java 17: <code>sudo apt install openjdk-17-jre-headless</code></li>
+<li>Minecraft 1.16 and below → Java 8: <code>sudo apt install openjdk-8-jre-headless</code></li>
+<li>Verify: <code>java -version</code></li>
+</ul>
+<h4>3. Install the Mod Loader</h4>
+<p>Most server packs include an install script. Use the INSTALL_ONLY env var to install without launching:</p>
+<pre><code class="language-bash">cd ~/minecraft-server/server
+ATM10_INSTALL_ONLY=true bash startserver.sh
+# Or for generic Forge packs:
+# java -jar forge-*-installer.jar --installServer
+</code></pre>
+<p>This downloads libraries, patches the server jar, etc.</p>
+<h4>4. Accept EULA</h4>
+<pre><code class="language-bash">echo &quot;eula=true&quot; &gt; ~/minecraft-server/server/eula.txt
+</code></pre>
+<h4>5. Configure server.properties</h4>
+<p>Key settings for modded/LAN:</p>
+<pre><code class="language-properties">motd=\u00a7b\u00a7lServer Name \u00a7r\u00a78| \u00a7aModpack Name
+server-port=25565
+online-mode=true          # false for LAN without Mojang auth
+enforce-secure-profile=true  # match online-mode
+difficulty=hard            # most modpacks balance around hard
+allow-flight=true          # REQUIRED for modded (flying mounts/items)
+spawn-protection=0         # let everyone build at spawn
+max-tick-time=180000       # modded needs longer tick timeout
+enable-command-block=true
+</code></pre>
+<p>Performance settings (scale to hardware):</p>
+<pre><code class="language-properties"># 2 players, beefy machine:
+view-distance=16
+simulation-distance=10
+
+# 4-6 players, moderate machine:
+view-distance=10
+simulation-distance=6
+
+# 8+ players or weaker hardware:
+view-distance=8
+simulation-distance=4
+</code></pre>
+<h4>6. Tune JVM Args (user_jvm_args.txt)</h4>
+<p>Scale RAM to player count and mod count. Rule of thumb for modded:</p>
+<ul>
+<li>100-200 mods: 6-12GB</li>
+<li>200-350+ mods: 12-24GB</li>
+<li>Leave at least 8GB free for the OS/other tasks</li>
+</ul>
+<pre><code>-Xms12G
+-Xmx24G
+-XX:+UseG1GC
+-XX:+ParallelRefProcEnabled
+-XX:MaxGCPauseMillis=200
+-XX:+UnlockExperimentalVMOptions
+-XX:+DisableExplicitGC
+-XX:+AlwaysPreTouch
+-XX:G1NewSizePercent=30
+-XX:G1MaxNewSizePercent=40
+-XX:G1HeapRegionSize=8M
+-XX:G1ReservePercent=20
+-XX:G1HeapWastePercent=5
+-XX:G1MixedGCCountTarget=4
+-XX:InitiatingHeapOccupancyPercent=15
+-XX:G1MixedGCLiveThresholdPercent=90
+-XX:G1RSetUpdatingPauseTimePercent=5
+-XX:SurvivorRatio=32
+-XX:+PerfDisableSharedMem
+-XX:MaxTenuringThreshold=1
+</code></pre>
+<h4>7. Open Firewall</h4>
+<pre><code class="language-bash">sudo ufw allow 25565/tcp comment &quot;Minecraft Server&quot;
+</code></pre>
+<p>Check with: <code>sudo ufw status | grep 25565</code></p>
+<h4>8. Create Launch Script</h4>
+<pre><code class="language-bash">cat &gt; ~/start-minecraft.sh &lt;&lt; &#39;EOF&#39;
+#!/usr/bin/env bash
+cd ~/minecraft-server/server
+java @user_jvm_args.txt @libraries/net/neoforged/neoforge/&lt;VERSION&gt;/unix_args.txt nogui
+EOF
+chmod +x ~/start-minecraft.sh
+</code></pre>
+<p>Note: For Forge (not NeoForge), the args file path differs. Check <code>startserver.sh</code> for the exact path.</p>
+<h4>9. Set Up Automated Backups</h4>
+<p>Create backup script:</p>
+<pre><code class="language-bash">cat &gt; ~/minecraft-server/backup.sh &lt;&lt; &#39;SCRIPT&#39;
+#!/usr/bin/env bash
+SERVER_DIR=&quot;$HOME/minecraft-server/server&quot;
+BACKUP_DIR=&quot;$HOME/minecraft-server/backups&quot;
+WORLD_DIR=&quot;$SERVER_DIR/world&quot;
+MAX_BACKUPS=24
+mkdir -p &quot;$BACKUP_DIR&quot;
+[ ! -d &quot;$WORLD_DIR&quot; ] &amp;&amp; echo &quot;[BACKUP] No world folder&quot; &amp;&amp; exit 0
+TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+BACKUP_FILE=&quot;$BACKUP_DIR/world_${TIMESTAMP}.tar.gz&quot;
+echo &quot;[BACKUP] Starting at $(date)&quot;
+tar -czf &quot;$BACKUP_FILE&quot; -C &quot;$SERVER_DIR&quot; world
+SIZE=$(du -h &quot;$BACKUP_FILE&quot; | cut -f1)
+echo &quot;[BACKUP] Saved: $BACKUP_FILE ($SIZE)&quot;
+BACKUP_COUNT=$(ls -1t &quot;$BACKUP_DIR&quot;/world_*.tar.gz 2&gt;/dev/null | wc -l)
+if [ &quot;$BACKUP_COUNT&quot; -gt &quot;$MAX_BACKUPS&quot; ]; then
+    REMOVE=$((BACKUP_COUNT - MAX_BACKUPS))
+    ls -1t &quot;$BACKUP_DIR&quot;/world_*.tar.gz | tail -n &quot;$REMOVE&quot; | xargs rm -f
+    echo &quot;[BACKUP] Pruned $REMOVE old backup(s)&quot;
+fi
+echo &quot;[BACKUP] Done at $(date)&quot;
+SCRIPT
+chmod +x ~/minecraft-server/backup.sh
+</code></pre>
+<p>Add hourly cron:</p>
+<pre><code class="language-bash">(crontab -l 2&gt;/dev/null | grep -v &quot;minecraft/backup.sh&quot;; echo &quot;0 * * * * $HOME/minecraft-server/backup.sh &gt;&gt; $HOME/minecraft-server/backups/backup.log 2&gt;&amp;1&quot;) | crontab -
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>ALWAYS set <code>allow-flight=true</code> for modded — mods with jetpacks/flight will kick players otherwise</li>
+<li><code>max-tick-time=180000</code> or higher — modded servers often have long ticks during worldgen</li>
+<li>First startup is SLOW (several minutes for big packs) — don&#39;t panic</li>
+<li>&quot;Can&#39;t keep up!&quot; warnings on first launch are normal, settles after initial chunk gen</li>
+<li>If online-mode=false, set enforce-secure-profile=false too or clients get rejected</li>
+<li>The pack&#39;s startserver.sh often has an auto-restart loop — make a clean launch script without it</li>
+<li>Delete the world/ folder to regenerate with a new seed</li>
+<li>Some packs have env vars to control behavior (e.g., ATM10 uses ATM10_JAVA, ATM10_RESTART, ATM10_INSTALL_ONLY)</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li><code>pgrep -fa neoforge</code> or <code>pgrep -fa minecraft</code> to check if running</li>
+<li>Check logs: <code>tail -f ~/minecraft-server/server/logs/latest.log</code></li>
+<li>Look for &quot;Done (Xs)!&quot; in the log = server is ready</li>
+<li>Test connection: player adds server IP in Multiplayer</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/gaming/minecraft-modpack-server</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

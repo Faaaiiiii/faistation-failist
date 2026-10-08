@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fastmcp — Skill Hermes</title>
+<meta name="description" content="Build, test, and deploy Python MCP servers.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>fastmcp</h1>
+    <p class="lede">Build, test, and deploy Python MCP servers.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>fastmcp</dd>
+      <dt>Keterangan</dt><dd>Build, test, and deploy Python MCP servers.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mcp · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/fastmcp.zip" download>Muat turun ZIP (8.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (6)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.0 KB</td></tr>
+<tr><td><code>references/fastmcp-cli.md</code></td><td class="sz">2.3 KB</td></tr>
+<tr><td><code>scripts/scaffold_fastmcp.py</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>templates/api_wrapper.py</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>templates/database_server.py</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>templates/file_processor.py</code></td><td class="sz">1.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>FastMCP</h2>
+<p>Build MCP servers in Python with FastMCP, validate them locally, install them into MCP clients, and deploy them as HTTP endpoints.</p>
+<h3>When to Use</h3>
+<p>Use this skill when the task is to:</p>
+<ul>
+<li>create a new MCP server in Python</li>
+<li>wrap an API, database, CLI, or file-processing workflow as MCP tools</li>
+<li>expose resources or prompts in addition to tools</li>
+<li>smoke-test a server with the FastMCP CLI before wiring it into Hermes or another client</li>
+<li>install a server into Claude Code, Claude Desktop, Cursor, or a similar MCP client</li>
+<li>prepare a FastMCP server repo for HTTP deployment</li>
+</ul>
+<p>Use <code>native-mcp</code> when the server already exists and only needs to be connected to Hermes. Use <code>mcporter</code> when the goal is ad-hoc CLI access to an existing MCP server instead of building one.</p>
+<h3>Prerequisites</h3>
+<p>Install FastMCP in the working environment first:</p>
+<pre><code class="language-bash">pip install fastmcp
+fastmcp version
+</code></pre>
+<p>For the API template, install <code>httpx</code> if it is not already present:</p>
+<pre><code class="language-bash">pip install httpx
+</code></pre>
+<h3>Included Files</h3>
+<h4>Templates</h4>
+<ul>
+<li><code>templates/api_wrapper.py</code> - REST API wrapper with auth header support</li>
+<li><code>templates/database_server.py</code> - read-only SQLite query server</li>
+<li><code>templates/file_processor.py</code> - text-file inspection and search server</li>
+</ul>
+<h4>Scripts</h4>
+<ul>
+<li><code>scripts/scaffold_fastmcp.py</code> - copy a starter template and replace the server name placeholder</li>
+</ul>
+<h4>References</h4>
+<ul>
+<li><code>references/fastmcp-cli.md</code> - FastMCP CLI workflow, installation targets, and deployment checks</li>
+</ul>
+<h3>Workflow</h3>
+<h4>1. Pick the Smallest Viable Server Shape</h4>
+<p>Choose the narrowest useful surface area first:</p>
+<ul>
+<li>API wrapper: start with 1-3 high-value endpoints, not the whole API</li>
+<li>database server: expose read-only introspection and a constrained query path</li>
+<li>file processor: expose deterministic operations with explicit path arguments</li>
+<li>prompts/resources: add only when the client needs reusable prompt templates or discoverable documents</li>
+</ul>
+<p>Prefer a thin server with good names, docstrings, and schemas over a large server with vague tools.</p>
+<h4>2. Scaffold from a Template</h4>
+<p>Copy a template directly or use the scaffold helper:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/mcp/fastmcp/scripts/scaffold_fastmcp.py \
+  --template api_wrapper \
+  --name &quot;Acme API&quot; \
+  --output ./acme_server.py
+</code></pre>
+<p>Available templates:</p>
+<pre><code class="language-bash">python ~/.hermes/skills/mcp/fastmcp/scripts/scaffold_fastmcp.py --list
+</code></pre>
+<p>If copying manually, replace <code>__SERVER_NAME__</code> with a real server name.</p>
+<h4>3. Implement Tools First</h4>
+<p>Start with <code>@mcp.tool</code> functions before adding resources or prompts.</p>
+<p>Rules for tool design:</p>
+<ul>
+<li>Give every tool a concrete verb-based name</li>
+<li>Write docstrings as user-facing tool descriptions</li>
+<li>Keep parameters explicit and typed</li>
+<li>Return structured JSON-safe data where possible</li>
+<li>Validate unsafe inputs early</li>
+<li>Prefer read-only behavior by default for first versions</li>
+</ul>
+<p>Good tool examples:</p>
+<ul>
+<li><code>get_customer</code></li>
+<li><code>search_tickets</code></li>
+<li><code>describe_table</code></li>
+<li><code>summarize_text_file</code></li>
+</ul>
+<p>Weak tool examples:</p>
+<ul>
+<li><code>run</code></li>
+<li><code>process</code></li>
+<li><code>do_thing</code></li>
+</ul>
+<h4>4. Add Resources and Prompts Only When They Help</h4>
+<p>Add <code>@mcp.resource</code> when the client benefits from fetching stable read-only content such as schemas, policy docs, or generated reports.</p>
+<p>Add <code>@mcp.prompt</code> when the server should provide a reusable prompt template for a known workflow.</p>
+<p>Do not turn every document into a prompt. Prefer:</p>
+<ul>
+<li>tools for actions</li>
+<li>resources for data/document retrieval</li>
+<li>prompts for reusable LLM instructions</li>
+</ul>
+<h4>5. Test the Server Before Integrating It Anywhere</h4>
+<p>Use the FastMCP CLI for local validation:</p>
+<pre><code class="language-bash">fastmcp inspect acme_server.py:mcp
+fastmcp list acme_server.py --json
+fastmcp call acme_server.py search_resources query=router limit=5 --json
+</code></pre>
+<p>For fast iterative debugging, run the server locally:</p>
+<pre><code class="language-bash">fastmcp run acme_server.py:mcp
+</code></pre>
+<p>To test HTTP transport locally:</p>
+<pre><code class="language-bash">fastmcp run acme_server.py:mcp --transport http --host 127.0.0.1 --port 8000
+fastmcp list http://127.0.0.1:8000/mcp --json
+fastmcp call http://127.0.0.1:8000/mcp search_resources query=router --json
+</code></pre>
+<p>Always run at least one real <code>fastmcp call</code> against each new tool before claiming the server works.</p>
+<h4>6. Install into a Client When Local Validation Passes</h4>
+<p>FastMCP can register the server with supported MCP clients:</p>
+<pre><code class="language-bash">fastmcp install claude-code acme_server.py
+fastmcp install claude-desktop acme_server.py
+fastmcp install cursor acme_server.py -e .
+</code></pre>
+<p>Use <code>fastmcp discover</code> to inspect named MCP servers already configured on the machine.</p>
+<p>When the goal is Hermes integration, either:</p>
+<ul>
+<li>configure the server in <code>~/.hermes/config.yaml</code> using the <code>native-mcp</code> skill, or</li>
+<li>keep using FastMCP CLI commands during development until the interface stabilizes</li>
+</ul>
+<h4>7. Deploy After the Local Contract Is Stable</h4>
+<p>For managed hosting, Prefect Horizon is the path FastMCP documents most directly. Before deployment:</p>
+<pre><code class="language-bash">fastmcp inspect acme_server.py:mcp
+</code></pre>
+<p>Make sure the repo contains:</p>
+<ul>
+<li>a Python file with the FastMCP server object</li>
+<li><code>requirements.txt</code> or <code>pyproject.toml</code></li>
+<li>any environment-variable documentation needed for deployment</li>
+</ul>
+<p>For generic HTTP hosting, validate the HTTP transport locally first, then deploy on any Python-compatible platform that can expose the server port.</p>
+<h3>Common Patterns</h3>
+<h4>API Wrapper Pattern</h4>
+<p>Use when exposing a REST or HTTP API as MCP tools.</p>
+<p>Recommended first slice:</p>
+<ul>
+<li>one read path</li>
+<li>one list/search path</li>
+<li>optional health check</li>
+</ul>
+<p>Implementation notes:</p>
+<ul>
+<li>keep auth in environment variables, not hardcoded</li>
+<li>centralize request logic in one helper</li>
+<li>surface API errors with concise context</li>
+<li>normalize inconsistent upstream payloads before returning them</li>
+</ul>
+<p>Start from <code>templates/api_wrapper.py</code>.</p>
+<h4>Database Pattern</h4>
+<p>Use when exposing safe query and inspection capabilities.</p>
+<p>Recommended first slice:</p>
+<ul>
+<li><code>list_tables</code></li>
+<li><code>describe_table</code></li>
+<li>one constrained read query tool</li>
+</ul>
+<p>Implementation notes:</p>
+<ul>
+<li>default to read-only DB access</li>
+<li>reject non-<code>SELECT</code> SQL in early versions</li>
+<li>limit row counts</li>
+<li>return rows plus column names</li>
+</ul>
+<p>Start from <code>templates/database_server.py</code>.</p>
+<h4>File Processor Pattern</h4>
+<p>Use when the server needs to inspect or transform files on demand.</p>
+<p>Recommended first slice:</p>
+<ul>
+<li>summarize file contents</li>
+<li>search within files</li>
+<li>extract deterministic metadata</li>
+</ul>
+<p>Implementation notes:</p>
+<ul>
+<li>accept explicit file paths</li>
+<li>check for missing files and encoding failures</li>
+<li>cap previews and result counts</li>
+<li>avoid shelling out unless a specific external tool is required</li>
+</ul>
+<p>Start from <code>templates/file_processor.py</code>.</p>
+<h3>Quality Bar</h3>
+<p>Before handing off a FastMCP server, verify all of the following:</p>
+<ul>
+<li>server imports cleanly</li>
+<li><code>fastmcp inspect &lt;file.py:mcp&gt;</code> succeeds</li>
+<li><code>fastmcp list &lt;server spec&gt; --json</code> succeeds</li>
+<li>every new tool has at least one real <code>fastmcp call</code></li>
+<li>environment variables are documented</li>
+<li>the tool surface is small enough to understand without guesswork</li>
+</ul>
+<h3>Troubleshooting</h3>
+<h4>FastMCP command missing</h4>
+<p>Install the package in the active environment:</p>
+<pre><code class="language-bash">pip install fastmcp
+fastmcp version
+</code></pre>
+<h4><code>fastmcp inspect</code> fails</h4>
+<p>Check that:</p>
+<ul>
+<li>the file imports without side effects that crash</li>
+<li>the FastMCP instance is named correctly in <code>&lt;file.py:object&gt;</code></li>
+<li>optional dependencies from the template are installed</li>
+</ul>
+<h4>Tool works in Python but not through CLI</h4>
+<p>Run:</p>
+<pre><code class="language-bash">fastmcp list server.py --json
+fastmcp call server.py your_tool_name --json
+</code></pre>
+<p>This usually exposes naming mismatches, missing required arguments, or non-serializable return values.</p>
+<h4>Hermes cannot see the deployed server</h4>
+<p>The server-building part may be correct while the Hermes config is not. Load the <code>native-mcp</code> skill and configure the server in <code>~/.hermes/config.yaml</code>, then restart Hermes.</p>
+<h3>References</h3>
+<p>For CLI details, install targets, and deployment checks, read <code>references/fastmcp-cli.md</code>.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mcp/fastmcp</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

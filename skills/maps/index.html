@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>maps — Skill Hermes</title>
+<meta name="description" content="Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>maps</h1>
+    <p class="lede">Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>maps</dd>
+      <dt>Keterangan</dt><dd>Geocode, POIs, routes, timezones via OpenStreetMap/OSRM.</dd>
+      <dt>Versi</dt><dd>1.2.0</dd>
+      <dt>Pengarang</dt><dd>Mibayy</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/maps.zip" download>Muat turun ZIP (14.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">6.5 KB</td></tr>
+<tr><td><code>scripts/maps_client.py</code></td><td class="sz">45.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Maps Skill</h2>
+<p>Location intelligence using free, open data sources. 8 commands, 44 POI
+categories, zero dependencies (Python stdlib only), no API key required.</p>
+<p>Data sources: OpenStreetMap/Nominatim, Overpass API, OSRM, TimeAPI.io.</p>
+<p>This skill supersedes the old <code>find-nearby</code> skill — all of find-nearby&#39;s
+functionality is covered by the <code>nearby</code> command below, with the same
+<code>--near &quot;&lt;place&gt;&quot;</code> shortcut and multi-category support.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User sends a Telegram location pin (latitude/longitude in the message) → <code>nearby</code></li>
+<li>User wants coordinates for a place name → <code>search</code></li>
+<li>User has coordinates and wants the address → <code>reverse</code></li>
+<li>User asks for nearby restaurants, hospitals, pharmacies, hotels, etc. → <code>nearby</code></li>
+<li>User wants driving/walking/cycling distance or travel time → <code>distance</code></li>
+<li>User wants turn-by-turn directions between two places → <code>directions</code></li>
+<li>User wants timezone information for a location → <code>timezone</code></li>
+<li>User wants to search for POIs within a geographic area → <code>area</code> + <code>bbox</code></li>
+</ul>
+<h3>Prerequisites</h3>
+<p>Python 3.8+ (stdlib only — no pip installs needed).</p>
+<p>Script path: <code>~/.hermes/skills/maps/scripts/maps_client.py</code></p>
+<h3>Commands</h3>
+<pre><code class="language-bash">MAPS=~/.hermes/skills/maps/scripts/maps_client.py
+</code></pre>
+<h4>search — Geocode a place name</h4>
+<pre><code class="language-bash">python $MAPS search &quot;Eiffel Tower&quot;
+python $MAPS search &quot;1600 Pennsylvania Ave, Washington DC&quot;
+</code></pre>
+<p>Returns: lat, lon, display name, type, bounding box, importance score.</p>
+<h4>reverse — Coordinates to address</h4>
+<pre><code class="language-bash">python $MAPS reverse 48.8584 2.2945
+</code></pre>
+<p>Returns: full address breakdown (street, city, state, country, postcode).</p>
+<h4>nearby — Find places by category</h4>
+<pre><code class="language-bash"># By coordinates (from a Telegram location pin, for example)
+python $MAPS nearby 48.8584 2.2945 restaurant --limit 10
+python $MAPS nearby 40.7128 -74.0060 hospital --radius 2000
+
+# By address / city / zip / landmark — --near auto-geocodes
+python $MAPS nearby --near &quot;Times Square, New York&quot; --category cafe
+python $MAPS nearby --near &quot;90210&quot; --category pharmacy
+
+# Multiple categories merged into one query
+python $MAPS nearby --near &quot;downtown austin&quot; --category restaurant --category bar --limit 10
+</code></pre>
+<p>46 categories: restaurant, cafe, bar, hospital, pharmacy, hotel, guest_house,
+camp_site, supermarket, atm, gas_station, parking, museum, park, school,
+university, bank, police, fire_station, library, airport, train_station,
+bus_stop, church, mosque, synagogue, dentist, doctor, cinema, theatre, gym,
+swimming_pool, post_office, convenience_store, bakery, bookshop, laundry,
+car_wash, car_rental, bicycle_rental, taxi, veterinary, zoo, playground,
+stadium, nightclub.</p>
+<p>Each result includes: <code>name</code>, <code>address</code>, <code>lat</code>/<code>lon</code>, <code>distance_m</code>,
+<code>maps_url</code> (clickable Google Maps link), <code>directions_url</code> (Google Maps
+directions from the search point), and promoted tags when available —
+<code>cuisine</code>, <code>hours</code> (opening_hours), <code>phone</code>, <code>website</code>.</p>
+<h4>distance — Travel distance and time</h4>
+<pre><code class="language-bash">python $MAPS distance &quot;Paris&quot; --to &quot;Lyon&quot;
+python $MAPS distance &quot;New York&quot; --to &quot;Boston&quot; --mode driving
+python $MAPS distance &quot;Big Ben&quot; --to &quot;Tower Bridge&quot; --mode walking
+</code></pre>
+<p>Modes: driving (default), walking, cycling. Returns road distance, duration,
+and straight-line distance for comparison.</p>
+<h4>directions — Turn-by-turn navigation</h4>
+<pre><code class="language-bash">python $MAPS directions &quot;Eiffel Tower&quot; --to &quot;Louvre Museum&quot; --mode walking
+python $MAPS directions &quot;JFK Airport&quot; --to &quot;Times Square&quot; --mode driving
+</code></pre>
+<p>Returns numbered steps with instruction, distance, duration, road name, and
+maneuver type (turn, depart, arrive, etc.).</p>
+<h4>timezone — Timezone for coordinates</h4>
+<pre><code class="language-bash">python $MAPS timezone 48.8584 2.2945
+python $MAPS timezone 35.6762 139.6503
+</code></pre>
+<p>Returns timezone name, UTC offset, and current local time.</p>
+<h4>area — Bounding box and area for a place</h4>
+<pre><code class="language-bash">python $MAPS area &quot;Manhattan, New York&quot;
+python $MAPS area &quot;London&quot;
+</code></pre>
+<p>Returns bounding box coordinates, width/height in km, and approximate area.
+Useful as input for the bbox command.</p>
+<h4>bbox — Search within a bounding box</h4>
+<pre><code class="language-bash">python $MAPS bbox 40.75 -74.00 40.77 -73.98 restaurant --limit 20
+</code></pre>
+<p>Finds POIs within a geographic rectangle. Use <code>area</code> first to get the
+bounding box coordinates for a named place.</p>
+<h3>Working With Telegram Location Pins</h3>
+<p>When a user sends a location pin, the message contains <code>latitude:</code> and
+<code>longitude:</code> fields. Extract those and pass them straight to <code>nearby</code>:</p>
+<pre><code class="language-bash"># User sent a pin at 36.17, -115.14 and asked &quot;find cafes nearby&quot;
+python $MAPS nearby 36.17 -115.14 cafe --radius 1500
+</code></pre>
+<p>Present results as a numbered list with names, distances, and the
+<code>maps_url</code> field so the user gets a tap-to-open link in chat. For &quot;open
+now?&quot; questions, check the <code>hours</code> field; if missing or unclear, verify
+with <code>web_search</code> since OSM hours are community-maintained and not always
+current.</p>
+<h3>Workflow Examples</h3>
+<p><strong>&quot;Find Italian restaurants near the Colosseum&quot;:</strong></p>
+<ol>
+<li><code>nearby --near &quot;Colosseum Rome&quot; --category restaurant --radius 500</code>
+— one command, auto-geocoded</li>
+</ol>
+<p><strong>&quot;What&#39;s near this location pin they sent?&quot;:</strong></p>
+<ol>
+<li>Extract lat/lon from the Telegram message</li>
+<li><code>nearby LAT LON cafe --radius 1500</code></li>
+</ol>
+<p><strong>&quot;How do I walk from hotel to conference center?&quot;:</strong></p>
+<ol>
+<li><code>directions &quot;Hotel Name&quot; --to &quot;Conference Center&quot; --mode walking</code></li>
+</ol>
+<p><strong>&quot;What restaurants are in downtown Seattle?&quot;:</strong></p>
+<ol>
+<li><code>area &quot;Downtown Seattle&quot;</code> → get bounding box</li>
+<li><code>bbox S W N E restaurant --limit 30</code></li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li>Nominatim ToS: max 1 req/s (handled automatically by the script)</li>
+<li><code>nearby</code> requires lat/lon OR <code>--near &quot;&lt;address&gt;&quot;</code> — one of the two is needed</li>
+<li>OSRM routing coverage is best for Europe and North America</li>
+<li>Overpass API can be slow during peak hours; the script automatically
+falls back between mirrors (overpass-api.de → overpass.kumi.systems)</li>
+<li><code>distance</code> and <code>directions</code> use <code>--to</code> flag for the destination (not positional)</li>
+<li>If a zip code alone gives ambiguous results globally, include country/state</li>
+</ul>
+<h3>Verification</h3>
+<pre><code class="language-bash">python ~/.hermes/skills/maps/scripts/maps_client.py search &quot;Statue of Liberty&quot;
+# Should return lat ~40.689, lon ~-74.044
+
+python ~/.hermes/skills/maps/scripts/maps_client.py nearby --near &quot;Times Square&quot; --category restaurant --limit 3
+# Should return a list of restaurants within ~500m of Times Square
+</code></pre>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/maps</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

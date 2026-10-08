@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>openhands — Skill Hermes</title>
+<meta name="description" content="Delegate coding to OpenHands CLI (model-agnostic, LiteLLM).">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>openhands</h1>
+    <p class="lede">Delegate coding to OpenHands CLI (model-agnostic, LiteLLM).</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>openhands</dd>
+      <dt>Keterangan</dt><dd>Delegate coding to OpenHands CLI (model-agnostic, LiteLLM).</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Tim Koepsel (xzessmedia), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/openhands.zip" download>Muat turun ZIP (3.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OpenHands CLI</h2>
+<p>Delegate coding tasks to the <a href="https://github.com/All-Hands-AI/OpenHands">OpenHands CLI</a> via the <code>terminal</code> tool. OpenHands is model-agnostic: any LiteLLM-supported provider (OpenAI, Anthropic, OpenRouter, DeepSeek, Ollama, vLLM, etc.).</p>
+<p>This skill is the headless-mode wrapper for batch / one-shot delegation. The interactive textual UI is not used from Hermes.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User wants a coding task delegated to OpenHands specifically.</li>
+<li>User wants a coding agent that can run on a non-Anthropic / non-OpenAI provider (DeepSeek, Qwen, Ollama, vLLM, Nous, etc.) — sibling skills <code>claude-code</code> and <code>codex</code> are tied to one vendor.</li>
+<li>Multi-step file edits + shell commands inside a workspace.</li>
+</ul>
+<p>For Claude-native, prefer <code>claude-code</code>. For OpenAI-native, prefer <code>codex</code>. For Hermes-native subagents, use <code>delegate_task</code>.</p>
+<h3>Prerequisites</h3>
+<ol>
+<li><p>Install upstream (requires Python 3.12+ and <code>uv</code>):</p>
+<pre><code>terminal(command=&quot;uv tool install openhands --python 3.12&quot;)
+</code></pre>
+<p>Verify: <code>openhands --version</code> (currently <code>OpenHands CLI 1.16.0</code> / <code>SDK v1.21.0</code> at time of writing).</p>
+</li>
+<li><p>Pick a model and set env vars for <code>--override-with-envs</code>:</p>
+<pre><code>export LLM_MODEL=openrouter/openai/gpt-4o-mini       # or any LiteLLM slug
+export LLM_API_KEY=$OPENROUTER_API_KEY
+export LLM_BASE_URL=https://openrouter.ai/api/v1     # omit for native OpenAI
+</code></pre>
+<p><code>LLM_MODEL</code> uses LiteLLM&#39;s full slug. When the provider is OpenRouter the slug is doubly-prefixed: <code>openrouter/&lt;vendor&gt;/&lt;model&gt;</code> (e.g. <code>openrouter/anthropic/claude-sonnet-4.5</code>). For native Anthropic: <code>anthropic/claude-sonnet-4-5</code>. For native OpenAI: <code>openai/gpt-4o-mini</code>.</p>
+</li>
+<li><p>Suppress the startup banner so JSON output isn&#39;t preceded by ASCII art:</p>
+<pre><code>export OPENHANDS_SUPPRESS_BANNER=1
+</code></pre>
+</li>
+</ol>
+<h3>How to Run</h3>
+<p>Always invoke through the <code>terminal</code> tool. Always pass <code>--headless --json --override-with-envs --exit-without-confirmation</code> for automation.</p>
+<h4>One-shot task</h4>
+<pre><code>terminal(
+  command=&quot;OPENHANDS_SUPPRESS_BANNER=1 LLM_MODEL=openrouter/openai/gpt-4o-mini LLM_API_KEY=$OPENROUTER_API_KEY LLM_BASE_URL=https://openrouter.ai/api/v1 openhands --headless --json --override-with-envs --exit-without-confirmation -t &#39;Add error handling to all API calls in src/&#39;&quot;,
+  workdir=&quot;/path/to/project&quot;,
+  timeout=600
+)
+</code></pre>
+<h4>Background for long tasks</h4>
+<pre><code>terminal(command=&quot;&lt;same as above&gt;&quot;, workdir=&quot;/path/to/project&quot;, background=true, notify_on_complete=true)
+process(action=&quot;poll&quot;, session_id=&quot;&lt;id&gt;&quot;)
+process(action=&quot;log&quot;, session_id=&quot;&lt;id&gt;&quot;)
+</code></pre>
+<h4>Resume a previous conversation</h4>
+<p>OpenHands prints <code>Conversation ID: &lt;32-hex&gt;</code> and a <code>Hint: openhands --resume &lt;dashed-uuid&gt;</code> line at the end of each run. Use the dashed form to resume:</p>
+<pre><code>terminal(
+  command=&quot;OPENHANDS_SUPPRESS_BANNER=1 LLM_MODEL=... openhands --headless --json --override-with-envs --exit-without-confirmation --resume &lt;dashed-uuid&gt; -t &#39;Now fix the bug you found&#39;&quot;,
+  workdir=&quot;/path/to/project&quot;
+)
+</code></pre>
+<h3>Real Flag List</h3>
+<p>Verified against <code>openhands --help</code> (CLI 1.16.0). Anything not in this table is not a flag — pass it via env var or settings file.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--headless</code></td>
+<td>No UI, requires <code>-t</code> or <code>-f</code>. Auto-approves all actions (no <code>--llm-approve</code> in this mode).</td>
+</tr>
+<tr>
+<td><code>--json</code></td>
+<td>JSONL event stream (requires <code>--headless</code>).</td>
+</tr>
+<tr>
+<td><code>-t TEXT</code></td>
+<td>Task prompt.</td>
+</tr>
+<tr>
+<td><code>-f PATH</code></td>
+<td>Read task from file.</td>
+</tr>
+<tr>
+<td><code>--resume [ID]</code></td>
+<td>Resume conversation. No ID → list recent.</td>
+</tr>
+<tr>
+<td><code>--last</code></td>
+<td>Resume most recent (with <code>--resume</code>).</td>
+</tr>
+<tr>
+<td><code>--override-with-envs</code></td>
+<td>Apply <code>LLM_API_KEY</code> / <code>LLM_BASE_URL</code> / <code>LLM_MODEL</code> env vars. Without this, OpenHands uses <code>~/.openhands/settings.json</code> and ignores the env.</td>
+</tr>
+<tr>
+<td><code>--exit-without-confirmation</code></td>
+<td>Don&#39;t show the &quot;are you sure&quot; exit dialog.</td>
+</tr>
+<tr>
+<td><code>--always-approve</code> / <code>--yolo</code></td>
+<td>Auto-approve every action (default in <code>--headless</code>).</td>
+</tr>
+<tr>
+<td><code>--llm-approve</code></td>
+<td>LLM-based security gate (interactive only — does NOT work in headless).</td>
+</tr>
+<tr>
+<td><code>--version</code> / <code>-v</code></td>
+<td>Print version and exit.</td>
+</tr>
+</tbody></table>
+<p><strong>There is no <code>--model</code>, <code>--max-iterations</code>, <code>--workspace</code>, <code>--sandbox</code>, <code>--sandbox-type</code> flag.</strong> Model is <code>LLM_MODEL</code>. Workspace is the <code>workdir</code> you pass to the <code>terminal</code> tool. Sandbox / runtime is the <code>RUNTIME</code> and <code>SANDBOX_VOLUMES</code> env vars.</p>
+<h3>JSON Event Schema</h3>
+<p>With <code>--json --headless</code>, OpenHands emits JSONL — one JSON object per line, plus a handful of non-JSON status lines (<code>Initializing agent...</code>, <code>Agent is working</code>, <code>Agent finished</code>, the final summary box, <code>Goodbye!</code>, <code>Conversation ID:</code>, <code>Hint:</code>). Filter for lines starting with <code>{</code>.</p>
+<p>Top-level <code>kind</code> field discriminates events:</p>
+<ul>
+<li><code>MessageEvent</code> — user / agent text turn. <code>source</code> is <code>user</code> or <code>agent</code>.</li>
+<li><code>ActionEvent</code> — agent picked a tool. Read <code>tool_name</code> (<code>file_editor</code>, <code>terminal</code>, <code>finish</code>) and <code>action.kind</code> (<code>FileEditorAction</code>, <code>TerminalAction</code>, <code>FinishAction</code>).</li>
+<li><code>ObservationEvent</code> — tool result. <code>observation.is_error</code> is the success flag. <code>source</code> is <code>environment</code>.</li>
+<li><code>FinishAction</code> inside an <code>ActionEvent</code> carries the agent&#39;s final message in <code>action.message</code>.</li>
+</ul>
+<p>The cli prints all stderr from LiteLLM/Authlib first — see Pitfalls. Parse only stdout, line by line, ignoring lines that don&#39;t start with <code>{</code>.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>LiteLLM warnings on every invocation.</strong> The CLI prints <code>bedrock-runtime</code> and <code>sagemaker-runtime</code> warnings to stderr because <code>botocore</code> isn&#39;t installed. Plus an Authlib deprecation. These are noise, not failures. Pipe stderr to <code>/dev/null</code> or filter it out before showing the user.</li>
+<li><strong>Banner spam.</strong> Without <code>OPENHANDS_SUPPRESS_BANNER=1</code>, every run starts with a multi-line <code>+--+</code> ASCII box advertising the SDK. Always export it.</li>
+<li><strong><code>--override-with-envs</code> is mandatory for automation.</strong> Without it, OpenHands ignores <code>LLM_API_KEY</code> / <code>LLM_BASE_URL</code> / <code>LLM_MODEL</code> and falls back to <code>~/.openhands/settings.json</code>. On a fresh install this file doesn&#39;t exist and the CLI hangs waiting for first-run setup.</li>
+<li><strong>Model slug is LiteLLM&#39;s, not the provider&#39;s.</strong> <code>openrouter/openai/gpt-4o-mini</code> works; <code>openai/gpt-4o-mini</code> while pointed at OpenRouter does not. <code>anthropic/claude-sonnet-4-5</code> (hyphen) is native Anthropic; <code>openrouter/anthropic/claude-sonnet-4.5</code> (dot) is via OpenRouter. Get it wrong → cryptic LiteLLM 400.</li>
+<li><strong><code>pip install openhands-ai</code> is the wrong package.</strong> That&#39;s the legacy V0 SDK. The new CLI is <code>uv tool install openhands --python 3.12</code>. There is no maintained conda package.</li>
+<li><strong>Resume ID format is fiddly.</strong> The CLI ends with <code>Conversation ID: f46573d9cfdb45e492ca189bde40019b</code> (no dashes) and then a <code>Hint: openhands --resume f46573d9-cfdb-45e4-92ca-189bde40019b</code> (with dashes). Use the dashed form.</li>
+<li><strong>Headless ignores <code>--llm-approve</code>.</strong> If you pass it, you get an argparse error. Headless mode hardcodes always-approve.</li>
+<li><strong>No Windows support upstream.</strong> The OpenHands docs require WSL on Windows. This skill is gated <code>[linux, macos]</code> accordingly.</li>
+<li><strong><code>~/.openhands/conversations/&lt;id&gt;/</code> accumulates.</strong> Each run persists a trajectory. Clean it up if running batches.</li>
+<li><strong>Heavy install (~200 packages).</strong> Use <code>uv tool install</code> (isolated venv) to avoid dependency conflicts with the active project.</li>
+</ul>
+<h3>Verification</h3>
+<pre><code>terminal(
+  command=&quot;OPENHANDS_SUPPRESS_BANNER=1 LLM_MODEL=openrouter/openai/gpt-4o-mini LLM_API_KEY=$OPENROUTER_API_KEY LLM_BASE_URL=https://openrouter.ai/api/v1 openhands --headless --json --override-with-envs --exit-without-confirmation -t &#39;Print the string OPENHANDS_OK to stdout via the terminal tool.&#39;&quot;,
+  workdir=&quot;~/.hermes/cache/scratch&quot;,
+  timeout=120
+)
+</code></pre>
+<p>If the JSONL stream ends with a <code>FinishAction</code> whose <code>action.message</code> mentions <code>OPENHANDS_OK</code>, the install is working.</p>
+<h3>Related</h3>
+<ul>
+<li><a href="https://github.com/All-Hands-AI/OpenHands">OpenHands GitHub</a></li>
+<li><a href="https://docs.openhands.dev/openhands/usage/cli/command-reference">OpenHands CLI command reference</a></li>
+<li>Sibling skills: <code>claude-code</code> (Anthropic-only), <code>codex</code> (OpenAI-only), <code>opencode</code> (multi-provider via OpenCode), <code>hermes-agent</code> (Hermes subagents via <code>delegate_task</code>).</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/autonomous-ai-agents/openhands</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

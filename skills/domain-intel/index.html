@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>domain-intel — Skill Hermes</title>
+<meta name="description" content="Passive recon of subdomains, SSL certs, WHOIS, and DNS.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>domain-intel</h1>
+    <p class="lede">Passive recon of subdomains, SSL certs, WHOIS, and DNS.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>domain-intel</dd>
+      <dt>Keterangan</dt><dd>Passive recon of subdomains, SSL certs, WHOIS, and DNS.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>FurkanL0, Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/domain-intel.zip" download>Muat turun ZIP (6.6 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.4 KB</td></tr>
+<tr><td><code>scripts/domain_intel.py</code></td><td class="sz">15.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Domain Intelligence — Passive OSINT</h2>
+<p>Passive domain reconnaissance using only Python stdlib.
+<strong>Zero dependencies. Zero API keys. Works on Linux, macOS, and Windows.</strong></p>
+<h3>Helper script</h3>
+<p>This skill includes <code>scripts/domain_intel.py</code> — a complete CLI tool for all domain intelligence operations.</p>
+<pre><code class="language-bash"># Subdomain discovery via Certificate Transparency logs
+python SKILL_DIR/scripts/domain_intel.py subdomains example.com
+
+# SSL certificate inspection (expiry, cipher, SANs, issuer)
+python SKILL_DIR/scripts/domain_intel.py ssl example.com
+
+# WHOIS lookup (registrar, dates, name servers — 100+ TLDs)
+python SKILL_DIR/scripts/domain_intel.py whois example.com
+
+# DNS records (A, AAAA, MX, NS, TXT, CNAME)
+python SKILL_DIR/scripts/domain_intel.py dns example.com
+
+# Domain availability check (passive: DNS + WHOIS + SSL signals)
+python SKILL_DIR/scripts/domain_intel.py available coolstartup.io
+
+# Bulk analysis — multiple domains, multiple checks in parallel
+python SKILL_DIR/scripts/domain_intel.py bulk example.com github.com google.com
+python SKILL_DIR/scripts/domain_intel.py bulk example.com github.com --checks ssl,dns
+</code></pre>
+<p><code>SKILL_DIR</code> is the directory containing this SKILL.md file. All output is structured JSON.</p>
+<h3>Available commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What it does</th>
+<th>Data source</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>subdomains</code></td>
+<td>Find subdomains from certificate logs</td>
+<td>crt.sh (HTTPS)</td>
+</tr>
+<tr>
+<td><code>ssl</code></td>
+<td>Inspect TLS certificate details</td>
+<td>Direct TCP:443 to target</td>
+</tr>
+<tr>
+<td><code>whois</code></td>
+<td>Registration info, registrar, dates</td>
+<td>WHOIS servers (TCP:43)</td>
+</tr>
+<tr>
+<td><code>dns</code></td>
+<td>A, AAAA, MX, NS, TXT, CNAME records</td>
+<td>System DNS + Google DoH</td>
+</tr>
+<tr>
+<td><code>available</code></td>
+<td>Check if domain is registered</td>
+<td>DNS + WHOIS + SSL signals</td>
+</tr>
+<tr>
+<td><code>bulk</code></td>
+<td>Run multiple checks on multiple domains</td>
+<td>All of the above</td>
+</tr>
+</tbody></table>
+<h3>When to use this vs built-in tools</h3>
+<ul>
+<li><strong>Use this skill</strong> for infrastructure questions: subdomains, SSL certs, WHOIS, DNS records, availability</li>
+<li><strong>Use <code>web_search</code></strong> for general research about what a domain/company does</li>
+<li><strong>Use <code>web_extract</code></strong> to get the actual content of a webpage</li>
+<li><strong>Use <code>terminal</code> with <code>curl -I</code></strong> for a simple &quot;is this URL reachable&quot; check</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Better tool</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>&quot;What does example.com do?&quot;</td>
+<td><code>web_extract</code></td>
+<td>Gets page content, not DNS/WHOIS data</td>
+</tr>
+<tr>
+<td>&quot;Find info about a company&quot;</td>
+<td><code>web_search</code></td>
+<td>General research, not domain-specific</td>
+</tr>
+<tr>
+<td>&quot;Is this website safe?&quot;</td>
+<td><code>web_search</code></td>
+<td>Reputation checks need web context</td>
+</tr>
+<tr>
+<td>&quot;Check if a URL is reachable&quot;</td>
+<td><code>terminal</code> with <code>curl -I</code></td>
+<td>Simple HTTP check</td>
+</tr>
+<tr>
+<td>&quot;Find subdomains of X&quot;</td>
+<td><strong>This skill</strong></td>
+<td>Only passive source for this</td>
+</tr>
+<tr>
+<td>&quot;When does the SSL cert expire?&quot;</td>
+<td><strong>This skill</strong></td>
+<td>Built-in tools can&#39;t inspect TLS</td>
+</tr>
+<tr>
+<td>&quot;Who registered this domain?&quot;</td>
+<td><strong>This skill</strong></td>
+<td>WHOIS data not in web search</td>
+</tr>
+<tr>
+<td>&quot;Is coolstartup.io available?&quot;</td>
+<td><strong>This skill</strong></td>
+<td>Passive availability via DNS+WHOIS+SSL</td>
+</tr>
+</tbody></table>
+<h3>Platform compatibility</h3>
+<p>Pure Python stdlib (<code>socket</code>, <code>ssl</code>, <code>urllib</code>, <code>json</code>, <code>concurrent.futures</code>).
+Works identically on Linux, macOS, and Windows with no dependencies.</p>
+<ul>
+<li><strong>crt.sh queries</strong> use HTTPS (port 443) — works behind most firewalls</li>
+<li><strong>WHOIS queries</strong> use TCP port 43 — may be blocked on restrictive networks</li>
+<li><strong>DNS queries</strong> use Google DoH (HTTPS) for MX/NS/TXT — firewall-friendly</li>
+<li><strong>SSL checks</strong> connect to the target on port 443 — the only &quot;active&quot; operation</li>
+</ul>
+<h3>Data sources</h3>
+<p>All queries are <strong>passive</strong> — no port scanning, no vulnerability testing:</p>
+<ul>
+<li><strong>crt.sh</strong> — Certificate Transparency logs (subdomain discovery, HTTPS only)</li>
+<li><strong>WHOIS servers</strong> — Direct TCP to 100+ authoritative TLD registrars</li>
+<li><strong>Google DNS-over-HTTPS</strong> — MX, NS, TXT, CNAME resolution (firewall-friendly)</li>
+<li><strong>System DNS</strong> — A/AAAA record resolution</li>
+<li><strong>SSL check</strong> is the only &quot;active&quot; operation (TCP connection to target:443)</li>
+</ul>
+<h3>Notes</h3>
+<ul>
+<li>WHOIS queries use TCP port 43 — may be blocked on restrictive networks</li>
+<li>Some WHOIS servers redact registrant info (GDPR) — mention this to the user</li>
+<li>crt.sh can be slow for very popular domains (thousands of certs) — set reasonable expectations</li>
+<li>The availability check is heuristic-based (3 passive signals) — not authoritative like a registrar API</li>
+</ul>
+<hr>
+<p><em>Contributed by <a href="https://github.com/FurkanL0">@FurkanL0</a></em></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/domain-intel</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

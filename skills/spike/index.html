@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>spike — Skill Hermes</title>
+<meta name="description" content="Throwaway experiments to validate an idea before build.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>spike</h1>
+    <p class="lede">Throwaway experiments to validate an idea before build.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>spike</dd>
+      <dt>Keterangan</dt><dd>Throwaway experiments to validate an idea before build.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (adapted from gsd-build/get-shit-done)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/spike.zip" download>Muat turun ZIP (4.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Spike</h2>
+<p>Use this skill when the user wants to <strong>feel out an idea</strong> before committing to a real build — validating feasibility, comparing approaches, or surfacing unknowns that no amount of research will answer. Spikes are disposable by design. Throw them away once they&#39;ve paid their debt.</p>
+<p>Load this when the user says things like &quot;let me try this&quot;, &quot;I want to see if X works&quot;, &quot;spike this out&quot;, &quot;before I commit to Y&quot;, &quot;quick prototype of Z&quot;, &quot;is this even possible?&quot;, or &quot;compare A vs B&quot;.</p>
+<h3>When NOT to use this</h3>
+<ul>
+<li>The answer is knowable from docs or reading code — just do research, don&#39;t build</li>
+<li>The work is production path — use the <code>plan</code> skill instead</li>
+<li>The idea is already validated — jump straight to implementation</li>
+</ul>
+<h3>If the user has the full GSD system installed</h3>
+<p>If <code>gsd-spike</code> shows up as a sibling skill (installed via <code>npx get-shit-done-cc --hermes</code>), prefer <strong><code>gsd-spike</code></strong> when the user wants the full GSD workflow: persistent <code>.planning/spikes/</code> state, MANIFEST tracking across sessions, Given/When/Then verdict format, and commit patterns that integrate with the rest of GSD. This skill is the lightweight standalone version for users who don&#39;t have (or don&#39;t want) the full system.</p>
+<h3>Core method</h3>
+<p>Regardless of scale, every spike follows this loop:</p>
+<pre><code>decompose  →  research  →  build  →  verdict
+   ↑__________________________________________↓
+                  iterate on findings
+</code></pre>
+<h4>1. Decompose</h4>
+<p>Break the user&#39;s idea into <strong>2-5 independent feasibility questions</strong>. Each question is one spike. Present them as a table with Given/When/Then framing:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Spike</th>
+<th>Validates (Given/When/Then)</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>001</td>
+<td>websocket-streaming</td>
+<td>Given a WS connection, when LLM streams tokens, then client receives chunks &lt; 100ms</td>
+<td>High</td>
+</tr>
+<tr>
+<td>002a</td>
+<td>pdf-parse-pdfjs</td>
+<td>Given a multi-page PDF, when parsed with pdfjs, then structured text is extractable</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>002b</td>
+<td>pdf-parse-camelot</td>
+<td>Given a multi-page PDF, when parsed with camelot, then structured text is extractable</td>
+<td>Medium</td>
+</tr>
+</tbody></table>
+<p><strong>Spike types:</strong></p>
+<ul>
+<li><strong>standard</strong> — one approach answering one question</li>
+<li><strong>comparison</strong> — same question, different approaches (shared number, letter suffix <code>a</code>/<code>b</code>/<code>c</code>)</li>
+</ul>
+<p><strong>Good spike questions:</strong> specific feasibility with observable output.
+<strong>Bad spike questions:</strong> too broad, no observable output, or just &quot;read the docs about X&quot;.</p>
+<p><strong>Order by risk.</strong> The spike most likely to kill the idea runs first. No point prototyping the easy parts if the hard part doesn&#39;t work.</p>
+<p><strong>Skip decomposition</strong> only if the user already knows exactly what they want to spike and says so. Then take their idea as a single spike.</p>
+<h4>2. Align (for multi-spike ideas)</h4>
+<p>Present the spike table. Ask: &quot;Build all in this order, or adjust?&quot; Let the user drop, reorder, or re-frame before you write any code.</p>
+<h4>3. Research (per spike, before building)</h4>
+<p>Spikes are not research-free — you research enough to pick the right approach, then you build. Per spike:</p>
+<ol>
+<li><p><strong>Brief it.</strong> 2-3 sentences: what this spike is, why it matters, key risk.</p>
+</li>
+<li><p><strong>Surface competing approaches</strong> if there&#39;s real choice:</p>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Tool/Library</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>maintained / abandoned / beta</td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>Pick one.</strong> State why. If 2+ are credible, build quick variants within the spike.</p>
+</li>
+<li><p><strong>Skip research</strong> for pure logic with no external dependencies.</p>
+</li>
+</ol>
+<p>Use Hermes tools for the research step:</p>
+<ul>
+<li><code>web_search(&quot;python websocket streaming libraries 2025&quot;)</code> — find candidates</li>
+<li><code>web_extract(urls=[&quot;https://websockets.readthedocs.io/...&quot;])</code> — read the actual docs (returns markdown)</li>
+<li><code>terminal(&quot;pip show websockets | grep Version&quot;)</code> — check what&#39;s installed in the project&#39;s venv</li>
+</ul>
+<p>For libraries without docs pages, clone and read their <code>README.md</code> / <code>examples/</code> via <code>read_file</code>. Context7 MCP (if the user has it configured) is also a good source — <code>mcp_*_resolve-library-id</code> then <code>mcp_*_query-docs</code>.</p>
+<h4>4. Build</h4>
+<p>One directory per spike. Keep it standalone.</p>
+<pre><code>spikes/
+├── 001-websocket-streaming/
+│   ├── README.md
+│   └── main.py
+├── 002a-pdf-parse-pdfjs/
+│   ├── README.md
+│   └── parse.js
+└── 002b-pdf-parse-camelot/
+    ├── README.md
+    └── parse.py
+</code></pre>
+<p><strong>Bias toward something the user can interact with.</strong> Spikes fail when the only output is a log line that says &quot;it works.&quot; The user wants to <em>feel</em> the spike working. Default choices, in order of preference:</p>
+<ol>
+<li>A runnable CLI that takes input and prints observable output</li>
+<li>A minimal HTML page that demonstrates the behavior</li>
+<li>A small web server with one endpoint</li>
+<li>A unit test that exercises the question with recognizable assertions</li>
+</ol>
+<p><strong>Depth over speed.</strong> Never declare &quot;it works&quot; after one happy-path run. Test edge cases. Follow surprising findings. The verdict is only trustworthy when the investigation was honest.</p>
+<p><strong>Avoid</strong> unless the spike specifically requires it: complex package management, build tools/bundlers, Docker, env files, config systems. Hardcode everything — it&#39;s a spike.</p>
+<p><strong>Building one spike</strong> — a typical tool sequence:</p>
+<pre><code>terminal(&quot;mkdir -p spikes/001-websocket-streaming&quot;)
+write_file(&quot;spikes/001-websocket-streaming/README.md&quot;, &quot;# 001: websocket-streaming\n\n...&quot;)
+write_file(&quot;spikes/001-websocket-streaming/main.py&quot;, &quot;...&quot;)
+terminal(&quot;cd spikes/001-websocket-streaming &amp;&amp; python main.py&quot;)
+# Observe output, iterate.
+</code></pre>
+<p><strong>Parallel comparison spikes (002a / 002b) — delegate.</strong> When two approaches can run in parallel and both need real engineering (not 10-line prototypes), fan out with <code>delegate_task</code>:</p>
+<pre><code>delegate_task(tasks=[
+    {&quot;goal&quot;: &quot;Build 002a-pdf-parse-pdfjs: ...&quot;, &quot;toolsets&quot;: [&quot;terminal&quot;, &quot;file&quot;, &quot;web&quot;]},
+    {&quot;goal&quot;: &quot;Build 002b-pdf-parse-camelot: ...&quot;, &quot;toolsets&quot;: [&quot;terminal&quot;, &quot;file&quot;, &quot;web&quot;]},
+])
+</code></pre>
+<p>Each subagent returns its own verdict; you write the head-to-head.</p>
+<h4>5. Verdict</h4>
+<p>Each spike&#39;s <code>README.md</code> closes with:</p>
+<pre><code class="language-markdown">## Verdict: VALIDATED | PARTIAL | INVALIDATED
+
+### What worked
+- ...
+
+### What didn&#39;t
+- ...
+
+### Surprises
+- ...
+
+### Recommendation for the real build
+- ...
+</code></pre>
+<p><strong>VALIDATED</strong> = the core question was answered yes, with evidence.
+<strong>PARTIAL</strong> = it works under constraints X, Y, Z — document them.
+<strong>INVALIDATED</strong> = doesn&#39;t work, for this reason. This is a successful spike.</p>
+<h3>Comparison spikes</h3>
+<p>When two approaches answer the same question (002a / 002b), build them <strong>back to back</strong>, then do a head-to-head comparison at the end:</p>
+<pre><code class="language-markdown">## Head-to-head: pdfjs vs camelot
+
+| Dimension | pdfjs (002a) | camelot (002b) |
+|-----------|--------------|----------------|
+| Extraction quality | 9/10 structured | 7/10 table-only |
+| Setup complexity | npm install, 1 line | pip + ghostscript |
+| Perf on 100-page PDF | 3s | 18s |
+| Handles rotated text | no | yes |
+
+**Winner:** pdfjs for our use case. Camelot if we need table-first extraction later.
+</code></pre>
+<h3>Frontier mode (picking what to spike next)</h3>
+<p>If spikes already exist and the user says &quot;what should I spike next?&quot;, walk the existing directories and look for:</p>
+<ul>
+<li><strong>Integration risks</strong> — two validated spikes that touch the same resource but were tested independently</li>
+<li><strong>Data handoffs</strong> — spike A&#39;s output was assumed compatible with spike B&#39;s input; never proven</li>
+<li><strong>Gaps in the vision</strong> — capabilities assumed but unproven</li>
+<li><strong>Alternative approaches</strong> — different angles for PARTIAL or INVALIDATED spikes</li>
+</ul>
+<p>Propose 2-4 candidates as Given/When/Then. Let the user pick.</p>
+<h3>Output</h3>
+<ul>
+<li>Create <code>spikes/</code> (or <code>.planning/spikes/</code> if the user is using GSD conventions) in the repo root</li>
+<li>One dir per spike: <code>NNN-descriptive-name/</code></li>
+<li><code>README.md</code> per spike captures question, approach, results, verdict</li>
+<li>Keep the code throwaway — a spike that takes 2 days to &quot;clean up for production&quot; was a bad spike</li>
+</ul>
+<h3>Attribution</h3>
+<p>Adapted from the GSD (Get Shit Done) project&#39;s <code>/gsd-spike</code> workflow — MIT © 2025 Lex Christopherson (<a href="https://github.com/gsd-build/get-shit-done">gsd-build/get-shit-done</a>). The full GSD system offers persistent spike state, MANIFEST tracking, and integration with a broader spec-driven development pipeline; install with <code>npx get-shit-done-cc --hermes --global</code>.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/spike</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

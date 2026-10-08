@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>neuroskill-bci — Skill Hermes</title>
+<meta name="description" content="Use live BCI cognitive and mood state from NeuroSkill.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>neuroskill-bci</h1>
+    <p class="lede">Use live BCI cognitive and mood state from NeuroSkill.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>neuroskill-bci</dd>
+      <dt>Keterangan</dt><dd>Use live BCI cognitive and mood state from NeuroSkill.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Nous Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>health · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/neuroskill-bci.zip" download>Muat turun ZIP (20.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.0 KB</td></tr>
+<tr><td><code>references/api.md</code></td><td class="sz">8.2 KB</td></tr>
+<tr><td><code>references/metrics.md</code></td><td class="sz">9.3 KB</td></tr>
+<tr><td><code>references/protocols.md</code></td><td class="sz">16.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>NeuroSkill BCI Integration</h2>
+<p>Connect Hermes to a running <a href="https://neuroskill.com/">NeuroSkill</a> instance to read
+real-time brain and body metrics from a BCI wearable. Use this to give
+cognitively-aware responses, suggest interventions, and track mental performance
+over time.</p>
+<blockquote>
+<p><strong>⚠️ Research Use Only</strong> — NeuroSkill is an open-source research tool. It is
+NOT a medical device and has NOT been cleared by the FDA, CE, or any regulatory
+body. Never use these metrics for clinical diagnosis or treatment.</p>
+</blockquote>
+<p>See <code>references/metrics.md</code> for the full metric reference, <code>references/protocols.md</code>
+for intervention protocols, and <code>references/api.md</code> for the WebSocket/HTTP API.</p>
+<hr>
+<h3>Prerequisites</h3>
+<ul>
+<li><strong>Node.js 20+</strong> installed (<code>node --version</code>)</li>
+<li><strong>NeuroSkill desktop app</strong> running with a connected BCI device</li>
+<li><strong>BCI hardware</strong>: Muse 2, Muse S, or OpenBCI (4-channel EEG + PPG + IMU via BLE)</li>
+<li><code>npx neuroskill status</code> returns data without errors</li>
+</ul>
+<h4>Verify Setup</h4>
+<pre><code class="language-bash">node --version                    # Must be 20+
+npx neuroskill status             # Full system snapshot
+npx neuroskill status --json      # Machine-parseable JSON
+</code></pre>
+<p>If <code>npx neuroskill status</code> returns an error, tell the user:</p>
+<ul>
+<li>Make sure the NeuroSkill desktop app is open</li>
+<li>Ensure the BCI device is powered on and connected via Bluetooth</li>
+<li>Check signal quality — green indicators in NeuroSkill (≥0.7 per electrode)</li>
+<li>If <code>command not found</code>, install Node.js 20+</li>
+</ul>
+<hr>
+<h3>CLI Reference: <code>npx neuroskill &lt;command&gt;</code></h3>
+<p>All commands support <code>--json</code> (raw JSON, pipe-safe) and <code>--full</code> (human summary + JSON).</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>status</code></td>
+<td>Full system snapshot: device, scores, bands, ratios, sleep, history</td>
+</tr>
+<tr>
+<td><code>session [N]</code></td>
+<td>Single session breakdown with first/second half trends (0=most recent)</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td>List all recorded sessions across all days</td>
+</tr>
+<tr>
+<td><code>search</code></td>
+<td>ANN similarity search for neurally similar historical moments</td>
+</tr>
+<tr>
+<td><code>compare</code></td>
+<td>A/B session comparison with metric deltas and trend analysis</td>
+</tr>
+<tr>
+<td><code>sleep [N]</code></td>
+<td>Sleep stage classification (Wake/N1/N2/N3/REM) with analysis</td>
+</tr>
+<tr>
+<td><code>label &quot;text&quot;</code></td>
+<td>Create a timestamped annotation at the current moment</td>
+</tr>
+<tr>
+<td><code>search-labels &quot;query&quot;</code></td>
+<td>Semantic vector search over past labels</td>
+</tr>
+<tr>
+<td><code>interactive &quot;query&quot;</code></td>
+<td>Cross-modal 4-layer graph search (text → EXG → labels)</td>
+</tr>
+<tr>
+<td><code>listen</code></td>
+<td>Real-time event streaming (default 5s, set <code>--seconds N</code>)</td>
+</tr>
+<tr>
+<td><code>umap</code></td>
+<td>3D UMAP projection of session embeddings</td>
+</tr>
+<tr>
+<td><code>calibrate</code></td>
+<td>Open calibration window and start a profile</td>
+</tr>
+<tr>
+<td><code>timer</code></td>
+<td>Launch focus timer (Pomodoro/Deep Work/Short Focus presets)</td>
+</tr>
+<tr>
+<td><code>notify &quot;title&quot; &quot;body&quot;</code></td>
+<td>Send an OS notification via the NeuroSkill app</td>
+</tr>
+<tr>
+<td><code>raw &#39;{json}&#39;</code></td>
+<td>Raw JSON passthrough to the server</td>
+</tr>
+</tbody></table>
+<h4>Global Flags</h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>--json</code></td>
+<td>Raw JSON output (no ANSI, pipe-safe)</td>
+</tr>
+<tr>
+<td><code>--full</code></td>
+<td>Human summary + colorized JSON</td>
+</tr>
+<tr>
+<td><code>--port &lt;N&gt;</code></td>
+<td>Override server port (default: auto-discover, usually 8375)</td>
+</tr>
+<tr>
+<td><code>--ws</code></td>
+<td>Force WebSocket transport</td>
+</tr>
+<tr>
+<td><code>--http</code></td>
+<td>Force HTTP transport</td>
+</tr>
+<tr>
+<td><code>--k &lt;N&gt;</code></td>
+<td>Nearest neighbors count (search, search-labels)</td>
+</tr>
+<tr>
+<td><code>--seconds &lt;N&gt;</code></td>
+<td>Duration for listen (default: 5)</td>
+</tr>
+<tr>
+<td><code>--trends</code></td>
+<td>Show per-session metric trends (sessions)</td>
+</tr>
+<tr>
+<td><code>--dot</code></td>
+<td>Graphviz DOT output (interactive)</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>1. Checking Current State</h3>
+<h4>Get Live Metrics</h4>
+<pre><code class="language-bash">npx neuroskill status --json
+</code></pre>
+<p><strong>Always use <code>--json</code></strong> for reliable parsing. The default output is colorized
+human-readable text.</p>
+<h4>Key Fields in the Response</h4>
+<p>The <code>scores</code> object contains all live metrics (0–1 scale unless noted):</p>
+<pre><code class="language-jsonc">{
+  &quot;scores&quot;: {
+    &quot;focus&quot;: 0.70,           // β / (α + θ) — sustained attention
+    &quot;relaxation&quot;: 0.40,      // α / (β + θ) — calm wakefulness
+    &quot;engagement&quot;: 0.60,      // active mental investment
+    &quot;meditation&quot;: 0.52,      // alpha + stillness + HRV coherence
+    &quot;mood&quot;: 0.55,            // composite from FAA, TAR, BAR
+    &quot;cognitive_load&quot;: 0.33,  // frontal θ / temporal α · f(FAA, TBR)
+    &quot;drowsiness&quot;: 0.10,      // TAR + TBR + falling spectral centroid
+    &quot;hr&quot;: 68.2,              // heart rate in bpm (from PPG)
+    &quot;snr&quot;: 14.3,             // signal-to-noise ratio in dB
+    &quot;stillness&quot;: 0.88,       // 0–1; 1 = perfectly still
+    &quot;faa&quot;: 0.042,            // Frontal Alpha Asymmetry (+ = approach)
+    &quot;tar&quot;: 0.56,             // Theta/Alpha Ratio
+    &quot;bar&quot;: 0.53,             // Beta/Alpha Ratio
+    &quot;tbr&quot;: 1.06,             // Theta/Beta Ratio (ADHD proxy)
+    &quot;apf&quot;: 10.1,             // Alpha Peak Frequency in Hz
+    &quot;coherence&quot;: 0.614,      // inter-hemispheric coherence
+    &quot;bands&quot;: {
+      &quot;rel_delta&quot;: 0.28, &quot;rel_theta&quot;: 0.18,
+      &quot;rel_alpha&quot;: 0.32, &quot;rel_beta&quot;: 0.17, &quot;rel_gamma&quot;: 0.05
+    }
+  }
+}
+</code></pre>
+<p>Also includes: <code>device</code> (state, battery, firmware), <code>signal_quality</code> (per-electrode 0–1),
+<code>session</code> (duration, epochs), <code>embeddings</code>, <code>labels</code>, <code>sleep</code> summary, and <code>history</code>.</p>
+<h4>Interpreting the Output</h4>
+<p>Parse the JSON and translate metrics into natural language. Never report raw
+numbers alone — always give them meaning:</p>
+<p><strong>DO:</strong></p>
+<blockquote>
+<p>&quot;Your focus is solid right now at 0.70 — that&#39;s flow state territory. Heart
+rate is steady at 68 bpm and your FAA is positive, which suggests good
+approach motivation. Great time to tackle something complex.&quot;</p>
+</blockquote>
+<p><strong>DON&#39;T:</strong></p>
+<blockquote>
+<p>&quot;Focus: 0.70, Relaxation: 0.40, HR: 68&quot;</p>
+</blockquote>
+<p>Key interpretation thresholds (see <code>references/metrics.md</code> for the full guide):</p>
+<ul>
+<li><strong>Focus &gt; 0.70</strong> → flow state territory, protect it</li>
+<li><strong>Focus &lt; 0.40</strong> → suggest a break or protocol</li>
+<li><strong>Drowsiness &gt; 0.60</strong> → fatigue warning, micro-sleep risk</li>
+<li><strong>Relaxation &lt; 0.30</strong> → stress intervention needed</li>
+<li><strong>Cognitive Load &gt; 0.70 sustained</strong> → mind dump or break</li>
+<li><strong>TBR &gt; 1.5</strong> → theta-dominant, reduced executive control</li>
+<li><strong>FAA &lt; 0</strong> → withdrawal/negative affect — consider FAA rebalancing</li>
+<li><strong>SNR &lt; 3 dB</strong> → unreliable signal, suggest electrode repositioning</li>
+</ul>
+<hr>
+<h3>2. Session Analysis</h3>
+<h4>Single Session Breakdown</h4>
+<pre><code class="language-bash">npx neuroskill session --json         # most recent session
+npx neuroskill session 1 --json       # previous session
+npx neuroskill session 0 --json | jq &#39;{focus: .metrics.focus, trend: .trends.focus}&#39;
+</code></pre>
+<p>Returns full metrics with <strong>first-half vs second-half trends</strong> (<code>&quot;up&quot;</code>, <code>&quot;down&quot;</code>, <code>&quot;flat&quot;</code>).
+Use this to describe how a session evolved:</p>
+<blockquote>
+<p>&quot;Your focus started at 0.64 and climbed to 0.76 by the end — a clear upward trend.
+Cognitive load dropped from 0.38 to 0.28, suggesting the task became more automatic
+as you settled in.&quot;</p>
+</blockquote>
+<h4>List All Sessions</h4>
+<pre><code class="language-bash">npx neuroskill sessions --json
+npx neuroskill sessions --trends      # show per-session metric trends
+</code></pre>
+<hr>
+<h3>3. Historical Search</h3>
+<h4>Neural Similarity Search</h4>
+<pre><code class="language-bash">npx neuroskill search --json                    # auto: last session, k=5
+npx neuroskill search --k 10 --json             # 10 nearest neighbors
+npx neuroskill search --start &lt;UTC&gt; --end &lt;UTC&gt; --json
+</code></pre>
+<p>Finds moments in history that are neurally similar using HNSW approximate
+nearest-neighbor search over 128-D ZUNA embeddings. Returns distance statistics,
+temporal distribution (hour of day), and top matching days.</p>
+<p>Use this when the user asks:</p>
+<ul>
+<li>&quot;When was I last in a state like this?&quot;</li>
+<li>&quot;Find my best focus sessions&quot;</li>
+<li>&quot;When do I usually crash in the afternoon?&quot;</li>
+</ul>
+<h4>Semantic Label Search</h4>
+<pre><code class="language-bash">npx neuroskill search-labels &quot;deep focus&quot; --k 10 --json
+npx neuroskill search-labels &quot;stress&quot; --json | jq &#39;[.results[].EXG_metrics.tbr]&#39;
+</code></pre>
+<p>Searches label text using vector embeddings (Xenova/bge-small-en-v1.5). Returns
+matching labels with their associated EXG metrics at the time of labeling.</p>
+<h4>Cross-Modal Graph Search</h4>
+<pre><code class="language-bash">npx neuroskill interactive &quot;deep focus&quot; --json
+npx neuroskill interactive &quot;deep focus&quot; --dot | dot -Tsvg &gt; graph.svg
+</code></pre>
+<p>4-layer graph: query → text labels → EXG points → nearby labels. Use <code>--k-text</code>,
+<code>--k-EXG</code>, <code>--reach &lt;minutes&gt;</code> to tune.</p>
+<hr>
+<h3>4. Session Comparison</h3>
+<pre><code class="language-bash">npx neuroskill compare --json                   # auto: last 2 sessions
+npx neuroskill compare --a-start &lt;UTC&gt; --a-end &lt;UTC&gt; --b-start &lt;UTC&gt; --b-end &lt;UTC&gt; --json
+</code></pre>
+<p>Returns metric deltas with absolute change, percentage change, and direction for
+~50 metrics. Also includes <code>insights.improved[]</code> and <code>insights.declined[]</code> arrays,
+sleep staging for both sessions, and a UMAP job ID.</p>
+<p>Interpret comparisons with context — mention trends, not just deltas:</p>
+<blockquote>
+<p>&quot;Yesterday you had two strong focus blocks (10am and 2pm). Today you&#39;ve had one
+starting around 11am that&#39;s still going. Your overall engagement is higher today
+but there have been more stress spikes — your stress index jumped 15% and
+FAA dipped negative more often.&quot;</p>
+</blockquote>
+<pre><code class="language-bash"># Sort metrics by improvement percentage
+npx neuroskill compare --json | jq &#39;.insights.deltas | to_entries | sort_by(.value.pct) | reverse&#39;
+</code></pre>
+<hr>
+<h3>5. Sleep Data</h3>
+<pre><code class="language-bash">npx neuroskill sleep --json                     # last 24 hours
+npx neuroskill sleep 0 --json                   # most recent sleep session
+npx neuroskill sleep --start &lt;UTC&gt; --end &lt;UTC&gt; --json
+</code></pre>
+<p>Returns epoch-by-epoch sleep staging (5-second windows) with analysis:</p>
+<ul>
+<li><strong>Stage codes</strong>: 0=Wake, 1=N1, 2=N2, 3=N3 (deep), 4=REM</li>
+<li><strong>Analysis</strong>: efficiency_pct, onset_latency_min, rem_latency_min, bout counts</li>
+<li><strong>Healthy targets</strong>: N3 15–25%, REM 20–25%, efficiency &gt;85%, onset &lt;20 min</li>
+</ul>
+<pre><code class="language-bash">npx neuroskill sleep --json | jq &#39;.summary | {n3: .n3_epochs, rem: .rem_epochs}&#39;
+npx neuroskill sleep --json | jq &#39;.analysis.efficiency_pct&#39;
+</code></pre>
+<p>Use this when the user mentions sleep, tiredness, or recovery.</p>
+<hr>
+<h3>6. Labeling Moments</h3>
+<pre><code class="language-bash">npx neuroskill label &quot;breakthrough&quot;
+npx neuroskill label &quot;studying algorithms&quot;
+npx neuroskill label &quot;post-meditation&quot;
+npx neuroskill label --json &quot;focus block start&quot;   # returns label_id
+</code></pre>
+<p>Auto-label moments when:</p>
+<ul>
+<li>User reports a breakthrough or insight</li>
+<li>User starts a new task type (e.g., &quot;switching to code review&quot;)</li>
+<li>User completes a significant protocol</li>
+<li>User asks you to mark the current moment</li>
+<li>A notable state transition occurs (entering/leaving flow)</li>
+</ul>
+<p>Labels are stored in a database and indexed for later retrieval via <code>search-labels</code>
+and <code>interactive</code> commands.</p>
+<hr>
+<h3>7. Real-Time Streaming</h3>
+<pre><code class="language-bash">npx neuroskill listen --seconds 30 --json
+npx neuroskill listen --seconds 5 --json | jq &#39;[.[] | select(.event == &quot;scores&quot;)]&#39;
+</code></pre>
+<p>Streams live WebSocket events (EXG, PPG, IMU, scores, labels) for the specified
+duration. Requires WebSocket connection (not available with <code>--http</code>).</p>
+<p>Use this for continuous monitoring scenarios or to observe metric changes in real-time
+during a protocol.</p>
+<hr>
+<h3>8. UMAP Visualization</h3>
+<pre><code class="language-bash">npx neuroskill umap --json                      # auto: last 2 sessions
+npx neuroskill umap --a-start &lt;UTC&gt; --a-end &lt;UTC&gt; --b-start &lt;UTC&gt; --b-end &lt;UTC&gt; --json
+</code></pre>
+<p>GPU-accelerated 3D UMAP projection of ZUNA embeddings. The <code>separation_score</code>
+indicates how neurally distinct two sessions are:</p>
+<ul>
+<li><strong>&gt; 1.5</strong> → Sessions are neurally distinct (different brain states)</li>
+<li><strong>&lt; 0.5</strong> → Similar brain states across both sessions</li>
+</ul>
+<hr>
+<h3>9. Proactive State Awareness</h3>
+<h4>Session Start Check</h4>
+<p>At the beginning of a session, optionally run a status check if the user mentions
+they&#39;re wearing their device or asks about their state:</p>
+<pre><code class="language-bash">npx neuroskill status --json
+</code></pre>
+<p>Inject a brief state summary:</p>
+<blockquote>
+<p>&quot;Quick check-in: focus is building at 0.62, relaxation is good at 0.55, and your
+FAA is positive — approach motivation is engaged. Looks like a solid start.&quot;</p>
+</blockquote>
+<h4>When to Proactively Mention State</h4>
+<p>Mention cognitive state <strong>only</strong> when:</p>
+<ul>
+<li>User explicitly asks (&quot;How am I doing?&quot;, &quot;Check my focus&quot;)</li>
+<li>User reports difficulty concentrating, stress, or fatigue</li>
+<li>A critical threshold is crossed (drowsiness &gt; 0.70, focus &lt; 0.30 sustained)</li>
+<li>User is about to do something cognitively demanding and asks for readiness</li>
+</ul>
+<p><strong>Do NOT</strong> interrupt flow state to report metrics. If focus &gt; 0.75, protect the
+session — silence is the correct response.</p>
+<hr>
+<h3>10. Suggesting Protocols</h3>
+<p>When metrics indicate a need, suggest a protocol from <code>references/protocols.md</code>.
+Always ask before starting — never interrupt flow state:</p>
+<blockquote>
+<p>&quot;Your focus has been declining for the past 15 minutes and TBR is climbing past
+1.5 — signs of theta dominance and mental fatigue. Want me to walk you through
+a Theta-Beta Neurofeedback Anchor? It&#39;s a 90-second exercise that uses rhythmic
+counting and breath to suppress theta and lift beta.&quot;</p>
+</blockquote>
+<p>Key triggers:</p>
+<ul>
+<li><strong>Focus &lt; 0.40, TBR &gt; 1.5</strong> → Theta-Beta Neurofeedback Anchor or Box Breathing</li>
+<li><strong>Relaxation &lt; 0.30, stress_index high</strong> → Cardiac Coherence or 4-7-8 Breathing</li>
+<li><strong>Cognitive Load &gt; 0.70 sustained</strong> → Cognitive Load Offload (mind dump)</li>
+<li><strong>Drowsiness &gt; 0.60</strong> → Ultradian Reset or Wake Reset</li>
+<li><strong>FAA &lt; 0 (negative)</strong> → FAA Rebalancing</li>
+<li><strong>Flow State (focus &gt; 0.75, engagement &gt; 0.70)</strong> → Do NOT interrupt</li>
+<li><strong>High stillness + headache_index</strong> → Neck Release Sequence</li>
+<li><strong>Low RMSSD (&lt; 25ms)</strong> → Vagal Toning</li>
+</ul>
+<hr>
+<h3>11. Additional Tools</h3>
+<h4>Focus Timer</h4>
+<pre><code class="language-bash">npx neuroskill timer --json
+</code></pre>
+<p>Launches the Focus Timer window with Pomodoro (25/5), Deep Work (50/10), or
+Short Focus (15/5) presets.</p>
+<h4>Calibration</h4>
+<pre><code class="language-bash">npx neuroskill calibrate
+npx neuroskill calibrate --profile &quot;Eyes Open&quot;
+</code></pre>
+<p>Opens the calibration window. Useful when signal quality is poor or the user
+wants to establish a personalized baseline.</p>
+<h4>OS Notifications</h4>
+<pre><code class="language-bash">npx neuroskill notify &quot;Break Time&quot; &quot;Your focus has been declining for 20 minutes&quot;
+</code></pre>
+<h4>Raw JSON Passthrough</h4>
+<pre><code class="language-bash">npx neuroskill raw &#39;{&quot;command&quot;:&quot;status&quot;}&#39; --json
+</code></pre>
+<p>For any server command not yet mapped to a CLI subcommand.</p>
+<hr>
+<h3>Error Handling</h3>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Likely Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>npx neuroskill status</code> hangs</td>
+<td>NeuroSkill app not running</td>
+<td>Open NeuroSkill desktop app</td>
+</tr>
+<tr>
+<td><code>device.state: &quot;disconnected&quot;</code></td>
+<td>BCI device not connected</td>
+<td>Check Bluetooth, device battery</td>
+</tr>
+<tr>
+<td>All scores return 0</td>
+<td>Poor electrode contact</td>
+<td>Reposition headband, moisten electrodes</td>
+</tr>
+<tr>
+<td><code>signal_quality</code> values &lt; 0.7</td>
+<td>Loose electrodes</td>
+<td>Adjust fit, clean electrode contacts</td>
+</tr>
+<tr>
+<td>SNR &lt; 3 dB</td>
+<td>Noisy signal</td>
+<td>Minimize head movement, check environment</td>
+</tr>
+<tr>
+<td><code>command not found: npx</code></td>
+<td>Node.js not installed</td>
+<td>Install Node.js 20+</td>
+</tr>
+</tbody></table>
+<hr>
+<h3>Example Interactions</h3>
+<p><strong>&quot;How am I doing right now?&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill status --json
+</code></pre>
+<p>→ Interpret scores naturally, mentioning focus, relaxation, mood, and any notable
+  ratios (FAA, TBR). Suggest an action only if metrics indicate a need.</p>
+<p><strong>&quot;I can&#39;t concentrate&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill status --json
+</code></pre>
+<p>→ Check if metrics confirm it (high theta, low beta, rising TBR, high drowsiness).
+→ If confirmed, suggest an appropriate protocol from <code>references/protocols.md</code>.
+→ If metrics look fine, the issue may be motivational rather than neurological.</p>
+<p><strong>&quot;Compare my focus today vs yesterday&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill compare --json
+</code></pre>
+<p>→ Interpret trends, not just numbers. Mention what improved, what declined, and
+  possible causes.</p>
+<p><strong>&quot;When was I last in a flow state?&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill search-labels &quot;flow&quot; --json
+npx neuroskill search --json
+</code></pre>
+<p>→ Report timestamps, associated metrics, and what the user was doing (from labels).</p>
+<p><strong>&quot;How did I sleep?&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill sleep --json
+</code></pre>
+<p>→ Report sleep architecture (N3%, REM%, efficiency), compare to healthy targets,
+  and note any issues (high wake epochs, low REM).</p>
+<p><strong>&quot;Mark this moment — I just had a breakthrough&quot;</strong></p>
+<pre><code class="language-bash">npx neuroskill label &quot;breakthrough&quot;
+</code></pre>
+<p>→ Confirm label saved. Optionally note the current metrics to remember the state.</p>
+<hr>
+<h3>References</h3>
+<ul>
+<li><a href="https://arxiv.org/abs/2603.03212">NeuroSkill Paper — arXiv:2603.03212</a> (Kosmyna &amp; Hauptmann, MIT Media Lab)</li>
+<li><a href="https://github.com/NeuroSkill-com/skill">NeuroSkill Desktop App</a> (GPLv3)</li>
+<li><a href="https://github.com/NeuroSkill-com/neuroloop">NeuroLoop CLI Companion</a> (GPLv3)</li>
+<li><a href="https://www.media.mit.edu/projects/neuroskill/overview/">MIT Media Lab Project</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/health/neuroskill-bci</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

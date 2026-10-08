@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>watchers — Skill Hermes</title>
+<meta name="description" content="Poll RSS, JSON APIs, and GitHub with watermark dedup.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>watchers</h1>
+    <p class="lede">Poll RSS, JSON APIs, and GitHub with watermark dedup.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>watchers</dd>
+      <dt>Keterangan</dt><dd>Poll RSS, JSON APIs, and GitHub with watermark dedup.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>devops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/watchers.zip" download>Muat turun ZIP (10.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.4 KB</td></tr>
+<tr><td><code>scripts/_watermark.py</code></td><td class="sz">5.1 KB</td></tr>
+<tr><td><code>scripts/watch_github.py</code></td><td class="sz">6.1 KB</td></tr>
+<tr><td><code>scripts/watch_http_json.py</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>scripts/watch_rss.py</code></td><td class="sz">4.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Watchers</h2>
+<p>Poll external sources on an interval and react only to new items. Three ready-made scripts plus a shared watermark helper; wire them into a cron job (or run them ad-hoc from the terminal).</p>
+<h3>When to Use</h3>
+<ul>
+<li>User wants to watch an RSS/Atom feed and be notified of new entries</li>
+<li>User wants to watch a GitHub repo&#39;s issues / pulls / releases / commits</li>
+<li>User wants to poll an arbitrary JSON endpoint and get notified on new items</li>
+<li>User asks for &quot;a watcher for X&quot; or &quot;notify me when X changes&quot;</li>
+</ul>
+<h3>Mental model</h3>
+<p>A watcher is just a script that:</p>
+<ol>
+<li>Fetches data from the external source</li>
+<li>Compares against a watermark file of previously-seen IDs</li>
+<li>Writes the new watermark back</li>
+<li>Prints new items to stdout (or nothing on no-change)</li>
+</ol>
+<p>The scripts below handle all three. The agent runs them via the terminal tool — from a cron job, a webhook, or an interactive chat — and reports what&#39;s new.</p>
+<h3>Ready-made scripts</h3>
+<p>All three live in <code>$HERMES_HOME/skills/devops/watchers/scripts/</code> once the skill is installed. Each reads <code>WATCHER_STATE_DIR</code> (defaults to <code>$HERMES_HOME/watcher-state/</code>) for its state file, keyed by the <code>--name</code> argument.</p>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>What it watches</th>
+<th>Dedup key</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>watch_rss.py</code></td>
+<td>RSS 2.0 or Atom feed URL</td>
+<td><code>&lt;guid&gt;</code> / <code>&lt;id&gt;</code></td>
+</tr>
+<tr>
+<td><code>watch_http_json.py</code></td>
+<td>Any JSON endpoint returning a list of objects</td>
+<td>Configurable id field</td>
+</tr>
+<tr>
+<td><code>watch_github.py</code></td>
+<td>GitHub issues / pulls / releases / commits for a repo</td>
+<td><code>id</code> / <code>sha</code></td>
+</tr>
+</tbody></table>
+<p>All three:</p>
+<ul>
+<li>First run records a baseline — never replays existing feed</li>
+<li>Watermark is a bounded ID set (max 500) to cap memory</li>
+<li>Output format: <code>## &lt;title&gt;\n&lt;url&gt;\n\n&lt;optional body&gt;</code> per item</li>
+<li>Empty stdout on no-new — the caller treats that as silent</li>
+<li>Non-zero exit on fetch errors</li>
+</ul>
+<h3>Usage</h3>
+<p>Run a watcher directly from the terminal tool:</p>
+<pre><code class="language-bash">python $HERMES_HOME/skills/devops/watchers/scripts/watch_rss.py \
+  --name hn --url https://news.ycombinator.com/rss --max 5
+</code></pre>
+<p>Watch a GitHub repo (set <code>GITHUB_TOKEN</code> in <code>${HERMES_HOME:-~/.hermes}/.env</code> to avoid the 60 req/hr anonymous rate limit):</p>
+<pre><code class="language-bash">python $HERMES_HOME/skills/devops/watchers/scripts/watch_github.py \
+  --name hermes-issues --repo NousResearch/hermes-agent --scope issues
+</code></pre>
+<p>Poll an arbitrary JSON API:</p>
+<pre><code class="language-bash">python $HERMES_HOME/skills/devops/watchers/scripts/watch_http_json.py \
+  --name api --url https://api.example.com/events \
+  --id-field event_id --items-path data.events
+</code></pre>
+<h3>Wiring into cron</h3>
+<p>Ask the agent to schedule a cron job with a prompt like:</p>
+<blockquote>
+<p>Every 15 minutes, run <code>watch_rss.py --name hn --url https://news.ycombinator.com/rss</code>. If it prints anything, summarize the headlines and deliver them. If it prints nothing, stay silent.</p>
+</blockquote>
+<p>The agent invokes the script via the terminal tool inside the cron job&#39;s agent loop; no changes to cron&#39;s built-in <code>--script</code> flag are needed.</p>
+<h3>State files</h3>
+<p>Every watcher writes <code>$HERMES_HOME/watcher-state/&lt;name&gt;.json</code>. Inspect:</p>
+<pre><code class="language-bash">cat $HERMES_HOME/watcher-state/hn.json
+</code></pre>
+<p>Force a replay (next run treated as first poll):</p>
+<pre><code class="language-bash">rm $HERMES_HOME/watcher-state/hn.json
+</code></pre>
+<h3>Writing your own</h3>
+<p>All three scripts use the same template: load watermark, fetch, diff, save, emit. <code>scripts/_watermark.py</code> is the shared helper; import it to get atomic writes + bounded ID set + first-run baseline for free. See any of the three reference scripts for how little boilerplate it takes.</p>
+<h3>Common Pitfalls</h3>
+<ol>
+<li><strong>Printing a &quot;no new items&quot; header every tick.</strong> Callers rely on empty stdout = silent. If you print anything on an empty delta, you spam the channel. The shipped scripts handle this; custom scripts must too.</li>
+<li><strong>Expecting the first run to emit items.</strong> It won&#39;t — first run records a baseline. If you need an initial digest, delete the state file after the first run or add a <code>--prime-with-latest N</code> flag in your own script.</li>
+<li><strong>Unbounded watermark growth.</strong> The shared helper caps at 500 IDs. Raise it for high-churn feeds; lower it on constrained filesystems.</li>
+<li><strong>Putting the state dir where the agent&#39;s sandbox can&#39;t write.</strong> <code>$HERMES_HOME/watcher-state/</code> is always writable. Docker/Modal backends may not see arbitrary host paths.</li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/devops/watchers</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

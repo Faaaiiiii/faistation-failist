@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>comfyui — Skill Hermes</title>
+<meta name="description" content="Generate images, video, and audio via diffusion workflows.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>comfyui</h1>
+    <p class="lede">Generate images, video, and audio via diffusion workflows.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>comfyui</dd>
+      <dt>Keterangan</dt><dd>Generate images, video, and audio via diffusion workflows.</dd>
+      <dt>Versi</dt><dd>5.1.0</dd>
+      <dt>Pengarang</dt><dd>[kshitijk4poor, alt-glitch, purzbeats]</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/comfyui.zip" download>Muat turun ZIP (95.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (33)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">23.5 KB</td></tr>
+<tr><td><code>references/official-cli.md</code></td><td class="sz">7.4 KB</td></tr>
+<tr><td><code>references/rest-api.md</code></td><td class="sz">10.1 KB</td></tr>
+<tr><td><code>references/template-integrity.md</code></td><td class="sz">8.6 KB</td></tr>
+<tr><td><code>references/workflow-format.md</code></td><td class="sz">7.8 KB</td></tr>
+<tr><td><code>scripts/_common.py</code></td><td class="sz">33.0 KB</td></tr>
+<tr><td><code>scripts/auto_fix_deps.py</code></td><td class="sz">8.2 KB</td></tr>
+<tr><td><code>scripts/check_deps.py</code></td><td class="sz">16.8 KB</td></tr>
+<tr><td><code>scripts/comfyui_setup.sh</code></td><td class="sz">10.3 KB</td></tr>
+<tr><td><code>scripts/extract_schema.py</code></td><td class="sz">11.1 KB</td></tr>
+<tr><td><code>scripts/fetch_logs.py</code></td><td class="sz">5.6 KB</td></tr>
+<tr><td><code>scripts/hardware_check.py</code></td><td class="sz">17.5 KB</td></tr>
+<tr><td><code>scripts/health_check.py</code></td><td class="sz">8.0 KB</td></tr>
+<tr><td><code>scripts/run_batch.py</code></td><td class="sz">8.9 KB</td></tr>
+<tr><td><code>scripts/run_workflow.py</code></td><td class="sz">30.9 KB</td></tr>
+<tr><td><code>scripts/ws_monitor.py</code></td><td class="sz">10.3 KB</td></tr>
+<tr><td><code>tests/conftest.py</code></td><td class="sz">1.5 KB</td></tr>
+<tr><td><code>tests/pytest.ini</code></td><td class="sz">132 B</td></tr>
+<tr><td><code>tests/README.md</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>tests/test_check_deps.py</code></td><td class="sz">2.3 KB</td></tr>
+<tr><td><code>tests/test_cloud_integration.py</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>tests/test_common.py</code></td><td class="sz">16.0 KB</td></tr>
+<tr><td><code>tests/test_extract_schema.py</code></td><td class="sz">7.8 KB</td></tr>
+<tr><td><code>tests/test_run_workflow.py</code></td><td class="sz">8.6 KB</td></tr>
+<tr><td><code>workflows/animatediff_video.json</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>workflows/flux_dev_txt2img.json</code></td><td class="sz">2.2 KB</td></tr>
+<tr><td><code>workflows/README.md</code></td><td class="sz">3.8 KB</td></tr>
+<tr><td><code>workflows/sd15_txt2img.json</code></td><td class="sz">1.4 KB</td></tr>
+<tr><td><code>workflows/sdxl_img2img.json</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>workflows/sdxl_inpaint.json</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>workflows/sdxl_txt2img.json</code></td><td class="sz">1.4 KB</td></tr>
+<tr><td><code>workflows/upscale_4x.json</code></td><td class="sz">864 B</td></tr>
+<tr><td><code>workflows/wan_video_t2v.json</code></td><td class="sz">2.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>ComfyUI</h2>
+<p>Generate images, video, audio, and 3D content through ComfyUI using the
+official <code>comfy-cli</code> for setup/lifecycle and direct REST/WebSocket API
+for workflow execution.</p>
+<h3>What&#39;s in this skill</h3>
+<p><strong>Reference docs (<code>references/</code>):</strong></p>
+<ul>
+<li><code>official-cli.md</code> — every <code>comfy ...</code> command, with flags</li>
+<li><code>rest-api.md</code> — REST + WebSocket endpoints (local + cloud), payload schemas</li>
+<li><code>workflow-format.md</code> — API-format JSON, common node types, param mapping</li>
+<li><code>template-integrity.md</code> — converting <code>comfyui-workflow-templates</code> from
+editor format to API format: Reroute bypass, dotted dynamic-input keys
+(<code>values.a</code>, <code>resize_type.width</code>), Cloud quirks (302 redirect, 1 concurrent
+free-tier job, 1080p VRAM ceiling), Discord-compatible ffmpeg stitch.
+Authored by <a href="https://github.com/purzbeats">@purzbeats</a>. Load this whenever
+you&#39;re starting from an official template.</li>
+</ul>
+<p><strong>Scripts (<code>scripts/</code>):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Script</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>_common.py</code></td>
+<td>Shared HTTP, cloud routing, node catalogs (don&#39;t run directly)</td>
+</tr>
+<tr>
+<td><code>hardware_check.py</code></td>
+<td>Probe GPU/VRAM/disk → recommend local vs Comfy Cloud</td>
+</tr>
+<tr>
+<td><code>comfyui_setup.sh</code></td>
+<td>Hardware check + comfy-cli + ComfyUI install + launch + verify</td>
+</tr>
+<tr>
+<td><code>extract_schema.py</code></td>
+<td>Read a workflow → list controllable params + model deps</td>
+</tr>
+<tr>
+<td><code>check_deps.py</code></td>
+<td>Check workflow against running server → list missing nodes/models</td>
+</tr>
+<tr>
+<td><code>auto_fix_deps.py</code></td>
+<td>Run check_deps then <code>comfy node install</code> / <code>comfy model download</code></td>
+</tr>
+<tr>
+<td><code>run_workflow.py</code></td>
+<td>Inject params, submit, monitor, download outputs (HTTP or WS)</td>
+</tr>
+<tr>
+<td><code>run_batch.py</code></td>
+<td>Submit a workflow N times with sweeps, parallel up to your tier</td>
+</tr>
+<tr>
+<td><code>ws_monitor.py</code></td>
+<td>Real-time WebSocket viewer for executing jobs (live progress)</td>
+</tr>
+<tr>
+<td><code>health_check.py</code></td>
+<td>Verification checklist runner — comfy-cli + server + models + smoke test</td>
+</tr>
+<tr>
+<td><code>fetch_logs.py</code></td>
+<td>Pull traceback / status messages for a given prompt_id</td>
+</tr>
+</tbody></table>
+<p><strong>Example workflows (<code>workflows/</code>):</strong> SD 1.5, SDXL, Flux Dev, SDXL img2img,
+SDXL inpaint, ESRGAN upscale, AnimateDiff video, Wan T2V. See
+<code>workflows/README.md</code>.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks to generate images with Stable Diffusion, SDXL, Flux, SD3, etc.</li>
+<li>User wants to run a specific ComfyUI workflow file</li>
+<li>User wants to chain generative steps (txt2img → upscale → face restore)</li>
+<li>User needs ControlNet, inpainting, img2img, or other advanced pipelines</li>
+<li>User asks to manage ComfyUI queue, check models, or install custom nodes</li>
+<li>User wants video/audio/3D generation via AnimateDiff, Hunyuan, Wan, AudioCraft, etc.</li>
+</ul>
+<h3>Architecture: Two Layers</h3>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│ Layer 1: comfy-cli (official lifecycle tool)        │
+│   Setup, server lifecycle, custom nodes, models     │
+│   → comfy install / launch / stop / node / model    │
+└─────────────────────────┬───────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────┐
+│ Layer 2: REST/WebSocket API + skill scripts         │
+│   Workflow execution, param injection, monitoring   │
+│   POST /api/prompt, GET /api/view, WS /ws           │
+│   → run_workflow.py, run_batch.py, ws_monitor.py    │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Why two layers?</strong> The official CLI is excellent for installation and server
+management but has minimal workflow execution support. The REST/WS API fills
+that gap — the scripts handle param injection, execution monitoring, and
+output download that the CLI doesn&#39;t do.</p>
+<h3>Quick Start</h3>
+<h4>Detect environment</h4>
+<pre><code class="language-bash"># What&#39;s available?
+command -v comfy &gt;/dev/null 2&gt;&amp;1 &amp;&amp; echo &quot;comfy-cli: installed&quot;
+curl -s http://127.0.0.1:8188/system_stats 2&gt;/dev/null &amp;&amp; echo &quot;server: running&quot;
+
+# Can this machine run ComfyUI locally? (GPU/VRAM/disk check)
+python scripts/hardware_check.py
+</code></pre>
+<p>If nothing is installed, see <strong>Setup &amp; Onboarding</strong> below — but always run the
+hardware check first.</p>
+<h4>One-line health check</h4>
+<pre><code class="language-bash">python scripts/health_check.py
+# → JSON: comfy_cli on PATH? server reachable? at least one checkpoint? smoke-test passes?
+</code></pre>
+<h3>Core Workflow</h3>
+<h4>Step 1: Get a workflow JSON in API format</h4>
+<p>Workflows must be in API format (each node has <code>class_type</code>). They come from:</p>
+<ul>
+<li>ComfyUI web UI → <strong>Workflow → Export (API)</strong> (newer UI) or
+the legacy &quot;Save (API Format)&quot; button (older UI)</li>
+<li>This skill&#39;s <code>workflows/</code> directory (ready-to-run examples)</li>
+<li>Community downloads (civitai, Reddit, Discord) — usually editor format,
+must be loaded into ComfyUI then re-exported</li>
+</ul>
+<p>Editor format (top-level <code>nodes</code> and <code>links</code> arrays) is <strong>not directly
+executable</strong>. The scripts detect this and tell you to re-export.</p>
+<h4>Step 2: See what&#39;s controllable</h4>
+<pre><code class="language-bash">python scripts/extract_schema.py workflow_api.json --summary-only
+# → {&quot;parameter_count&quot;: 12, &quot;has_negative_prompt&quot;: true, &quot;has_seed&quot;: true, ...}
+
+python scripts/extract_schema.py workflow_api.json
+# → full schema with parameters, model deps, embedding refs
+</code></pre>
+<h4>Step 3: Run with parameters</h4>
+<pre><code class="language-bash"># Local (defaults to http://127.0.0.1:8188)
+python scripts/run_workflow.py \
+  --workflow workflow_api.json \
+  --args &#39;{&quot;prompt&quot;: &quot;a beautiful sunset over mountains&quot;, &quot;seed&quot;: -1, &quot;steps&quot;: 30}&#39; \
+  --output-dir ./outputs
+
+# Cloud (export API key once; uses correct /api routing automatically)
+export COMFY_CLOUD_API_KEY=&quot;comfyui-...&quot;
+python scripts/run_workflow.py \
+  --workflow workflow_api.json \
+  --args &#39;{&quot;prompt&quot;: &quot;...&quot;}&#39; \
+  --host https://cloud.comfy.org \
+  --output-dir ./outputs
+
+# Real-time progress via WebSocket (requires `pip install websocket-client`)
+python scripts/run_workflow.py \
+  --workflow flux_dev.json \
+  --args &#39;{&quot;prompt&quot;: &quot;...&quot;}&#39; \
+  --ws
+
+# img2img / inpaint: pass --input-image to upload + reference automatically
+python scripts/run_workflow.py \
+  --workflow sdxl_img2img.json \
+  --input-image image=./photo.png \
+  --args &#39;{&quot;prompt&quot;: &quot;make it watercolor&quot;, &quot;denoise&quot;: 0.6}&#39;
+
+# Batch / sweep: 8 random seeds, parallel up to cloud tier limit
+python scripts/run_batch.py \
+  --workflow sdxl.json \
+  --args &#39;{&quot;prompt&quot;: &quot;abstract&quot;}&#39; \
+  --count 8 --randomize-seed --parallel 3 \
+  --output-dir ./outputs/batch
+</code></pre>
+<p><code>-1</code> for <code>seed</code> (or omitting it with <code>--randomize-seed</code>) generates a fresh
+random seed per run.</p>
+<h4>Step 4: Present results</h4>
+<p>The scripts emit JSON to stdout describing every output file:</p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;success&quot;,
+  &quot;prompt_id&quot;: &quot;abc-123&quot;,
+  &quot;outputs&quot;: [
+    {&quot;file&quot;: &quot;./outputs/sdxl_00001_.png&quot;, &quot;node_id&quot;: &quot;9&quot;,
+     &quot;type&quot;: &quot;image&quot;, &quot;filename&quot;: &quot;sdxl_00001_.png&quot;}
+  ]
+}
+</code></pre>
+<h3>Decision Tree</h3>
+<table>
+<thead>
+<tr>
+<th>User says</th>
+<th>Tool</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Lifecycle (use comfy-cli)</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>&quot;install ComfyUI&quot;</td>
+<td>comfy-cli</td>
+<td><code>bash scripts/comfyui_setup.sh</code></td>
+</tr>
+<tr>
+<td>&quot;start ComfyUI&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy launch --background</code></td>
+</tr>
+<tr>
+<td>&quot;stop ComfyUI&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy stop</code></td>
+</tr>
+<tr>
+<td>&quot;install X node&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy node install &lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>&quot;download X model&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy model download --url &lt;url&gt; --relative-path models/checkpoints</code></td>
+</tr>
+<tr>
+<td>&quot;list installed models&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy model list</code></td>
+</tr>
+<tr>
+<td>&quot;list installed nodes&quot;</td>
+<td>comfy-cli</td>
+<td><code>comfy node show installed</code></td>
+</tr>
+<tr>
+<td><strong>Execution (use scripts)</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>&quot;is everything ready?&quot;</td>
+<td>script</td>
+<td><code>health_check.py</code> (optionally with <code>--workflow X --smoke-test</code>)</td>
+</tr>
+<tr>
+<td>&quot;what can I change in this workflow?&quot;</td>
+<td>script</td>
+<td><code>extract_schema.py W.json</code></td>
+</tr>
+<tr>
+<td>&quot;check if W&#39;s deps are met&quot;</td>
+<td>script</td>
+<td><code>check_deps.py W.json</code></td>
+</tr>
+<tr>
+<td>&quot;fix missing deps&quot;</td>
+<td>script</td>
+<td><code>auto_fix_deps.py W.json</code></td>
+</tr>
+<tr>
+<td>&quot;generate an image&quot;</td>
+<td>script</td>
+<td><code>run_workflow.py --workflow W --args &#39;{...}&#39;</code></td>
+</tr>
+<tr>
+<td>&quot;use this image&quot; (img2img)</td>
+<td>script</td>
+<td><code>run_workflow.py --input-image image=./x.png ...</code></td>
+</tr>
+<tr>
+<td>&quot;8 variations with random seeds&quot;</td>
+<td>script</td>
+<td><code>run_batch.py --count 8 --randomize-seed ...</code></td>
+</tr>
+<tr>
+<td>&quot;show me live progress&quot;</td>
+<td>script</td>
+<td><code>ws_monitor.py --prompt-id &lt;id&gt;</code></td>
+</tr>
+<tr>
+<td>&quot;fetch the error from job X&quot;</td>
+<td>script</td>
+<td><code>fetch_logs.py &lt;prompt_id&gt;</code></td>
+</tr>
+<tr>
+<td><strong>Direct REST</strong></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>&quot;what&#39;s in the queue?&quot;</td>
+<td>REST</td>
+<td><code>curl http://HOST:8188/queue</code> (local) or <code>--host https://cloud.comfy.org</code></td>
+</tr>
+<tr>
+<td>&quot;cancel that&quot;</td>
+<td>REST</td>
+<td><code>curl -X POST http://HOST:8188/interrupt</code></td>
+</tr>
+<tr>
+<td>&quot;free GPU memory&quot;</td>
+<td>REST</td>
+<td><code>curl -X POST http://HOST:8188/free</code></td>
+</tr>
+</tbody></table>
+<h3>Setup &amp; Onboarding</h3>
+<p>When a user asks to set up ComfyUI, <strong>the FIRST thing to do is ask whether
+they want Comfy Cloud (hosted, zero install, API key) or Local (install
+ComfyUI on their machine)</strong>. Don&#39;t start running install commands or hardware
+checks until they&#39;ve answered.</p>
+<p><strong>Official docs:</strong> <a href="https://docs.comfy.org/installation">https://docs.comfy.org/installation</a>
+<strong>CLI docs:</strong> <a href="https://docs.comfy.org/comfy-cli/getting-started">https://docs.comfy.org/comfy-cli/getting-started</a>
+<strong>Cloud docs:</strong> <a href="https://docs.comfy.org/get_started/cloud">https://docs.comfy.org/get_started/cloud</a>
+<strong>Cloud API:</strong> <a href="https://docs.comfy.org/development/cloud/overview">https://docs.comfy.org/development/cloud/overview</a></p>
+<h4>Step 0: Ask Local vs Cloud (ALWAYS FIRST)</h4>
+<p>Suggested script:</p>
+<blockquote>
+<p>&quot;Do you want to run ComfyUI locally on your machine, or use Comfy Cloud?</p>
+<ul>
+<li><strong>Comfy Cloud</strong> — hosted on RTX 6000 Pro GPUs, all common models pre-installed,
+zero setup. Requires an API key (paid subscription required to actually run
+workflows; free tier is read-only). Best if you don&#39;t have a capable GPU.</li>
+<li><strong>Local</strong> — free, but your machine MUST meet the hardware requirements:<ul>
+<li>NVIDIA GPU with <strong>≥6 GB VRAM</strong> (≥8 GB for SDXL, ≥12 GB for Flux/video), OR</li>
+<li>AMD GPU with ROCm support (Linux), OR</li>
+<li>Apple Silicon Mac (M1+) with <strong>≥16 GB unified memory</strong> (≥32 GB recommended).</li>
+<li>Intel Macs and machines with no GPU will NOT work — use Cloud instead.</li>
+</ul>
+</li>
+</ul>
+<p>Which would you like?&quot;</p>
+</blockquote>
+<p>Routing:</p>
+<ul>
+<li><strong>Cloud</strong> → skip to <strong>Path A</strong>.</li>
+<li><strong>Local</strong> → run hardware check first, then pick a path from Paths B–E based on the verdict.</li>
+<li><strong>Unsure</strong> → run the hardware check and let the verdict decide.</li>
+</ul>
+<h4>Step 1: Verify Hardware (ONLY if user chose local)</h4>
+<pre><code class="language-bash">python scripts/hardware_check.py --json
+# Optional: also probe `torch` for actual CUDA/MPS:
+python scripts/hardware_check.py --json --check-pytorch
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Verdict</th>
+<th>Meaning</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ok</code></td>
+<td>≥8 GB VRAM (discrete) OR ≥32 GB unified (Apple Silicon)</td>
+<td>Local install — use <code>comfy_cli_flag</code> from report</td>
+</tr>
+<tr>
+<td><code>marginal</code></td>
+<td>SD1.5 works; SDXL tight; Flux/video unlikely</td>
+<td>Local OK for light workflows, else <strong>Path A (Cloud)</strong></td>
+</tr>
+<tr>
+<td><code>cloud</code></td>
+<td>No usable GPU, &lt;6 GB VRAM, &lt;16 GB Apple unified, Intel Mac, Rosetta Python</td>
+<td><strong>Switch to Cloud</strong> unless user explicitly forces local</td>
+</tr>
+</tbody></table>
+<p>The script also surfaces <code>wsl: true</code> (WSL2 with NVIDIA passthrough) and
+<code>rosetta: true</code> (x86_64 Python on Apple Silicon — must reinstall as ARM64).</p>
+<p>If verdict is <code>cloud</code> but the user wants local, do not proceed silently.
+Show the <code>notes</code> array verbatim and ask whether they want to (a) switch to
+Cloud or (b) force a local install (will OOM or be unusably slow on modern models).</p>
+<h4>Choosing an Installation Path</h4>
+<p>Use the hardware check first. The table below is the fallback for when the
+user has already told you their hardware:</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Recommended Path</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>verdict: cloud</code> from hardware check</td>
+<td><strong>Path A: Comfy Cloud</strong></td>
+</tr>
+<tr>
+<td>No GPU / want to try without commitment</td>
+<td><strong>Path A: Comfy Cloud</strong></td>
+</tr>
+<tr>
+<td>Windows + NVIDIA + non-technical</td>
+<td><strong>Path B: ComfyUI Desktop</strong></td>
+</tr>
+<tr>
+<td>Windows + NVIDIA + technical</td>
+<td><strong>Path C: Portable</strong> or <strong>Path D: comfy-cli</strong></td>
+</tr>
+<tr>
+<td>Linux + any GPU</td>
+<td><strong>Path D: comfy-cli</strong> (easiest)</td>
+</tr>
+<tr>
+<td>macOS + Apple Silicon</td>
+<td><strong>Path B: Desktop</strong> or <strong>Path D: comfy-cli</strong></td>
+</tr>
+<tr>
+<td>Headless / server / CI / agents</td>
+<td><strong>Path D: comfy-cli</strong></td>
+</tr>
+</tbody></table>
+<p>For the fully automated path (hardware check → install → launch → verify):</p>
+<pre><code class="language-bash">bash scripts/comfyui_setup.sh
+# Or with overrides:
+bash scripts/comfyui_setup.sh --m-series --port=8190 --workspace=/data/comfy
+</code></pre>
+<p>It runs <code>hardware_check.py</code> internally, refuses to install locally when the
+verdict is <code>cloud</code> (unless <code>--force-cloud-override</code>), picks the right
+<code>comfy-cli</code> flag, and prefers <code>pipx</code>/<code>uvx</code> over global <code>pip</code> to avoid polluting
+system Python.</p>
+<hr>
+<h4>Path A: Comfy Cloud (No Local Install)</h4>
+<p>For users without a capable GPU or who want zero setup. Hosted on RTX 6000 Pro.</p>
+<p><strong>Docs:</strong> <a href="https://docs.comfy.org/get_started/cloud">https://docs.comfy.org/get_started/cloud</a></p>
+<ol>
+<li>Sign up at <a href="https://comfy.org/cloud">https://comfy.org/cloud</a></li>
+<li>Generate an API key at <a href="https://platform.comfy.org/login">https://platform.comfy.org/login</a></li>
+<li>Set the key:<pre><code class="language-bash">export COMFY_CLOUD_API_KEY=&quot;your-comfyui-key&quot;
+</code></pre>
+</li>
+<li>Run workflows:<pre><code class="language-bash">python scripts/run_workflow.py \
+  --workflow workflows/flux_dev_txt2img.json \
+  --args &#39;{&quot;prompt&quot;: &quot;...&quot;}&#39; \
+  --host https://cloud.comfy.org \
+  --output-dir ./outputs
+</code></pre>
+</li>
+</ol>
+<p><strong>Pricing:</strong> <a href="https://www.comfy.org/cloud/pricing">https://www.comfy.org/cloud/pricing</a>
+<strong>Concurrent jobs:</strong> Free/Standard 1, Creator 3, Pro 5. Free tier
+<strong>cannot run workflows via API</strong> — only browse models. Paid subscription
+required for <code>/api/prompt</code>, <code>/api/upload/*</code>, <code>/api/view</code>, etc.</p>
+<hr>
+<h4>Path B: ComfyUI Desktop (Windows / macOS)</h4>
+<p>One-click installer for non-technical users. Currently Beta.</p>
+<p><strong>Docs:</strong> <a href="https://docs.comfy.org/installation/desktop">https://docs.comfy.org/installation/desktop</a></p>
+<ul>
+<li><strong>Windows (NVIDIA):</strong> <a href="https://download.comfy.org/windows/nsis/x64">https://download.comfy.org/windows/nsis/x64</a></li>
+<li><strong>macOS (Apple Silicon):</strong> <a href="https://comfy.org">https://comfy.org</a></li>
+</ul>
+<p>Linux is <strong>not supported</strong> for Desktop — use Path D.</p>
+<hr>
+<h4>Path C: ComfyUI Portable (Windows Only)</h4>
+<p><strong>Docs:</strong> <a href="https://docs.comfy.org/installation/comfyui_portable_windows">https://docs.comfy.org/installation/comfyui_portable_windows</a></p>
+<p>Download from <a href="https://github.com/comfyanonymous/ComfyUI/releases">https://github.com/comfyanonymous/ComfyUI/releases</a>, extract,
+run <code>run_nvidia_gpu.bat</code>. Update via <code>update/update_comfyui_stable.bat</code>.</p>
+<hr>
+<h4>Path D: comfy-cli (All Platforms — Recommended for Agents)</h4>
+<p>The official CLI is the best path for headless/automated setups.</p>
+<p><strong>Docs:</strong> <a href="https://docs.comfy.org/comfy-cli/getting-started">https://docs.comfy.org/comfy-cli/getting-started</a></p>
+<h5>Install comfy-cli</h5>
+<pre><code class="language-bash"># Recommended:
+pipx install comfy-cli
+# Or use uvx without installing:
+uvx --from comfy-cli comfy --help
+# Or (if pipx/uvx unavailable):
+pip install --user comfy-cli
+</code></pre>
+<p>Disable analytics non-interactively:</p>
+<pre><code class="language-bash">comfy --skip-prompt tracking disable
+</code></pre>
+<h5>Install ComfyUI</h5>
+<pre><code class="language-bash">comfy --skip-prompt install --nvidia              # NVIDIA (CUDA)
+comfy --skip-prompt install --amd                 # AMD (ROCm, Linux)
+comfy --skip-prompt install --m-series            # Apple Silicon (MPS)
+comfy --skip-prompt install --cpu                 # CPU only (slow)
+comfy --skip-prompt install --nvidia --fast-deps  # uv-based dep resolution
+</code></pre>
+<p>Default location: <code>~/comfy/ComfyUI</code> (Linux), <code>~/Documents/comfy/ComfyUI</code>
+(macOS/Win). Override with <code>comfy --workspace /custom/path install</code>.</p>
+<h5>Launch / verify</h5>
+<pre><code class="language-bash">comfy launch --background                       # background daemon on :8188
+comfy launch -- --listen 0.0.0.0 --port 8190    # LAN-accessible custom port
+curl -s http://127.0.0.1:8188/system_stats      # health check
+</code></pre>
+<hr>
+<h4>Path E: Manual Install (Advanced / Unsupported Hardware)</h4>
+<p>For Ascend NPU, Cambricon MLU, Intel Arc, or other unsupported hardware.</p>
+<p><strong>Docs:</strong> <a href="https://docs.comfy.org/installation/manual_install">https://docs.comfy.org/installation/manual_install</a></p>
+<pre><code class="language-bash">git clone https://github.com/comfyanonymous/ComfyUI.git
+cd ComfyUI
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu130
+pip install -r requirements.txt
+python main.py
+</code></pre>
+<hr>
+<h4>Post-Install: Download Models</h4>
+<pre><code class="language-bash"># SDXL (general purpose, ~6.5 GB)
+comfy model download \
+  --url &quot;https://huggingface.co/stabilityai/stable-diffusion-xl-base-1.0/resolve/main/sd_xl_base_1.0.safetensors&quot; \
+  --relative-path models/checkpoints
+
+# SD 1.5 (lighter, ~4 GB, good for 6 GB cards)
+comfy model download \
+  --url &quot;https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors&quot; \
+  --relative-path models/checkpoints
+
+# Flux Dev fp8 (smaller variant, ~12 GB)
+comfy model download \
+  --url &quot;https://huggingface.co/Comfy-Org/flux1-dev/resolve/main/flux1-dev-fp8.safetensors&quot; \
+  --relative-path models/checkpoints
+
+# CivitAI (set token first):
+comfy model download \
+  --url &quot;https://civitai.com/api/download/models/128713&quot; \
+  --relative-path models/checkpoints \
+  --set-civitai-api-token &quot;YOUR_TOKEN&quot;
+</code></pre>
+<p>List installed: <code>comfy model list</code>.</p>
+<h4>Post-Install: Install Custom Nodes</h4>
+<pre><code class="language-bash">comfy node install comfyui-impact-pack             # popular utility pack
+comfy node install comfyui-animatediff-evolved     # video generation
+comfy node install comfyui-controlnet-aux          # ControlNet preprocessors
+comfy node install comfyui-essentials              # common helpers
+comfy node update all
+comfy node install-deps --workflow=workflow.json   # install everything a workflow needs
+</code></pre>
+<h4>Post-Install: Verify</h4>
+<pre><code class="language-bash">python scripts/health_check.py
+# → comfy_cli on PATH? server reachable? checkpoints? smoke test?
+
+python scripts/check_deps.py my_workflow.json
+# → are this workflow&#39;s nodes/models/embeddings installed?
+
+python scripts/run_workflow.py \
+  --workflow workflows/sd15_txt2img.json \
+  --args &#39;{&quot;prompt&quot;: &quot;test&quot;, &quot;steps&quot;: 4}&#39; \
+  --output-dir ./test-outputs
+</code></pre>
+<h3>Image Upload (img2img / Inpainting)</h3>
+<p>The simplest way is to use <code>--input-image</code> with <code>run_workflow.py</code>:</p>
+<pre><code class="language-bash">python scripts/run_workflow.py \
+  --workflow workflows/sdxl_img2img.json \
+  --input-image image=./photo.png \
+  --args &#39;{&quot;prompt&quot;: &quot;make it cyberpunk&quot;, &quot;denoise&quot;: 0.6}&#39;
+</code></pre>
+<p>The flag uploads <code>photo.png</code>, then injects its server-side filename into
+whatever schema parameter is named <code>image</code>. For inpainting, pass both:</p>
+<pre><code class="language-bash">python scripts/run_workflow.py \
+  --workflow workflows/sdxl_inpaint.json \
+  --input-image image=./photo.png \
+  --input-image mask_image=./mask.png \
+  --args &#39;{&quot;prompt&quot;: &quot;fill with flowers&quot;}&#39;
+</code></pre>
+<p>Manual upload via REST:</p>
+<pre><code class="language-bash">curl -X POST &quot;http://127.0.0.1:8188/upload/image&quot; \
+  -F &quot;image=@photo.png&quot; -F &quot;type=input&quot; -F &quot;overwrite=true&quot;
+# Returns: {&quot;name&quot;: &quot;photo.png&quot;, &quot;subfolder&quot;: &quot;&quot;, &quot;type&quot;: &quot;input&quot;}
+
+# Cloud equivalent:
+curl -X POST &quot;https://cloud.comfy.org/api/upload/image&quot; \
+  -H &quot;X-API-Key: $COMFY_CLOUD_API_KEY&quot; \
+  -F &quot;image=@photo.png&quot; -F &quot;type=input&quot; -F &quot;overwrite=true&quot;
+</code></pre>
+<h3>Cloud Specifics</h3>
+<ul>
+<li><strong>Base URL:</strong> <code>https://cloud.comfy.org</code></li>
+<li><strong>Auth:</strong> <code>X-API-Key</code> header (or <code>?token=KEY</code> for WebSocket)</li>
+<li><strong>API key:</strong> set <code>$COMFY_CLOUD_API_KEY</code> once and the scripts pick it up automatically</li>
+<li><strong>Output download:</strong> <code>/api/view</code> returns a 302 to a signed URL; the scripts
+follow it and strip <code>X-API-Key</code> before fetching from the storage backend
+(don&#39;t leak the API key to S3/CloudFront).</li>
+<li><strong>Endpoint differences from local ComfyUI:</strong><ul>
+<li><code>/api/object_info</code>, <code>/api/queue</code>, <code>/api/userdata</code> — <strong>403 on free tier</strong>;
+paid only.</li>
+<li><code>/history</code> is renamed to <code>/history_v2</code> on cloud (the scripts route
+automatically).</li>
+<li><code>/models/&lt;folder&gt;</code> is renamed to <code>/experiment/models/&lt;folder&gt;</code> on cloud
+(the scripts route automatically).</li>
+<li><code>clientId</code> in WebSocket is currently ignored — all connections for a
+user receive the same broadcast. Filter by <code>prompt_id</code> client-side.</li>
+<li><code>subfolder</code> is accepted on uploads but ignored — cloud has a flat namespace.</li>
+</ul>
+</li>
+<li><strong>Concurrent jobs:</strong> Free/Standard: 1, Creator: 3, Pro: 5. Extras queue
+automatically. Use <code>run_batch.py --parallel N</code> to saturate your tier.</li>
+</ul>
+<h3>Queue &amp; System Management</h3>
+<pre><code class="language-bash"># Local
+curl -s http://127.0.0.1:8188/queue | python -m json.tool
+curl -X POST http://127.0.0.1:8188/queue -d &#39;{&quot;clear&quot;: true}&#39;    # cancel pending
+curl -X POST http://127.0.0.1:8188/interrupt                      # cancel running
+curl -X POST http://127.0.0.1:8188/free \
+  -H &quot;Content-Type: application/json&quot; \
+  -d &#39;{&quot;unload_models&quot;: true, &quot;free_memory&quot;: true}&#39;
+
+# Cloud — same paths under /api/, plus:
+python scripts/fetch_logs.py --tail-queue --host https://cloud.comfy.org
+</code></pre>
+<h3>Pitfalls</h3>
+<ol>
+<li><p><strong>API format required</strong> — every script and the <code>/api/prompt</code> endpoint expect
+API-format workflow JSON. The scripts detect editor format (top-level
+<code>nodes</code> and <code>links</code> arrays) and tell you to re-export via
+&quot;Workflow → Export (API)&quot; (newer UI) or &quot;Save (API Format)&quot; (older UI).</p>
+</li>
+<li><p><strong>Server must be running</strong> — all execution requires a live server.
+<code>comfy launch --background</code> starts one. Verify with
+<code>curl http://127.0.0.1:8188/system_stats</code>.</p>
+</li>
+<li><p><strong>Model names are exact</strong> — case-sensitive, includes file extension.
+<code>check_deps.py</code> does fuzzy matching (with/without extension and folder
+prefix), but the workflow itself must use the canonical name. Use
+<code>comfy model list</code> to discover what&#39;s installed.</p>
+</li>
+<li><p><strong>Missing custom nodes</strong> — &quot;class_type not found&quot; means a required node
+isn&#39;t installed. <code>check_deps.py</code> reports which package to install;
+<code>auto_fix_deps.py</code> runs the install for you.</p>
+</li>
+<li><p><strong>Working directory</strong> — <code>comfy-cli</code> auto-detects the ComfyUI workspace.
+If commands fail with &quot;no workspace found&quot;, use
+<code>comfy --workspace /path/to/ComfyUI &lt;command&gt;</code> or
+<code>comfy set-default /path/to/ComfyUI</code>.</p>
+</li>
+<li><p><strong>Cloud free-tier API limits</strong> — <code>/api/prompt</code>, <code>/api/view</code>, <code>/api/upload/*</code>,
+<code>/api/object_info</code> all return 403 on free accounts. <code>health_check.py</code> and
+<code>check_deps.py</code> handle this gracefully and surface a clear message.</p>
+</li>
+<li><p><strong>Timeout for video/audio workflows</strong> — auto-detected when an output node
+is <code>VHS_VideoCombine</code>, <code>SaveVideo</code>, etc.; the default jumps from 300 s to
+900 s. Override explicitly with <code>--timeout 1800</code>.</p>
+</li>
+<li><p><strong>Path traversal in output filenames</strong> — server-supplied filenames are
+passed through <code>safe_path_join</code> to refuse anything escaping <code>--output-dir</code>.
+Keep this protection on — workflows with custom save nodes can produce
+arbitrary paths.</p>
+</li>
+<li><p><strong>Workflow JSON is arbitrary code</strong> — custom nodes run Python, so
+submitting an unknown workflow has the same trust profile as <code>eval</code>.
+Inspect workflows from untrusted sources before running.</p>
+</li>
+<li><p><strong>Auto-randomized seed</strong> — pass <code>seed: -1</code> in <code>--args</code> (or use
+<code>--randomize-seed</code> and omit the seed) to get a fresh seed per run.
+The actual seed is logged to stderr.</p>
+</li>
+<li><p><strong><code>tracking</code> prompt</strong> — first run of <code>comfy</code> may prompt for analytics.
+Use <code>comfy --skip-prompt tracking disable</code> to skip non-interactively.
+<code>comfyui_setup.sh</code> does this for you.</p>
+</li>
+</ol>
+<h3>Verification Checklist</h3>
+<p>Use <code>python scripts/health_check.py</code> to run the whole list at once. Manual:</p>
+<ul>
+<li><input disabled="" type="checkbox"> <code>hardware_check.py</code> verdict is <code>ok</code> OR the user explicitly chose Comfy Cloud</li>
+<li><input disabled="" type="checkbox"> <code>comfy --version</code> works (or <code>uvx --from comfy-cli comfy --help</code>)</li>
+<li><input disabled="" type="checkbox"> <code>curl http://HOST:PORT/system_stats</code> returns JSON</li>
+<li><input disabled="" type="checkbox"> <code>comfy model list</code> shows at least one checkpoint (local) OR
+<code>/api/experiment/models/checkpoints</code> returns models (cloud)</li>
+<li><input disabled="" type="checkbox"> Workflow JSON is in API format</li>
+<li><input disabled="" type="checkbox"> <code>check_deps.py</code> reports <code>is_ready: true</code> (or only <code>node_check_skipped</code>
+on cloud free tier)</li>
+<li><input disabled="" type="checkbox"> Test run with a small workflow completes; outputs land in <code>--output-dir</code></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/comfyui</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

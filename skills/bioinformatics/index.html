@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bioinformatics — Skill Hermes</title>
+<meta name="description" content="Gateway to 400+ genomics and computational biology skills.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>bioinformatics</h1>
+    <p class="lede">Gateway to 400+ genomics and computational biology skills.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>bioinformatics</dd>
+      <dt>Keterangan</dt><dd>Gateway to 400+ genomics and computational biology skills.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/bioinformatics.zip" download>Muat turun ZIP (5.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.5 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Bioinformatics Skills Gateway</h2>
+<p>Use when asked about bioinformatics, genomics, sequencing, variant calling, gene expression, single-cell analysis, protein structure, pharmacogenomics, metagenomics, phylogenetics, or any computational biology task.</p>
+<p>This skill is a gateway to two open-source bioinformatics skill libraries. Instead of bundling hundreds of domain-specific skills, it indexes them and fetches what you need on demand.</p>
+<h3>Sources</h3>
+<p>◆ <strong>bioSkills</strong> — 385 reference skills (code patterns, parameter guides, decision trees)
+  Repo: <a href="https://github.com/GPTomics/bioSkills">https://github.com/GPTomics/bioSkills</a>
+  Format: SKILL.md per topic with code examples. Python/R/CLI.</p>
+<p>◆ <strong>ClawBio</strong> — 33 runnable pipeline skills (executable scripts, reproducibility bundles)
+  Repo: <a href="https://github.com/ClawBio/ClawBio">https://github.com/ClawBio/ClawBio</a>
+  Format: Python scripts with demos. Each analysis exports report.md + commands.sh + environment.yml.</p>
+<h3>How to fetch and use a skill</h3>
+<ol>
+<li>Identify the domain and skill name from the index below.</li>
+<li>Clone the relevant repo (shallow clone to save time):<pre><code class="language-bash"># bioSkills (reference material)
+git clone --depth 1 https://github.com/GPTomics/bioSkills.git ~/.hermes/cache/scratch/bioSkills
+
+# ClawBio (runnable pipelines)
+git clone --depth 1 https://github.com/ClawBio/ClawBio.git ~/.hermes/cache/scratch/ClawBio
+</code></pre>
+</li>
+<li>Read the specific skill:<pre><code class="language-bash"># bioSkills — each skill is at: &lt;category&gt;/&lt;skill-name&gt;/SKILL.md
+cat ~/.hermes/cache/scratch/bioSkills/variant-calling/gatk-variant-calling/SKILL.md
+
+# ClawBio — each skill is at: skills/&lt;skill-name&gt;/
+cat ~/.hermes/cache/scratch/ClawBio/skills/pharmgx-reporter/README.md
+</code></pre>
+</li>
+<li>Follow the fetched skill as reference material. These are NOT Hermes-format skills — treat them as expert domain guides. They contain correct parameters, proper tool flags, and validated pipelines.</li>
+</ol>
+<h3>Skill Index by Domain</h3>
+<h4>Sequence Fundamentals</h4>
+<p>bioSkills:
+  sequence-io/ — read-sequences, write-sequences, format-conversion, batch-processing, compressed-files, fastq-quality, filter-sequences, paired-end-fastq, sequence-statistics
+  sequence-manipulation/ — seq-objects, reverse-complement, transcription-translation, motif-search, codon-usage, sequence-properties, sequence-slicing
+ClawBio:
+  seq-wrangler — Sequence QC, alignment, and BAM processing (wraps FastQC, BWA, SAMtools)</p>
+<h4>Read QC &amp; Alignment</h4>
+<p>bioSkills:
+  read-qc/ — quality-reports, fastp-workflow, adapter-trimming, quality-filtering, umi-processing, contamination-screening, rnaseq-qc
+  read-alignment/ — bwa-alignment, star-alignment, hisat2-alignment, bowtie2-alignment
+  alignment-files/ — sam-bam-basics, alignment-sorting, alignment-filtering, bam-statistics, duplicate-handling, pileup-generation</p>
+<h4>Variant Calling &amp; Annotation</h4>
+<p>bioSkills:
+  variant-calling/ — gatk-variant-calling, deepvariant, variant-calling (bcftools), joint-calling, structural-variant-calling, filtering-best-practices, variant-annotation, variant-normalization, vcf-basics, vcf-manipulation, vcf-statistics, consensus-sequences, clinical-interpretation
+ClawBio:
+  vcf-annotator — VEP + ClinVar + gnomAD annotation with ancestry-aware context
+  variant-annotation — Variant annotation pipeline</p>
+<h4>Differential Expression (Bulk RNA-seq)</h4>
+<p>bioSkills:
+  differential-expression/ — deseq2-basics, edger-basics, batch-correction, de-results, de-visualization, timeseries-de
+  rna-quantification/ — alignment-free-quant (Salmon/kallisto), featurecounts-counting, tximport-workflow, count-matrix-qc
+  expression-matrix/ — counts-ingest, gene-id-mapping, metadata-joins, sparse-handling
+ClawBio:
+  rnaseq-de — Full DE pipeline with QC, normalization, and visualization
+  diff-visualizer — Rich visualization and reporting for DE results</p>
+<h4>Single-Cell RNA-seq</h4>
+<p>bioSkills:
+  single-cell/ — preprocessing, clustering, batch-integration, cell-annotation, cell-communication, doublet-detection, markers-annotation, trajectory-inference, multimodal-integration, perturb-seq, scatac-analysis, lineage-tracing, metabolite-communication, data-io
+ClawBio:
+  scrna-orchestrator — Full Scanpy pipeline (QC, clustering, markers, annotation)
+  scrna-embedding — scVI-based latent embedding and batch integration</p>
+<h4>Spatial Transcriptomics</h4>
+<p>bioSkills:
+  spatial-transcriptomics/ — spatial-data-io, spatial-preprocessing, spatial-domains, spatial-deconvolution, spatial-communication, spatial-neighbors, spatial-statistics, spatial-visualization, spatial-multiomics, spatial-proteomics, image-analysis</p>
+<h4>Epigenomics</h4>
+<p>bioSkills:
+  chip-seq/ — peak-calling, differential-binding, motif-analysis, peak-annotation, chipseq-qc, chipseq-visualization, super-enhancers
+  atac-seq/ — atac-peak-calling, atac-qc, differential-accessibility, footprinting, motif-deviation, nucleosome-positioning
+  methylation-analysis/ — bismark-alignment, methylation-calling, dmr-detection, methylkit-analysis
+  hi-c-analysis/ — hic-data-io, tad-detection, loop-calling, compartment-analysis, contact-pairs, matrix-operations, hic-visualization, hic-differential
+ClawBio:
+  methylation-clock — Epigenetic age estimation</p>
+<h4>Pharmacogenomics &amp; Clinical</h4>
+<p>bioSkills:
+  clinical-databases/ — clinvar-lookup, gnomad-frequencies, dbsnp-queries, pharmacogenomics, polygenic-risk, hla-typing, variant-prioritization, somatic-signatures, tumor-mutational-burden, myvariant-queries
+ClawBio:
+  pharmgx-reporter — PGx report from 23andMe/AncestryDNA (12 genes, 31 SNPs, 51 drugs)
+  drug-photo — Photo of medication → personalized PGx dosage card (via vision)
+  clinpgx — ClinPGx API for gene-drug data and CPIC guidelines
+  gwas-lookup — Federated variant lookup across 9 genomic databases
+  gwas-prs — Polygenic risk scores from consumer genetic data
+  nutrigx_advisor — Personalized nutrition from consumer genetic data</p>
+<h4>Population Genetics &amp; GWAS</h4>
+<p>bioSkills:
+  population-genetics/ — association-testing (PLINK GWAS), plink-basics, population-structure, linkage-disequilibrium, scikit-allel-analysis, selection-statistics
+  causal-genomics/ — mendelian-randomization, fine-mapping, colocalization-analysis, mediation-analysis, pleiotropy-detection
+  phasing-imputation/ — haplotype-phasing, genotype-imputation, imputation-qc, reference-panels
+ClawBio:
+  claw-ancestry-pca — Ancestry PCA against SGDP reference panel</p>
+<h4>Metagenomics &amp; Microbiome</h4>
+<p>bioSkills:
+  metagenomics/ — kraken-classification, metaphlan-profiling, abundance-estimation, functional-profiling, amr-detection, strain-tracking, metagenome-visualization
+  microbiome/ — amplicon-processing, diversity-analysis, differential-abundance, taxonomy-assignment, functional-prediction, qiime2-workflow
+ClawBio:
+  claw-metagenomics — Shotgun metagenomics profiling (taxonomy, resistome, functional pathways)</p>
+<h4>Genome Assembly &amp; Annotation</h4>
+<p>bioSkills:
+  genome-assembly/ — hifi-assembly, long-read-assembly, short-read-assembly, metagenome-assembly, assembly-polishing, assembly-qc, scaffolding, contamination-detection
+  genome-annotation/ — eukaryotic-gene-prediction, prokaryotic-annotation, functional-annotation, ncrna-annotation, repeat-annotation, annotation-transfer
+  long-read-sequencing/ — basecalling, long-read-alignment, long-read-qc, clair3-variants, structural-variants, medaka-polishing, nanopore-methylation, isoseq-analysis</p>
+<h4>Structural Biology &amp; Chemoinformatics</h4>
+<p>bioSkills:
+  structural-biology/ — alphafold-predictions, modern-structure-prediction, structure-io, structure-navigation, structure-modification, geometric-analysis
+  chemoinformatics/ — molecular-io, molecular-descriptors, similarity-searching, substructure-search, virtual-screening, admet-prediction, reaction-enumeration
+ClawBio:
+  struct-predictor — Local AlphaFold/Boltz/Chai structure prediction with comparison</p>
+<h4>Proteomics</h4>
+<p>bioSkills:
+  proteomics/ — data-import, peptide-identification, protein-inference, quantification, differential-abundance, dia-analysis, ptm-analysis, proteomics-qc, spectral-libraries
+ClawBio:
+  proteomics-de — Proteomics differential expression</p>
+<h4>Pathway Analysis &amp; Gene Networks</h4>
+<p>bioSkills:
+  pathway-analysis/ — go-enrichment, gsea, kegg-pathways, reactome-pathways, wikipathways, enrichment-visualization
+  gene-regulatory-networks/ — scenic-regulons, coexpression-networks, differential-networks, multiomics-grn, perturbation-simulation</p>
+<h4>Immunoinformatics</h4>
+<p>bioSkills:
+  immunoinformatics/ — mhc-binding-prediction, epitope-prediction, neoantigen-prediction, immunogenicity-scoring, tcr-epitope-binding
+  tcr-bcr-analysis/ — mixcr-analysis, scirpy-analysis, immcantation-analysis, repertoire-visualization, vdjtools-analysis</p>
+<h4>CRISPR &amp; Genome Engineering</h4>
+<p>bioSkills:
+  crispr-screens/ — mageck-analysis, jacks-analysis, hit-calling, screen-qc, library-design, crispresso-editing, base-editing-analysis, batch-correction
+  genome-engineering/ — grna-design, off-target-prediction, hdr-template-design, base-editing-design, prime-editing-design</p>
+<h4>Workflow Management</h4>
+<p>bioSkills:
+  workflow-management/ — snakemake-workflows, nextflow-pipelines, cwl-workflows, wdl-workflows
+ClawBio:
+  repro-enforcer — Export any analysis as reproducibility bundle (Conda env + Singularity + checksums)
+  galaxy-bridge — Access 8,000+ Galaxy tools from usegalaxy.org</p>
+<h4>Specialized Domains</h4>
+<p>bioSkills:
+  alternative-splicing/ — splicing-quantification, differential-splicing, isoform-switching, sashimi-plots, single-cell-splicing, splicing-qc
+  ecological-genomics/ — edna-metabarcoding, landscape-genomics, conservation-genetics, biodiversity-metrics, community-ecology, species-delimitation
+  epidemiological-genomics/ — pathogen-typing, variant-surveillance, phylodynamics, transmission-inference, amr-surveillance
+  liquid-biopsy/ — cfdna-preprocessing, ctdna-mutation-detection, fragment-analysis, tumor-fraction-estimation, methylation-based-detection, longitudinal-monitoring
+  epitranscriptomics/ — m6a-peak-calling, m6a-differential, m6anet-analysis, merip-preprocessing, modification-visualization
+  metabolomics/ — xcms-preprocessing, metabolite-annotation, normalization-qc, statistical-analysis, pathway-mapping, lipidomics, targeted-analysis, msdial-preprocessing
+  flow-cytometry/ — fcs-handling, gating-analysis, compensation-transformation, clustering-phenotyping, differential-analysis, cytometry-qc, doublet-detection, bead-normalization
+  systems-biology/ — flux-balance-analysis, metabolic-reconstruction, gene-essentiality, context-specific-models, model-curation
+  rna-structure/ — secondary-structure-prediction, ncrna-search, structure-probing</p>
+<h4>Data Visualization &amp; Reporting</h4>
+<p>bioSkills:
+  data-visualization/ — ggplot2-fundamentals, heatmaps-clustering, volcano-customization, circos-plots, genome-browser-tracks, interactive-visualization, multipanel-figures, network-visualization, upset-plots, color-palettes, specialized-omics-plots, genome-tracks
+  reporting/ — rmarkdown-reports, quarto-reports, jupyter-reports, automated-qc-reports, figure-export
+ClawBio:
+  profile-report — Analysis profile reporting
+  data-extractor — Extract numerical data from scientific figure images (via vision)
+  lit-synthesizer — PubMed/bioRxiv search, summarization, citation graphs
+  pubmed-summariser — Gene/disease PubMed search with structured briefing</p>
+<h4>Database Access</h4>
+<p>bioSkills:
+  database-access/ — entrez-search, entrez-fetch, entrez-link, blast-searches, local-blast, sra-data, geo-data, uniprot-access, batch-downloads, interaction-databases, sequence-similarity
+ClawBio:
+  ukb-navigator — Semantic search across 12,000+ UK Biobank fields
+  clinical-trial-finder — Clinical trial discovery</p>
+<h4>Experimental Design</h4>
+<p>bioSkills:
+  experimental-design/ — power-analysis, sample-size, batch-design, multiple-testing</p>
+<h4>Machine Learning for Omics</h4>
+<p>bioSkills:
+  machine-learning/ — omics-classifiers, biomarker-discovery, survival-analysis, model-validation, prediction-explanation, atlas-mapping
+ClawBio:
+  claw-semantic-sim — Semantic similarity index for disease literature (PubMedBERT)
+  omics-target-evidence-mapper — Aggregate target-level evidence across omics sources</p>
+<h3>Environment Setup</h3>
+<p>These skills assume a bioinformatics workstation. Common dependencies:</p>
+<pre><code class="language-bash"># Python
+pip install biopython pysam cyvcf2 pybedtools pyBigWig scikit-allel anndata scanpy mygene
+
+# R/Bioconductor
+Rscript -e &#39;BiocManager::install(c(&quot;DESeq2&quot;,&quot;edgeR&quot;,&quot;Seurat&quot;,&quot;clusterProfiler&quot;,&quot;methylKit&quot;))&#39;
+
+# CLI tools (Ubuntu/Debian)
+sudo apt install samtools bcftools ncbi-blast+ minimap2 bedtools
+
+# CLI tools (macOS)
+brew install samtools bcftools blast minimap2 bedtools
+
+# Or via Conda (recommended for reproducibility)
+conda install -c bioconda samtools bcftools blast minimap2 bedtools fastp kraken2
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>The fetched skills are NOT in Hermes SKILL.md format. They use their own structure (bioSkills: code pattern cookbooks; ClawBio: README + Python scripts). Read them as expert reference material.</li>
+<li>bioSkills are reference guides — they show correct parameters and code patterns but aren&#39;t executable pipelines.</li>
+<li>ClawBio skills are executable — many have <code>--demo</code> flags and can be run directly.</li>
+<li>Both repos assume bioinformatics tools are installed. Check prerequisites before running pipelines.</li>
+<li>For ClawBio, run <code>pip install -r requirements.txt</code> in the cloned repo first.</li>
+<li>Genomic data files can be very large. Be mindful of disk space when downloading reference genomes, SRA datasets, or building indices.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/bioinformatics</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

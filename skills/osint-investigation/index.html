@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>osint-investigation — Skill Hermes</title>
+<meta name="description" content="Follow the money via public records and sanctions data.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>osint-investigation</h1>
+    <p class="lede">Follow the money via public records and sanctions data.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>osint-investigation</dd>
+      <dt>Keterangan</dt><dd>Follow the money via public records and sanctions data.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent (adapted from ShinMegamiBoson/OpenPlanter, MIT)</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/osint-investigation.zip" download>Muat turun ZIP (63.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (29)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">11.4 KB</td></tr>
+<tr><td><code>references/sources/courtlistener.md</code></td><td class="sz">3.4 KB</td></tr>
+<tr><td><code>references/sources/gdelt.md</code></td><td class="sz">3.8 KB</td></tr>
+<tr><td><code>references/sources/icij-offshore.md</code></td><td class="sz">4.3 KB</td></tr>
+<tr><td><code>references/sources/nyc-acris.md</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>references/sources/ofac-sdn.md</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>references/sources/opencorporates.md</code></td><td class="sz">3.9 KB</td></tr>
+<tr><td><code>references/sources/sec-edgar.md</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>references/sources/senate-ld.md</code></td><td class="sz">3.3 KB</td></tr>
+<tr><td><code>references/sources/usaspending.md</code></td><td class="sz">3.8 KB</td></tr>
+<tr><td><code>references/sources/wayback.md</code></td><td class="sz">3.1 KB</td></tr>
+<tr><td><code>references/sources/wikipedia.md</code></td><td class="sz">4.1 KB</td></tr>
+<tr><td><code>scripts/_http.py</code></td><td class="sz">2.8 KB</td></tr>
+<tr><td><code>scripts/_normalize.py</code></td><td class="sz">2.0 KB</td></tr>
+<tr><td><code>scripts/build_findings.py</code></td><td class="sz">7.8 KB</td></tr>
+<tr><td><code>scripts/entity_resolution.py</code></td><td class="sz">6.7 KB</td></tr>
+<tr><td><code>scripts/fetch_courtlistener.py</code></td><td class="sz">4.9 KB</td></tr>
+<tr><td><code>scripts/fetch_gdelt.py</code></td><td class="sz">5.3 KB</td></tr>
+<tr><td><code>scripts/fetch_icij_offshore.py</code></td><td class="sz">8.4 KB</td></tr>
+<tr><td><code>scripts/fetch_nyc_acris.py</code></td><td class="sz">6.4 KB</td></tr>
+<tr><td><code>scripts/fetch_ofac_sdn.py</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>scripts/fetch_opencorporates.py</code></td><td class="sz">6.6 KB</td></tr>
+<tr><td><code>scripts/fetch_sec_edgar.py</code></td><td class="sz">6.6 KB</td></tr>
+<tr><td><code>scripts/fetch_senate_ld.py</code></td><td class="sz">4.9 KB</td></tr>
+<tr><td><code>scripts/fetch_usaspending.py</code></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>scripts/fetch_wayback.py</code></td><td class="sz">4.4 KB</td></tr>
+<tr><td><code>scripts/fetch_wikipedia.py</code></td><td class="sz">9.2 KB</td></tr>
+<tr><td><code>scripts/timing_analysis.py</code></td><td class="sz">9.0 KB</td></tr>
+<tr><td><code>templates/source-template.md</code></td><td class="sz">1.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>OSINT Investigation — Public Records Cross-Reference</h2>
+<p>Investigative framework for public-records OSINT: government contracts,
+corporate filings, lobbying, sanctions, offshore leaks, property records,
+court records, web archives, knowledge bases, and global news. Resolve
+entities across heterogeneous sources, build cross-links with explicit
+confidence, run statistical timing tests, and produce structured evidence
+chains.</p>
+<p><strong>Python stdlib only.</strong> Zero install. Works on Linux, macOS, Windows. Most
+sources work with no API key (OpenCorporates has an optional free token
+that raises rate limits).</p>
+<p>Adapted from the MIT-licensed ShinMegamiBoson/OpenPlanter project; expanded
+to cover identity / property / litigation / archives / news sources that
+the original didn&#39;t address.</p>
+<h3>When to use this skill</h3>
+<p>Use when the user asks for:</p>
+<ul>
+<li>&quot;follow the money&quot; — government contracts, lobbying → legislation, sanctions</li>
+<li>corporate due diligence — who controls company X, where are they
+incorporated, who serves on their boards, what filings have they made</li>
+<li>sanctions screening — is entity X on OFAC SDN, ICIJ offshore leaks</li>
+<li>pay-to-play investigation — contractors with offshore ties, lobbying
+clients winning awards</li>
+<li>property ownership — find recorded deeds/mortgages by name or address
+(NYC; for other counties point users at the relevant recorder)</li>
+<li>litigation history — find federal + state court opinions and PACER dockets</li>
+<li>multi-source entity resolution where naming varies (LLC suffixes, abbreviations)</li>
+<li>evidence-chain construction with explicit confidence levels</li>
+<li>&quot;what&#39;s been said about X&quot; — international news (GDELT) + Wikipedia
+narrative + Wayback Machine to recover dead URLs</li>
+</ul>
+<p>Do NOT use this skill for:</p>
+<ul>
+<li>general web research → <code>web_search</code> / <code>web_extract</code></li>
+<li>domain/infrastructure OSINT → <code>domain-intel</code> skill</li>
+<li>academic literature → <code>arxiv</code> skill</li>
+<li>social-media profile discovery → <code>sherlock</code> skill (optional)</li>
+<li>US <strong>federal</strong> campaign finance — FEC is intentionally NOT covered here
+(the API is unreliable for ad-hoc contributor-name queries on the free
+DEMO_KEY tier). For federal donations, point users at
+<a href="https://www.fec.gov/data/">https://www.fec.gov/data/</a> directly.</li>
+</ul>
+<h3>Workflow</h3>
+<p>The agent runs scripts via the <code>terminal</code> tool. <code>SKILL_DIR</code> is the directory
+holding this SKILL.md.</p>
+<h4>1. Identify which sources apply</h4>
+<p>Read the data-source wiki entries to plan the investigation:</p>
+<pre><code>ls SKILL_DIR/references/sources/
+
+# Federal financial / regulatory
+cat SKILL_DIR/references/sources/sec-edgar.md       # corporate filings
+cat SKILL_DIR/references/sources/usaspending.md     # federal contracts
+cat SKILL_DIR/references/sources/senate-ld.md       # lobbying
+cat SKILL_DIR/references/sources/ofac-sdn.md        # sanctions
+cat SKILL_DIR/references/sources/icij-offshore.md   # offshore leaks
+
+# Identity / property / litigation / archives / news
+cat SKILL_DIR/references/sources/nyc-acris.md       # NYC property records
+cat SKILL_DIR/references/sources/opencorporates.md  # global corporate registry
+cat SKILL_DIR/references/sources/courtlistener.md   # court records (federal + state)
+cat SKILL_DIR/references/sources/wayback.md         # Wayback Machine archives
+cat SKILL_DIR/references/sources/wikipedia.md       # Wikipedia + Wikidata
+cat SKILL_DIR/references/sources/gdelt.md           # global news monitoring
+</code></pre>
+<p>Each entry follows a 9-section template: summary, access, schema, coverage,
+cross-reference keys, data quality, acquisition, legal, references.</p>
+<p>The <strong>cross-reference potential</strong> section maps join keys between sources — read
+those first to pick the right pair.</p>
+<h4>2. Acquire data</h4>
+<p>Each source has a stdlib-only fetch script in <code>SKILL_DIR/scripts/</code>:</p>
+<p><strong>Federal financial / regulatory</strong></p>
+<pre><code class="language-bash"># SEC EDGAR filings (corporate disclosures)
+python SKILL_DIR/scripts/fetch_sec_edgar.py --cik 0000320193 \
+    --types 10-K,10-Q --out data/edgar_filings.csv
+
+# USAspending federal contracts
+python SKILL_DIR/scripts/fetch_usaspending.py --recipient &quot;EXAMPLE CORP&quot; \
+    --fy 2024 --out data/contracts.csv
+
+# Senate LD-1 / LD-2 lobbying disclosures
+python SKILL_DIR/scripts/fetch_senate_ld.py --client &quot;EXAMPLE CORP&quot; \
+    --year 2024 --out data/lobbying.csv
+
+# OFAC SDN sanctions list (full snapshot)
+python SKILL_DIR/scripts/fetch_ofac_sdn.py --out data/ofac_sdn.csv
+
+# ICIJ Offshore Leaks — downloads ~70 MB bulk CSV on first use,
+# then searches it locally. Cached for 30 days under
+# $HERMES_OSINT_CACHE/icij/ (default: ~/.cache/hermes-osint/icij/).
+python SKILL_DIR/scripts/fetch_icij_offshore.py --entity &quot;EXAMPLE CORP&quot; \
+    --out data/icij.csv
+</code></pre>
+<p><strong>Identity / property / litigation / archives / news</strong></p>
+<pre><code class="language-bash"># NYC property records (deeds, mortgages, liens) — ACRIS via Socrata
+python SKILL_DIR/scripts/fetch_nyc_acris.py --name &quot;SMITH, JOHN&quot; \
+    --out data/acris.csv
+python SKILL_DIR/scripts/fetch_nyc_acris.py --address &quot;571 HUDSON&quot; \
+    --out data/acris_addr.csv
+
+# OpenCorporates — 130+ jurisdiction corporate registry
+# (free token required; set OPENCORPORATES_API_TOKEN or pass --token)
+python SKILL_DIR/scripts/fetch_opencorporates.py --query &quot;Example Corp&quot; \
+    --jurisdiction us_ny --out data/opencorporates.csv
+
+# CourtListener — federal + state court opinions, PACER dockets
+python SKILL_DIR/scripts/fetch_courtlistener.py --query &quot;Smith v. Example Corp&quot; \
+    --type opinions --out data/courts.csv
+
+# Wayback Machine — historical web captures
+python SKILL_DIR/scripts/fetch_wayback.py --url &quot;example.com&quot; \
+    --match host --collapse digest --out data/wayback.csv
+
+# Wikipedia + Wikidata — narrative bio + structured facts
+# Set HERMES_OSINT_UA=your-app/1.0 (your@email) to identify yourself
+python SKILL_DIR/scripts/fetch_wikipedia.py --query &quot;Bill Gates&quot; \
+    --out data/wp.csv
+
+# GDELT — global news in 100+ languages, ~2015→present
+python SKILL_DIR/scripts/fetch_gdelt.py --query &#39;&quot;Example Corp&quot;&#39; \
+    --timespan 1y --out data/gdelt.csv
+</code></pre>
+<p>All outputs are normalized CSV with a header row. Re-run scripts idempotently.</p>
+<p>When a private individual won&#39;t be in a source (e.g. SEC EDGAR for a non-public-
+company person, USAspending for someone who isn&#39;t a federal contractor, Senate
+LDA for someone who isn&#39;t a lobbying client), the script returns 0 rows with a
+clear warning rather than silently writing an empty CSV. EDGAR specifically
+flags when the company-name resolver matched an individual Form 3/4/5 filer
+rather than a corporate registrant.</p>
+<p>Rate-limit notes are in each source&#39;s wiki entry. Default fetchers sleep
+politely between paginated requests. <strong>API keys raise rate limits</strong> for
+sources that support them (<code>SEC_USER_AGENT</code>, <code>SENATE_LDA_TOKEN</code>,
+<code>OPENCORPORATES_API_TOKEN</code>, <code>COURTLISTENER_TOKEN</code>). All scripts surface
+429 responses immediately with the upstream&#39;s quota message so the user
+knows to slow down or supply a key.</p>
+<h4>3. Resolve entities across sources</h4>
+<p>Normalize names and find matches between two CSV files:</p>
+<pre><code class="language-bash"># Match lobbying clients (Senate LDA) against contract recipients (USAspending)
+python SKILL_DIR/scripts/entity_resolution.py \
+    --left  data/lobbying.csv   --left-name-col  client_name \
+    --right data/contracts.csv  --right-name-col recipient_name \
+    --out data/cross_links.csv
+</code></pre>
+<p>Three matching tiers with explicit confidence:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Method</th>
+<th>Confidence</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>exact</code></td>
+<td>Normalized strings equal after suffix/punctuation strip</td>
+<td>high</td>
+</tr>
+<tr>
+<td><code>fuzzy</code></td>
+<td>Sorted-token equality (word-bag match)</td>
+<td>medium</td>
+</tr>
+<tr>
+<td><code>token_overlap</code></td>
+<td>≥60% token overlap, ≥2 shared tokens, tokens ≥4 chars</td>
+<td>low</td>
+</tr>
+</tbody></table>
+<p>Output <code>cross_links.csv</code> columns: <code>match_type, confidence, left_name, right_name, left_normalized, right_normalized, left_row, right_row</code>.</p>
+<h4>4. Statistical timing correlation (optional)</h4>
+<p>Test whether two time series cluster suspiciously close together — e.g.
+lobbying filings near contract awards — using a permutation test:</p>
+<pre><code class="language-bash">python SKILL_DIR/scripts/timing_analysis.py \
+    --donations data/lobbying.csv --donation-date-col filing_date \
+        --donation-amount-col income --donation-donor-col client_name \
+        --donation-recipient-col registrant_name \
+    --contracts data/contracts.csv --contract-date-col award_date \
+        --contract-vendor-col recipient_name \
+    --cross-links data/cross_links.csv \
+    --permutations 1000 \
+    --out data/timing.json
+</code></pre>
+<p>The script&#39;s column flags are intentionally generic — the original tool was
+written for donations vs awards, but it works for any (event, payee) time
+series joined through cross-links. Null hypothesis: event timing is
+independent of award dates. One-tailed p-value = fraction of permutations
+with mean nearest-award distance ≤ observed. Minimum 3 events per (payer,
+vendor) pair to run the test.</p>
+<h4>5. Build the findings JSON (evidence chain)</h4>
+<pre><code class="language-bash">python SKILL_DIR/scripts/build_findings.py \
+    --cross-links data/cross_links.csv \
+    --timing data/timing.json \
+    --out data/findings.json
+</code></pre>
+<p>Every finding has <code>id, title, severity, confidence, summary, evidence[], sources[]</code>.
+Each evidence item points back to a specific row in a source CSV. The user (or a
+follow-up agent) can verify every claim against its source.</p>
+<h3>Confidence and evidence discipline</h3>
+<p>This is the load-bearing rule of the skill. Tell the user:</p>
+<ul>
+<li>Every claim must trace to a record. No naked assertions.</li>
+<li>Confidence tier travels with the claim. <code>match_type=fuzzy</code> is &quot;probable&quot;,
+not &quot;confirmed.&quot;</li>
+<li>Entity resolution produces candidates, NOT conclusions. A <code>fuzzy</code> match
+between &quot;ACME LLC&quot; and &quot;Acme Holdings Group&quot; is a lead, not a fact.</li>
+<li>Statistical significance ≠ wrongdoing. p &lt; 0.05 means the timing pattern
+is unlikely under the null. It does not establish corruption.</li>
+<li>All data sources here are public records. They may still contain
+inaccuracies, stale info, or redactions (GDPR, sealed records).</li>
+</ul>
+<h3>Adding a new data source</h3>
+<p>Use the template:</p>
+<pre><code class="language-bash">cp SKILL_DIR/templates/source-template.md \
+    SKILL_DIR/references/sources/&lt;your-source&gt;.md
+</code></pre>
+<p>Fill in all 9 sections. Write a <code>fetch_&lt;source&gt;.py</code> script in <code>scripts/</code> that
+uses stdlib only and writes a normalized CSV. Update the source list in the
+&quot;When to use&quot; section above.</p>
+<h3>Tools and their limits</h3>
+<ul>
+<li><code>entity_resolution.py</code> does NOT use external fuzzy libraries (no rapidfuzz,
+no jellyfish). Token-bag matching is the upper bound here. If you need
+Levenshtein, transliteration, or phonetic matching, pip-install separately.</li>
+<li><code>timing_analysis.py</code> uses Python&#39;s <code>random</code> for permutations. For
+reproducibility, pass <code>--seed N</code>.</li>
+<li><code>fetch_*.py</code> scripts use <code>urllib.request</code> and respect <code>Retry-After</code>. Heavy
+bulk usage may still violate ToS — read each source&#39;s legal section first.</li>
+</ul>
+<h3>Legal note</h3>
+<p>All Phase-1 sources are public records. Bulk acquisition is permitted under
+their respective access terms (FOIA, public records law, ICIJ explicit
+publication, OFAC public data). However:</p>
+<ul>
+<li>Some sources rate-limit aggressively. Respect their headers.</li>
+<li>Some redact registrant info (GDPR on WHOIS, sealed filings).</li>
+<li>Cross-referencing public records to identify private individuals can have
+ethical implications. The skill produces evidence chains, not accusations.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/osint-investigation</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

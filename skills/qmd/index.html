@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>qmd — Skill Hermes</title>
+<meta name="description" content="Hybrid local search over notes, docs, and transcripts.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>qmd</h1>
+    <p class="lede">Hybrid local search over notes, docs, and transcripts.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>qmd</dd>
+      <dt>Keterangan</dt><dd>Hybrid local search over notes, docs, and transcripts.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Hermes Agent + Teknium</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>research · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/qmd.zip" download>Muat turun ZIP (5.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>QMD — Query Markup Documents</h2>
+<p>Local, on-device search engine for personal knowledge bases. Indexes markdown
+notes, meeting transcripts, documentation, and any text-based files, then
+provides hybrid search combining keyword matching, semantic understanding, and
+LLM-powered reranking — all running locally with no cloud dependencies.</p>
+<p>Created by <a href="https://github.com/tobi/qmd">Tobi Lütke</a>. MIT licensed.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks to search their notes, docs, knowledge base, or meeting transcripts</li>
+<li>User wants to find something across a large collection of markdown/text files</li>
+<li>User wants semantic search (&quot;find notes about X concept&quot;) not just keyword grep</li>
+<li>User has already set up qmd collections and wants to query them</li>
+<li>User asks to set up a local knowledge base or document search system</li>
+<li>Keywords: &quot;search my notes&quot;, &quot;find in my docs&quot;, &quot;knowledge base&quot;, &quot;qmd&quot;</li>
+</ul>
+<h3>Prerequisites</h3>
+<h4>Node.js &gt;= 22 (required)</h4>
+<pre><code class="language-bash"># Check version
+node --version  # must be &gt;= 22
+
+# macOS — install or upgrade via Homebrew
+brew install node@22
+
+# Linux — use NodeSource or nvm
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+# or with nvm:
+nvm install 22 &amp;&amp; nvm use 22
+</code></pre>
+<h4>SQLite with Extension Support (macOS only)</h4>
+<p>macOS system SQLite lacks extension loading. Install via Homebrew:</p>
+<pre><code class="language-bash">brew install sqlite
+</code></pre>
+<h4>Install qmd</h4>
+<pre><code class="language-bash">npm install -g @tobilu/qmd
+# or with Bun:
+bun install -g @tobilu/qmd
+</code></pre>
+<p>First run auto-downloads 3 local GGUF models (~2GB total):</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Purpose</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>embeddinggemma-300M-Q8_0</td>
+<td>Vector embeddings</td>
+<td>~300MB</td>
+</tr>
+<tr>
+<td>qwen3-reranker-0.6b-q8_0</td>
+<td>Result reranking</td>
+<td>~640MB</td>
+</tr>
+<tr>
+<td>qmd-query-expansion-1.7B</td>
+<td>Query expansion</td>
+<td>~1.1GB</td>
+</tr>
+</tbody></table>
+<h4>Verify Installation</h4>
+<pre><code class="language-bash">qmd --version
+qmd status
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What It Does</th>
+<th>Speed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>qmd search &quot;query&quot;</code></td>
+<td>BM25 keyword search (no models)</td>
+<td>~0.2s</td>
+</tr>
+<tr>
+<td><code>qmd vsearch &quot;query&quot;</code></td>
+<td>Semantic vector search (1 model)</td>
+<td>~3s</td>
+</tr>
+<tr>
+<td><code>qmd query &quot;query&quot;</code></td>
+<td>Hybrid + reranking (all 3 models)</td>
+<td>~2-3s warm, ~19s cold</td>
+</tr>
+<tr>
+<td><code>qmd get &lt;docid&gt;</code></td>
+<td>Retrieve full document content</td>
+<td>instant</td>
+</tr>
+<tr>
+<td><code>qmd multi-get &quot;glob&quot;</code></td>
+<td>Retrieve multiple files</td>
+<td>instant</td>
+</tr>
+<tr>
+<td><code>qmd collection add &lt;path&gt; --name &lt;n&gt;</code></td>
+<td>Add a directory as a collection</td>
+<td>instant</td>
+</tr>
+<tr>
+<td><code>qmd context add &lt;path&gt; &quot;description&quot;</code></td>
+<td>Add context metadata to improve retrieval</td>
+<td>instant</td>
+</tr>
+<tr>
+<td><code>qmd embed</code></td>
+<td>Generate/update vector embeddings</td>
+<td>varies</td>
+</tr>
+<tr>
+<td><code>qmd status</code></td>
+<td>Show index health and collection info</td>
+<td>instant</td>
+</tr>
+<tr>
+<td><code>qmd mcp</code></td>
+<td>Start MCP server (stdio)</td>
+<td>persistent</td>
+</tr>
+<tr>
+<td><code>qmd mcp --http --daemon</code></td>
+<td>Start MCP server (HTTP, warm models)</td>
+<td>persistent</td>
+</tr>
+</tbody></table>
+<h3>Setup Workflow</h3>
+<h4>1. Add Collections</h4>
+<p>Point qmd at directories containing your documents:</p>
+<pre><code class="language-bash"># Add a notes directory
+qmd collection add ~/notes --name notes
+
+# Add project docs
+qmd collection add ~/projects/myproject/docs --name project-docs
+
+# Add meeting transcripts
+qmd collection add ~/meetings --name meetings
+
+# List all collections
+qmd collection list
+</code></pre>
+<h4>2. Add Context Descriptions</h4>
+<p>Context metadata helps the search engine understand what each collection
+contains. This significantly improves retrieval quality:</p>
+<pre><code class="language-bash">qmd context add qmd://notes &quot;Personal notes, ideas, and journal entries&quot;
+qmd context add qmd://project-docs &quot;Technical documentation for the main project&quot;
+qmd context add qmd://meetings &quot;Meeting transcripts and action items from team syncs&quot;
+</code></pre>
+<h4>3. Generate Embeddings</h4>
+<pre><code class="language-bash">qmd embed
+</code></pre>
+<p>This processes all documents in all collections and generates vector
+embeddings. Re-run after adding new documents or collections.</p>
+<h4>4. Verify</h4>
+<pre><code class="language-bash">qmd status   # shows index health, collection stats, model info
+</code></pre>
+<h3>Search Patterns</h3>
+<h4>Fast Keyword Search (BM25)</h4>
+<p>Best for: exact terms, code identifiers, names, known phrases.
+No models loaded — near-instant results.</p>
+<pre><code class="language-bash">qmd search &quot;authentication middleware&quot;
+qmd search &quot;handleError async&quot;
+</code></pre>
+<h4>Semantic Vector Search</h4>
+<p>Best for: natural language questions, conceptual queries.
+Loads embedding model (~3s first query).</p>
+<pre><code class="language-bash">qmd vsearch &quot;how does the rate limiter handle burst traffic&quot;
+qmd vsearch &quot;ideas for improving onboarding flow&quot;
+</code></pre>
+<h4>Hybrid Search with Reranking (Best Quality)</h4>
+<p>Best for: important queries where quality matters most.
+Uses all 3 models — query expansion, parallel BM25+vector, reranking.</p>
+<pre><code class="language-bash">qmd query &quot;what decisions were made about the database migration&quot;
+</code></pre>
+<h4>Structured Multi-Mode Queries</h4>
+<p>Combine different search types in a single query for precision:</p>
+<pre><code class="language-bash"># BM25 for exact term + vector for concept
+qmd query $&#39;lex: rate limiter\nvec: how does throttling work under load&#39;
+
+# With query expansion
+qmd query $&#39;expand: database migration plan\nlex: &quot;schema change&quot;&#39;
+</code></pre>
+<h4>Query Syntax (lex/BM25 mode)</h4>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Effect</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>term</code></td>
+<td>Prefix match</td>
+<td><code>perf</code> matches &quot;performance&quot;</td>
+</tr>
+<tr>
+<td><code>&quot;phrase&quot;</code></td>
+<td>Exact phrase</td>
+<td><code>&quot;rate limiter&quot;</code></td>
+</tr>
+<tr>
+<td><code>-term</code></td>
+<td>Exclude term</td>
+<td><code>performance -sports</code></td>
+</tr>
+</tbody></table>
+<h4>HyDE (Hypothetical Document Embeddings)</h4>
+<p>For complex topics, write what you expect the answer to look like:</p>
+<pre><code class="language-bash">qmd query $&#39;hyde: The migration plan involves three phases. First, we add the new columns without dropping the old ones. Then we backfill data. Finally we cut over and remove legacy columns.&#39;
+</code></pre>
+<h4>Scoping to Collections</h4>
+<pre><code class="language-bash">qmd search &quot;query&quot; --collection notes
+qmd query &quot;query&quot; --collection project-docs
+</code></pre>
+<h4>Output Formats</h4>
+<pre><code class="language-bash">qmd search &quot;query&quot; --json        # JSON output (best for parsing)
+qmd search &quot;query&quot; --limit 5     # Limit results
+qmd get &quot;#abc123&quot;                # Get by document ID
+qmd get &quot;path/to/file.md&quot;       # Get by file path
+qmd get &quot;file.md:50&quot; -l 100     # Get specific line range
+qmd multi-get &quot;journals/*.md&quot; --json  # Batch retrieve by glob
+</code></pre>
+<h3>MCP Integration (Recommended)</h3>
+<p>qmd exposes an MCP server that provides search tools directly to
+Hermes Agent via the native MCP client. This is the preferred
+integration — once configured, the agent gets qmd tools automatically
+without needing to load this skill.</p>
+<h4>Option A: Stdio Mode (Simple)</h4>
+<p>Add to <code>~/.hermes/config.yaml</code>:</p>
+<pre><code class="language-yaml">mcp_servers:
+  qmd:
+    command: &quot;qmd&quot;
+    args: [&quot;mcp&quot;]
+    timeout: 30
+    connect_timeout: 45
+</code></pre>
+<p>This registers tools: <code>mcp_qmd_search</code>, <code>mcp_qmd_vsearch</code>,
+<code>mcp_qmd_deep_search</code>, <code>mcp_qmd_get</code>, <code>mcp_qmd_status</code>.</p>
+<p><strong>Tradeoff:</strong> Models load on first search call (~19s cold start),
+then stay warm for the session. Acceptable for occasional use.</p>
+<h4>Option B: HTTP Daemon Mode (Fast, Recommended for Heavy Use)</h4>
+<p>Start the qmd daemon separately — it keeps models warm in memory:</p>
+<pre><code class="language-bash"># Start daemon (persists across agent restarts)
+qmd mcp --http --daemon
+
+# Runs on http://localhost:8181 by default
+</code></pre>
+<p>Then configure Hermes Agent to connect via HTTP:</p>
+<pre><code class="language-yaml">mcp_servers:
+  qmd:
+    url: &quot;http://localhost:8181/mcp&quot;
+    timeout: 30
+</code></pre>
+<p><strong>Tradeoff:</strong> Uses <del>2GB RAM while running, but every query is fast
+(</del>2-3s). Best for users who search frequently.</p>
+<h4>Keeping the Daemon Running</h4>
+<h5>macOS (launchd)</h5>
+<pre><code class="language-bash">cat &gt; ~/Library/LaunchAgents/com.qmd.daemon.plist &lt;&lt; &#39;EOF&#39;
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot;
+  &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;
+&lt;plist version=&quot;1.0&quot;&gt;
+&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;
+  &lt;string&gt;com.qmd.daemon&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;
+  &lt;array&gt;
+    &lt;string&gt;qmd&lt;/string&gt;
+    &lt;string&gt;mcp&lt;/string&gt;
+    &lt;string&gt;--http&lt;/string&gt;
+    &lt;string&gt;--daemon&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;RunAtLoad&lt;/key&gt;
+  &lt;true/&gt;
+  &lt;key&gt;KeepAlive&lt;/key&gt;
+  &lt;true/&gt;
+  &lt;key&gt;StandardOutPath&lt;/key&gt;
+  &lt;string&gt;/Users/YOU/.hermes/cache/scratch/qmd-daemon.log&lt;/string&gt;
+  &lt;key&gt;StandardErrorPath&lt;/key&gt;
+  &lt;string&gt;/Users/YOU/.hermes/cache/scratch/qmd-daemon.log&lt;/string&gt;
+&lt;/dict&gt;
+&lt;/plist&gt;
+EOF
+
+launchctl load ~/Library/LaunchAgents/com.qmd.daemon.plist
+</code></pre>
+<h5>Linux (systemd user service)</h5>
+<pre><code class="language-bash">mkdir -p ~/.config/systemd/user
+
+cat &gt; ~/.config/systemd/user/qmd-daemon.service &lt;&lt; &#39;EOF&#39;
+[Unit]
+Description=QMD MCP Daemon
+After=network.target
+
+[Service]
+ExecStart=qmd mcp --http --daemon
+Restart=on-failure
+RestartSec=10
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+
+[Install]
+WantedBy=default.target
+EOF
+
+systemctl --user daemon-reload
+systemctl --user enable --now qmd-daemon
+systemctl --user status qmd-daemon
+</code></pre>
+<h4>MCP Tools Reference</h4>
+<p>Once connected, these tools are available as <code>mcp_qmd_*</code>:</p>
+<table>
+<thead>
+<tr>
+<th>MCP Tool</th>
+<th>Maps To</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>mcp_qmd_search</code></td>
+<td><code>qmd search</code></td>
+<td>BM25 keyword search</td>
+</tr>
+<tr>
+<td><code>mcp_qmd_vsearch</code></td>
+<td><code>qmd vsearch</code></td>
+<td>Semantic vector search</td>
+</tr>
+<tr>
+<td><code>mcp_qmd_deep_search</code></td>
+<td><code>qmd query</code></td>
+<td>Hybrid search + reranking</td>
+</tr>
+<tr>
+<td><code>mcp_qmd_get</code></td>
+<td><code>qmd get</code></td>
+<td>Retrieve document by ID or path</td>
+</tr>
+<tr>
+<td><code>mcp_qmd_status</code></td>
+<td><code>qmd status</code></td>
+<td>Index health and stats</td>
+</tr>
+</tbody></table>
+<p>The MCP tools accept structured JSON queries for multi-mode search:</p>
+<pre><code class="language-json">{
+  &quot;searches&quot;: [
+    {&quot;type&quot;: &quot;lex&quot;, &quot;query&quot;: &quot;authentication middleware&quot;},
+    {&quot;type&quot;: &quot;vec&quot;, &quot;query&quot;: &quot;how user login is verified&quot;}
+  ],
+  &quot;collections&quot;: [&quot;project-docs&quot;],
+  &quot;limit&quot;: 10
+}
+</code></pre>
+<h3>CLI Usage (Without MCP)</h3>
+<p>When MCP is not configured, use qmd directly via terminal:</p>
+<pre><code>terminal(command=&quot;qmd query &#39;what was decided about the API redesign&#39; --json&quot;, timeout=30)
+</code></pre>
+<p>For setup and management tasks, always use terminal:</p>
+<pre><code>terminal(command=&quot;qmd collection add ~/Documents/notes --name notes&quot;)
+terminal(command=&quot;qmd context add qmd://notes &#39;Personal research notes and ideas&#39;&quot;)
+terminal(command=&quot;qmd embed&quot;)
+terminal(command=&quot;qmd status&quot;)
+</code></pre>
+<h3>How the Search Pipeline Works</h3>
+<p>Understanding the internals helps choose the right search mode:</p>
+<ol>
+<li><strong>Query Expansion</strong> — A fine-tuned 1.7B model generates 2 alternative
+queries. The original gets 2x weight in fusion.</li>
+<li><strong>Parallel Retrieval</strong> — BM25 (SQLite FTS5) and vector search run
+simultaneously across all query variants.</li>
+<li><strong>RRF Fusion</strong> — Reciprocal Rank Fusion (k=60) merges results.
+Top-rank bonus: #1 gets +0.05, #2-3 get +0.02.</li>
+<li><strong>LLM Reranking</strong> — qwen3-reranker scores top 30 candidates (0.0-1.0).</li>
+<li><strong>Position-Aware Blending</strong> — Ranks 1-3: 75% retrieval / 25% reranker.
+Ranks 4-10: 60/40. Ranks 11+: 40/60 (trusts reranker more for long tail).</li>
+</ol>
+<p><strong>Smart Chunking:</strong> Documents are split at natural break points (headings,
+code blocks, blank lines) targeting ~900 tokens with 15% overlap. Code
+blocks are never split mid-block.</p>
+<h3>Best Practices</h3>
+<ol>
+<li><strong>Always add context descriptions</strong> — <code>qmd context add</code> dramatically
+improves retrieval accuracy. Describe what each collection contains.</li>
+<li><strong>Re-embed after adding documents</strong> — <code>qmd embed</code> must be re-run when
+new files are added to collections.</li>
+<li><strong>Use <code>qmd search</code> for speed</strong> — when you need fast keyword lookup
+(code identifiers, exact names), BM25 is instant and needs no models.</li>
+<li><strong>Use <code>qmd query</code> for quality</strong> — when the question is conceptual or
+the user needs the best possible results, use hybrid search.</li>
+<li><strong>Prefer MCP integration</strong> — once configured, the agent gets native
+tools without needing to load this skill each time.</li>
+<li><strong>Daemon mode for frequent users</strong> — if the user searches their
+knowledge base regularly, recommend the HTTP daemon setup.</li>
+<li><strong>First query in structured search gets 2x weight</strong> — put the most
+important/certain query first when combining lex and vec.</li>
+</ol>
+<h3>Troubleshooting</h3>
+<h4>&quot;Models downloading on first run&quot;</h4>
+<p>Normal — qmd auto-downloads ~2GB of GGUF models on first use.
+This is a one-time operation.</p>
+<h4>Cold start latency (~19s)</h4>
+<p>This happens when models aren&#39;t loaded in memory. Solutions:</p>
+<ul>
+<li>Use HTTP daemon mode (<code>qmd mcp --http --daemon</code>) to keep warm</li>
+<li>Use <code>qmd search</code> (BM25 only) when models aren&#39;t needed</li>
+<li>MCP stdio mode loads models on first search, stays warm for session</li>
+</ul>
+<h4>macOS: &quot;unable to load extension&quot;</h4>
+<p>Install Homebrew SQLite: <code>brew install sqlite</code>
+Then ensure it&#39;s on PATH before system SQLite.</p>
+<h4>&quot;No collections found&quot;</h4>
+<p>Run <code>qmd collection add &lt;path&gt; --name &lt;name&gt;</code> to add directories,
+then <code>qmd embed</code> to index them.</p>
+<h4>Embedding model override (CJK/multilingual)</h4>
+<p>Set <code>QMD_EMBED_MODEL</code> environment variable for non-English content:</p>
+<pre><code class="language-bash">export QMD_EMBED_MODEL=&quot;your-multilingual-model&quot;
+</code></pre>
+<h3>Data Storage</h3>
+<ul>
+<li><strong>Index &amp; vectors:</strong> <code>~/.cache/qmd/index.sqlite</code></li>
+<li><strong>Models:</strong> Auto-downloaded to local cache on first run</li>
+<li><strong>No cloud dependencies</strong> — everything runs locally</li>
+</ul>
+<h3>References</h3>
+<ul>
+<li><a href="https://github.com/tobi/qmd">GitHub: tobi/qmd</a></li>
+<li><a href="https://github.com/tobi/qmd/blob/main/CHANGELOG.md">QMD Changelog</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/research/qmd</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

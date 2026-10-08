@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>docker-management — Skill Hermes</title>
+<meta name="description" content="Manage Docker containers, images, volumes, and Compose.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>docker-management</h1>
+    <p class="lede">Manage Docker containers, images, volumes, and Compose.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>docker-management</dd>
+      <dt>Keterangan</dt><dd>Manage Docker containers, images, volumes, and Compose.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>sprmn24</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>devops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/docker-management.zip" download>Muat turun ZIP (4.0 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">10.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Docker Management</h2>
+<p>Manage Docker containers, images, volumes, networks, and Compose stacks using standard Docker CLI commands. No additional dependencies beyond Docker itself.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Run, stop, restart, remove, or inspect containers</li>
+<li>Build, pull, push, tag, or clean up Docker images</li>
+<li>Work with Docker Compose (multi-service stacks)</li>
+<li>Manage volumes or networks</li>
+<li>Debug a crashing container or analyze logs</li>
+<li>Check Docker disk usage or free up space</li>
+<li>Review or optimize a Dockerfile</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Docker Engine installed and running</li>
+<li>User added to the <code>docker</code> group (or use <code>sudo</code>)</li>
+<li>Docker Compose v2 (included with modern Docker installations)</li>
+</ul>
+<p>Quick check:</p>
+<pre><code class="language-bash">docker --version &amp;&amp; docker compose version
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Run container (background)</td>
+<td><code>docker run -d --name NAME IMAGE</code></td>
+</tr>
+<tr>
+<td>Stop + remove</td>
+<td><code>docker stop NAME &amp;&amp; docker rm NAME</code></td>
+</tr>
+<tr>
+<td>View logs (follow)</td>
+<td><code>docker logs --tail 50 -f NAME</code></td>
+</tr>
+<tr>
+<td>Shell into container</td>
+<td><code>docker exec -it NAME /bin/sh</code></td>
+</tr>
+<tr>
+<td>List all containers</td>
+<td><code>docker ps -a</code></td>
+</tr>
+<tr>
+<td>Build image</td>
+<td><code>docker build -t TAG .</code></td>
+</tr>
+<tr>
+<td>Compose up</td>
+<td><code>docker compose up -d</code></td>
+</tr>
+<tr>
+<td>Compose down</td>
+<td><code>docker compose down</code></td>
+</tr>
+<tr>
+<td>Disk usage</td>
+<td><code>docker system df</code></td>
+</tr>
+<tr>
+<td>Cleanup dangling</td>
+<td><code>docker image prune &amp;&amp; docker container prune</code></td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<h4>1. Identify the domain</h4>
+<p>Figure out which area the request falls into:</p>
+<ul>
+<li><strong>Container lifecycle</strong> → run, stop, start, restart, rm, pause/unpause</li>
+<li><strong>Container interaction</strong> → exec, cp, logs, inspect, stats</li>
+<li><strong>Image management</strong> → build, pull, push, tag, rmi, save/load</li>
+<li><strong>Docker Compose</strong> → up, down, ps, logs, exec, build, config</li>
+<li><strong>Volumes &amp; networks</strong> → create, inspect, rm, prune, connect</li>
+<li><strong>Troubleshooting</strong> → log analysis, exit codes, resource issues</li>
+</ul>
+<h4>2. Container operations</h4>
+<p><strong>Run a new container:</strong></p>
+<pre><code class="language-bash"># Detached service with port mapping
+docker run -d --name web -p 8080:80 nginx
+
+# With environment variables
+docker run -d -e POSTGRES_PASSWORD=secret -e POSTGRES_DB=mydb --name db postgres:16
+
+# With persistent data (named volume)
+docker run -d -v pgdata:/var/lib/postgresql/data --name db postgres:16
+
+# For development (bind mount source code)
+docker run -d -v $(pwd)/src:/app/src -p 3000:3000 --name dev my-app
+
+# Interactive debugging (auto-remove on exit)
+docker run -it --rm ubuntu:22.04 /bin/bash
+
+# With resource limits and restart policy
+docker run -d --memory=512m --cpus=1.5 --restart=unless-stopped --name app my-app
+</code></pre>
+<p>Key flags: <code>-d</code> detached, <code>-it</code> interactive+tty, <code>--rm</code> auto-remove, <code>-p</code> port (host:container), <code>-e</code> env var, <code>-v</code> volume, <code>--name</code> name, <code>--restart</code> restart policy.</p>
+<p><strong>Manage running containers:</strong></p>
+<pre><code class="language-bash">docker ps                        # running containers
+docker ps -a                     # all (including stopped)
+docker stop NAME                 # graceful stop
+docker start NAME                # start stopped container
+docker restart NAME              # stop + start
+docker rm NAME                   # remove stopped container
+docker rm -f NAME                # force remove running container
+docker container prune           # remove ALL stopped containers
+</code></pre>
+<p><strong>Interact with containers:</strong></p>
+<pre><code class="language-bash">docker exec -it NAME /bin/sh          # shell access (use /bin/bash if available)
+docker exec NAME env                   # view environment variables
+docker exec -u root NAME apt update    # run as specific user
+docker logs --tail 100 -f NAME         # follow last 100 lines
+docker logs --since 2h NAME            # logs from last 2 hours
+docker cp NAME:/path/file ./local      # copy file from container
+docker cp ./file NAME:/path/           # copy file to container
+docker inspect NAME                    # full container details (JSON)
+docker stats --no-stream               # resource usage snapshot
+docker top NAME                        # running processes
+</code></pre>
+<h4>3. Image management</h4>
+<pre><code class="language-bash"># Build
+docker build -t my-app:latest .
+docker build -t my-app:prod -f Dockerfile.prod .
+docker build --no-cache -t my-app .              # clean rebuild
+DOCKER_BUILDKIT=1 docker build -t my-app .       # faster with BuildKit
+
+# Pull and push
+docker pull node:20-alpine
+docker login ghcr.io
+docker tag my-app:latest registry/my-app:v1.0
+docker push registry/my-app:v1.0
+
+# Inspect
+docker images                          # list local images
+docker history IMAGE                   # see layers
+docker inspect IMAGE                   # full details
+
+# Cleanup
+docker image prune                     # remove dangling (untagged) images
+docker image prune -a                  # remove ALL unused images (careful!)
+docker image prune -a --filter &quot;until=168h&quot;   # unused images older than 7 days
+</code></pre>
+<h4>4. Docker Compose</h4>
+<pre><code class="language-bash"># Start/stop
+docker compose up -d                   # start all services detached
+docker compose up -d --build           # rebuild images before starting
+docker compose down                    # stop and remove containers
+docker compose down -v                 # also remove volumes (DESTROYS DATA)
+
+# Monitoring
+docker compose ps                      # list services
+docker compose logs -f api             # follow logs for specific service
+docker compose logs --tail 50          # last 50 lines all services
+
+# Interaction
+docker compose exec api /bin/sh        # shell into running service
+docker compose run --rm api npm test   # one-off command (new container)
+docker compose restart api             # restart specific service
+
+# Validation
+docker compose config                  # validate and view resolved config
+</code></pre>
+<p><strong>Minimal compose.yml example:</strong></p>
+<pre><code class="language-yaml">services:
+  api:
+    build: .
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      # Password comes from the POSTGRES_PASSWORD secret, not the URL
+      - DATABASE_URL=postgres://mydb_user@db:5432/mydb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [&quot;CMD-SHELL&quot;, &quot;pg_isready -U user&quot;]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+</code></pre>
+<h4>5. Volumes and networks</h4>
+<pre><code class="language-bash"># Volumes
+docker volume ls                       # list volumes
+docker volume create mydata            # create named volume
+docker volume inspect mydata           # details (mount point, etc.)
+docker volume rm mydata                # remove (fails if in use)
+docker volume prune                    # remove unused volumes
+
+# Networks
+docker network ls                      # list networks
+docker network create mynet            # create bridge network
+docker network inspect mynet           # details (connected containers)
+docker network connect mynet NAME      # attach container to network
+docker network disconnect mynet NAME   # detach container
+docker network rm mynet                # remove network
+docker network prune                   # remove unused networks
+</code></pre>
+<h4>6. Disk usage and cleanup</h4>
+<p>Always start with a diagnostic before cleaning:</p>
+<pre><code class="language-bash"># Check what&#39;s using space
+docker system df                       # summary
+docker system df -v                    # detailed breakdown
+
+# Targeted cleanup (safe)
+docker container prune                 # stopped containers
+docker image prune                     # dangling images
+docker volume prune                    # unused volumes
+docker network prune                   # unused networks
+
+# Aggressive cleanup (confirm with user first!)
+docker system prune                    # containers + images + networks
+docker system prune -a                 # also unused images
+docker system prune -a --volumes       # EVERYTHING — named volumes too
+</code></pre>
+<p><strong>Warning:</strong> Never run <code>docker system prune -a --volumes</code> without confirming with the user. This removes named volumes with potentially important data.</p>
+<h3>Pitfalls</h3>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Container exits immediately</td>
+<td>Main process finished or crashed</td>
+<td>Check <code>docker logs NAME</code>, try <code>docker run -it --entrypoint /bin/sh IMAGE</code></td>
+</tr>
+<tr>
+<td>&quot;port is already allocated&quot;</td>
+<td>Another process using that port</td>
+<td><code>docker ps</code> or <code>lsof -i :PORT</code> to find it</td>
+</tr>
+<tr>
+<td>&quot;no space left on device&quot;</td>
+<td>Docker disk full</td>
+<td><code>docker system df</code> then targeted prune</td>
+</tr>
+<tr>
+<td>Can&#39;t connect to container</td>
+<td>App binds to 127.0.0.1 inside container</td>
+<td>App must bind to <code>0.0.0.0</code>, check <code>-p</code> mapping</td>
+</tr>
+<tr>
+<td>Permission denied on volume</td>
+<td>UID/GID mismatch host vs container</td>
+<td>Use <code>--user $(id -u):$(id -g)</code> or fix permissions</td>
+</tr>
+<tr>
+<td>Compose services can&#39;t reach each other</td>
+<td>Wrong network or service name</td>
+<td>Services use service name as hostname, check <code>docker compose config</code></td>
+</tr>
+<tr>
+<td>Build cache not working</td>
+<td>Layer order wrong in Dockerfile</td>
+<td>Put rarely-changing layers first (deps before source code)</td>
+</tr>
+<tr>
+<td>Image too large</td>
+<td>No multi-stage build, no .dockerignore</td>
+<td>Use multi-stage builds, add <code>.dockerignore</code></td>
+</tr>
+</tbody></table>
+<h3>Verification</h3>
+<p>After any Docker operation, verify the result:</p>
+<ul>
+<li><strong>Container started?</strong> → <code>docker ps</code> (check status is &quot;Up&quot;)</li>
+<li><strong>Logs clean?</strong> → <code>docker logs --tail 20 NAME</code> (no errors)</li>
+<li><strong>Port accessible?</strong> → <code>curl -s http://localhost:PORT</code> or <code>docker port NAME</code></li>
+<li><strong>Image built?</strong> → <code>docker images | grep TAG</code></li>
+<li><strong>Compose stack healthy?</strong> → <code>docker compose ps</code> (all services &quot;running&quot; or &quot;healthy&quot;)</li>
+<li><strong>Disk freed?</strong> → <code>docker system df</code> (compare before/after)</li>
+</ul>
+<h3>Dockerfile Optimization Tips</h3>
+<p>When reviewing or creating a Dockerfile, suggest these improvements:</p>
+<ol>
+<li><strong>Multi-stage builds</strong> — separate build environment from runtime to reduce final image size</li>
+<li><strong>Layer ordering</strong> — put dependencies before source code so changes don&#39;t invalidate cached layers</li>
+<li><strong>Combine RUN commands</strong> — fewer layers, smaller image</li>
+<li><strong>Use .dockerignore</strong> — exclude <code>node_modules</code>, <code>.git</code>, <code>__pycache__</code>, etc.</li>
+<li><strong>Pin base image versions</strong> — <code>node:20-alpine</code> not <code>node:latest</code></li>
+<li><strong>Run as non-root</strong> — add <code>USER</code> instruction for security</li>
+<li><strong>Use slim/alpine bases</strong> — <code>python:3.12-slim</code> not <code>python:3.12</code></li>
+</ol>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/devops/docker-management</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

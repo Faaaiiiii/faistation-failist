@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>github — Skill Hermes</title>
+<meta name="description" content="GitHub via gh CLI: PRs, issues, reviews, repos, auth.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>github</h1>
+    <p class="lede">GitHub via gh CLI: PRs, issues, reviews, repos, auth.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>github</dd>
+      <dt>Keterangan</dt><dd>GitHub via gh CLI: PRs, issues, reviews, repos, auth.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>Ben Barclay (benbarclay), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>software-development · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/github.zip" download>Muat turun ZIP (35.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (17)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">2.4 KB</td></tr>
+<tr><td><code>references/auth.md</code></td><td class="sz">11.3 KB</td></tr>
+<tr><td><code>references/ci-troubleshooting.md</code></td><td class="sz">4.8 KB</td></tr>
+<tr><td><code>references/code-review.md</code></td><td class="sz">13.0 KB</td></tr>
+<tr><td><code>references/conventional-commits.md</code></td><td class="sz">2.4 KB</td></tr>
+<tr><td><code>references/github-api-cheatsheet.md</code></td><td class="sz">5.9 KB</td></tr>
+<tr><td><code>references/issue-to-pr.md</code></td><td class="sz">5.5 KB</td></tr>
+<tr><td><code>references/issues.md</code></td><td class="sz">8.8 KB</td></tr>
+<tr><td><code>references/pr-workflow.md</code></td><td class="sz">9.5 KB</td></tr>
+<tr><td><code>references/repo-management.md</code></td><td class="sz">13.1 KB</td></tr>
+<tr><td><code>references/review-output-template.md</code></td><td class="sz">2.4 KB</td></tr>
+<tr><td><code>scripts/gh-env.sh</code></td><td class="sz">2.5 KB</td></tr>
+<tr><td><code>scripts/git-credential-token.py</code></td><td class="sz">1.7 KB</td></tr>
+<tr><td><code>templates/bug-report.md</code></td><td class="sz">469 B</td></tr>
+<tr><td><code>templates/feature-request.md</code></td><td class="sz">598 B</td></tr>
+<tr><td><code>templates/pr-body-bugfix.md</code></td><td class="sz">513 B</td></tr>
+<tr><td><code>templates/pr-body-feature.md</code></td><td class="sz">580 B</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>GitHub</h2>
+<p>Work GitHub end to end with the <code>gh</code> CLI (REST fallback where noted): auth,
+issues, the PR lifecycle, issue-to-PR delivery, code review, and repo
+management. This skill consolidates six former skills; each workflow lives
+complete in its reference file — ALWAYS read the matching reference before
+starting that workflow, the body below only routes.</p>
+<h3>Routing</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Read first</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Auth broken / new machine / token or SSH setup / gh login</td>
+<td><code>references/auth.md</code></td>
+</tr>
+<tr>
+<td>Create, triage, label, assign, close issues</td>
+<td><code>references/issues.md</code></td>
+</tr>
+<tr>
+<td>Branch, commit, open PR, watch CI, merge</td>
+<td><code>references/pr-workflow.md</code></td>
+</tr>
+<tr>
+<td>Carry an ISSUE to a verified PR (full delivery loop)</td>
+<td><code>references/issue-to-pr.md</code></td>
+</tr>
+<tr>
+<td>Review someone&#39;s PR: diffs, inline comments, verdict</td>
+<td><code>references/code-review.md</code></td>
+</tr>
+<tr>
+<td>Clone/create/fork repos, remotes, releases</td>
+<td><code>references/repo-management.md</code></td>
+</tr>
+</tbody></table>
+<p>Supporting assets: <code>scripts/gh-env.sh</code> + <code>scripts/git-credential-token.py</code>
+(auth helpers), <code>templates/</code> (PR bodies, bug report, feature request),
+<code>references/ci-troubleshooting.md</code>, <code>references/conventional-commits.md</code>,
+<code>references/github-api-cheatsheet.md</code>, <code>references/review-output-template.md</code>.</p>
+<h3>Core discipline (applies to every workflow)</h3>
+<ul>
+<li>Preflight once per session: <code>gh auth status</code> — if it fails, go to
+<code>references/auth.md</code> before anything else.</li>
+<li>Prefer <code>gh</code> over raw REST; drop to <code>gh api</code> only for endpoints the
+porcelain lacks (the cheatsheet lists them).</li>
+<li>Never report CI green without checking <code>gh pr checks</code> yourself; never
+claim merged without verifying <code>state,mergedAt</code>.</li>
+<li>Read full context before writing: <code>gh issue view --comments</code> /
+<code>gh pr view --comments</code> — decisions live in threads, not titles.</li>
+<li>Sweep for duplicates before creating anything:
+<code>gh pr list --search</code> / <code>gh issue list --search</code>.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>The workflow&#39;s own reference file defines done for that task.</li>
+<li>Cross-cutting: every claim about remote state (CI, merge, release,
+issue state) is backed by a fresh <code>gh</code> read, never memory.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/software-development/github</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

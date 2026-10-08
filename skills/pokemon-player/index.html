@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pokemon-player — Skill Hermes</title>
+<meta name="description" content="Play Pokemon via headless emulator + RAM reads.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pokemon-player</h1>
+    <p class="lede">Play Pokemon via headless emulator + RAM reads.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pokemon-player</dd>
+      <dt>Keterangan</dt><dd>Play Pokemon via headless emulator + RAM reads.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>gaming · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pokemon-player.zip" download>Muat turun ZIP (4.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Pokemon Player</h2>
+<p>Play Pokemon games via headless emulation using the <code>pokemon-agent</code> package.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User says &quot;play pokemon&quot;, &quot;start pokemon&quot;, &quot;pokemon game&quot;</li>
+<li>User asks about Pokemon Red, Blue, Yellow, FireRed, etc.</li>
+<li>User wants to watch an AI play Pokemon</li>
+<li>User references a ROM file (.gb, .gbc, .gba)</li>
+</ul>
+<h3>Startup Procedure</h3>
+<h4>1. First-time setup (clone, venv, install)</h4>
+<p>The repo is NousResearch/pokemon-agent on GitHub. Clone it, then
+set up a Python 3.10+ virtual environment. Use uv (preferred for speed)
+to create the venv and install the package in editable mode with the
+pyboy extra. If uv is not available, fall back to python -m venv + pip.</p>
+<p>If a checkout already exists (e.g. ~/pokemon-agent with a venv ready),
+just cd there and source .venv/bin/activate instead of recloning.</p>
+<p>You also need a ROM file. Ask the user for theirs (a previous setup may
+already have one at roms/pokemon_red.gb inside the checkout).
+NEVER download or provide ROM files — always ask the user.</p>
+<h4>2. Start the game server</h4>
+<p>From inside the pokemon-agent directory with the venv activated, run
+pokemon-agent serve with --rom pointing to the ROM and --port 9876.
+Run it in the background with &amp;.
+To resume from a saved game, add --load-state with the save name.
+Wait 4 seconds for startup, then verify with GET /health.</p>
+<h4>3. Set up live dashboard for user to watch</h4>
+<p>Use an SSH reverse tunnel via localhost.run so the user can view
+the dashboard in their browser. Connect with ssh, forwarding local
+port 9876 to remote port 80 on the keyless localhost.run endpoint
+(ssh -R 80:localhost:9876 ssh://<a href="mailto:nokey@localhost.run">nokey@localhost.run</a>). Redirect output
+to a log file, wait 10 seconds, then grep the log for the .lhr.life
+URL. Give the user the URL with /dashboard/ appended.
+The tunnel URL changes each time — give the user the new one if restarted.</p>
+<h3>Save and Load</h3>
+<h4>When to save</h4>
+<ul>
+<li>Every 15-20 turns of gameplay</li>
+<li>ALWAYS before gym battles, rival encounters, or risky fights</li>
+<li>Before entering a new town or dungeon</li>
+<li>Before any action you are unsure about</li>
+</ul>
+<h4>How to save</h4>
+<p>POST /save with a descriptive name. Good examples:
+before_brock, route1_start, mt_moon_entrance, got_cut</p>
+<h4>How to load</h4>
+<p>POST /load with the save name.</p>
+<h4>List available saves</h4>
+<p>GET /saves returns all saved states.</p>
+<h4>Loading on server startup</h4>
+<p>Use --load-state flag when starting the server to auto-load a save.
+This is faster than loading via the API after startup.</p>
+<h3>The Gameplay Loop</h3>
+<h4>Step 1: OBSERVE — check state AND take a screenshot</h4>
+<p>GET /state for position, HP, battle, dialog.
+GET /screenshot and save to ~/.hermes/cache/scratch/pokemon.png, then use vision_analyze.
+Always do BOTH — RAM state gives numbers, vision gives spatial awareness.</p>
+<h4>Step 2: ORIENT</h4>
+<ul>
+<li>Dialog/text on screen → advance it</li>
+<li>In battle → fight or run</li>
+<li>Party hurt → head to Pokemon Center</li>
+<li>Near objective → navigate carefully</li>
+</ul>
+<h4>Step 3: DECIDE</h4>
+<p>Priority: dialog &gt; battle &gt; heal &gt; story objective &gt; training &gt; explore</p>
+<h4>Step 4: ACT — move 2-4 steps max, then re-check</h4>
+<p>POST /action with a SHORT action list (2-4 actions, not 10-15).</p>
+<h4>Step 5: VERIFY — screenshot after every move sequence</h4>
+<p>Take a screenshot and use vision_analyze to confirm you moved where
+intended. This is the MOST IMPORTANT step. Without vision you WILL get lost.</p>
+<h4>Step 6: RECORD progress to memory with PKM: prefix</h4>
+<h4>Step 7: SAVE periodically</h4>
+<h3>Action Reference</h3>
+<ul>
+<li>press_a — confirm, talk, select</li>
+<li>press_b — cancel, close menu</li>
+<li>press_start — open game menu</li>
+<li>walk_up/down/left/right — move one tile</li>
+<li>hold_b_N — hold B for N frames (use for speeding through text)</li>
+<li>wait_60 — wait about 1 second (60 frames)</li>
+<li>a_until_dialog_end — press A repeatedly until dialog clears</li>
+</ul>
+<h3>Critical Tips from Experience</h3>
+<h4>USE VISION CONSTANTLY</h4>
+<ul>
+<li>Take a screenshot every 2-4 movement steps</li>
+<li>The RAM state tells you position and HP but NOT what is around you</li>
+<li>Ledges, fences, signs, building doors, NPCs — only visible via screenshot</li>
+<li>Ask the vision model specific questions: &quot;what is one tile north of me?&quot;</li>
+<li>When stuck, always screenshot before trying random directions</li>
+</ul>
+<h4>Warp Transitions Need Extra Wait Time</h4>
+<p>When walking through a door or stairs, the screen fades to black during
+the map transition. You MUST wait for it to complete. Add 2-3 wait_60
+actions after any door/stair warp. Without waiting, the position reads
+as stale and you will think you are still in the old map.</p>
+<h4>Building Exit Trap</h4>
+<p>When you exit a building, you appear directly IN FRONT of the door.
+If you walk north, you go right back inside. ALWAYS sidestep first
+by walking left or right 2 tiles, then proceed in your intended direction.</p>
+<h4>Dialog Handling</h4>
+<p>Gen 1 text scrolls slowly letter-by-letter. To speed through dialog,
+hold B for 120 frames then press A. Repeat as needed. Holding B makes
+text display at max speed. Then press A to advance to the next line.
+The a_until_dialog_end action checks the RAM dialog flag, but this flag
+does not catch ALL text states. If dialog seems stuck, use the manual
+hold_b + press_a pattern instead and verify via screenshot.</p>
+<h4>Ledges Are One-Way</h4>
+<p>Ledges (small cliff edges) can only be jumped DOWN (south), never climbed
+UP (north). If blocked by a ledge going north, you must go left or right
+to find the gap around it. Use vision to identify which direction the
+gap is. Ask the vision model explicitly.</p>
+<h4>Navigation Strategy</h4>
+<ul>
+<li>Move 2-4 steps at a time, then screenshot to check position</li>
+<li>When entering a new area, screenshot immediately to orient</li>
+<li>Ask the vision model &quot;which direction to [destination]?&quot;</li>
+<li>If stuck for 3+ attempts, screenshot and re-evaluate completely</li>
+<li>Do not spam 10-15 movements — you will overshoot or get stuck</li>
+</ul>
+<h4>Running from Wild Battles</h4>
+<p>On the battle menu, RUN is bottom-right. To reach it from the default
+cursor position (FIGHT, top-left): press down then right to move cursor
+to RUN, then press A. Wrap with hold_b to speed through text/animations.</p>
+<h4>Battling (FIGHT)</h4>
+<p>On the battle menu FIGHT is top-left (default cursor position).
+Press A to enter move selection, A again to use the first move.
+Then hold B to speed through attack animations and text.</p>
+<h3>Battle Strategy</h3>
+<h4>Decision Tree</h4>
+<ol>
+<li>Want to catch? → Weaken then throw Poke Ball</li>
+<li>Wild you don&#39;t need? → RUN</li>
+<li>Type advantage? → Use super-effective move</li>
+<li>No advantage? → Use strongest STAB move</li>
+<li>Low HP? → Switch or use Potion</li>
+</ol>
+<h4>Gen 1 Type Chart (key matchups)</h4>
+<ul>
+<li>Water beats Fire, Ground, Rock</li>
+<li>Fire beats Grass, Bug, Ice</li>
+<li>Grass beats Water, Ground, Rock</li>
+<li>Electric beats Water, Flying</li>
+<li>Ground beats Fire, Electric, Rock, Poison</li>
+<li>Psychic beats Fighting, Poison (dominant in Gen 1!)</li>
+</ul>
+<h4>Gen 1 Quirks</h4>
+<ul>
+<li>Special stat = both offense AND defense for special moves</li>
+<li>Psychic type is overpowered (Ghost moves bugged)</li>
+<li>Critical hits based on Speed stat</li>
+<li>Wrap/Bind prevent opponent from acting</li>
+<li>Focus Energy bug: REDUCES crit rate instead of raising it</li>
+</ul>
+<h3>Memory Conventions</h3>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PKM:OBJECTIVE</td>
+<td>Current goal</td>
+<td>Get Parcel from Viridian Mart</td>
+</tr>
+<tr>
+<td>PKM:MAP</td>
+<td>Navigation knowledge</td>
+<td>Viridian: mart is northeast</td>
+</tr>
+<tr>
+<td>PKM:STRATEGY</td>
+<td>Battle/team plans</td>
+<td>Need Grass type before Misty</td>
+</tr>
+<tr>
+<td>PKM:PROGRESS</td>
+<td>Milestone tracker</td>
+<td>Beat rival, heading to Viridian</td>
+</tr>
+<tr>
+<td>PKM:STUCK</td>
+<td>Stuck situations</td>
+<td>Ledge at y=28 go right to bypass</td>
+</tr>
+<tr>
+<td>PKM:TEAM</td>
+<td>Team notes</td>
+<td>Squirtle Lv6, Tackle + Tail Whip</td>
+</tr>
+</tbody></table>
+<h3>Progression Milestones</h3>
+<ul>
+<li>Choose starter</li>
+<li>Deliver Parcel from Viridian Mart, receive Pokedex</li>
+<li>Boulder Badge — Brock (Rock) → use Water/Grass</li>
+<li>Cascade Badge — Misty (Water) → use Grass/Electric</li>
+<li>Thunder Badge — Lt. Surge (Electric) → use Ground</li>
+<li>Rainbow Badge — Erika (Grass) → use Fire/Ice/Flying</li>
+<li>Soul Badge — Koga (Poison) → use Ground/Psychic</li>
+<li>Marsh Badge — Sabrina (Psychic) → hardest gym</li>
+<li>Volcano Badge — Blaine (Fire) → use Water/Ground</li>
+<li>Earth Badge — Giovanni (Ground) → use Water/Grass/Ice</li>
+<li>Elite Four → Champion!</li>
+</ul>
+<h3>Stopping Play</h3>
+<ol>
+<li>Save the game with a descriptive name via POST /save</li>
+<li>Update memory with PKM:PROGRESS</li>
+<li>Tell user: &quot;Game saved as [name]! Say &#39;play pokemon&#39; to resume.&quot;</li>
+<li>Kill the server and tunnel background processes</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li>NEVER download or provide ROM files</li>
+<li>Do NOT send more than 4-5 actions without checking vision</li>
+<li>Always sidestep after exiting buildings before going north</li>
+<li>Always add wait_60 x2-3 after door/stair warps</li>
+<li>Dialog detection via RAM is unreliable — verify with screenshots</li>
+<li>Save BEFORE risky encounters</li>
+<li>The tunnel URL changes each time you restart it</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/gaming/pokemon-player</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

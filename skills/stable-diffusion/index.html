@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>stable-diffusion — Skill Hermes</title>
+<meta name="description" content="Text-to-image generation, inpainting, and img2img.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>stable-diffusion</h1>
+    <p class="lede">Text-to-image generation, inpainting, and img2img.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>stable-diffusion</dd>
+      <dt>Keterangan</dt><dd>Text-to-image generation, inpainting, and img2img.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/stable-diffusion.zip" download>Muat turun ZIP (13.9 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.5 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">17.3 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">12.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Stable Diffusion Image Generation</h2>
+<p>Guide to generating images with Stable Diffusion using the HuggingFace Diffusers library.</p>
+<h3>When to use Stable Diffusion</h3>
+<p><strong>Use Stable Diffusion when:</strong></p>
+<ul>
+<li>Generating images from text descriptions</li>
+<li>Performing image-to-image translation (style transfer, enhancement)</li>
+<li>Inpainting (filling in masked regions)</li>
+<li>Outpainting (extending images beyond boundaries)</li>
+<li>Creating variations of existing images</li>
+<li>Building custom image generation workflows</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Text-to-Image</strong>: Generate images from natural language prompts</li>
+<li><strong>Image-to-Image</strong>: Transform existing images with text guidance</li>
+<li><strong>Inpainting</strong>: Fill masked regions with context-aware content</li>
+<li><strong>ControlNet</strong>: Add spatial conditioning (edges, poses, depth)</li>
+<li><strong>LoRA Support</strong>: Efficient fine-tuning and style adaptation</li>
+<li><strong>Multiple Models</strong>: SD 1.5, SDXL, SD 3.0, Flux support</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>DALL-E 3</strong>: For API-based generation without GPU</li>
+<li><strong>Midjourney</strong>: For artistic, stylized outputs</li>
+<li><strong>Imagen</strong>: For Google Cloud integration</li>
+<li><strong>Leonardo.ai</strong>: For web-based creative workflows</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash">pip install diffusers transformers accelerate torch
+pip install xformers  # Optional: memory-efficient attention
+</code></pre>
+<h4>Basic text-to-image</h4>
+<pre><code class="language-python">from diffusers import DiffusionPipeline
+import torch
+
+# Load pipeline (auto-detects model type)
+pipe = DiffusionPipeline.from_pretrained(
+    &quot;stable-diffusion-v1-5/stable-diffusion-v1-5&quot;,
+    torch_dtype=torch.float16
+)
+pipe.to(&quot;cuda&quot;)
+
+# Generate image
+image = pipe(
+    &quot;A serene mountain landscape at sunset, highly detailed&quot;,
+    num_inference_steps=50,
+    guidance_scale=7.5
+).images[0]
+
+image.save(&quot;output.png&quot;)
+</code></pre>
+<h4>Using SDXL (higher quality)</h4>
+<pre><code class="language-python">from diffusers import AutoPipelineForText2Image
+import torch
+
+pipe = AutoPipelineForText2Image.from_pretrained(
+    &quot;stabilityai/stable-diffusion-xl-base-1.0&quot;,
+    torch_dtype=torch.float16,
+    variant=&quot;fp16&quot;
+)
+pipe.to(&quot;cuda&quot;)
+
+# Enable memory optimization
+pipe.enable_model_cpu_offload()
+
+image = pipe(
+    prompt=&quot;A futuristic city with flying cars, cinematic lighting&quot;,
+    height=1024,
+    width=1024,
+    num_inference_steps=30
+).images[0]
+</code></pre>
+<h3>Architecture overview</h3>
+<h4>Three-pillar design</h4>
+<p>Diffusers is built around three core components:</p>
+<pre><code>Pipeline (orchestration)
+├── Model (neural networks)
+│   ├── UNet / Transformer (noise prediction)
+│   ├── VAE (latent encoding/decoding)
+│   └── Text Encoder (CLIP/T5)
+└── Scheduler (denoising algorithm)
+</code></pre>
+<h4>Pipeline inference flow</h4>
+<pre><code>Text Prompt → Text Encoder → Text Embeddings
+                                    ↓
+Random Noise → [Denoising Loop] ← Scheduler
+                      ↓
+               Predicted Noise
+                      ↓
+              VAE Decoder → Final Image
+</code></pre>
+<h3>Core concepts</h3>
+<h4>Pipelines</h4>
+<p>Pipelines orchestrate complete workflows:</p>
+<table>
+<thead>
+<tr>
+<th>Pipeline</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>StableDiffusionPipeline</code></td>
+<td>Text-to-image (SD 1.x/2.x)</td>
+</tr>
+<tr>
+<td><code>StableDiffusionXLPipeline</code></td>
+<td>Text-to-image (SDXL)</td>
+</tr>
+<tr>
+<td><code>StableDiffusion3Pipeline</code></td>
+<td>Text-to-image (SD 3.0)</td>
+</tr>
+<tr>
+<td><code>FluxPipeline</code></td>
+<td>Text-to-image (Flux models)</td>
+</tr>
+<tr>
+<td><code>StableDiffusionImg2ImgPipeline</code></td>
+<td>Image-to-image</td>
+</tr>
+<tr>
+<td><code>StableDiffusionInpaintPipeline</code></td>
+<td>Inpainting</td>
+</tr>
+</tbody></table>
+<h4>Schedulers</h4>
+<p>Schedulers control the denoising process:</p>
+<table>
+<thead>
+<tr>
+<th>Scheduler</th>
+<th>Steps</th>
+<th>Quality</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>EulerDiscreteScheduler</code></td>
+<td>20-50</td>
+<td>Good</td>
+<td>Default choice</td>
+</tr>
+<tr>
+<td><code>EulerAncestralDiscreteScheduler</code></td>
+<td>20-50</td>
+<td>Good</td>
+<td>More variation</td>
+</tr>
+<tr>
+<td><code>DPMSolverMultistepScheduler</code></td>
+<td>15-25</td>
+<td>Excellent</td>
+<td>Fast, high quality</td>
+</tr>
+<tr>
+<td><code>DDIMScheduler</code></td>
+<td>50-100</td>
+<td>Good</td>
+<td>Deterministic</td>
+</tr>
+<tr>
+<td><code>LCMScheduler</code></td>
+<td>4-8</td>
+<td>Good</td>
+<td>Very fast</td>
+</tr>
+<tr>
+<td><code>UniPCMultistepScheduler</code></td>
+<td>15-25</td>
+<td>Excellent</td>
+<td>Fast convergence</td>
+</tr>
+</tbody></table>
+<h4>Swapping schedulers</h4>
+<pre><code class="language-python">from diffusers import DPMSolverMultistepScheduler
+
+# Swap for faster generation
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(
+    pipe.scheduler.config
+)
+
+# Now generate with fewer steps
+image = pipe(prompt, num_inference_steps=20).images[0]
+</code></pre>
+<h3>Generation parameters</h3>
+<h4>Key parameters</h4>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>prompt</code></td>
+<td>Required</td>
+<td>Text description of desired image</td>
+</tr>
+<tr>
+<td><code>negative_prompt</code></td>
+<td>None</td>
+<td>What to avoid in the image</td>
+</tr>
+<tr>
+<td><code>num_inference_steps</code></td>
+<td>50</td>
+<td>Denoising steps (more = better quality)</td>
+</tr>
+<tr>
+<td><code>guidance_scale</code></td>
+<td>7.5</td>
+<td>Prompt adherence (7-12 typical)</td>
+</tr>
+<tr>
+<td><code>height</code>, <code>width</code></td>
+<td>512/1024</td>
+<td>Output dimensions (multiples of 8)</td>
+</tr>
+<tr>
+<td><code>generator</code></td>
+<td>None</td>
+<td>Torch generator for reproducibility</td>
+</tr>
+<tr>
+<td><code>num_images_per_prompt</code></td>
+<td>1</td>
+<td>Batch size</td>
+</tr>
+</tbody></table>
+<h4>Reproducible generation</h4>
+<pre><code class="language-python">import torch
+
+generator = torch.Generator(device=&quot;cuda&quot;).manual_seed(42)
+
+image = pipe(
+    prompt=&quot;A cat wearing a top hat&quot;,
+    generator=generator,
+    num_inference_steps=50
+).images[0]
+</code></pre>
+<h4>Negative prompts</h4>
+<pre><code class="language-python">image = pipe(
+    prompt=&quot;Professional photo of a dog in a garden&quot;,
+    negative_prompt=&quot;blurry, low quality, distorted, ugly, bad anatomy&quot;,
+    guidance_scale=7.5
+).images[0]
+</code></pre>
+<h3>Image-to-image</h3>
+<p>Transform existing images with text guidance:</p>
+<pre><code class="language-python">from diffusers import AutoPipelineForImage2Image
+from PIL import Image
+
+pipe = AutoPipelineForImage2Image.from_pretrained(
+    &quot;stable-diffusion-v1-5/stable-diffusion-v1-5&quot;,
+    torch_dtype=torch.float16
+).to(&quot;cuda&quot;)
+
+init_image = Image.open(&quot;input.jpg&quot;).resize((512, 512))
+
+image = pipe(
+    prompt=&quot;A watercolor painting of the scene&quot;,
+    image=init_image,
+    strength=0.75,  # How much to transform (0-1)
+    num_inference_steps=50
+).images[0]
+</code></pre>
+<h3>Inpainting</h3>
+<p>Fill masked regions:</p>
+<pre><code class="language-python">from diffusers import AutoPipelineForInpainting
+from PIL import Image
+
+pipe = AutoPipelineForInpainting.from_pretrained(
+    &quot;runwayml/stable-diffusion-inpainting&quot;,
+    torch_dtype=torch.float16
+).to(&quot;cuda&quot;)
+
+image = Image.open(&quot;photo.jpg&quot;)
+mask = Image.open(&quot;mask.png&quot;)  # White = inpaint region
+
+result = pipe(
+    prompt=&quot;A red car parked on the street&quot;,
+    image=image,
+    mask_image=mask,
+    num_inference_steps=50
+).images[0]
+</code></pre>
+<h3>ControlNet</h3>
+<p>Add spatial conditioning for precise control:</p>
+<pre><code class="language-python">from diffusers import StableDiffusionControlNetPipeline, ControlNetModel
+import torch
+
+# Load ControlNet for edge conditioning
+controlnet = ControlNetModel.from_pretrained(
+    &quot;lllyasviel/control_v11p_sd15_canny&quot;,
+    torch_dtype=torch.float16
+)
+
+pipe = StableDiffusionControlNetPipeline.from_pretrained(
+    &quot;stable-diffusion-v1-5/stable-diffusion-v1-5&quot;,
+    controlnet=controlnet,
+    torch_dtype=torch.float16
+).to(&quot;cuda&quot;)
+
+# Use Canny edge image as control
+control_image = get_canny_image(input_image)
+
+image = pipe(
+    prompt=&quot;A beautiful house in the style of Van Gogh&quot;,
+    image=control_image,
+    num_inference_steps=30
+).images[0]
+</code></pre>
+<h4>Available ControlNets</h4>
+<table>
+<thead>
+<tr>
+<th>ControlNet</th>
+<th>Input Type</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>canny</code></td>
+<td>Edge maps</td>
+<td>Preserve structure</td>
+</tr>
+<tr>
+<td><code>openpose</code></td>
+<td>Pose skeletons</td>
+<td>Human poses</td>
+</tr>
+<tr>
+<td><code>depth</code></td>
+<td>Depth maps</td>
+<td>3D-aware generation</td>
+</tr>
+<tr>
+<td><code>normal</code></td>
+<td>Normal maps</td>
+<td>Surface details</td>
+</tr>
+<tr>
+<td><code>mlsd</code></td>
+<td>Line segments</td>
+<td>Architectural lines</td>
+</tr>
+<tr>
+<td><code>scribble</code></td>
+<td>Rough sketches</td>
+<td>Sketch-to-image</td>
+</tr>
+</tbody></table>
+<h3>LoRA adapters</h3>
+<p>Load fine-tuned style adapters:</p>
+<pre><code class="language-python">from diffusers import DiffusionPipeline
+
+pipe = DiffusionPipeline.from_pretrained(
+    &quot;stable-diffusion-v1-5/stable-diffusion-v1-5&quot;,
+    torch_dtype=torch.float16
+).to(&quot;cuda&quot;)
+
+# Load LoRA weights
+pipe.load_lora_weights(&quot;path/to/lora&quot;, weight_name=&quot;style.safetensors&quot;)
+
+# Generate with LoRA style
+image = pipe(&quot;A portrait in the trained style&quot;).images[0]
+
+# Adjust LoRA strength
+pipe.fuse_lora(lora_scale=0.8)
+
+# Unload LoRA
+pipe.unload_lora_weights()
+</code></pre>
+<h4>Multiple LoRAs</h4>
+<pre><code class="language-python"># Load multiple LoRAs
+pipe.load_lora_weights(&quot;lora1&quot;, adapter_name=&quot;style&quot;)
+pipe.load_lora_weights(&quot;lora2&quot;, adapter_name=&quot;character&quot;)
+
+# Set weights for each
+pipe.set_adapters([&quot;style&quot;, &quot;character&quot;], adapter_weights=[0.7, 0.5])
+
+image = pipe(&quot;A portrait&quot;).images[0]
+</code></pre>
+<h3>Memory optimization</h3>
+<h4>Enable CPU offloading</h4>
+<pre><code class="language-python"># Model CPU offload - moves models to CPU when not in use
+pipe.enable_model_cpu_offload()
+
+# Sequential CPU offload - more aggressive, slower
+pipe.enable_sequential_cpu_offload()
+</code></pre>
+<h4>Attention slicing</h4>
+<pre><code class="language-python"># Reduce memory by computing attention in chunks
+pipe.enable_attention_slicing()
+
+# Or specific chunk size
+pipe.enable_attention_slicing(&quot;max&quot;)
+</code></pre>
+<h4>xFormers memory-efficient attention</h4>
+<pre><code class="language-python"># Requires xformers package
+pipe.enable_xformers_memory_efficient_attention()
+</code></pre>
+<h4>VAE slicing for large images</h4>
+<pre><code class="language-python"># Decode latents in tiles for large images
+pipe.enable_vae_slicing()
+pipe.enable_vae_tiling()
+</code></pre>
+<h3>Model variants</h3>
+<h4>Loading different precisions</h4>
+<pre><code class="language-python"># FP16 (recommended for GPU)
+pipe = DiffusionPipeline.from_pretrained(
+    &quot;model-id&quot;,
+    torch_dtype=torch.float16,
+    variant=&quot;fp16&quot;
+)
+
+# BF16 (better precision, requires Ampere+ GPU)
+pipe = DiffusionPipeline.from_pretrained(
+    &quot;model-id&quot;,
+    torch_dtype=torch.bfloat16
+)
+</code></pre>
+<h4>Loading specific components</h4>
+<pre><code class="language-python">from diffusers import UNet2DConditionModel, AutoencoderKL
+
+# Load custom VAE
+vae = AutoencoderKL.from_pretrained(&quot;stabilityai/sd-vae-ft-mse&quot;)
+
+# Use with pipeline
+pipe = DiffusionPipeline.from_pretrained(
+    &quot;stable-diffusion-v1-5/stable-diffusion-v1-5&quot;,
+    vae=vae,
+    torch_dtype=torch.float16
+)
+</code></pre>
+<h3>Batch generation</h3>
+<p>Generate multiple images efficiently:</p>
+<pre><code class="language-python"># Multiple prompts
+prompts = [
+    &quot;A cat playing piano&quot;,
+    &quot;A dog reading a book&quot;,
+    &quot;A bird painting a picture&quot;
+]
+
+images = pipe(prompts, num_inference_steps=30).images
+
+# Multiple images per prompt
+images = pipe(
+    &quot;A beautiful sunset&quot;,
+    num_images_per_prompt=4,
+    num_inference_steps=30
+).images
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: High-quality generation</h4>
+<pre><code class="language-python">from diffusers import StableDiffusionXLPipeline, DPMSolverMultistepScheduler
+import torch
+
+# 1. Load SDXL with optimizations
+pipe = StableDiffusionXLPipeline.from_pretrained(
+    &quot;stabilityai/stable-diffusion-xl-base-1.0&quot;,
+    torch_dtype=torch.float16,
+    variant=&quot;fp16&quot;
+)
+pipe.to(&quot;cuda&quot;)
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+pipe.enable_model_cpu_offload()
+
+# 2. Generate with quality settings
+image = pipe(
+    prompt=&quot;A majestic lion in the savanna, golden hour lighting, 8k, detailed fur&quot;,
+    negative_prompt=&quot;blurry, low quality, cartoon, anime, sketch&quot;,
+    num_inference_steps=30,
+    guidance_scale=7.5,
+    height=1024,
+    width=1024
+).images[0]
+</code></pre>
+<h4>Workflow 2: Fast prototyping</h4>
+<pre><code class="language-python">from diffusers import AutoPipelineForText2Image, LCMScheduler
+import torch
+
+# Use LCM for 4-8 step generation
+pipe = AutoPipelineForText2Image.from_pretrained(
+    &quot;stabilityai/stable-diffusion-xl-base-1.0&quot;,
+    torch_dtype=torch.float16
+).to(&quot;cuda&quot;)
+
+# Load LCM LoRA for fast generation
+pipe.load_lora_weights(&quot;latent-consistency/lcm-lora-sdxl&quot;)
+pipe.scheduler = LCMScheduler.from_config(pipe.scheduler.config)
+pipe.fuse_lora()
+
+# Generate in ~1 second
+image = pipe(
+    &quot;A beautiful landscape&quot;,
+    num_inference_steps=4,
+    guidance_scale=1.0
+).images[0]
+</code></pre>
+<h3>Common issues</h3>
+<p><strong>CUDA out of memory:</strong></p>
+<pre><code class="language-python"># Enable memory optimizations
+pipe.enable_model_cpu_offload()
+pipe.enable_attention_slicing()
+pipe.enable_vae_slicing()
+
+# Or use lower precision
+pipe = DiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+</code></pre>
+<p><strong>Black/noise images:</strong></p>
+<pre><code class="language-python"># Check VAE configuration
+# Use safety checker bypass if needed
+pipe.safety_checker = None
+
+# Ensure proper dtype consistency
+pipe = pipe.to(dtype=torch.float16)
+</code></pre>
+<p><strong>Slow generation:</strong></p>
+<pre><code class="language-python"># Use faster scheduler
+from diffusers import DPMSolverMultistepScheduler
+pipe.scheduler = DPMSolverMultistepScheduler.from_config(pipe.scheduler.config)
+
+# Reduce steps
+image = pipe(prompt, num_inference_steps=20).images[0]
+</code></pre>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Custom pipelines, fine-tuning, deployment</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues and solutions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://huggingface.co/docs/diffusers">https://huggingface.co/docs/diffusers</a></li>
+<li><strong>Repository</strong>: <a href="https://github.com/huggingface/diffusers">https://github.com/huggingface/diffusers</a></li>
+<li><strong>Model Hub</strong>: <a href="https://huggingface.co/models?library=diffusers">https://huggingface.co/models?library=diffusers</a></li>
+<li><strong>Discord</strong>: <a href="https://discord.gg/diffusers">https://discord.gg/diffusers</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/stable-diffusion</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

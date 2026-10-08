@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>merger-model — Skill Hermes</title>
+<meta name="description" content="Build M&amp;A accretion/dilution workbooks in Excel.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>merger-model</h1>
+    <p class="lede">Build M&amp;A accretion/dilution workbooks in Excel.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>merger-model</dd>
+      <dt>Keterangan</dt><dd>Build M&amp;A accretion/dilution workbooks in Excel.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Anthropic (adapted by Nous Research)</dd>
+      <dt>Lesen</dt><dd>Apache-2.0</dd>
+      <dt>Kategori</dt><dd>finance · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/merger-model.zip" download>Muat turun ZIP (2.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.2 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h3>Environment</h3>
+<p>This skill assumes <strong>headless openpyxl</strong> — you are producing an .xlsx file on disk.
+Follow the <code>excel-author</code> skill&#39;s conventions for cell coloring, formulas, named ranges, and sensitivity tables.
+Recalculate before delivery: <code>python /path/to/excel-author/scripts/recalc.py ./out/model.xlsx</code>.</p>
+<h2>Merger Model</h2>
+<p>Build accretion/dilution analysis for M&amp;A transactions. Models pro forma EPS impact, synergy sensitivities, and purchase price allocation. Use when evaluating a potential acquisition, preparing merger consequences analysis for a pitch, or advising on deal terms.</p>
+<h3>Workflow</h3>
+<h4>Step 1: Gather Inputs</h4>
+<p><strong>Acquirer:</strong></p>
+<ul>
+<li>Company name, current share price, shares outstanding</li>
+<li>LTM and NTM EPS (GAAP and adjusted)</li>
+<li>P/E multiple</li>
+<li>Pre-tax cost of debt, tax rate</li>
+<li>Cash on balance sheet, existing debt</li>
+</ul>
+<p><strong>Target:</strong></p>
+<ul>
+<li>Company name, current share price, shares outstanding (if public)</li>
+<li>LTM and NTM EPS or net income</li>
+<li>Enterprise value or equity value</li>
+</ul>
+<p><strong>Deal Terms:</strong></p>
+<ul>
+<li>Offer price per share (or premium to current)</li>
+<li>Consideration mix: % cash vs. % stock</li>
+<li>New debt raised to fund cash portion</li>
+<li>Expected synergies (revenue and cost) and phase-in timeline</li>
+<li>Transaction fees and financing costs</li>
+<li>Expected close date</li>
+</ul>
+<h4>Step 2: Purchase Price Analysis</h4>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Offer price per share</td>
+<td></td>
+</tr>
+<tr>
+<td>Premium to current</td>
+<td></td>
+</tr>
+<tr>
+<td>Equity value</td>
+<td></td>
+</tr>
+<tr>
+<td>Plus: net debt assumed</td>
+<td></td>
+</tr>
+<tr>
+<td>Enterprise value</td>
+<td></td>
+</tr>
+<tr>
+<td>EV / EBITDA implied</td>
+<td></td>
+</tr>
+<tr>
+<td>P/E implied</td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>Step 3: Sources &amp; Uses</h4>
+<table>
+<thead>
+<tr>
+<th>Sources</th>
+<th>$</th>
+<th>Uses</th>
+<th>$</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>New debt</td>
+<td></td>
+<td>Equity purchase price</td>
+<td></td>
+</tr>
+<tr>
+<td>Cash on hand</td>
+<td></td>
+<td>Refinance target debt</td>
+<td></td>
+</tr>
+<tr>
+<td>New equity issued</td>
+<td></td>
+<td>Transaction fees</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>Financing fees</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>Total</strong></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>Step 4: Pro Forma EPS (Accretion / Dilution)</h4>
+<p>Calculate year-by-year (Year 1-3):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Standalone</th>
+<th>Pro Forma</th>
+<th>Accretion/(Dilution)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Acquirer net income</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Target net income</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Synergies (after tax)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Foregone interest on cash (after tax)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>New debt interest (after tax)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Intangible amortization (after tax)</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Pro forma net income</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Pro forma shares</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Pro forma EPS</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Accretion / (Dilution) %</strong></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>Step 5: Sensitivity Analysis</h4>
+<p><strong>Accretion/Dilution vs. Synergies and Offer Premium:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>$0M syn</th>
+<th>$25M syn</th>
+<th>$50M syn</th>
+<th>$75M syn</th>
+<th>$100M syn</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>15% premium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>20% premium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>25% premium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>30% premium</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<p><strong>Accretion/Dilution vs. Cash/Stock Mix:</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>100% cash</th>
+<th>75/25</th>
+<th>50/50</th>
+<th>25/75</th>
+<th>100% stock</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Year 1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Year 2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h4>Step 6: Breakeven Synergies</h4>
+<p>Calculate the minimum synergies needed for the deal to be EPS-neutral in Year 1.</p>
+<h4>Step 7: Output</h4>
+<ul>
+<li>Excel workbook with:<ul>
+<li>Assumptions tab</li>
+<li>Sources &amp; uses</li>
+<li>Pro forma income statement</li>
+<li>Accretion/dilution summary</li>
+<li>Sensitivity tables</li>
+<li>Breakeven analysis</li>
+</ul>
+</li>
+<li>One-page merger consequences summary for pitch book</li>
+</ul>
+<h3>Important Notes</h3>
+<ul>
+<li>Always show both GAAP and adjusted (cash) EPS where relevant</li>
+<li>Stock deals: use acquirer&#39;s current price for exchange ratio, note dilution from new shares</li>
+<li>Include purchase price allocation — goodwill and intangible amortization matter for GAAP EPS</li>
+<li>Synergy phase-in is critical — Year 1 is often only 25-50% of run-rate synergies</li>
+<li>Don&#39;t forget foregone interest income on cash used and new interest expense on debt raised</li>
+<li>Tax rate on synergies and interest adjustments should match the acquirer&#39;s marginal rate</li>
+</ul>
+<h3>Data sources — MCP first, web fallback</h3>
+<p>Many passages below say &quot;use the S&amp;P Kensho MCP / Daloopa MCP / FactSet MCP&quot;. Those are commercial financial-data MCPs from the original Cowork plugin context. In Hermes:</p>
+<ul>
+<li><strong>If you have any structured financial-data MCP configured</strong> (Hermes supports MCP — see <code>native-mcp</code> skill), prefer it for point-in-time comps, precedent transactions, and filings.</li>
+<li><strong>Otherwise</strong>, fall back to:<ul>
+<li><code>web_search</code> / <code>web_extract</code> against SEC EDGAR (<code>https://www.sec.gov/cgi-bin/browse-edgar</code>) for US filings</li>
+<li>Company IR pages for press releases, earnings decks</li>
+<li><code>browser_navigate</code> for interactive data portals</li>
+<li>User-provided data (explicitly ask when the context doesn&#39;t have it)</li>
+</ul>
+</li>
+<li><strong>Never fabricate</strong>. If a multiple, precedent, or filing number can&#39;t be sourced, flag the cell as <code>[UNSOURCED]</code> and surface it to the user.</li>
+</ul>
+<h3>Attribution</h3>
+<p>This skill is adapted from Anthropic&#39;s Claude for Financial Services plugin suite (Apache-2.0). The Office-JS / Cowork live-Excel paths have been removed; this version targets headless openpyxl via the <code>excel-author</code> skill&#39;s conventions. Original: <a href="https://github.com/anthropics/financial-services">https://github.com/anthropics/financial-services</a></p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/finance/merger-model</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pinggy-tunnel — Skill Hermes</title>
+<meta name="description" content="Zero-install localhost tunnels over SSH via Pinggy.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pinggy-tunnel</h1>
+    <p class="lede">Zero-install localhost tunnels over SSH via Pinggy.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pinggy-tunnel</dd>
+      <dt>Keterangan</dt><dd>Zero-install localhost tunnels over SSH via Pinggy.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>devops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pinggy-tunnel.zip" download>Muat turun ZIP (5.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Pinggy Tunnel Skill</h2>
+<p>Expose a local service (dev server, webhook receiver, MCP endpoint, demo) to the public internet using a Pinggy SSH reverse tunnel. No daemon to install — the user&#39;s stock SSH client connects to <code>a.pinggy.io:443</code> and Pinggy hands back a public HTTP/HTTPS URL.</p>
+<p>Free tier: 60-minute tunnels, random subdomain, no signup. Pro tier ($3/mo) is an opt-in with a token.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks to &quot;expose this locally&quot;, &quot;share my dev server&quot;, &quot;make this URL public&quot;, &quot;tunnel port N&quot;, &quot;get a public URL for a webhook&quot;</li>
+<li>Need to receive a webhook callback during a local task (Stripe, GitHub, Discord, AgentMail)</li>
+<li>Sharing a one-off HTTP demo (MCP server, Ollama/vLLM endpoint, dashboard) with a remote party</li>
+<li>The host has SSH but no <code>cloudflared</code> / <code>ngrok</code> binary, and installing one would be overkill</li>
+</ul>
+<p>If the host already has <code>cloudflared</code> configured, prefer the <code>cloudflared-quick-tunnel</code> skill — Cloudflare quick tunnels don&#39;t expire after 60 minutes.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li><code>ssh</code> on PATH (<code>ssh -V</code>). Default on Linux, macOS, and Windows 10+. No other install.</li>
+<li>A local service listening on <code>127.0.0.1:&lt;port&gt;</code> before the tunnel starts. Pinggy will return URLs but they&#39;ll 502 until the local origin is up.</li>
+</ul>
+<p>Optional:</p>
+<ul>
+<li><code>PINGGY_TOKEN</code> env var for paid Pro features (persistent subdomain, custom domain, multiple tunnels, no 60-minute cap). Free tier needs no credentials.</li>
+</ul>
+<h3>Quick Reference</h3>
+<pre><code class="language-bash"># Plain HTTP/HTTPS tunnel for port 8000 (free tier)
+ssh -p 443 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
+    -R0:localhost:8000 free@a.pinggy.io
+
+# TCP tunnel (databases, raw SSH, etc.)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:5432 tcp@a.pinggy.io
+
+# TLS tunnel (Pinggy can&#39;t decrypt — bring your own certs at origin)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:443 tls@a.pinggy.io
+
+# Basic auth gate (b:user:pass)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:8000 \
+    &quot;b:admin:secret+free@a.pinggy.io&quot;
+
+# Bearer token gate (k:token)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:8000 \
+    &quot;k:mysecrettoken+free@a.pinggy.io&quot;
+
+# IP whitelist (w:CIDR)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:8000 \
+    &quot;w:203.0.113.0/24+free@a.pinggy.io&quot;
+
+# Enable CORS + force HTTPS redirect
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:8000 \
+    &quot;co+x:https+free@a.pinggy.io&quot;
+
+# Pro tier (persistent URL, no 60-min cap)
+ssh -p 443 -o StrictHostKeyChecking=no -R0:localhost:8000 &quot;$PINGGY_TOKEN+a.pinggy.io&quot;
+</code></pre>
+<h3>Procedure — Start a Tunnel and Get the URL</h3>
+<p>The model SHOULD use the <code>terminal</code> tool. The tunnel must stay alive for the duration of the share, so run it as a background process and parse the public URL from stdout.</p>
+<h4>1. Confirm a local origin is up</h4>
+<pre><code class="language-bash">curl -sI http://127.0.0.1:8000/ | head -1
+# expect HTTP/1.x 200 (or any non-connection-refused response)
+</code></pre>
+<p>If nothing is listening yet, start it first (e.g. <code>python -m http.server 8000 --bind 127.0.0.1</code>). Pinggy will happily return a URL pointed at nothing — the user will see 502 until the origin comes up.</p>
+<h4>2. Launch the tunnel as a background process</h4>
+<p>Use <code>terminal(background=True)</code> and capture output to a logfile (Pinggy prints the URLs on stdout, then keeps the connection open):</p>
+<pre><code class="language-bash">LOG=~/.hermes/cache/scratch/pinggy-8000.log
+nohup ssh -p 443 \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -o ServerAliveInterval=30 \
+    -o ServerAliveCountMax=3 \
+    -R0:localhost:8000 free@a.pinggy.io \
+    &gt; &quot;$LOG&quot; 2&gt;&amp;1 &amp;
+echo $! &gt; ~/.hermes/cache/scratch/pinggy-8000.pid
+</code></pre>
+<p><code>StrictHostKeyChecking=no</code> + <code>UserKnownHostsFile=/dev/null</code> skips the first-run host-key prompt. <code>ServerAliveInterval=30</code> keeps the SSH session from getting torn down by an idle NAT.</p>
+<h4>3. Parse the URL out of the log</h4>
+<pre><code class="language-bash">sleep 4
+grep -oE &#39;https://[a-z0-9-]+\.[a-z]+\.pinggy\.link&#39; ~/.hermes/cache/scratch/pinggy-8000.log | head -1
+</code></pre>
+<p>Expected output looks like:</p>
+<pre><code>You are not authenticated.
+Your tunnel will expire in 60 minutes.
+http://yqycl-98-162-69-48.a.free.pinggy.link
+https://yqycl-98-162-69-48.a.free.pinggy.link
+</code></pre>
+<p>Hand the <code>https://...pinggy.link</code> URL to the user.</p>
+<h4>4. Verify</h4>
+<pre><code class="language-bash">curl -sI https://&lt;the-url&gt;/ | head -3
+# expect 200/302/whatever the local origin actually returns
+</code></pre>
+<p>If you get <code>502 Bad Gateway</code>, the SSH session is up but the local origin isn&#39;t listening — fix step 1 first.</p>
+<h4>5. Teardown</h4>
+<pre><code class="language-bash">kill &quot;$(cat ~/.hermes/cache/scratch/pinggy-8000.pid)&quot;
+# or, if the pid file got lost:
+pkill -f &#39;ssh -p 443 .* free@a\.pinggy\.io&#39;
+</code></pre>
+<p>If you have a session_id from <code>terminal(background=True)</code>, prefer <code>process(action=&#39;kill&#39;, session_id=...)</code>.</p>
+<h3>Access Control via Username Keywords</h3>
+<p>Pinggy stacks control flags into the SSH username separated by <code>+</code>. Always quote the whole <code>user@host</code> argument when it contains a <code>+</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>b:user:pass</code></td>
+<td>HTTP Basic auth gate</td>
+</tr>
+<tr>
+<td><code>k:token</code></td>
+<td>Bearer-token header gate (<code>Authorization: Bearer &lt;token&gt;</code>)</td>
+</tr>
+<tr>
+<td><code>w:CIDR</code></td>
+<td>IP whitelist (single IP or CIDR, repeatable)</td>
+</tr>
+<tr>
+<td><code>co</code></td>
+<td>Add <code>Access-Control-Allow-Origin: *</code> (CORS)</td>
+</tr>
+<tr>
+<td><code>x:https</code></td>
+<td>Force HTTPS — auto-redirect HTTP to HTTPS</td>
+</tr>
+<tr>
+<td><code>a:Name:Value</code></td>
+<td>Add request header</td>
+</tr>
+<tr>
+<td><code>u:Name:Value</code></td>
+<td>Update request header</td>
+</tr>
+<tr>
+<td><code>r:Name</code></td>
+<td>Remove request header</td>
+</tr>
+<tr>
+<td><code>qr</code></td>
+<td>Print a QR code of the URL to stdout (handy for mobile sharing)</td>
+</tr>
+</tbody></table>
+<p>Combine freely: <code>&quot;b:admin:secret+co+x:https+free@a.pinggy.io&quot;</code>.</p>
+<h3>Web Debugger (optional)</h3>
+<p>Pinggy can mirror the inbound traffic to <code>localhost:4300</code> for inspection. Add a local forward to the SSH command:</p>
+<pre><code class="language-bash">ssh -p 443 -L4300:localhost:4300 -R0:localhost:8000 free@a.pinggy.io
+</code></pre>
+<p>Then open <code>http://localhost:4300</code> in a browser to see live request/response pairs.</p>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>60-minute hard cap on the free tier.</strong> The SSH session terminates at the 60-minute mark; the URL goes dead. For longer shares, either use <code>PINGGY_TOKEN</code> (Pro) or auto-restart with a shell loop (note that the URL changes on every restart for free-tier).</li>
+<li><strong>Free-tier URL is random and changes on restart.</strong> Don&#39;t bookmark it, don&#39;t paste it into a config file. Re-parse from the log each time.</li>
+<li><strong>Concurrent free tunnels are limited to one per source IP.</strong> Starting a second tunnel from the same machine usually kills the first. Pro tier lifts this.</li>
+<li><strong><code>+</code> in usernames must be quoted.</strong> Bare <code>ssh ... b:admin:secret+free@a.pinggy.io</code> works in bash but breaks under shells that treat <code>+</code> specially or when assembled programmatically. Always wrap in double quotes.</li>
+<li><strong>Don&#39;t tunnel anything sensitive without an access-control flag.</strong> A bare HTTP tunnel is reachable by anyone with the URL. Use <code>b:</code>, <code>k:</code>, or <code>w:</code> for non-public services.</li>
+<li><strong><code>process(action=&#39;log&#39;)</code> may miss SSH banner output.</strong> Pinggy prints the URLs and then the SSH session goes interactive. Always redirect to a logfile and <code>grep</code> the file directly — same pattern as <code>cloudflared-quick-tunnel</code>.</li>
+<li><strong>Host-key prompt on first run.</strong> Default OpenSSH config asks the user to accept Pinggy&#39;s host key. Always pass <code>-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null</code> for unattended runs.</li>
+<li><strong>TCP and TLS tunnels return a <code>&lt;subdomain&gt;.a.pinggy.online:&lt;port&gt;</code> pair, not an https URL.</strong> Parse with a different regex (<code>tcp://</code> and a port). Don&#39;t assume every Pinggy tunnel is HTTP.</li>
+<li><strong>Pro mode requires the token as the username, not a flag.</strong> Use <code>&quot;$PINGGY_TOKEN+a.pinggy.io&quot;</code> (no <code>free@</code>). With a token you can also add <code>:persistent</code> for a stable subdomain — see <code>pinggy.io/docs/</code>.</li>
+</ul>
+<h3>Recipes</h3>
+<p>Composite patterns combining a local origin with a Pinggy tunnel. Each recipe is self-contained — start the origin, start the tunnel, parse the URL, hand it back to the user.</p>
+<h4>Recipe 1 — Receive a webhook callback</h4>
+<p>Use this when an external service (Stripe, GitHub, Discord, AgentMail, etc.) needs to POST to a publicly reachable URL during a local task.</p>
+<pre><code class="language-bash"># 1. Tiny capturing server: every request gets appended to ~/.hermes/cache/scratch/webhook-hits.log
+cat &gt;~/.hermes/cache/scratch/webhook-server.py &lt;&lt;&#39;PY&#39;
+import http.server, json, datetime, pathlib
+LOG = pathlib.Path(&quot;~/.hermes/cache/scratch/webhook-hits.log&quot;).expanduser()
+class H(http.server.BaseHTTPRequestHandler):
+    def _capture(self):
+        n = int(self.headers.get(&quot;content-length&quot;) or 0)
+        body = self.rfile.read(n).decode(&quot;utf-8&quot;, &quot;replace&quot;) if n else &quot;&quot;
+        rec = {&quot;t&quot;: datetime.datetime.utcnow().isoformat(), &quot;path&quot;: self.path,
+               &quot;method&quot;: self.command, &quot;headers&quot;: dict(self.headers), &quot;body&quot;: body}
+        with LOG.open(&quot;a&quot;) as f: f.write(json.dumps(rec) + &quot;\n&quot;)
+        self.send_response(200); self.send_header(&quot;content-type&quot;,&quot;application/json&quot;)
+        self.end_headers(); self.wfile.write(b&#39;{&quot;ok&quot;:true}\n&#39;)
+    def do_GET(self): self._capture()
+    def do_POST(self): self._capture()
+    def log_message(self,*a,**k): pass
+http.server.HTTPServer((&quot;127.0.0.1&quot;, 18080), H).serve_forever()
+PY
+nohup python ~/.hermes/cache/scratch/webhook-server.py &gt;~/.hermes/cache/scratch/webhook-server.log 2&gt;&amp;1 &amp;
+echo $! &gt;~/.hermes/cache/scratch/webhook-server.pid
+
+# 2. Tunnel — bearer-token-gate so randos can&#39;t pollute the capture log
+nohup ssh -p 443 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ServerAliveInterval=30 \
+    -R0:localhost:18080 &quot;k:$(openssl rand -hex 12)+free@a.pinggy.io&quot; \
+    &gt;~/.hermes/cache/scratch/webhook-pinggy.log 2&gt;&amp;1 &amp;
+echo $! &gt;~/.hermes/cache/scratch/webhook-pinggy.pid
+sleep 5
+URL=$(grep -oE &#39;https://[a-z0-9-]+\.[a-z]+\.pinggy\.link&#39; ~/.hermes/cache/scratch/webhook-pinggy.log | head -1)
+echo &quot;Webhook URL: $URL&quot;
+
+# 3. While the agent works, watch hits land
+tail -f ~/.hermes/cache/scratch/webhook-hits.log
+</code></pre>
+<p>Hand <code>$URL</code> to the service that needs to call you. Teardown: <code>kill $(cat ~/.hermes/cache/scratch/webhook-server.pid) $(cat ~/.hermes/cache/scratch/webhook-pinggy.pid)</code>.</p>
+<h4>Recipe 2 — Expose an MCP server over HTTP/SSE</h4>
+<p>Use when a remote MCP client (Claude Desktop on another machine, a teammate&#39;s editor, etc.) needs to reach an MCP server running on the local box. Only works for MCP servers that speak HTTP transport — stdio-mode servers can&#39;t be tunneled.</p>
+<pre><code class="language-bash"># 1. Start the MCP server in HTTP mode (example: a FastMCP server on port 8765)
+nohup python my_mcp_server.py --transport http --port 8765 \
+    &gt;~/.hermes/cache/scratch/mcp-server.log 2&gt;&amp;1 &amp;
+echo $! &gt;~/.hermes/cache/scratch/mcp-server.pid
+
+# 2. Tunnel with a bearer token — MCP traffic should not be open to the internet
+TOKEN=$(openssl rand -hex 16)
+nohup ssh -p 443 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ServerAliveInterval=30 \
+    -R0:localhost:8765 &quot;k:$TOKEN+free@a.pinggy.io&quot; \
+    &gt;~/.hermes/cache/scratch/mcp-pinggy.log 2&gt;&amp;1 &amp;
+echo $! &gt;~/.hermes/cache/scratch/mcp-pinggy.pid
+sleep 5
+URL=$(grep -oE &#39;https://[a-z0-9-]+\.[a-z]+\.pinggy\.link&#39; ~/.hermes/cache/scratch/mcp-pinggy.log | head -1)
+echo &quot;MCP URL: $URL&quot;
+echo &quot;Bearer token: $TOKEN&quot;
+</code></pre>
+<p>The remote client connects to <code>$URL</code> with <code>Authorization: Bearer $TOKEN</code>. Hermes&#39; own native MCP client config: <code>{&quot;transport&quot;: &quot;http&quot;, &quot;url&quot;: &quot;&lt;URL&gt;&quot;, &quot;headers&quot;: {&quot;Authorization&quot;: &quot;Bearer &lt;TOKEN&gt;&quot;}}</code>.</p>
+<h4>Recipe 3 — Expose a local LLM endpoint (Ollama / vLLM / llama.cpp)</h4>
+<p>Share a local model with a remote caller (another agent, a phone, a teammate). Ollama listens on <code>:11434</code>, vLLM and llama.cpp typically on <code>:8000</code>.</p>
+<pre><code class="language-bash"># Pre-req: the model server is already running on 127.0.0.1:11434 (Ollama default)
+TOKEN=$(openssl rand -hex 16)
+nohup ssh -p 443 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ServerAliveInterval=30 \
+    -R0:localhost:11434 &quot;k:$TOKEN+co+free@a.pinggy.io&quot; \
+    &gt;~/.hermes/cache/scratch/llm-pinggy.log 2&gt;&amp;1 &amp;
+echo $! &gt;~/.hermes/cache/scratch/llm-pinggy.pid
+sleep 5
+URL=$(grep -oE &#39;https://[a-z0-9-]+\.[a-z]+\.pinggy\.link&#39; ~/.hermes/cache/scratch/llm-pinggy.log | head -1)
+echo &quot;Endpoint: $URL&quot;
+echo &quot;Token:    $TOKEN&quot;
+
+# Verify
+curl -s &quot;$URL/api/tags&quot; -H &quot;Authorization: Bearer $TOKEN&quot; | head
+</code></pre>
+<p><code>co</code> enables CORS so a browser caller can hit the endpoint. Drop <code>co</code> for backend-only callers. For an OpenAI-compatible vLLM/llama.cpp endpoint, callers use base URL <code>$URL/v1</code> with <code>Authorization: Bearer $TOKEN</code> — but note Pinggy strips/replaces nothing in the body, so the model server itself sees Pinggy&#39;s token; the local server should be configured to ignore auth (it&#39;s already on <code>127.0.0.1</code>) and let Pinggy do the gating.</p>
+<h4>Recipe 4 — Share a dev server with a one-shot password</h4>
+<p>The fastest &quot;let a teammate poke at my running app&quot; pattern. Random password, prints once, dies when you Ctrl-C.</p>
+<pre><code class="language-bash">PASS=$(openssl rand -base64 12 | tr -d &#39;+/=&#39; | head -c 12)
+echo &quot;Dev server password: $PASS&quot;
+ssh -p 443 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+    -o ServerAliveInterval=30 \
+    -R0:localhost:3000 &quot;b:dev:$PASS+co+x:https+free@a.pinggy.io&quot;
+# URL prints to the terminal. Share URL + password. Ctrl-C to tear down.
+</code></pre>
+<p><code>b:dev:$PASS</code> gates the URL with HTTP Basic auth. <code>x:https</code> forces TLS. <code>co</code> adds CORS for SPA frontends.</p>
+<h3>Verification</h3>
+<pre><code class="language-bash"># End-to-end: spin up a trivial origin, tunnel it, hit it, tear down
+python -m http.server 18000 --bind 127.0.0.1 &gt;~/.hermes/cache/scratch/origin.log 2&gt;&amp;1 &amp;
+ORIGIN_PID=$!
+
+nohup ssh -p 443 \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    -R0:localhost:18000 free@a.pinggy.io &gt;~/.hermes/cache/scratch/pinggy-verify.log 2&gt;&amp;1 &amp;
+SSH_PID=$!
+
+sleep 5
+URL=$(grep -oE &#39;https://[a-z0-9-]+\.[a-z]+\.pinggy\.link&#39; ~/.hermes/cache/scratch/pinggy-verify.log | head -1)
+echo &quot;URL: $URL&quot;
+curl -sI &quot;$URL/&quot; | head -1
+
+kill &quot;$SSH_PID&quot; &quot;$ORIGIN_PID&quot;
+</code></pre>
+<p>Expected: a <code>pinggy.link</code> URL and <code>HTTP/2 200</code> on the curl head.</p>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/devops/pinggy-tunnel</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

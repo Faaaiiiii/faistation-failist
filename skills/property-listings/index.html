@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>property-listings — Skill Hermes</title>
+<meta name="description" content="Present property and rental listings as desktop cards.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>property-listings</h1>
+    <p class="lede">Present property and rental listings as desktop cards.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>property-listings</dd>
+      <dt>Keterangan</dt><dd>Present property and rental listings as desktop cards.</dd>
+      <dt>Versi</dt><dd>0.1.0</dd>
+      <dt>Pengarang</dt><dd>Teknium (teknium1), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/property-listings.zip" download>Muat turun ZIP (2.4 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (1)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">4.7 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Property Listings Skill</h2>
+<p>Present researched properties as browsable cards in the Hermes desktop transcript.
+This is a presentation recipe, not a listing search service or an investment valuation.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Presenting property or rental search results, comparing a shortlist, or re-ranking properties.</li>
+<li>Following up on a property already shown: keep using cards so the shortlist stays comparable.</li>
+<li>Outside the desktop app, use ordinary Markdown with source links instead; other clients need not render listing fences.</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>A Hermes desktop conversation for native cards; the backend may be local or remote.</li>
+<li>Property details supplied by the user or verified through <code>web_search</code>, <code>web_extract</code>, or the browser tools available in this session.</li>
+<li>No additional API keys or dependencies are required for card formatting.</li>
+</ul>
+<h3>How to Run</h3>
+<p>Install this optional skill through the Skills catalog, or use <code>terminal</code>:</p>
+<pre><code class="language-text">hermes skills install official/productivity/property-listings
+</code></pre>
+<p>Load it with <code>skill_view(name=&quot;property-listings&quot;)</code> when presenting listings.
+Installing does not retrofit the running conversation&#39;s skill index; start a new
+conversation for automatic discovery, or explicitly load the installed skill now.</p>
+<h3>Quick Reference</h3>
+<p>Emit a fenced code block whose language is <code>listing</code> and whose body is valid JSON.
+Use one object, an array of objects, or <code>{ &quot;listings&quot;: [...] }</code> for a comparison.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Shape and meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>address</code></td>
+<td>Required nonempty street address or property headline.</td>
+</tr>
+<tr>
+<td><code>price</code></td>
+<td>Formatted string including currency and rental period, if applicable.</td>
+</tr>
+<tr>
+<td><code>beds</code>, <code>baths</code></td>
+<td>Positive numeric counts; omit unknown values.</td>
+</tr>
+<tr>
+<td><code>size</code></td>
+<td>Formatted area including units.</td>
+</tr>
+<tr>
+<td><code>note</code></td>
+<td>Why this property is worth a look.</td>
+</tr>
+<tr>
+<td><code>facts</code></td>
+<td>Array of short verified specs or amenities.</td>
+</tr>
+<tr>
+<td><code>catches</code></td>
+<td>Array of risks or questions to verify before a tour.</td>
+</tr>
+<tr>
+<td><code>images</code></td>
+<td>Direct HTTPS photo URLs in listing order; the first is the hero.</td>
+</tr>
+<tr>
+<td><code>links</code></td>
+<td>Array of <code>{ &quot;label&quot;: &quot;Source&quot;, &quot;url&quot;: &quot;https://...&quot; }</code> detail-page links, not search-result URLs.</td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<ol>
+<li>Gather the address, price, specs, photos and canonical detail URL. Distinguish
+verified facts from unknowns; do not invent prices, amenities, or photo URLs.</li>
+<li>Deduplicate portal mirrors of the same property into one card, retaining useful
+source links. Keep source dates and availability caveats in the surrounding prose.</li>
+<li>Emit the <code>listing</code> fence for every property presented, including follow-ups and
+re-rankings. Keep facts short and put unresolved concerns in <code>catches</code>.</li>
+<li>Check the JSON before sending. This fictional format example illustrates all fields;
+replace its values and example URLs with verified listing data:</li>
+</ol>
+<pre><code class="language-listing">{
+  &quot;address&quot;: &quot;12 Example Lane&quot;,
+  &quot;price&quot;: &quot;$2,400/mo&quot;,
+  &quot;beds&quot;: 3,
+  &quot;baths&quot;: 2.5,
+  &quot;size&quot;: &quot;1,600 sqft&quot;,
+  &quot;note&quot;: &quot;Fits the requested space and budget.&quot;,
+  &quot;facts&quot;: [&quot;12-month lease&quot;, &quot;Covered parking&quot;],
+  &quot;catches&quot;: [&quot;Verify pet policy and total move-in fees&quot;],
+  &quot;images&quot;: [&quot;https://example.com/property/front.jpg&quot;, &quot;https://example.com/property/kitchen.jpg&quot;],
+  &quot;links&quot;: [{&quot;label&quot;: &quot;Listing details&quot;, &quot;url&quot;: &quot;https://example.com/property/12&quot;}]
+}
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>Cards are authored from gathered data, not fetched from a listing URL or embedded portal page.</li>
+<li>A sparse card needs only an address. Omit unknown fields rather than filling them with guesses.</li>
+<li>Use direct remote image URLs, not local paths, data URLs, or search-result pages.
+Expired or blocked images disappear from the gallery; the text and links still matter.</li>
+<li>Keep a fence to at most 24 properties, 40 images per property, and 12 entries in
+facts, catches and links. Text fields are truncated to 400 characters by the renderer.</li>
+<li>Malformed JSON or a card without identity falls back to a plain code block.
+A valid card is not proof that the underlying listing is current or accurate.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>Every presented property has an address and a verified source link; unknowns are explicit.</li>
+<li>Desktop displays the address, price, specs, facts, catches and links as a native card.</li>
+<li>Photos form a gallery; selecting a photo opens the lightbox. Three or more photos
+use a hero-and-supporting-frames mosaic; additional photos remain browsable there.</li>
+<li>If the card fails to render, validate the fence language and JSON, then preserve a
+readable Markdown fallback with the same facts and links.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/productivity/property-listings</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>guidance — Skill Hermes</title>
+<meta name="description" content="Constrain LLM output with grammars; guarantee valid JSON.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>guidance</h1>
+    <p class="lede">Constrain LLM output with grammars; guarantee valid JSON.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>guidance</dd>
+      <dt>Keterangan</dt><dd>Constrain LLM output with grammars; guarantee valid JSON.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/guidance.zip" download>Muat turun ZIP (19.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">14.9 KB</td></tr>
+<tr><td><code>references/backends.md</code></td><td class="sz">11.7 KB</td></tr>
+<tr><td><code>references/constraints.md</code></td><td class="sz">15.5 KB</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">19.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Guidance: Constrained LLM Generation</h2>
+<h3>When to Use This Skill</h3>
+<p>Use Guidance when you need to:</p>
+<ul>
+<li><strong>Control LLM output syntax</strong> with regex or grammars</li>
+<li><strong>Guarantee valid JSON/XML/code</strong> generation</li>
+<li><strong>Reduce latency</strong> vs traditional prompting approaches</li>
+<li><strong>Enforce structured formats</strong> (dates, emails, IDs, etc.)</li>
+<li><strong>Build multi-step workflows</strong> with Pythonic control flow</li>
+<li><strong>Prevent invalid outputs</strong> through grammatical constraints</li>
+</ul>
+<p><strong>GitHub Stars</strong>: 18,000+ | <strong>From</strong>: Microsoft Research</p>
+<h3>Installation</h3>
+<pre><code class="language-bash"># Base installation
+pip install guidance
+
+# With specific backends
+pip install guidance[transformers]  # Hugging Face models
+pip install guidance[llama_cpp]     # llama.cpp models
+</code></pre>
+<h3>Quick Start</h3>
+<h4>Basic Example: Structured Generation</h4>
+<pre><code class="language-python">from guidance import models, gen
+
+# Load model (supports OpenAI, Transformers, llama.cpp)
+lm = models.OpenAI(&quot;gpt-4&quot;)
+
+# Generate with constraints
+result = lm + &quot;The capital of France is &quot; + gen(&quot;capital&quot;, max_tokens=5)
+
+print(result[&quot;capital&quot;])  # &quot;Paris&quot;
+</code></pre>
+<h4>Chat format with a local model</h4>
+<blockquote>
+<p><strong>Constraint support requires local logit access.</strong> Regex, <code>select()</code>, and
+grammar-based constrained generation only work with local backends
+(<code>Transformers</code>, <code>LlamaCpp</code>). Remote API backends (<code>OpenAI</code>, and Azure
+variants) support unconstrained <code>gen()</code> / chat only — they cannot enforce
+token-level constraints. guidance 0.3.x has no <code>models.Anthropic</code> class.</p>
+</blockquote>
+<pre><code class="language-python">from guidance import models, gen, system, user, assistant
+
+# Local model (supports constrained generation)
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# Use context managers for chat format
+with system():
+    lm += &quot;You are a helpful assistant.&quot;
+
+with user():
+    lm += &quot;What is the capital of France?&quot;
+
+with assistant():
+    lm += gen(max_tokens=20)
+</code></pre>
+<h3>Core Concepts</h3>
+<h4>1. Context Managers</h4>
+<p>Guidance uses Pythonic context managers for chat-style interactions.</p>
+<pre><code class="language-python">from guidance import system, user, assistant, gen
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# System message
+with system():
+    lm += &quot;You are a JSON generation expert.&quot;
+
+# User message
+with user():
+    lm += &quot;Generate a person object with name and age.&quot;
+
+# Assistant response
+with assistant():
+    lm += gen(&quot;response&quot;, max_tokens=100)
+
+print(lm[&quot;response&quot;])
+</code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Natural chat flow</li>
+<li>Clear role separation</li>
+<li>Easy to read and maintain</li>
+</ul>
+<h4>2. Constrained Generation</h4>
+<p>Guidance ensures outputs match specified patterns using regex or grammars.</p>
+<h5>Regex Constraints</h5>
+<pre><code class="language-python">from guidance import models, gen
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# Constrain to valid email format
+lm += &quot;Email: &quot; + gen(&quot;email&quot;, regex=r&quot;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&quot;)
+
+# Constrain to date format (YYYY-MM-DD)
+lm += &quot;Date: &quot; + gen(&quot;date&quot;, regex=r&quot;\d{4}-\d{2}-\d{2}&quot;)
+
+# Constrain to phone number
+lm += &quot;Phone: &quot; + gen(&quot;phone&quot;, regex=r&quot;\d{3}-\d{3}-\d{4}&quot;)
+
+print(lm[&quot;email&quot;])  # Guaranteed valid email
+print(lm[&quot;date&quot;])   # Guaranteed YYYY-MM-DD format
+</code></pre>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>Regex converted to grammar at token level</li>
+<li>Invalid tokens filtered during generation</li>
+<li>Model can only produce matching outputs</li>
+</ul>
+<h5>Selection Constraints</h5>
+<pre><code class="language-python">from guidance import models, gen, select
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# Constrain to specific choices
+lm += &quot;Sentiment: &quot; + select([&quot;positive&quot;, &quot;negative&quot;, &quot;neutral&quot;], name=&quot;sentiment&quot;)
+
+# Multiple-choice selection
+lm += &quot;Best answer: &quot; + select(
+    [&quot;A) Paris&quot;, &quot;B) London&quot;, &quot;C) Berlin&quot;, &quot;D) Madrid&quot;],
+    name=&quot;answer&quot;
+)
+
+print(lm[&quot;sentiment&quot;])  # One of: positive, negative, neutral
+print(lm[&quot;answer&quot;])     # One of: A, B, C, or D
+</code></pre>
+<h4>3. Token Healing</h4>
+<p>Guidance automatically &quot;heals&quot; token boundaries between prompt and generation.</p>
+<p><strong>Problem:</strong> Tokenization creates unnatural boundaries.</p>
+<pre><code class="language-python"># Without token healing
+prompt = &quot;The capital of France is &quot;
+# Last token: &quot; is &quot;
+# First generated token might be &quot; Par&quot; (with leading space)
+# Result: &quot;The capital of France is  Paris&quot; (double space!)
+</code></pre>
+<p><strong>Solution:</strong> Guidance backs up one token and regenerates.</p>
+<pre><code class="language-python">from guidance import models, gen
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# Token healing enabled by default
+lm += &quot;The capital of France is &quot; + gen(&quot;capital&quot;, max_tokens=5)
+# Result: &quot;The capital of France is Paris&quot; (correct spacing)
+</code></pre>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li>Natural text boundaries</li>
+<li>No awkward spacing issues</li>
+<li>Better model performance (sees natural token sequences)</li>
+</ul>
+<h4>4. Grammar-Based Generation</h4>
+<p>Define complex structures by composing grammar functions. The template-string
+<code>grammar=</code> form is not part of current guidance — build grammars from
+composable functions, or use <code>guidance.json()</code> for JSON.</p>
+<pre><code class="language-python">from guidance import models, gen
+from guidance import json as gen_json
+from pydantic import BaseModel, Field
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+# JSON via a Pydantic schema (guidance.json compiles the schema to a grammar)
+class Person(BaseModel):
+    name: str = Field(pattern=r&quot;[A-Za-z ]+&quot;)
+    age: int
+    email: str = Field(pattern=r&quot;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&quot;)
+
+lm += gen_json(name=&quot;person&quot;, schema=Person)
+
+print(lm[&quot;person&quot;])  # Guaranteed valid JSON matching the schema
+
+# Or compose grammar functions directly:
+grammar = &quot;name=&quot; + gen(&quot;name&quot;, regex=r&quot;[A-Za-z ]+&quot;) + &quot; age=&quot; + gen(&quot;age&quot;, regex=r&quot;[0-9]+&quot;)
+lm += grammar
+</code></pre>
+<p><strong>Use cases:</strong></p>
+<ul>
+<li>Complex structured outputs</li>
+<li>Nested data structures</li>
+<li>Programming language syntax</li>
+<li>Domain-specific languages</li>
+</ul>
+<h4>5. Guidance Functions</h4>
+<p>Create reusable generation patterns with the <code>@guidance</code> decorator.</p>
+<pre><code class="language-python">from guidance import guidance, gen, models
+
+@guidance
+def generate_person(lm):
+    &quot;&quot;&quot;Generate a person with name and age.&quot;&quot;&quot;
+    lm += &quot;Name: &quot; + gen(&quot;name&quot;, max_tokens=20, stop=&quot;\n&quot;)
+    lm += &quot;\nAge: &quot; + gen(&quot;age&quot;, regex=r&quot;[0-9]+&quot;, max_tokens=3)
+    return lm
+
+# Use the function
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+lm = generate_person(lm)
+
+print(lm[&quot;name&quot;])
+print(lm[&quot;age&quot;])
+</code></pre>
+<p><strong>Stateful Functions:</strong></p>
+<pre><code class="language-python">@guidance(stateless=False)
+def react_agent(lm, question, tools, max_rounds=5):
+    &quot;&quot;&quot;ReAct agent with tool use.&quot;&quot;&quot;
+    lm += f&quot;Question: {question}\n\n&quot;
+
+    for i in range(max_rounds):
+        # Thought
+        lm += f&quot;Thought {i+1}: &quot; + gen(&quot;thought&quot;, stop=&quot;\n&quot;)
+
+        # Action
+        lm += &quot;\nAction: &quot; + select(list(tools.keys()), name=&quot;action&quot;)
+
+        # Execute tool
+        tool_result = tools[lm[&quot;action&quot;]]()
+        lm += f&quot;\nObservation: {tool_result}\n\n&quot;
+
+        # Check if done
+        lm += &quot;Done? &quot; + select([&quot;Yes&quot;, &quot;No&quot;], name=&quot;done&quot;)
+        if lm[&quot;done&quot;] == &quot;Yes&quot;:
+            break
+
+    # Final answer
+    lm += &quot;\nFinal Answer: &quot; + gen(&quot;answer&quot;, max_tokens=100)
+    return lm
+</code></pre>
+<h3>Backend Configuration</h3>
+<h4>OpenAI (remote — unconstrained only)</h4>
+<blockquote>
+<p>Remote API backends cannot do constrained generation (regex/select/grammar);
+use them only for plain chat/<code>gen()</code>. For constraints, use a local backend.</p>
+</blockquote>
+<pre><code class="language-python">from guidance import models
+
+lm = models.OpenAI(
+    model=&quot;gpt-4o-mini&quot;,
+    api_key=&quot;your-api-key&quot;  # Or set OPENAI_API_KEY env var
+)
+</code></pre>
+<h4>Local Models (Transformers)</h4>
+<pre><code class="language-python">from guidance.models import Transformers
+
+lm = Transformers(
+    &quot;microsoft/Phi-4-mini-instruct&quot;,
+    device=&quot;cuda&quot;  # Or &quot;cpu&quot;
+)
+</code></pre>
+<h4>Local Models (llama.cpp)</h4>
+<pre><code class="language-python">from guidance.models import LlamaCpp
+
+lm = LlamaCpp(
+    model_path=&quot;/path/to/model.gguf&quot;,
+    n_ctx=4096,
+    n_gpu_layers=35
+)
+</code></pre>
+<h3>Common Patterns</h3>
+<h4>Pattern 1: JSON Generation</h4>
+<pre><code class="language-python">from guidance import models, gen, system, user, assistant
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+with system():
+    lm += &quot;You generate valid JSON.&quot;
+
+with user():
+    lm += &quot;Generate a user profile with name, age, and email.&quot;
+
+with assistant():
+    lm += &quot;&quot;&quot;{
+    &quot;name&quot;: &quot;&quot;&quot; + gen(&quot;name&quot;, regex=r&#39;&quot;[A-Za-z ]+&quot;&#39;, max_tokens=30) + &quot;&quot;&quot;,
+    &quot;age&quot;: &quot;&quot;&quot; + gen(&quot;age&quot;, regex=r&quot;[0-9]+&quot;, max_tokens=3) + &quot;&quot;&quot;,
+    &quot;email&quot;: &quot;&quot;&quot; + gen(&quot;email&quot;, regex=r&#39;&quot;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&quot;&#39;, max_tokens=50) + &quot;&quot;&quot;
+}&quot;&quot;&quot;
+
+print(lm)  # Valid JSON guaranteed
+</code></pre>
+<h4>Pattern 2: Classification</h4>
+<pre><code class="language-python">from guidance import models, gen, select
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+
+text = &quot;This product is amazing! I love it.&quot;
+
+lm += f&quot;Text: {text}\n&quot;
+lm += &quot;Sentiment: &quot; + select([&quot;positive&quot;, &quot;negative&quot;, &quot;neutral&quot;], name=&quot;sentiment&quot;)
+lm += &quot;\nConfidence: &quot; + gen(&quot;confidence&quot;, regex=r&quot;[0-9]+&quot;, max_tokens=3) + &quot;%&quot;
+
+print(f&quot;Sentiment: {lm[&#39;sentiment&#39;]}&quot;)
+print(f&quot;Confidence: {lm[&#39;confidence&#39;]}%&quot;)
+</code></pre>
+<h4>Pattern 3: Multi-Step Reasoning</h4>
+<pre><code class="language-python">from guidance import models, gen, guidance
+
+@guidance
+def chain_of_thought(lm, question):
+    &quot;&quot;&quot;Generate answer with step-by-step reasoning.&quot;&quot;&quot;
+    lm += f&quot;Question: {question}\n\n&quot;
+
+    # Generate multiple reasoning steps
+    for i in range(3):
+        lm += f&quot;Step {i+1}: &quot; + gen(f&quot;step_{i+1}&quot;, stop=&quot;\n&quot;, max_tokens=100) + &quot;\n&quot;
+
+    # Final answer
+    lm += &quot;\nTherefore, the answer is: &quot; + gen(&quot;answer&quot;, max_tokens=50)
+
+    return lm
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+lm = chain_of_thought(lm, &quot;What is 15% of 200?&quot;)
+
+print(lm[&quot;answer&quot;])
+</code></pre>
+<h4>Pattern 4: ReAct Agent</h4>
+<pre><code class="language-python">from guidance import models, gen, select, guidance
+
+@guidance(stateless=False)
+def react_agent(lm, question):
+    &quot;&quot;&quot;ReAct agent with tool use.&quot;&quot;&quot;
+    tools = {
+        &quot;calculator&quot;: lambda expr: eval(expr),
+        &quot;search&quot;: lambda query: f&quot;Search results for: {query}&quot;,
+    }
+
+    lm += f&quot;Question: {question}\n\n&quot;
+
+    for round in range(5):
+        # Thought
+        lm += f&quot;Thought: &quot; + gen(&quot;thought&quot;, stop=&quot;\n&quot;) + &quot;\n&quot;
+
+        # Action selection
+        lm += &quot;Action: &quot; + select([&quot;calculator&quot;, &quot;search&quot;, &quot;answer&quot;], name=&quot;action&quot;)
+
+        if lm[&quot;action&quot;] == &quot;answer&quot;:
+            lm += &quot;\nFinal Answer: &quot; + gen(&quot;answer&quot;, max_tokens=100)
+            break
+
+        # Action input
+        lm += &quot;\nAction Input: &quot; + gen(&quot;action_input&quot;, stop=&quot;\n&quot;) + &quot;\n&quot;
+
+        # Execute tool
+        if lm[&quot;action&quot;] in tools:
+            result = tools[lm[&quot;action&quot;]](lm[&quot;action_input&quot;])
+            lm += f&quot;Observation: {result}\n\n&quot;
+
+    return lm
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+lm = react_agent(lm, &quot;What is 25 * 4 + 10?&quot;)
+print(lm[&quot;answer&quot;])
+</code></pre>
+<h4>Pattern 5: Data Extraction</h4>
+<pre><code class="language-python">from guidance import models, gen, guidance
+
+@guidance
+def extract_entities(lm, text):
+    &quot;&quot;&quot;Extract structured entities from text.&quot;&quot;&quot;
+    lm += f&quot;Text: {text}\n\n&quot;
+
+    # Extract person
+    lm += &quot;Person: &quot; + gen(&quot;person&quot;, stop=&quot;\n&quot;, max_tokens=30) + &quot;\n&quot;
+
+    # Extract organization
+    lm += &quot;Organization: &quot; + gen(&quot;organization&quot;, stop=&quot;\n&quot;, max_tokens=30) + &quot;\n&quot;
+
+    # Extract date
+    lm += &quot;Date: &quot; + gen(&quot;date&quot;, regex=r&quot;\d{4}-\d{2}-\d{2}&quot;, max_tokens=10) + &quot;\n&quot;
+
+    # Extract location
+    lm += &quot;Location: &quot; + gen(&quot;location&quot;, stop=&quot;\n&quot;, max_tokens=30) + &quot;\n&quot;
+
+    return lm
+
+text = &quot;Tim Cook announced at Apple Park on 2024-09-15 in Cupertino.&quot;
+
+lm = models.Transformers(&quot;microsoft/Phi-4-mini-instruct&quot;)
+lm = extract_entities(lm, text)
+
+print(f&quot;Person: {lm[&#39;person&#39;]}&quot;)
+print(f&quot;Organization: {lm[&#39;organization&#39;]}&quot;)
+print(f&quot;Date: {lm[&#39;date&#39;]}&quot;)
+print(f&quot;Location: {lm[&#39;location&#39;]}&quot;)
+</code></pre>
+<h3>Best Practices</h3>
+<h4>1. Use Regex for Format Validation</h4>
+<pre><code class="language-python"># ✅ Good: Regex ensures valid format
+lm += &quot;Email: &quot; + gen(&quot;email&quot;, regex=r&quot;[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}&quot;)
+
+# ❌ Bad: Free generation may produce invalid emails
+lm += &quot;Email: &quot; + gen(&quot;email&quot;, max_tokens=50)
+</code></pre>
+<h4>2. Use select() for Fixed Categories</h4>
+<pre><code class="language-python"># ✅ Good: Guaranteed valid category
+lm += &quot;Status: &quot; + select([&quot;pending&quot;, &quot;approved&quot;, &quot;rejected&quot;], name=&quot;status&quot;)
+
+# ❌ Bad: May generate typos or invalid values
+lm += &quot;Status: &quot; + gen(&quot;status&quot;, max_tokens=20)
+</code></pre>
+<h4>3. Leverage Token Healing</h4>
+<pre><code class="language-python"># Token healing is enabled by default
+# No special action needed - just concatenate naturally
+lm += &quot;The capital is &quot; + gen(&quot;capital&quot;)  # Automatic healing
+</code></pre>
+<h4>4. Use stop Sequences</h4>
+<pre><code class="language-python"># ✅ Good: Stop at newline for single-line outputs
+lm += &quot;Name: &quot; + gen(&quot;name&quot;, stop=&quot;\n&quot;)
+
+# ❌ Bad: May generate multiple lines
+lm += &quot;Name: &quot; + gen(&quot;name&quot;, max_tokens=50)
+</code></pre>
+<h4>5. Create Reusable Functions</h4>
+<pre><code class="language-python"># ✅ Good: Reusable pattern
+@guidance
+def generate_person(lm):
+    lm += &quot;Name: &quot; + gen(&quot;name&quot;, stop=&quot;\n&quot;)
+    lm += &quot;\nAge: &quot; + gen(&quot;age&quot;, regex=r&quot;[0-9]+&quot;)
+    return lm
+
+# Use multiple times
+lm = generate_person(lm)
+lm += &quot;\n\n&quot;
+lm = generate_person(lm)
+</code></pre>
+<h4>6. Balance Constraints</h4>
+<pre><code class="language-python"># ✅ Good: Reasonable constraints
+lm += gen(&quot;name&quot;, regex=r&quot;[A-Za-z ]+&quot;, max_tokens=30)
+
+# ❌ Too strict: May fail or be very slow
+lm += gen(&quot;name&quot;, regex=r&quot;^(John|Jane)$&quot;, max_tokens=10)
+</code></pre>
+<h3>Comparison to Alternatives</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Guidance</th>
+<th>Instructor</th>
+<th>Outlines</th>
+<th>LMQL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Regex Constraints</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Grammar Support</td>
+<td>✅ CFG</td>
+<td>❌ No</td>
+<td>✅ CFG</td>
+<td>✅ CFG</td>
+</tr>
+<tr>
+<td>Pydantic Validation</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Token Healing</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Local Models</td>
+<td>✅ Yes</td>
+<td>⚠️ Limited</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>API Models</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>⚠️ Limited</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Pythonic Syntax</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>❌ SQL-like</td>
+</tr>
+<tr>
+<td>Learning Curve</td>
+<td>Low</td>
+<td>Low</td>
+<td>Medium</td>
+<td>High</td>
+</tr>
+</tbody></table>
+<p><strong>When to choose Guidance:</strong></p>
+<ul>
+<li>Need regex/grammar constraints</li>
+<li>Want token healing</li>
+<li>Building complex workflows with control flow</li>
+<li>Using local models (Transformers, llama.cpp)</li>
+<li>Prefer Pythonic syntax</li>
+</ul>
+<p><strong>When to choose alternatives:</strong></p>
+<ul>
+<li>Instructor: Need Pydantic validation with automatic retrying</li>
+<li>Outlines: Need JSON schema validation</li>
+<li>LMQL: Prefer declarative query syntax</li>
+</ul>
+<h3>Performance Characteristics</h3>
+<p><strong>Latency Reduction:</strong></p>
+<ul>
+<li>30-50% faster than traditional prompting for constrained outputs</li>
+<li>Token healing reduces unnecessary regeneration</li>
+<li>Grammar constraints prevent invalid token generation</li>
+</ul>
+<p><strong>Memory Usage:</strong></p>
+<ul>
+<li>Minimal overhead vs unconstrained generation</li>
+<li>Grammar compilation cached after first use</li>
+<li>Efficient token filtering at inference time</li>
+</ul>
+<p><strong>Token Efficiency:</strong></p>
+<ul>
+<li>Prevents wasted tokens on invalid outputs</li>
+<li>No need for retry loops</li>
+<li>Direct path to valid outputs</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://guidance.readthedocs.io">https://guidance.readthedocs.io</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/guidance-ai/guidance">https://github.com/guidance-ai/guidance</a> (18k+ stars)</li>
+<li><strong>Notebooks</strong>: <a href="https://github.com/guidance-ai/guidance/tree/main/notebooks">https://github.com/guidance-ai/guidance/tree/main/notebooks</a></li>
+<li><strong>Discord</strong>: Community support available</li>
+</ul>
+<h3>See Also</h3>
+<ul>
+<li><code>references/constraints.md</code> - Comprehensive regex and grammar patterns</li>
+<li><code>references/backends.md</code> - Backend-specific configuration</li>
+<li><code>references/examples.md</code> - Production-ready examples</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/guidance</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

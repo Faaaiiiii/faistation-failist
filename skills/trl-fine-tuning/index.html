@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>trl-fine-tuning — Skill Hermes</title>
+<meta name="description" content="TRL: SFT, DPO, GRPO, RLOO reward modeling for LLM RLHF.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>trl-fine-tuning</h1>
+    <p class="lede">TRL: SFT, DPO, GRPO, RLOO reward modeling for LLM RLHF.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>trl-fine-tuning</dd>
+      <dt>Keterangan</dt><dd>TRL: SFT, DPO, GRPO, RLOO reward modeling for LLM RLHF.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/trl-fine-tuning.zip" download>Muat turun ZIP (18.7 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (7)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.2 KB</td></tr>
+<tr><td><code>references/dpo-variants.md</code></td><td class="sz">4.2 KB</td></tr>
+<tr><td><code>references/grpo-training.md</code></td><td class="sz">15.5 KB</td></tr>
+<tr><td><code>references/online-rl.md</code></td><td class="sz">1.9 KB</td></tr>
+<tr><td><code>references/reward-modeling.md</code></td><td class="sz">2.5 KB</td></tr>
+<tr><td><code>references/sft-training.md</code></td><td class="sz">3.2 KB</td></tr>
+<tr><td><code>templates/basic_grpo_training.py</code></td><td class="sz">6.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>TRL - Transformer Reinforcement Learning</h2>
+<h3>Quick start</h3>
+<p>TRL provides post-training methods for aligning language models with human preferences.</p>
+<p><strong>Installation</strong>:</p>
+<pre><code class="language-bash">pip install trl transformers datasets peft accelerate
+</code></pre>
+<p><strong>Supervised Fine-Tuning</strong> (instruction tuning):</p>
+<pre><code class="language-python">from trl import SFTTrainer
+
+trainer = SFTTrainer(
+    model=&quot;Qwen/Qwen2.5-0.5B&quot;,
+    train_dataset=dataset,  # Prompt-completion pairs
+)
+trainer.train()
+</code></pre>
+<p><strong>DPO</strong> (align with preferences):</p>
+<pre><code class="language-python">from trl import DPOTrainer, DPOConfig
+
+config = DPOConfig(output_dir=&quot;model-dpo&quot;, beta=0.1)
+trainer = DPOTrainer(
+    model=model,
+    args=config,
+    train_dataset=preference_dataset,  # chosen/rejected pairs
+    processing_class=tokenizer
+)
+trainer.train()
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Full RLHF pipeline (SFT → Reward Model → RLOO)</h4>
+<p>Complete pipeline from base model to human-aligned model.</p>
+<blockquote>
+<p><strong>Note (TRL 1.x):</strong> PPO has been <strong>removed</strong> from TRL — <code>PPOTrainer</code>, <code>PPOConfig</code>, and
+<code>python -m trl.scripts.ppo</code> no longer exist. Use an online-RL trainer TRL still ships:
+<strong>RLOO</strong> (<code>RLOOTrainer</code> / <code>trl rloo</code>) is the closest drop-in for a reward-model-driven
+RLHF pipeline, and <strong>GRPO</strong> (<code>GRPOTrainer</code> / <code>trl grpo</code>, see Workflow 3) is the
+memory-efficient alternative. The step below uses RLOO.</p>
+</blockquote>
+<p>Copy this checklist:</p>
+<pre><code>RLHF Training:
+- [ ] Step 1: Supervised fine-tuning (SFT)
+- [ ] Step 2: Train reward model
+- [ ] Step 3: RLOO reinforcement learning
+- [ ] Step 4: Evaluate aligned model
+</code></pre>
+<p><strong>Step 1: Supervised fine-tuning</strong></p>
+<p>Train base model on instruction-following data:</p>
+<pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer
+from trl import SFTTrainer, SFTConfig
+from datasets import load_dataset
+
+# Load model
+model = AutoModelForCausalLM.from_pretrained(&quot;Qwen/Qwen2.5-0.5B&quot;)
+tokenizer = AutoTokenizer.from_pretrained(&quot;Qwen/Qwen2.5-0.5B&quot;)
+
+# Load instruction dataset
+dataset = load_dataset(&quot;trl-lib/Capybara&quot;, split=&quot;train&quot;)
+
+# Configure training
+training_args = SFTConfig(
+    output_dir=&quot;Qwen2.5-0.5B-SFT&quot;,
+    per_device_train_batch_size=4,
+    num_train_epochs=1,
+    learning_rate=2e-5,
+    logging_steps=10,
+    save_strategy=&quot;epoch&quot;
+)
+
+# Train
+trainer = SFTTrainer(
+    model=model,
+    args=training_args,
+    train_dataset=dataset,
+    processing_class=tokenizer
+)
+trainer.train()
+trainer.save_model()
+</code></pre>
+<p><strong>Step 2: Train reward model</strong></p>
+<p>Train model to predict human preferences:</p>
+<pre><code class="language-python">from transformers import AutoModelForSequenceClassification
+from trl import RewardTrainer, RewardConfig
+
+# Load SFT model as base
+model = AutoModelForSequenceClassification.from_pretrained(
+    &quot;Qwen2.5-0.5B-SFT&quot;,
+    num_labels=1  # Single reward score
+)
+tokenizer = AutoTokenizer.from_pretrained(&quot;Qwen2.5-0.5B-SFT&quot;)
+
+# Load preference data (chosen/rejected pairs)
+dataset = load_dataset(&quot;trl-lib/ultrafeedback_binarized&quot;, split=&quot;train&quot;)
+
+# Configure training
+training_args = RewardConfig(
+    output_dir=&quot;Qwen2.5-0.5B-Reward&quot;,
+    per_device_train_batch_size=2,
+    num_train_epochs=1,
+    learning_rate=1e-5
+)
+
+# Train reward model
+trainer = RewardTrainer(
+    model=model,
+    args=training_args,
+    processing_class=tokenizer,
+    train_dataset=dataset
+)
+trainer.train()
+trainer.save_model()
+</code></pre>
+<p><strong>Step 3: RLOO reinforcement learning</strong></p>
+<p>Optimize policy using the reward model. PPO was removed in TRL 1.x; use the RLOO CLI
+(<code>trl rloo</code>) with the trained reward model passed via <code>--reward_model_name_or_path</code>:</p>
+<pre><code class="language-bash">trl rloo \
+    --model_name_or_path Qwen2.5-0.5B-SFT \
+    --reward_model_name_or_path Qwen2.5-0.5B-Reward \
+    --dataset_name trl-internal-testing/descriptiveness-sentiment-trl-style \
+    --output_dir Qwen2.5-0.5B-RLOO \
+    --learning_rate 3e-6 \
+    --per_device_train_batch_size 64 \
+    --num_generations 4
+</code></pre>
+<p>Equivalent Python (<code>RLOOTrainer</code> / <code>RLOOConfig</code>):</p>
+<pre><code class="language-python">from trl import RLOOTrainer, RLOOConfig
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
+
+reward_model = AutoModelForSequenceClassification.from_pretrained(
+    &quot;Qwen2.5-0.5B-Reward&quot;, num_labels=1
+)
+
+config = RLOOConfig(
+    output_dir=&quot;Qwen2.5-0.5B-RLOO&quot;,
+    per_device_train_batch_size=64,
+    learning_rate=3e-6,
+    num_generations=4,
+)
+
+trainer = RLOOTrainer(
+    model=&quot;Qwen2.5-0.5B-SFT&quot;,
+    reward_funcs=reward_model,   # a reward model (or a callable reward function)
+    args=config,
+    train_dataset=dataset,       # prompt-only dataset
+    processing_class=tokenizer,
+)
+trainer.train()
+</code></pre>
+<p><strong>Step 4: Evaluate</strong></p>
+<pre><code class="language-python">from transformers import pipeline
+
+# Load aligned model
+generator = pipeline(&quot;text-generation&quot;, model=&quot;Qwen2.5-0.5B-RLOO&quot;)
+
+# Test
+prompt = &quot;Explain quantum computing to a 10-year-old&quot;
+output = generator(prompt, max_length=200)[0][&quot;generated_text&quot;]
+print(output)
+</code></pre>
+<h4>Workflow 2: Simple preference alignment with DPO</h4>
+<p>Align model with preferences without reward model.</p>
+<p>Copy this checklist:</p>
+<pre><code>DPO Training:
+- [ ] Step 1: Prepare preference dataset
+- [ ] Step 2: Configure DPO
+- [ ] Step 3: Train with DPOTrainer
+- [ ] Step 4: Evaluate alignment
+</code></pre>
+<p><strong>Step 1: Prepare preference dataset</strong></p>
+<p>Dataset format:</p>
+<pre><code class="language-json">{
+  &quot;prompt&quot;: &quot;What is the capital of France?&quot;,
+  &quot;chosen&quot;: &quot;The capital of France is Paris.&quot;,
+  &quot;rejected&quot;: &quot;I don&#39;t know.&quot;
+}
+</code></pre>
+<p>Load dataset:</p>
+<pre><code class="language-python">from datasets import load_dataset
+
+dataset = load_dataset(&quot;trl-lib/ultrafeedback_binarized&quot;, split=&quot;train&quot;)
+# Or load your own
+# dataset = load_dataset(&quot;json&quot;, data_files=&quot;preferences.json&quot;)
+</code></pre>
+<p><strong>Step 2: Configure DPO</strong></p>
+<pre><code class="language-python">from trl import DPOConfig
+
+config = DPOConfig(
+    output_dir=&quot;Qwen2.5-0.5B-DPO&quot;,
+    per_device_train_batch_size=4,
+    num_train_epochs=1,
+    learning_rate=5e-7,
+    beta=0.1,  # KL penalty strength
+    max_prompt_length=512,
+    max_length=1024,
+    logging_steps=10
+)
+</code></pre>
+<p><strong>Step 3: Train with DPOTrainer</strong></p>
+<pre><code class="language-python">from transformers import AutoModelForCausalLM, AutoTokenizer
+from trl import DPOTrainer
+
+model = AutoModelForCausalLM.from_pretrained(&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;)
+tokenizer = AutoTokenizer.from_pretrained(&quot;Qwen/Qwen2.5-0.5B-Instruct&quot;)
+
+trainer = DPOTrainer(
+    model=model,
+    args=config,
+    train_dataset=dataset,
+    processing_class=tokenizer
+)
+
+trainer.train()
+trainer.save_model()
+</code></pre>
+<p><strong>CLI alternative</strong>:</p>
+<pre><code class="language-bash">trl dpo \
+    --model_name_or_path Qwen/Qwen2.5-0.5B-Instruct \
+    --dataset_name argilla/Capybara-Preferences \
+    --output_dir Qwen2.5-0.5B-DPO \
+    --per_device_train_batch_size 4 \
+    --learning_rate 5e-7 \
+    --beta 0.1
+</code></pre>
+<h4>Workflow 3: Memory-efficient online RL with GRPO</h4>
+<p>Train with reinforcement learning using minimal memory.</p>
+<p>For in-depth GRPO guidance — reward function design, critical training insights (loss behavior, mode collapse, tuning), and advanced multi-stage patterns — see <strong><a href="references/grpo-training.md">references/grpo-training.md</a></strong>. A production-ready training script is in <strong><a href="templates/basic_grpo_training.py">templates/basic_grpo_training.py</a></strong>.</p>
+<p>Copy this checklist:</p>
+<pre><code>GRPO Training:
+- [ ] Step 1: Define reward function
+- [ ] Step 2: Configure GRPO
+- [ ] Step 3: Train with GRPOTrainer
+</code></pre>
+<p><strong>Step 1: Define reward function</strong></p>
+<pre><code class="language-python">def reward_function(completions, **kwargs):
+    &quot;&quot;&quot;
+    Compute rewards for completions.
+
+    Args:
+        completions: List of generated texts
+
+    Returns:
+        List of reward scores (floats)
+    &quot;&quot;&quot;
+    rewards = []
+    for completion in completions:
+        # Example: reward based on length and unique words
+        score = len(completion.split())  # Favor longer responses
+        score += len(set(completion.lower().split()))  # Reward unique words
+        rewards.append(score)
+    return rewards
+</code></pre>
+<p>Or use a reward model:</p>
+<pre><code class="language-python">from transformers import pipeline
+
+reward_model = pipeline(&quot;text-classification&quot;, model=&quot;reward-model-path&quot;)
+
+def reward_from_model(completions, prompts, **kwargs):
+    # Combine prompt + completion
+    full_texts = [p + c for p, c in zip(prompts, completions)]
+    # Get reward scores
+    results = reward_model(full_texts)
+    return [r[&quot;score&quot;] for r in results]
+</code></pre>
+<p><strong>Step 2: Configure GRPO</strong></p>
+<pre><code class="language-python">from trl import GRPOConfig
+
+config = GRPOConfig(
+    output_dir=&quot;Qwen2-GRPO&quot;,
+    per_device_train_batch_size=4,
+    num_train_epochs=1,
+    learning_rate=1e-5,
+    num_generations=4,  # Generate 4 completions per prompt
+    max_new_tokens=128
+)
+</code></pre>
+<p><strong>Step 3: Train with GRPOTrainer</strong></p>
+<pre><code class="language-python">from datasets import load_dataset
+from trl import GRPOTrainer
+
+# Load prompt-only dataset
+dataset = load_dataset(&quot;trl-lib/tldr&quot;, split=&quot;train&quot;)
+
+trainer = GRPOTrainer(
+    model=&quot;Qwen/Qwen2-0.5B-Instruct&quot;,
+    reward_funcs=reward_function,  # Your reward function
+    args=config,
+    train_dataset=dataset
+)
+
+trainer.train()
+</code></pre>
+<p><strong>CLI</strong>:</p>
+<pre><code class="language-bash">trl grpo \
+    --model_name_or_path Qwen/Qwen2-0.5B-Instruct \
+    --dataset_name trl-lib/tldr \
+    --output_dir Qwen2-GRPO \
+    --num_generations 4
+</code></pre>
+<h3>When to use vs alternatives</h3>
+<p><strong>Use TRL when:</strong></p>
+<ul>
+<li>Need to align model with human preferences</li>
+<li>Have preference data (chosen/rejected pairs)</li>
+<li>Want to use reinforcement learning (RLOO, GRPO)</li>
+<li>Need reward model training</li>
+<li>Doing RLHF (full pipeline)</li>
+</ul>
+<p><strong>Method selection</strong>:</p>
+<ul>
+<li><strong>SFT</strong>: Have prompt-completion pairs, want basic instruction following</li>
+<li><strong>DPO</strong>: Have preferences, want simple alignment (no reward model needed)</li>
+<li><strong>RLOO</strong>: Have a reward model, want online RL (the reward-model-driven RLHF path; PPO was removed in TRL 1.x)</li>
+<li><strong>GRPO</strong>: Memory-constrained, want online RL with reward functions</li>
+<li><strong>Reward Model</strong>: Building RLHF pipeline, need to score generations</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>HuggingFace Trainer</strong>: Basic fine-tuning without RL</li>
+<li><strong>Axolotl</strong>: YAML-based training configuration</li>
+<li><strong>LitGPT</strong>: Educational, minimal fine-tuning</li>
+<li><strong>Unsloth</strong>: Fast LoRA training</li>
+</ul>
+<h3>Common issues</h3>
+<p><strong>Issue: OOM during DPO training</strong></p>
+<p>Reduce batch size and sequence length:</p>
+<pre><code class="language-python">config = DPOConfig(
+    per_device_train_batch_size=1,  # Reduce from 4
+    max_length=512,  # Reduce from 1024
+    gradient_accumulation_steps=8  # Maintain effective batch
+)
+</code></pre>
+<p>Or use gradient checkpointing:</p>
+<pre><code class="language-python">model.gradient_checkpointing_enable()
+</code></pre>
+<p><strong>Issue: Poor alignment quality</strong></p>
+<p>Tune beta parameter:</p>
+<pre><code class="language-python"># Higher beta = more conservative (stays closer to reference)
+config = DPOConfig(beta=0.5)  # Default 0.1
+
+# Lower beta = more aggressive alignment
+config = DPOConfig(beta=0.01)
+</code></pre>
+<p><strong>Issue: Reward model not learning</strong></p>
+<p>Check loss type and learning rate:</p>
+<pre><code class="language-python">config = RewardConfig(
+    learning_rate=1e-5,  # Try different LR
+    num_train_epochs=3  # Train longer
+)
+</code></pre>
+<p>Ensure preference dataset has clear winners:</p>
+<pre><code class="language-python"># Verify dataset
+print(dataset[0])
+# Should have clear chosen &gt; rejected
+</code></pre>
+<p><strong>Issue: Online RL (RLOO/GRPO) training unstable</strong></p>
+<p>Adjust the KL/beta regularization toward the reference policy:</p>
+<pre><code class="language-python">from trl import RLOOConfig
+
+config = RLOOConfig(
+    beta=0.05,          # KL coefficient toward the reference model (increase for stability)
+    num_generations=4,  # more samples per prompt = lower-variance advantage estimates
+)
+</code></pre>
+<h3>Advanced topics</h3>
+<p><strong>SFT training guide</strong>: See <a href="references/sft-training.md">references/sft-training.md</a> for dataset formats, chat templates, packing strategies, and multi-GPU training.</p>
+<p><strong>DPO variants</strong>: See <a href="references/dpo-variants.md">references/dpo-variants.md</a> for IPO, cDPO, RPO, and other DPO loss functions with recommended hyperparameters.</p>
+<p><strong>Reward modeling</strong>: See <a href="references/reward-modeling.md">references/reward-modeling.md</a> for outcome vs process rewards, Bradley-Terry loss, and reward model evaluation.</p>
+<p><strong>Online RL methods</strong>: See <a href="references/online-rl.md">references/online-rl.md</a> for PPO, GRPO, RLOO, and OnlineDPO with detailed configurations.</p>
+<p><strong>GRPO deep dive</strong>: See <a href="references/grpo-training.md">references/grpo-training.md</a> for expert-level GRPO patterns — reward function design philosophy, training insights (why loss increases, mode collapse detection), hyperparameter tuning, multi-stage training, and troubleshooting. Production-ready template in <a href="templates/basic_grpo_training.py">templates/basic_grpo_training.py</a>.</p>
+<h3>Hardware requirements</h3>
+<ul>
+<li><strong>GPU</strong>: NVIDIA (CUDA required)</li>
+<li><strong>VRAM</strong>: Depends on model and method<ul>
+<li>SFT 7B: 16GB (with LoRA)</li>
+<li>DPO 7B: 24GB (stores reference model)</li>
+<li>RLOO 7B: 40GB (policy + reward model)</li>
+<li>GRPO 7B: 24GB (more memory efficient)</li>
+</ul>
+</li>
+<li><strong>Multi-GPU</strong>: Supported via <code>accelerate</code></li>
+<li><strong>Mixed precision</strong>: BF16 recommended (A100/H100)</li>
+</ul>
+<p><strong>Memory optimization</strong>:</p>
+<ul>
+<li>Use LoRA/QLoRA for all methods</li>
+<li>Enable gradient checkpointing</li>
+<li>Use smaller batch sizes with gradient accumulation</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li>Docs: <a href="https://huggingface.co/docs/trl/">https://huggingface.co/docs/trl/</a></li>
+<li>GitHub: <a href="https://github.com/huggingface/trl">https://github.com/huggingface/trl</a></li>
+<li>Papers:<ul>
+<li>&quot;Training language models to follow instructions with human feedback&quot; (InstructGPT, 2022)</li>
+<li>&quot;Direct Preference Optimization: Your Language Model is Secretly a Reward Model&quot; (DPO, 2023)</li>
+<li>&quot;Group Relative Policy Optimization&quot; (GRPO, 2024)</li>
+</ul>
+</li>
+<li>Examples: <a href="https://github.com/huggingface/trl/tree/main/examples/scripts">https://github.com/huggingface/trl/tree/main/examples/scripts</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/training/trl-fine-tuning</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

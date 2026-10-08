@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>segment-anything-model — Skill Hermes</title>
+<meta name="description" content="SAM: zero-shot image segmentation via points, boxes, masks.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>segment-anything-model</h1>
+    <p class="lede">SAM: zero-shot image segmentation via points, boxes, masks.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>segment-anything-model</dd>
+      <dt>Keterangan</dt><dd>SAM: zero-shot image segmentation via points, boxes, masks.</dd>
+      <dt>Versi</dt><dd>1.0.0</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/segment-anything-model.zip" download>Muat turun ZIP (14.1 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">13.0 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">15.4 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">11.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Segment Anything Model (SAM)</h2>
+<p>Guide to using Meta AI&#39;s Segment Anything Model for zero-shot image segmentation.</p>
+<h3>When to use SAM</h3>
+<p><strong>Use SAM when:</strong></p>
+<ul>
+<li>Need to segment any object in images without task-specific training</li>
+<li>Building interactive annotation tools with point/box prompts</li>
+<li>Generating training data for other vision models</li>
+<li>Need zero-shot transfer to new image domains</li>
+<li>Building object detection/segmentation pipelines</li>
+<li>Processing medical, satellite, or domain-specific images</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Zero-shot segmentation</strong>: Works on any image domain without fine-tuning</li>
+<li><strong>Flexible prompts</strong>: Points, bounding boxes, or previous masks</li>
+<li><strong>Automatic segmentation</strong>: Generate all object masks automatically</li>
+<li><strong>High quality</strong>: Trained on 1.1 billion masks from 11 million images</li>
+<li><strong>Multiple model sizes</strong>: ViT-B (fastest), ViT-L, ViT-H (most accurate)</li>
+<li><strong>ONNX export</strong>: Deploy in browsers and edge devices</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>YOLO/Detectron2</strong>: For real-time object detection with classes</li>
+<li><strong>Mask2Former</strong>: For semantic/panoptic segmentation with categories</li>
+<li><strong>GroundingDINO + SAM</strong>: For text-prompted segmentation</li>
+<li><strong>SAM 2</strong>: For video segmentation tasks</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash"># From GitHub
+pip install git+https://github.com/facebookresearch/segment-anything.git
+
+# Optional dependencies
+pip install opencv-python pycocotools matplotlib
+
+# Or use HuggingFace transformers
+pip install transformers
+</code></pre>
+<h4>Download checkpoints</h4>
+<pre><code class="language-bash"># ViT-H (largest, most accurate) - 2.4GB
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth
+
+# ViT-L (medium) - 1.2GB
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth
+
+# ViT-B (smallest, fastest) - 375MB
+wget https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth
+</code></pre>
+<h4>Basic usage with SamPredictor</h4>
+<pre><code class="language-python">import numpy as np
+from segment_anything import sam_model_registry, SamPredictor
+
+# Load model
+sam = sam_model_registry[&quot;vit_h&quot;](checkpoint=&quot;sam_vit_h_4b8939.pth&quot;)
+sam.to(device=&quot;cuda&quot;)
+
+# Create predictor
+predictor = SamPredictor(sam)
+
+# Set image (computes embeddings once)
+image = cv2.imread(&quot;image.jpg&quot;)
+image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+predictor.set_image(image)
+
+# Predict with point prompts
+input_point = np.array([[500, 375]])  # (x, y) coordinates
+input_label = np.array([1])  # 1 = foreground, 0 = background
+
+masks, scores, logits = predictor.predict(
+    point_coords=input_point,
+    point_labels=input_label,
+    multimask_output=True  # Returns 3 mask options
+)
+
+# Select best mask
+best_mask = masks[np.argmax(scores)]
+</code></pre>
+<h4>HuggingFace Transformers</h4>
+<pre><code class="language-python">import torch
+from PIL import Image
+from transformers import SamModel, SamProcessor
+
+# Load model and processor
+model = SamModel.from_pretrained(&quot;facebook/sam-vit-huge&quot;)
+processor = SamProcessor.from_pretrained(&quot;facebook/sam-vit-huge&quot;)
+model.to(&quot;cuda&quot;)
+
+# Process image with point prompt
+image = Image.open(&quot;image.jpg&quot;)
+input_points = [[[450, 600]]]  # Batch of points
+
+inputs = processor(image, input_points=input_points, return_tensors=&quot;pt&quot;)
+inputs = {k: v.to(&quot;cuda&quot;) for k, v in inputs.items()}
+
+# Generate masks
+with torch.no_grad():
+    outputs = model(**inputs)
+
+# Post-process masks to original size
+masks = processor.image_processor.post_process_masks(
+    outputs.pred_masks.cpu(),
+    inputs[&quot;original_sizes&quot;].cpu(),
+    inputs[&quot;reshaped_input_sizes&quot;].cpu()
+)
+</code></pre>
+<h3>Core concepts</h3>
+<h4>Model architecture</h4>
+<!-- ascii-guard-ignore -->
+<pre><code>SAM Architecture:
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  Image Encoder  │────▶│ Prompt Encoder  │────▶│  Mask Decoder   │
+│     (ViT)       │     │ (Points/Boxes)  │     │ (Transformer)   │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │                       │
+   Image Embeddings      Prompt Embeddings         Masks + IoU
+   (computed once)       (per prompt)             predictions
+</code></pre>
+<!-- ascii-guard-ignore-end -->
+
+<h4>Model variants</h4>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Checkpoint</th>
+<th>Size</th>
+<th>Speed</th>
+<th>Accuracy</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ViT-H</td>
+<td><code>vit_h</code></td>
+<td>2.4 GB</td>
+<td>Slowest</td>
+<td>Best</td>
+</tr>
+<tr>
+<td>ViT-L</td>
+<td><code>vit_l</code></td>
+<td>1.2 GB</td>
+<td>Medium</td>
+<td>Good</td>
+</tr>
+<tr>
+<td>ViT-B</td>
+<td><code>vit_b</code></td>
+<td>375 MB</td>
+<td>Fastest</td>
+<td>Good</td>
+</tr>
+</tbody></table>
+<h4>Prompt types</h4>
+<table>
+<thead>
+<tr>
+<th>Prompt</th>
+<th>Description</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Point (foreground)</td>
+<td>Click on object</td>
+<td>Single object selection</td>
+</tr>
+<tr>
+<td>Point (background)</td>
+<td>Click outside object</td>
+<td>Exclude regions</td>
+</tr>
+<tr>
+<td>Bounding box</td>
+<td>Rectangle around object</td>
+<td>Larger objects</td>
+</tr>
+<tr>
+<td>Previous mask</td>
+<td>Low-res mask input</td>
+<td>Iterative refinement</td>
+</tr>
+</tbody></table>
+<h3>Interactive segmentation</h3>
+<h4>Point prompts</h4>
+<pre><code class="language-python"># Single foreground point
+input_point = np.array([[500, 375]])
+input_label = np.array([1])
+
+masks, scores, logits = predictor.predict(
+    point_coords=input_point,
+    point_labels=input_label,
+    multimask_output=True
+)
+
+# Multiple points (foreground + background)
+input_points = np.array([[500, 375], [600, 400], [450, 300]])
+input_labels = np.array([1, 1, 0])  # 2 foreground, 1 background
+
+masks, scores, logits = predictor.predict(
+    point_coords=input_points,
+    point_labels=input_labels,
+    multimask_output=False  # Single mask when prompts are clear
+)
+</code></pre>
+<h4>Box prompts</h4>
+<pre><code class="language-python"># Bounding box [x1, y1, x2, y2]
+input_box = np.array([425, 600, 700, 875])
+
+masks, scores, logits = predictor.predict(
+    box=input_box,
+    multimask_output=False
+)
+</code></pre>
+<h4>Combined prompts</h4>
+<pre><code class="language-python"># Box + points for precise control
+masks, scores, logits = predictor.predict(
+    point_coords=np.array([[500, 375]]),
+    point_labels=np.array([1]),
+    box=np.array([400, 300, 700, 600]),
+    multimask_output=False
+)
+</code></pre>
+<h4>Iterative refinement</h4>
+<pre><code class="language-python"># Initial prediction
+masks, scores, logits = predictor.predict(
+    point_coords=np.array([[500, 375]]),
+    point_labels=np.array([1]),
+    multimask_output=True
+)
+
+# Refine with additional point using previous mask
+masks, scores, logits = predictor.predict(
+    point_coords=np.array([[500, 375], [550, 400]]),
+    point_labels=np.array([1, 0]),  # Add background point
+    mask_input=logits[np.argmax(scores)][None, :, :],  # Use best mask
+    multimask_output=False
+)
+</code></pre>
+<h3>Automatic mask generation</h3>
+<h4>Basic automatic segmentation</h4>
+<pre><code class="language-python">from segment_anything import SamAutomaticMaskGenerator
+
+# Create generator
+mask_generator = SamAutomaticMaskGenerator(sam)
+
+# Generate all masks
+masks = mask_generator.generate(image)
+
+# Each mask contains:
+# - segmentation: binary mask
+# - bbox: [x, y, w, h]
+# - area: pixel count
+# - predicted_iou: quality score
+# - stability_score: robustness score
+# - point_coords: generating point
+</code></pre>
+<h4>Customized generation</h4>
+<pre><code class="language-python">mask_generator = SamAutomaticMaskGenerator(
+    model=sam,
+    points_per_side=32,          # Grid density (more = more masks)
+    pred_iou_thresh=0.88,        # Quality threshold
+    stability_score_thresh=0.95,  # Stability threshold
+    crop_n_layers=1,             # Multi-scale crops
+    crop_n_points_downscale_factor=2,
+    min_mask_region_area=100,    # Remove tiny masks
+)
+
+masks = mask_generator.generate(image)
+</code></pre>
+<h4>Filtering masks</h4>
+<pre><code class="language-python"># Sort by area (largest first)
+masks = sorted(masks, key=lambda x: x[&#39;area&#39;], reverse=True)
+
+# Filter by predicted IoU
+high_quality = [m for m in masks if m[&#39;predicted_iou&#39;] &gt; 0.9]
+
+# Filter by stability score
+stable_masks = [m for m in masks if m[&#39;stability_score&#39;] &gt; 0.95]
+</code></pre>
+<h3>Batched inference</h3>
+<h4>Multiple images</h4>
+<pre><code class="language-python"># Process multiple images efficiently
+images = [cv2.imread(f&quot;image_{i}.jpg&quot;) for i in range(10)]
+
+all_masks = []
+for image in images:
+    predictor.set_image(image)
+    masks, _, _ = predictor.predict(
+        point_coords=np.array([[500, 375]]),
+        point_labels=np.array([1]),
+        multimask_output=True
+    )
+    all_masks.append(masks)
+</code></pre>
+<h4>Multiple prompts per image</h4>
+<pre><code class="language-python"># Process multiple prompts efficiently (one image encoding)
+predictor.set_image(image)
+
+# Batch of point prompts
+points = [
+    np.array([[100, 100]]),
+    np.array([[200, 200]]),
+    np.array([[300, 300]])
+]
+
+all_masks = []
+for point in points:
+    masks, scores, _ = predictor.predict(
+        point_coords=point,
+        point_labels=np.array([1]),
+        multimask_output=True
+    )
+    all_masks.append(masks[np.argmax(scores)])
+</code></pre>
+<h3>ONNX deployment</h3>
+<h4>Export model</h4>
+<pre><code class="language-bash">python scripts/export_onnx_model.py \
+    --checkpoint sam_vit_h_4b8939.pth \
+    --model-type vit_h \
+    --output sam_onnx.onnx \
+    --return-single-mask
+</code></pre>
+<h4>Use ONNX model</h4>
+<pre><code class="language-python">import onnxruntime
+
+# Load ONNX model
+ort_session = onnxruntime.InferenceSession(&quot;sam_onnx.onnx&quot;)
+
+# Run inference (image embeddings computed separately)
+masks = ort_session.run(
+    None,
+    {
+        &quot;image_embeddings&quot;: image_embeddings,
+        &quot;point_coords&quot;: point_coords,
+        &quot;point_labels&quot;: point_labels,
+        &quot;mask_input&quot;: np.zeros((1, 1, 256, 256), dtype=np.float32),
+        &quot;has_mask_input&quot;: np.array([0], dtype=np.float32),
+        &quot;orig_im_size&quot;: np.array([h, w], dtype=np.float32)
+    }
+)
+</code></pre>
+<h3>Common workflows</h3>
+<h4>Workflow 1: Annotation tool</h4>
+<pre><code class="language-python">import cv2
+
+# Load model
+predictor = SamPredictor(sam)
+predictor.set_image(image)
+
+def on_click(event, x, y, flags, param):
+    if event == cv2.EVENT_LBUTTONDOWN:
+        # Foreground point
+        masks, scores, _ = predictor.predict(
+            point_coords=np.array([[x, y]]),
+            point_labels=np.array([1]),
+            multimask_output=True
+        )
+        # Display best mask
+        display_mask(masks[np.argmax(scores)])
+</code></pre>
+<h4>Workflow 2: Object extraction</h4>
+<pre><code class="language-python">def extract_object(image, point):
+    &quot;&quot;&quot;Extract object at point with transparent background.&quot;&quot;&quot;
+    predictor.set_image(image)
+
+    masks, scores, _ = predictor.predict(
+        point_coords=np.array([point]),
+        point_labels=np.array([1]),
+        multimask_output=True
+    )
+
+    best_mask = masks[np.argmax(scores)]
+
+    # Create RGBA output
+    rgba = np.zeros((image.shape[0], image.shape[1], 4), dtype=np.uint8)
+    rgba[:, :, :3] = image
+    rgba[:, :, 3] = best_mask * 255
+
+    return rgba
+</code></pre>
+<h4>Workflow 3: Medical image segmentation</h4>
+<pre><code class="language-python"># Process medical images (grayscale to RGB)
+medical_image = cv2.imread(&quot;scan.png&quot;, cv2.IMREAD_GRAYSCALE)
+rgb_image = cv2.cvtColor(medical_image, cv2.COLOR_GRAY2RGB)
+
+predictor.set_image(rgb_image)
+
+# Segment region of interest
+masks, scores, _ = predictor.predict(
+    box=np.array([x1, y1, x2, y2]),  # ROI bounding box
+    multimask_output=True
+)
+</code></pre>
+<h3>Output format</h3>
+<h4>Mask data structure</h4>
+<pre><code class="language-python"># SamAutomaticMaskGenerator output
+{
+    &quot;segmentation&quot;: np.ndarray,  # H×W binary mask
+    &quot;bbox&quot;: [x, y, w, h],        # Bounding box
+    &quot;area&quot;: int,                 # Pixel count
+    &quot;predicted_iou&quot;: float,      # 0-1 quality score
+    &quot;stability_score&quot;: float,    # 0-1 robustness score
+    &quot;crop_box&quot;: [x, y, w, h],    # Generation crop region
+    &quot;point_coords&quot;: [[x, y]],    # Input point
+}
+</code></pre>
+<h4>COCO RLE format</h4>
+<pre><code class="language-python">from pycocotools import mask as mask_utils
+
+# Encode mask to RLE
+rle = mask_utils.encode(np.asfortranarray(mask.astype(np.uint8)))
+rle[&quot;counts&quot;] = rle[&quot;counts&quot;].decode(&quot;utf-8&quot;)
+
+# Decode RLE to mask
+decoded_mask = mask_utils.decode(rle)
+</code></pre>
+<h3>Performance optimization</h3>
+<h4>GPU memory</h4>
+<pre><code class="language-python"># Use smaller model for limited VRAM
+sam = sam_model_registry[&quot;vit_b&quot;](checkpoint=&quot;sam_vit_b_01ec64.pth&quot;)
+
+# Process images in batches
+# Clear CUDA cache between large batches
+torch.cuda.empty_cache()
+</code></pre>
+<h4>Speed optimization</h4>
+<pre><code class="language-python"># Use half precision
+sam = sam.half()
+
+# Reduce points for automatic generation
+mask_generator = SamAutomaticMaskGenerator(
+    model=sam,
+    points_per_side=16,  # Default is 32
+)
+
+# Use ONNX for deployment
+# Export with --return-single-mask for faster inference
+</code></pre>
+<h3>Common issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Out of memory</td>
+<td>Use ViT-B model, reduce image size</td>
+</tr>
+<tr>
+<td>Slow inference</td>
+<td>Use ViT-B, reduce points_per_side</td>
+</tr>
+<tr>
+<td>Poor mask quality</td>
+<td>Try different prompts, use box + points</td>
+</tr>
+<tr>
+<td>Edge artifacts</td>
+<td>Use stability_score filtering</td>
+</tr>
+<tr>
+<td>Small objects missed</td>
+<td>Increase points_per_side</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Batching, fine-tuning, integration</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues and solutions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>GitHub</strong>: <a href="https://github.com/facebookresearch/segment-anything">https://github.com/facebookresearch/segment-anything</a></li>
+<li><strong>Paper</strong>: <a href="https://arxiv.org/abs/2304.02643">https://arxiv.org/abs/2304.02643</a></li>
+<li><strong>Demo</strong>: <a href="https://segment-anything.com">https://segment-anything.com</a></li>
+<li><strong>SAM 2 (Video)</strong>: <a href="https://github.com/facebookresearch/segment-anything-2">https://github.com/facebookresearch/segment-anything-2</a></li>
+<li><strong>HuggingFace</strong>: <a href="https://huggingface.co/facebook/sam-vit-huge">https://huggingface.co/facebook/sam-vit-huge</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/models/segment-anything-model</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

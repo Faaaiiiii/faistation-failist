@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>antigravity-cli — Skill Hermes</title>
+<meta name="description" content="Operate the Antigravity CLI (agy): plugins, auth, sandbox.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>antigravity-cli</h1>
+    <p class="lede">Operate the Antigravity CLI (agy): plugins, auth, sandbox.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>antigravity-cli</dd>
+      <dt>Keterangan</dt><dd>Operate the Antigravity CLI (agy): plugins, auth, sandbox.</dd>
+      <dt>Versi</dt><dd>0.2.0</dd>
+      <dt>Pengarang</dt><dd>Tony Simons (asimons81), Hermes Agent</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>autonomous-ai-agents · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/antigravity-cli.zip" download>Muat turun ZIP (5.2 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (2)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">9.3 KB</td></tr>
+<tr><td><code>references/cli-docs.md</code></td><td class="sz">2.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Antigravity CLI (<code>agy</code>)</h2>
+<p>Operator guide for the Antigravity CLI, invoked as <code>agy</code>. Run all <code>agy</code>
+commands through the Hermes <code>terminal</code> tool; inspect its config and logs with
+<code>read_file</code>. This skill is reference + procedure — it does not wrap a network
+API, so there is nothing to authenticate from Hermes itself.</p>
+<h3>When to Use</h3>
+<ul>
+<li>Installing, updating, or smoke-testing the <code>agy</code> binary</li>
+<li>Driving non-interactive <code>agy --print</code> / <code>agy -p</code> one-shots</li>
+<li>Debugging Antigravity auth, sandbox, permissions, or plugin state</li>
+<li>Reading Antigravity settings, keybindings, conversations, or logs</li>
+</ul>
+<h3>Mental model</h3>
+<p>Antigravity has two layers — keep them distinct or the guidance will be wrong:</p>
+<ol>
+<li><strong>Shell wrapper commands</strong> — <code>agy help</code>, <code>agy install</code>, <code>agy plugin</code>,
+<code>agy update</code>, <code>agy changelog</code>. Run these through the <code>terminal</code> tool.</li>
+<li><strong>Interactive in-session slash commands</strong> — <code>/config</code>, <code>/permissions</code>,
+<code>/skills</code>, <code>/agents</code>, etc. These only exist inside a running <code>agy</code> TUI
+session, not on the shell wrapper.</li>
+</ol>
+<p><code>agy help</code> shows the shell wrapper surface, NOT the in-session slash commands.</p>
+<h3>Prerequisites</h3>
+<ul>
+<li>The <code>agy</code> binary on PATH. Verify through the <code>terminal</code> tool:
+<code>command -v agy &amp;&amp; agy --version</code>.</li>
+<li>No env vars or API keys required by this skill — Antigravity manages its own
+auth via the OS keyring / browser sign-in (see Authentication below).</li>
+</ul>
+<h3>How to Run</h3>
+<p>Invoke every <code>agy</code> command through the <code>terminal</code> tool. Examples:</p>
+<pre><code>terminal(command=&quot;agy --version&quot;)
+terminal(command=&quot;agy help&quot;)
+terminal(command=&quot;agy plugin list&quot;)
+terminal(command=&quot;agy --print &#39;Summarize the repo in 3 bullets&#39;&quot;, workdir=&quot;/path/to/project&quot;)
+</code></pre>
+<p>For an interactive multi-turn TUI session, launch <code>agy</code> with <code>pty=true</code> (and
+tmux for capture/monitoring), the same pattern the <code>codex</code> / <code>claude-code</code>
+skills use. For one-shot smoke tests and scripted prompts, prefer
+<code>agy --print</code> (non-interactive).</p>
+<p>To inspect Antigravity&#39;s own files, use <code>read_file</code> on the paths under Core
+paths below — do not <code>cat</code> them through the terminal.</p>
+<h3>Delegation patterns</h3>
+<p><code>agy</code> is a coding-agent backend in the same family as <code>codex</code> / <code>claude-code</code>,
+so the same delegation shapes apply. Use these when handing real work (features,
+fixes, reviews, second opinions) to Antigravity rather than just smoke-testing.</p>
+<h4>One-shot (preferred for scripted prompts and second opinions)</h4>
+<pre><code>terminal(command=&quot;agy -p &#39;Review this diff for bugs and security issues&#39; --model &#39;Gemini 3.1 Pro (High)&#39;&quot;, workdir=&quot;/path/to/repo&quot;, timeout=300)
+</code></pre>
+<p><code>-p</code> is non-interactive: it runs the prompt and exits. Pick the engine with
+<code>--model</code> (run <code>agy models</code> for the exact display strings, e.g.
+<code>&#39;Gemini 3.1 Pro (High)&#39;</code>, <code>&#39;Claude Opus 4.6 (Thinking)&#39;</code>). Add extra context
+roots with repeatable <code>--add-dir</code>.</p>
+<h4>Long / bounded runs (tests, builds, multi-file changes)</h4>
+<p>Background it and get notified on completion, the same as the <code>codex</code> skill:</p>
+<pre><code>terminal(command=&quot;agy -p &#39;Implement the change described in TASK.md and run the tests&#39; --dangerously-skip-permissions&quot;, workdir=&quot;/path/to/repo&quot;, background=true, notify_on_complete=true)
+# then: process(action=&quot;poll&quot;/&quot;log&quot;/&quot;wait&quot;, session_id=&lt;id&gt;)
+</code></pre>
+<h4>Interactive multi-turn (PTY + tmux)</h4>
+<p>For a conversational session, launch <code>agy -i</code> (or bare <code>agy</code>) under <code>pty=true</code>
+with tmux for <code>capture-pane</code> / <code>send-keys</code>, exactly the pattern documented in
+the <code>codex</code> / <code>claude-code</code> skills. Resume later with <code>--continue</code> / <code>-c</code> or a
+specific <code>--conversation &lt;id&gt;</code>.</p>
+<h4>Parallel instances (batch sub-issue / worktree fan-out)</h4>
+<p>Create one git worktree per task and launch an independent <code>agy -p</code> in each
+(background), then collect results — same worktree fan-out the <code>codex</code> skill
+uses for batch issue fixing. Bound concurrency to what the machine and your
+review capacity can absorb.</p>
+<h4>Output + bounding caveat (differs from Claude Code)</h4>
+<ul>
+<li><code>agy -p</code> returns <strong>plain text</strong> — there is <strong>no <code>--output-format json</code></strong> and
+no result envelope with <code>session_id</code> / cost / turn count. Parse stdout
+directly; don&#39;t expect a JSON object.</li>
+<li>There is <strong>no <code>--max-turns</code></strong>. A print run is bounded by <strong><code>--print-timeout</code></strong>
+(default <code>5m</code>). Raise it for long tasks: <code>--print-timeout 20m</code>. Pair with the
+<code>terminal</code> <code>timeout=</code> so the outer call doesn&#39;t cut the run short.</li>
+</ul>
+<h4>Orchestration boundary</h4>
+<p>Antigravity is a <strong>worker execution backend or third-opinion reviewer</strong> — an
+execution detail owned by the agent/profile running a task, NOT a first-class
+orchestration primitive. Do not put <code>agy</code> on a kanban board as its own card or
+treat it as a coordination layer; route work through the normal task graph and
+let the assigned worker choose <code>agy</code> (vs. codex/claude-code/direct tools) as its
+method. Reach for it explicitly only when the user asks, when a worker is
+configured to wrap it, or when you want a Gemini-family cross-check against
+another agent&#39;s plan or diff.</p>
+<h3>Core paths</h3>
+<ul>
+<li>Binary / entrypoint: <code>agy</code></li>
+<li>App data dir: <code>~/.gemini/antigravity-cli/</code></li>
+<li>Settings file: <code>~/.gemini/antigravity-cli/settings.json</code></li>
+<li>Keybindings file: <code>~/.gemini/antigravity-cli/keybindings.json</code></li>
+<li>Logs: <code>~/.gemini/antigravity-cli/log/cli-*.log</code></li>
+<li>Conversations: <code>~/.gemini/antigravity-cli/conversations/</code></li>
+<li>Brain artifacts: <code>~/.gemini/antigravity-cli/brain/</code></li>
+<li>History: <code>~/.gemini/antigravity-cli/history.jsonl</code></li>
+<li>Plugin staging: <code>~/.gemini/antigravity-cli/plugins/&lt;plugin_name&gt;/</code></li>
+</ul>
+<h3>Quick Reference</h3>
+<h4>Wrapper commands</h4>
+<ul>
+<li><code>agy changelog</code></li>
+<li><code>agy help</code></li>
+<li><code>agy install</code></li>
+<li><code>agy plugin</code> / <code>agy plugins</code></li>
+<li><code>agy update</code></li>
+</ul>
+<h4>Useful flags</h4>
+<ul>
+<li><code>--add-dir</code></li>
+<li><code>--continue</code> / <code>-c</code></li>
+<li><code>--conversation</code></li>
+<li><code>--dangerously-skip-permissions</code></li>
+<li><code>--print</code> / <code>-p</code></li>
+<li><code>--print-timeout</code></li>
+<li><code>--prompt</code></li>
+<li><code>--prompt-interactive</code> / <code>-i</code></li>
+<li><code>--sandbox</code></li>
+<li><code>--log-file</code></li>
+<li><code>--version</code></li>
+</ul>
+<h4>Plugin subcommands (<code>agy plugin --help</code>)</h4>
+<ul>
+<li><code>list</code>, <code>import [source]</code>, <code>install &lt;target&gt;</code>, <code>uninstall &lt;name&gt;</code>,
+<code>enable &lt;name&gt;</code>, <code>disable &lt;name&gt;</code>, <code>validate [path]</code>, <code>link &lt;mp&gt; &lt;target&gt;</code>,
+<code>help</code></li>
+</ul>
+<h4>Install flags (<code>agy install --help</code>)</h4>
+<ul>
+<li><code>--dir</code>, <code>--skip-aliases</code>, <code>--skip-path</code></li>
+</ul>
+<h4>In-session slash commands</h4>
+<ul>
+<li><strong>Conversation control:</strong> <code>/resume</code> (<code>/switch</code>), <code>/rewind</code> (<code>/undo</code>),
+<code>/rename &lt;name&gt;</code>, <code>/clear</code>, <code>/fork</code>, <code>/reset</code>, <code>/new</code></li>
+<li><strong>Settings &amp; tools:</strong> <code>/config</code>, <code>/settings</code>, <code>/permissions</code>, <code>/model</code>,
+<code>/keybindings</code>, <code>/statusline</code>, <code>/tasks</code>, <code>/skills</code>, <code>/mcp</code>, <code>/open &lt;path&gt;</code>,
+<code>/usage</code>, <code>/logout</code>, <code>/agents</code></li>
+<li><strong>Prompt helpers:</strong> <code>@</code> path autocomplete, <code>esc esc</code> clears the prompt (when
+not streaming), <code>!</code> runs a terminal command directly, <code>?</code> opens help</li>
+</ul>
+<h3>Settings and permissions</h3>
+<h4>Common settings keys (<code>settings.json</code>)</h4>
+<ul>
+<li><code>allowNonWorkspaceAccess</code></li>
+<li><code>colorScheme</code></li>
+<li><code>permissions.allow</code></li>
+<li><code>trustedWorkspaces</code></li>
+</ul>
+<h4>Permission modes</h4>
+<p><code>request-review</code>, <code>always-proceed</code>, <code>strict</code>, <code>proceed-in-sandbox</code>.</p>
+<h4>Sandbox behavior</h4>
+<ul>
+<li><code>enableTerminalSandbox</code> is a boolean in <code>settings.json</code>; default <code>false</code>.</li>
+<li>Launch-time overrides (<code>--sandbox</code>, <code>--dangerously-skip-permissions</code>) can
+supersede persistent settings for the current session.</li>
+</ul>
+<h3>Authentication behavior</h3>
+<ul>
+<li>The CLI tries the OS secure keyring first.</li>
+<li>With no saved session, it falls back to browser-based Google sign-in.</li>
+<li>Locally it opens the default browser; over SSH it prints an authorization URL
+and expects the auth code pasted back.</li>
+<li><code>/logout</code> removes saved credentials.</li>
+</ul>
+<h3>Plugins</h3>
+<ul>
+<li>Plugins stage under <code>~/.gemini/antigravity-cli/plugins/&lt;plugin_name&gt;/</code>.</li>
+<li>They can bundle skills, agents, rules, MCP servers, and hooks.</li>
+<li><code>agy plugin list</code> returning no imported plugins is a valid empty state.</li>
+</ul>
+<h3>Pitfalls</h3>
+<ul>
+<li><code>agy help</code> shows wrapper commands, not interactive slash commands.</li>
+<li><code>agy --version</code> is the safe non-interactive version check; <code>agy version</code> is
+interactive and can fail without a real TTY.</li>
+<li>First place to look for failures: <code>~/.gemini/antigravity-cli/log/cli-*.log</code>
+(read with <code>read_file</code>).</li>
+<li>Don&#39;t confuse persistent JSON settings with launch-time overrides.</li>
+<li><code>~/.gemini/antigravity-cli/bin/agentapi</code> is a thin wrapper to <code>agy agentapi</code>.</li>
+<li>On WSL, token storage is file-based, so auth issues are usually local-file /
+session-state problems, not browser-only problems.</li>
+<li>Workspace identity can depend on launch directory and the <code>.antigravitycli</code>
+project marker.</li>
+<li><code>agy -p</code> prints plain text only — no <code>--output-format json</code>, no result
+envelope. Don&#39;t try to parse a JSON object out of it (unlike <code>claude-code</code>).</li>
+<li>Bound print runs with <code>--print-timeout</code> (default <code>5m</code>), not <code>--max-turns</code>
+(which does not exist on <code>agy</code>).</li>
+</ul>
+<h3>Verification</h3>
+<p>Confirm the install is real and usable, all through the <code>terminal</code> tool (read
+files with <code>read_file</code>):</p>
+<ol>
+<li><code>terminal(command=&quot;command -v agy&quot;)</code></li>
+<li><code>terminal(command=&quot;agy --version&quot;)</code></li>
+<li><code>terminal(command=&quot;agy help&quot;)</code></li>
+<li><code>terminal(command=&quot;agy plugin list&quot;)</code></li>
+<li><code>read_file</code> on <code>~/.gemini/antigravity-cli/settings.json</code></li>
+<li><code>read_file</code> on the latest <code>~/.gemini/antigravity-cli/log/cli-*.log</code></li>
+<li>If needed, <code>read_file</code> on <code>~/.gemini/antigravity-cli/keybindings.json</code></li>
+</ol>
+<h3>Support files</h3>
+<ul>
+<li><code>references/cli-docs.md</code> — condensed notes from the getting-started, usage,
+and features docs.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/autonomous-ai-agents/antigravity-cli</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>modal — Skill Hermes</title>
+<meta name="description" content="Serverless GPU cloud for ML jobs and model APIs.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>modal</h1>
+    <p class="lede">Serverless GPU cloud for ML jobs and model APIs.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>modal</dd>
+      <dt>Keterangan</dt><dd>Serverless GPU cloud for ML jobs and model APIs.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/modal.zip" download>Muat turun ZIP (11.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (3)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">8.8 KB</td></tr>
+<tr><td><code>references/advanced-usage.md</code></td><td class="sz">10.6 KB</td></tr>
+<tr><td><code>references/troubleshooting.md</code></td><td class="sz">10.3 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Modal Serverless GPU</h2>
+<p>Guide to running ML workloads on Modal&#39;s serverless GPU cloud platform.</p>
+<h3>When to use Modal</h3>
+<p><strong>Use Modal when:</strong></p>
+<ul>
+<li>Running GPU-intensive ML workloads without managing infrastructure</li>
+<li>Deploying ML models as auto-scaling APIs</li>
+<li>Running batch processing jobs (training, inference, data processing)</li>
+<li>Need pay-per-second GPU pricing without idle costs</li>
+<li>Prototyping ML applications quickly</li>
+<li>Running scheduled jobs (cron-like workloads)</li>
+</ul>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Serverless GPUs</strong>: T4, L4, A10G, L40S, A100, H100, H200, B200 on-demand</li>
+<li><strong>Python-native</strong>: Define infrastructure in Python code, no YAML</li>
+<li><strong>Auto-scaling</strong>: Scale to zero, scale to 100+ GPUs instantly</li>
+<li><strong>Sub-second cold starts</strong>: Rust-based infrastructure for fast container launches</li>
+<li><strong>Container caching</strong>: Image layers cached for rapid iteration</li>
+<li><strong>Web endpoints</strong>: Deploy functions as REST APIs with zero-downtime updates</li>
+</ul>
+<p><strong>Use alternatives instead:</strong></p>
+<ul>
+<li><strong>RunPod</strong>: For longer-running pods with persistent state</li>
+<li><strong>Lambda Labs</strong>: For reserved GPU instances</li>
+<li><strong>SkyPilot</strong>: For multi-cloud orchestration and cost optimization</li>
+<li><strong>Kubernetes</strong>: For complex multi-service architectures</li>
+</ul>
+<h3>Quick start</h3>
+<h4>Installation</h4>
+<pre><code class="language-bash">pip install modal
+modal setup  # Opens browser for authentication
+</code></pre>
+<h4>Hello World with GPU</h4>
+<pre><code class="language-python">import modal
+
+app = modal.App(&quot;hello-gpu&quot;)
+
+@app.function(gpu=&quot;T4&quot;)
+def gpu_info():
+    import subprocess
+    return subprocess.run([&quot;nvidia-smi&quot;], capture_output=True, text=True).stdout
+
+@app.local_entrypoint()
+def main():
+    print(gpu_info.remote())
+</code></pre>
+<p>Run: <code>modal run hello_gpu.py</code></p>
+<h4>Basic inference endpoint</h4>
+<pre><code class="language-python">import modal
+
+app = modal.App(&quot;text-generation&quot;)
+image = modal.Image.debian_slim().pip_install(&quot;transformers&quot;, &quot;torch&quot;, &quot;accelerate&quot;)
+
+@app.cls(gpu=&quot;A10G&quot;, image=image)
+class TextGenerator:
+    @modal.enter()
+    def load_model(self):
+        from transformers import pipeline
+        self.pipe = pipeline(&quot;text-generation&quot;, model=&quot;gpt2&quot;, device=0)
+
+    @modal.method()
+    def generate(self, prompt: str) -&gt; str:
+        return self.pipe(prompt, max_length=100)[0][&quot;generated_text&quot;]
+
+@app.local_entrypoint()
+def main():
+    print(TextGenerator().generate.remote(&quot;Hello, world&quot;))
+</code></pre>
+<h3>Core concepts</h3>
+<h4>Key components</h4>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>App</code></td>
+<td>Container for functions and resources</td>
+</tr>
+<tr>
+<td><code>Function</code></td>
+<td>Serverless function with compute specs</td>
+</tr>
+<tr>
+<td><code>Cls</code></td>
+<td>Class-based functions with lifecycle hooks</td>
+</tr>
+<tr>
+<td><code>Image</code></td>
+<td>Container image definition</td>
+</tr>
+<tr>
+<td><code>Volume</code></td>
+<td>Persistent storage for models/data</td>
+</tr>
+<tr>
+<td><code>Secret</code></td>
+<td>Secure credential storage</td>
+</tr>
+</tbody></table>
+<h4>Execution modes</h4>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>modal run script.py</code></td>
+<td>Execute and exit</td>
+</tr>
+<tr>
+<td><code>modal serve script.py</code></td>
+<td>Development with live reload</td>
+</tr>
+<tr>
+<td><code>modal deploy script.py</code></td>
+<td>Persistent cloud deployment</td>
+</tr>
+</tbody></table>
+<h3>GPU configuration</h3>
+<h4>Available GPUs</h4>
+<table>
+<thead>
+<tr>
+<th>GPU</th>
+<th>VRAM</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>T4</code></td>
+<td>16GB</td>
+<td>Budget inference, small models</td>
+</tr>
+<tr>
+<td><code>L4</code></td>
+<td>24GB</td>
+<td>Inference, Ada Lovelace arch</td>
+</tr>
+<tr>
+<td><code>A10G</code></td>
+<td>24GB</td>
+<td>Training/inference, 3.3x faster than T4</td>
+</tr>
+<tr>
+<td><code>L40S</code></td>
+<td>48GB</td>
+<td>Recommended for inference (best cost/perf)</td>
+</tr>
+<tr>
+<td><code>A100-40GB</code></td>
+<td>40GB</td>
+<td>Large model training</td>
+</tr>
+<tr>
+<td><code>A100-80GB</code></td>
+<td>80GB</td>
+<td>Very large models</td>
+</tr>
+<tr>
+<td><code>H100</code></td>
+<td>80GB</td>
+<td>Fastest, FP8 + Transformer Engine</td>
+</tr>
+<tr>
+<td><code>H200</code></td>
+<td>141GB</td>
+<td>Auto-upgrade from H100, 4.8TB/s bandwidth</td>
+</tr>
+<tr>
+<td><code>B200</code></td>
+<td>Latest</td>
+<td>Blackwell architecture</td>
+</tr>
+</tbody></table>
+<h4>GPU specification patterns</h4>
+<pre><code class="language-python"># Single GPU
+@app.function(gpu=&quot;A100&quot;)
+
+# Specific memory variant
+@app.function(gpu=&quot;A100-80GB&quot;)
+
+# Multiple GPUs (up to 8)
+@app.function(gpu=&quot;H100:4&quot;)
+
+# GPU with fallbacks
+@app.function(gpu=[&quot;H100&quot;, &quot;A100&quot;, &quot;L40S&quot;])
+
+# Any available GPU
+@app.function(gpu=&quot;any&quot;)
+</code></pre>
+<h3>Container images</h3>
+<pre><code class="language-python"># Basic image with pip
+image = modal.Image.debian_slim(python_version=&quot;3.11&quot;).pip_install(
+    &quot;torch==2.1.0&quot;, &quot;transformers==4.36.0&quot;, &quot;accelerate&quot;
+)
+
+# From CUDA base
+image = modal.Image.from_registry(
+    &quot;nvidia/cuda:12.1.0-cudnn8-devel-ubuntu22.04&quot;,
+    add_python=&quot;3.11&quot;
+).pip_install(&quot;torch&quot;, &quot;transformers&quot;)
+
+# With system packages
+image = modal.Image.debian_slim().apt_install(&quot;git&quot;, &quot;ffmpeg&quot;).pip_install(&quot;whisper&quot;)
+</code></pre>
+<h3>Persistent storage</h3>
+<pre><code class="language-python">volume = modal.Volume.from_name(&quot;model-cache&quot;, create_if_missing=True)
+
+@app.function(gpu=&quot;A10G&quot;, volumes={&quot;/models&quot;: volume})
+def load_model():
+    import os
+    model_path = &quot;/models/llama-7b&quot;
+    if not os.path.exists(model_path):
+        model = download_model()
+        model.save_pretrained(model_path)
+        volume.commit()  # Persist changes
+    return load_from_path(model_path)
+</code></pre>
+<h3>Web endpoints</h3>
+<h4>FastAPI endpoint decorator</h4>
+<pre><code class="language-python">@app.function()
+@modal.fastapi_endpoint(method=&quot;POST&quot;)
+def predict(text: str) -&gt; dict:
+    return {&quot;result&quot;: model.predict(text)}
+</code></pre>
+<h4>Full ASGI app</h4>
+<pre><code class="language-python">from fastapi import FastAPI
+web_app = FastAPI()
+
+@web_app.post(&quot;/predict&quot;)
+async def predict(text: str):
+    return {&quot;result&quot;: await model.predict.remote.aio(text)}
+
+@app.function()
+@modal.asgi_app()
+def fastapi_app():
+    return web_app
+</code></pre>
+<h4>Web endpoint types</h4>
+<table>
+<thead>
+<tr>
+<th>Decorator</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>@modal.fastapi_endpoint()</code></td>
+<td>Simple function → API</td>
+</tr>
+<tr>
+<td><code>@modal.asgi_app()</code></td>
+<td>Full FastAPI/Starlette apps</td>
+</tr>
+<tr>
+<td><code>@modal.wsgi_app()</code></td>
+<td>Django/Flask apps</td>
+</tr>
+<tr>
+<td><code>@modal.web_server(port)</code></td>
+<td>Arbitrary HTTP servers</td>
+</tr>
+</tbody></table>
+<h3>Dynamic batching</h3>
+<pre><code class="language-python">@app.function()
+@modal.batched(max_batch_size=32, wait_ms=100)
+async def batch_predict(inputs: list[str]) -&gt; list[dict]:
+    # Inputs automatically batched
+    return model.batch_predict(inputs)
+</code></pre>
+<h3>Secrets management</h3>
+<pre><code class="language-bash"># Create secret
+modal secret create huggingface HF_TOKEN=hf_xxx
+</code></pre>
+<pre><code class="language-python">@app.function(secrets=[modal.Secret.from_name(&quot;huggingface&quot;)])
+def download_model():
+    import os
+    token = os.environ[&quot;HF_TOKEN&quot;]
+</code></pre>
+<h3>Scheduling</h3>
+<pre><code class="language-python">@app.function(schedule=modal.Cron(&quot;0 0 * * *&quot;))  # Daily midnight
+def daily_job():
+    pass
+
+@app.function(schedule=modal.Period(hours=1))
+def hourly_job():
+    pass
+</code></pre>
+<h3>Performance optimization</h3>
+<h4>Cold start mitigation</h4>
+<pre><code class="language-python"># Modal 1.0 autoscaler params: scaledown_window (was container_idle_timeout).
+# Input concurrency moved to the @modal.concurrent decorator.
+@app.function(scaledown_window=300)  # Keep warm 5 min
+@modal.concurrent(max_inputs=10)     # Handle concurrent requests per container
+def inference():
+    pass
+</code></pre>
+<h4>Model loading best practices</h4>
+<pre><code class="language-python">@app.cls(gpu=&quot;A100&quot;)
+class Model:
+    @modal.enter()  # Run once at container start
+    def load(self):
+        self.model = load_model()  # Load during warm-up
+
+    @modal.method()
+    def predict(self, x):
+        return self.model(x)
+</code></pre>
+<h3>Parallel processing</h3>
+<pre><code class="language-python">@app.function()
+def process_item(item):
+    return expensive_computation(item)
+
+@app.function()
+def run_parallel():
+    items = list(range(1000))
+    # Fan out to parallel containers
+    results = list(process_item.map(items))
+    return results
+</code></pre>
+<h3>Common configuration</h3>
+<pre><code class="language-python">@app.function(
+    gpu=&quot;A100&quot;,
+    memory=32768,              # 32GB RAM
+    cpu=4,                     # 4 CPU cores
+    timeout=3600,              # 1 hour max
+    scaledown_window=120,      # Keep warm 2 min (was container_idle_timeout)
+    retries=3,                 # Retry on failure
+    max_containers=10,         # Max concurrent containers (was concurrency_limit)
+    min_containers=1,          # Keep N containers warm (was keep_warm)
+)
+def my_function():
+    pass
+</code></pre>
+<blockquote>
+<p><strong>Modal 1.0 autoscaler renames</strong> (see the <a href="https://modal.com/docs/guide/modal-1-0-migration">migration guide</a>):</p>
+<ul>
+<li><code>container_idle_timeout</code> → <code>scaledown_window</code></li>
+<li><code>concurrency_limit</code> → <code>max_containers</code></li>
+<li><code>keep_warm</code> → <code>min_containers</code></li>
+<li><code>allow_concurrent_inputs=N</code> → the <code>@modal.concurrent(max_inputs=N)</code> decorator</li>
+</ul>
+</blockquote>
+<h3>Debugging</h3>
+<pre><code class="language-python"># Test locally
+if __name__ == &quot;__main__&quot;:
+    result = my_function.local()
+
+# View logs
+# modal app logs my-app
+</code></pre>
+<h3>Common issues</h3>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cold start latency</td>
+<td>Increase <code>scaledown_window</code>, use <code>@modal.enter()</code></td>
+</tr>
+<tr>
+<td>GPU OOM</td>
+<td>Use larger GPU (<code>A100-80GB</code>), enable gradient checkpointing</td>
+</tr>
+<tr>
+<td>Image build fails</td>
+<td>Pin dependency versions, check CUDA compatibility</td>
+</tr>
+<tr>
+<td>Timeout errors</td>
+<td>Increase <code>timeout</code>, add checkpointing</td>
+</tr>
+</tbody></table>
+<h3>References</h3>
+<ul>
+<li><strong><a href="references/advanced-usage.md">Advanced Usage</a></strong> - Multi-GPU, distributed training, cost optimization</li>
+<li><strong><a href="references/troubleshooting.md">Troubleshooting</a></strong> - Common issues and solutions</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://modal.com/docs">https://modal.com/docs</a></li>
+<li><strong>Examples</strong>: <a href="https://github.com/modal-labs/modal-examples">https://github.com/modal-labs/modal-examples</a></li>
+<li><strong>Pricing</strong>: <a href="https://modal.com/pricing">https://modal.com/pricing</a></li>
+<li><strong>Discord</strong>: <a href="https://discord.gg/modal">https://discord.gg/modal</a></li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/modal</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

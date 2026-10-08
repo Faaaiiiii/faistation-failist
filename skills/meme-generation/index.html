@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>meme-generation — Skill Hermes</title>
+<meta name="description" content="Create meme PNGs from templates with Pillow text overlay.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>meme-generation</h1>
+    <p class="lede">Create meme PNGs from templates with Pillow text overlay.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>meme-generation</dd>
+      <dt>Keterangan</dt><dd>Create meme PNGs from templates with Pillow text overlay.</dd>
+      <dt>Versi</dt><dd>2.0.0</dd>
+      <dt>Pengarang</dt><dd>adanaleycio</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>creative · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/meme-generation.zip" download>Muat turun ZIP (9.5 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (5)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">5.4 KB</td></tr>
+<tr><td><code>EXAMPLES.md</code></td><td class="sz">1.1 KB</td></tr>
+<tr><td><code>scripts/.gitignore</code></td><td class="sz">8 B</td></tr>
+<tr><td><code>scripts/generate_meme.py</code></td><td class="sz">16.3 KB</td></tr>
+<tr><td><code>scripts/templates.json</code></td><td class="sz">4.1 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Meme Generation</h2>
+<p>Generate actual meme images from a topic. Picks a template, writes captions, and renders a real .png file with text overlay.</p>
+<h3>When to Use</h3>
+<ul>
+<li>User asks you to make or generate a meme</li>
+<li>User wants a meme about a specific topic, situation, or frustration</li>
+<li>User says &quot;meme this&quot; or similar</li>
+</ul>
+<h3>Available Templates</h3>
+<p>The script supports <strong>any of the ~100 popular imgflip templates</strong> by name or ID, plus 10 curated templates with hand-tuned text positioning.</p>
+<h4>Curated Templates (custom text placement)</h4>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Fields</th>
+<th>Best for</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>this-is-fine</code></td>
+<td>This is Fine</td>
+<td>top, bottom</td>
+<td>chaos, denial</td>
+</tr>
+<tr>
+<td><code>drake</code></td>
+<td>Drake Hotline Bling</td>
+<td>reject, approve</td>
+<td>rejecting/preferring</td>
+</tr>
+<tr>
+<td><code>distracted-boyfriend</code></td>
+<td>Distracted Boyfriend</td>
+<td>distraction, current, person</td>
+<td>temptation, shifting priorities</td>
+</tr>
+<tr>
+<td><code>two-buttons</code></td>
+<td>Two Buttons</td>
+<td>left, right, person</td>
+<td>impossible choice</td>
+</tr>
+<tr>
+<td><code>expanding-brain</code></td>
+<td>Expanding Brain</td>
+<td>4 levels</td>
+<td>escalating irony</td>
+</tr>
+<tr>
+<td><code>change-my-mind</code></td>
+<td>Change My Mind</td>
+<td>statement</td>
+<td>hot takes</td>
+</tr>
+<tr>
+<td><code>woman-yelling-at-cat</code></td>
+<td>Woman Yelling at Cat</td>
+<td>woman, cat</td>
+<td>arguments</td>
+</tr>
+<tr>
+<td><code>one-does-not-simply</code></td>
+<td>One Does Not Simply</td>
+<td>top, bottom</td>
+<td>deceptively hard things</td>
+</tr>
+<tr>
+<td><code>grus-plan</code></td>
+<td>Gru&#39;s Plan</td>
+<td>step1-3, realization</td>
+<td>plans that backfire</td>
+</tr>
+<tr>
+<td><code>batman-slapping-robin</code></td>
+<td>Batman Slapping Robin</td>
+<td>robin, batman</td>
+<td>shutting down bad ideas</td>
+</tr>
+</tbody></table>
+<h4>Dynamic Templates (from imgflip API)</h4>
+<p>Any template not in the curated list can be used by name or imgflip ID. These get smart default text positioning (top/bottom for 2-field, evenly spaced for 3+). Search with:</p>
+<pre><code class="language-bash">python &quot;$SKILL_DIR/scripts/generate_meme.py&quot; --search &quot;disaster&quot;
+</code></pre>
+<h3>Procedure</h3>
+<h4>Mode 1: Classic Template (default)</h4>
+<ol>
+<li>Read the user&#39;s topic and identify the core dynamic (chaos, dilemma, preference, irony, etc.)</li>
+<li>Pick the template that best matches. Use the &quot;Best for&quot; column, or search with <code>--search</code>.</li>
+<li>Write short captions for each field (8-12 words max per field, shorter is better).</li>
+<li>Find the skill&#39;s script directory:<pre><code>SKILL_DIR=$(dirname &quot;$(find ~/.hermes/skills -path &#39;*/meme-generation/SKILL.md&#39; 2&gt;/dev/null | head -1)&quot;)
+</code></pre>
+</li>
+<li>Run the generator:<pre><code class="language-bash">python &quot;$SKILL_DIR/scripts/generate_meme.py&quot; &lt;template_id&gt; ~/.hermes/cache/scratch/meme.png &quot;caption 1&quot; &quot;caption 2&quot; ...
+</code></pre>
+</li>
+<li>Return the image with <code>MEDIA:~/.hermes/cache/scratch/meme.png</code></li>
+</ol>
+<h4>Mode 2: Custom AI Image (when image_generate is available)</h4>
+<p>Use this when no classic template fits, or when the user wants something original.</p>
+<ol>
+<li>Write the captions first.</li>
+<li>Use <code>image_generate</code> to create a scene that matches the meme concept. Do NOT include any text in the image prompt — text will be added by the script. Describe only the visual scene.</li>
+<li>Find the generated image path from the image_generate result URL. Download it to a local path if needed.</li>
+<li>Run the script with <code>--image</code> to overlay text, choosing a mode:<ul>
+<li><strong>Overlay</strong> (text directly on image, white with black outline):<pre><code class="language-bash">python &quot;$SKILL_DIR/scripts/generate_meme.py&quot; --image /path/to/scene.png ~/.hermes/cache/scratch/meme.png &quot;top text&quot; &quot;bottom text&quot;
+</code></pre>
+</li>
+<li><strong>Bars</strong> (black bars above/below with white text — cleaner, always readable):<pre><code class="language-bash">python &quot;$SKILL_DIR/scripts/generate_meme.py&quot; --image /path/to/scene.png --bars ~/.hermes/cache/scratch/meme.png &quot;top text&quot; &quot;bottom text&quot;
+</code></pre>
+</li>
+</ul>
+<p>Use <code>--bars</code> when the image is busy/detailed and text would be hard to read on top of it.</p>
+</li>
+<li><strong>Verify with vision</strong> (if <code>vision_analyze</code> is available): Check the result looks good:<pre><code>vision_analyze(image_url=&quot;~/.hermes/cache/scratch/meme.png&quot;, question=&quot;Is the text legible and well-positioned? Does the meme work visually?&quot;)
+</code></pre>
+If the vision model flags issues (text hard to read, bad placement, etc.), try the other mode (switch between overlay and bars) or regenerate the scene.</li>
+<li>Return the image with <code>MEDIA:~/.hermes/cache/scratch/meme.png</code></li>
+</ol>
+<h3>Examples</h3>
+<p><strong>&quot;debugging production at 2 AM&quot;:</strong></p>
+<pre><code class="language-bash">python generate_meme.py this-is-fine ~/.hermes/cache/scratch/meme.png &quot;SERVERS ARE ON FIRE&quot; &quot;This is fine&quot;
+</code></pre>
+<p><strong>&quot;choosing between sleep and one more episode&quot;:</strong></p>
+<pre><code class="language-bash">python generate_meme.py drake ~/.hermes/cache/scratch/meme.png &quot;Getting 8 hours of sleep&quot; &quot;One more episode at 3 AM&quot;
+</code></pre>
+<p><strong>&quot;the stages of a Monday morning&quot;:</strong></p>
+<pre><code class="language-bash">python generate_meme.py expanding-brain ~/.hermes/cache/scratch/meme.png &quot;Setting an alarm&quot; &quot;Setting 5 alarms&quot; &quot;Sleeping through all alarms&quot; &quot;Working from bed&quot;
+</code></pre>
+<h3>Listing Templates</h3>
+<p>To see all available templates:</p>
+<pre><code class="language-bash">python generate_meme.py --list
+</code></pre>
+<h3>Pitfalls</h3>
+<ul>
+<li>Keep captions SHORT. Memes with long text look terrible.</li>
+<li>Match the number of text arguments to the template&#39;s field count.</li>
+<li>Pick the template that fits the joke structure, not just the topic.</li>
+<li>Do not generate hateful, abusive, or personally targeted content.</li>
+<li>The script caches template images in <code>scripts/.cache/</code> after first download.</li>
+</ul>
+<h3>Verification</h3>
+<p>The output is correct if:</p>
+<ul>
+<li>A .png file was created at the output path</li>
+<li>Text is legible (white with black outline) on the template</li>
+<li>The joke lands — caption matches the template&#39;s intended structure</li>
+<li>File can be delivered via MEDIA: path</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/creative/meme-generation</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

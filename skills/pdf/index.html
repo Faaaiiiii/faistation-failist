@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pdf — Skill Hermes</title>
+<meta name="description" content="PDF files: create, read, merge, fill, OCR, edit text.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>pdf</h1>
+    <p class="lede">PDF files: create, read, merge, fill, OCR, edit text.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>pdf</dd>
+      <dt>Keterangan</dt><dd>PDF files: create, read, merge, fill, OCR, edit text.</dd>
+      <dt>Versi</dt><dd>1.1.0</dd>
+      <dt>Pengarang</dt><dd>Nous Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>productivity · builtin (teras Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/pdf.zip" download>Muat turun ZIP (39.8 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (21)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">12.2 KB</td></tr>
+<tr><td><code>LICENSE</code></td><td class="sz">1.0 KB</td></tr>
+<tr><td><code>references/forms.md</code></td><td class="sz">3.9 KB</td></tr>
+<tr><td><code>references/nano-pdf-editing.md</code></td><td class="sz">1.3 KB</td></tr>
+<tr><td><code>references/ocr-extraction.md</code></td><td class="sz">5.5 KB</td></tr>
+<tr><td><code>scripts/_raster.py</code></td><td class="sz">2.6 KB</td></tr>
+<tr><td><code>scripts/extract_marker.py</code></td><td class="sz">3.4 KB</td></tr>
+<tr><td><code>scripts/extract_pymupdf.py</code></td><td class="sz">3.6 KB</td></tr>
+<tr><td><code>scripts/pdf_create.py</code></td><td class="sz">4.5 KB</td></tr>
+<tr><td><code>scripts/pdf_fill_form.py</code></td><td class="sz">3.8 KB</td></tr>
+<tr><td><code>scripts/pdf_form_layout.py</code></td><td class="sz">7.0 KB</td></tr>
+<tr><td><code>scripts/pdf_make_form.py</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>scripts/pdf_merge.py</code></td><td class="sz">1.6 KB</td></tr>
+<tr><td><code>scripts/pdf_meta.py</code></td><td class="sz">4.4 KB</td></tr>
+<tr><td><code>scripts/pdf_page_image.py</code></td><td class="sz">3.5 KB</td></tr>
+<tr><td><code>scripts/pdf_read.py</code></td><td class="sz">5.8 KB</td></tr>
+<tr><td><code>scripts/pdf_secure.py</code></td><td class="sz">2.6 KB</td></tr>
+<tr><td><code>scripts/pdf_split.py</code></td><td class="sz">3.0 KB</td></tr>
+<tr><td><code>scripts/pdf_stamp.py</code></td><td class="sz">5.6 KB</td></tr>
+<tr><td><code>scripts/pdf_watermark.py</code></td><td class="sz">1.8 KB</td></tr>
+<tr><td><code>tests/test_pdf_skill.py</code></td><td class="sz">17.0 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>PDF Skill</h2>
+<p>Create PDFs from structured specs, build and fill AcroForm forms (with layout linting and visual overlays), extract text/tables/metadata, merge/split/rotate/watermark/stamp pages, export page images, manage metadata and attachments, and encrypt/decrypt — using pypdf, reportlab, and pdfplumber. Two absorbed capabilities live in references/ (read the matching file before those tasks):</p>
+<ul>
+<li><strong>Scanned/image-only PDFs and OCR</strong> (pymupdf fast path, marker-pdf quality path, scripts/extract_pymupdf.py + scripts/extract_marker.py): <code>references/ocr-extraction.md</code></li>
+<li><strong>Editing text inside an existing PDF via natural-language prompts</strong> (nano-pdf CLI): <code>references/nano-pdf-editing.md</code></li>
+</ul>
+<h3>When to Use</h3>
+<ul>
+<li>Generate a report, invoice, or multi-page document as PDF.</li>
+<li>Build a fillable AcroForm (text/checkbox/radio/dropdown) from a JSON spec, linting the layout first.</li>
+<li>Pull text, tables (JSON/CSV), metadata, or form-field values out of a PDF.</li>
+<li>Merge, split, rotate, extract page subsets, watermark, stamp text/images at coordinates, bookmark, or compress PDFs.</li>
+<li>Export pages as PNGs for visual review or for OCR hand-off; set/clear document metadata; add/extract file attachments.</li>
+<li>Fill or flatten AcroForm forms; encrypt or decrypt with passwords.</li>
+<li>NOT for scanned/image-only PDFs (use <code>references/ocr-extraction.md</code>) and NOT for pixel-perfect HTML-to-PDF rendering (use a headless browser).</li>
+</ul>
+<h3>Prerequisites</h3>
+<ul>
+<li>Python 3.10+ with <code>pypdf</code>, <code>reportlab</code>, <code>pdfplumber</code>:
+<code>python -m pip install pypdf reportlab pdfplumber</code></li>
+<li>Optional, for page rasterization (<code>pdf_page_image.py</code>, overlay rendering): <code>python -m pip install pypdfium2</code>, or poppler&#39;s <code>pdftoppm</code> on PATH. Scripts fall back pypdfium2 → pdftoppm and report <code>{&quot;rendered&quot;: false, &quot;missing&quot;: [...]}</code> (exit 0) when neither exists.</li>
+<li>Each helper script checks imports lazily and prints an install hint if a dependency is missing.</li>
+</ul>
+<h3>How to Run</h3>
+<p>All helpers live in <code>scripts/</code> and are argparse CLIs — run them with the <code>terminal</code> tool; every one supports <code>--help</code>. They read/write JSON strictly as UTF-8, print JSON results to stdout, and exit non-zero on failure.</p>
+<pre><code class="language-bash">python scripts/pdf_create.py spec.json -o out.pdf         # build PDF from JSON spec
+python scripts/pdf_make_form.py formspec.json -o form.pdf # build fillable AcroForm from JSON spec
+python scripts/pdf_form_layout.py formspec.json           # lint form layout BEFORE building
+python scripts/pdf_form_layout.py formspec.json --render-overlay boxes.png [--pdf form.pdf]
+python scripts/pdf_read.py doc.pdf --text                 # per-page text (JSON)
+python scripts/pdf_read.py doc.pdf --tables --csv-dir t/  # tables to JSON + CSV files
+python scripts/pdf_read.py doc.pdf --meta                 # metadata, page sizes, encrypted/scanned flags
+python scripts/pdf_read.py form.pdf --fields              # form fields: name, type, value
+python scripts/pdf_merge.py a.pdf b.pdf -o merged.pdf [--bookmarks]
+python scripts/pdf_split.py doc.pdf --pages 1-3,7 -o part.pdf [--rotate 90]
+python scripts/pdf_fill_form.py form.pdf --fields-json values.json -o filled.pdf [--flatten]
+python scripts/pdf_secure.py doc.pdf --encrypt -o enc.pdf --user-password your-password
+python scripts/pdf_secure.py enc.pdf --decrypt -o dec.pdf --password your-password
+python scripts/pdf_watermark.py doc.pdf --stamp mark.pdf -o stamped.pdf [--under]
+python scripts/pdf_stamp.py doc.pdf -o out.pdf --text &quot;DRAFT&quot; --x 150 --y 400 \
+    --font-size 60 --rotation 45 --opacity 0.3 --color &quot;#cc0000&quot; [--pages 1-3]
+python scripts/pdf_stamp.py doc.pdf -o out.pdf --image sig.png --x 400 --y 60 --width 120
+python scripts/pdf_page_image.py doc.pdf --pages 1-3 --dpi 150 --out-dir imgs/
+python scripts/pdf_meta.py doc.pdf --set-meta --title &quot;T&quot; --author &quot;A&quot; -o out.pdf
+python scripts/pdf_meta.py doc.pdf --attach data.csv -o out.pdf
+python scripts/pdf_meta.py doc.pdf --list-attachments | --extract-attachments dir/
+</code></pre>
+<h3>Quick Reference</h3>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Tool</th>
+<th>Command / API</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Create doc (headings, tables, images)</td>
+<td>reportlab platypus</td>
+<td><code>pdf_create.py spec.json -o out.pdf</code></td>
+</tr>
+<tr>
+<td>Build fillable form</td>
+<td>reportlab acroForm</td>
+<td><code>pdf_make_form.py formspec.json -o form.pdf</code></td>
+</tr>
+<tr>
+<td>Lint form layout / overlay image</td>
+<td>pure python + PIL</td>
+<td><code>pdf_form_layout.py formspec.json [--render-overlay o.png]</code></td>
+</tr>
+<tr>
+<td>Per-page text</td>
+<td>pdfplumber</td>
+<td><code>pdf_read.py f.pdf --text</code></td>
+</tr>
+<tr>
+<td>Tables → JSON/CSV</td>
+<td>pdfplumber</td>
+<td><code>pdf_read.py f.pdf --tables</code></td>
+</tr>
+<tr>
+<td>Metadata / sizes / encrypted / scanned</td>
+<td>pypdf + pdfplumber</td>
+<td><code>pdf_read.py f.pdf --meta</code></td>
+</tr>
+<tr>
+<td>Merge (+ outline)</td>
+<td>pypdf</td>
+<td><code>pdf_merge.py a.pdf b.pdf -o m.pdf</code></td>
+</tr>
+<tr>
+<td>Split / extract / rotate</td>
+<td>pypdf</td>
+<td><code>pdf_split.py f.pdf --pages 2-5 --rotate 90</code></td>
+</tr>
+<tr>
+<td>List / fill / flatten form</td>
+<td>pypdf</td>
+<td><code>pdf_read.py --fields</code>, <code>pdf_fill_form.py</code></td>
+</tr>
+<tr>
+<td>Encrypt / decrypt (AES-256)</td>
+<td>pypdf</td>
+<td><code>pdf_secure.py --encrypt/--decrypt</code></td>
+</tr>
+<tr>
+<td>Watermark / stamp PDF page</td>
+<td>pypdf</td>
+<td><code>pdf_watermark.py f.pdf --stamp w.pdf</code></td>
+</tr>
+<tr>
+<td>Stamp text/image at coordinates</td>
+<td>reportlab + pypdf</td>
+<td><code>pdf_stamp.py f.pdf --text &quot;Sign here&quot; --x 400 --y 60</code></td>
+</tr>
+<tr>
+<td>Pages → PNG (review / OCR hand-off)</td>
+<td>pypdfium2 or pdftoppm</td>
+<td><code>pdf_page_image.py f.pdf --pages 1-3 --out-dir imgs/</code></td>
+</tr>
+<tr>
+<td>Set/clear metadata, attachments</td>
+<td>pypdf</td>
+<td><code>pdf_meta.py --set-meta / --attach / --extract-attachments</code></td>
+</tr>
+<tr>
+<td>Compress content streams</td>
+<td>pypdf</td>
+<td><code>pdf_split.py f.pdf --pages 1-N --compress</code></td>
+</tr>
+</tbody></table>
+<h3>Procedure</h3>
+<ol>
+<li><strong>Inspect first.</strong> Run <code>pdf_read.py file.pdf --meta</code>. Check <code>encrypted</code> (if true, decrypt first with <code>pdf_secure.py --decrypt</code>) and <code>likely_scanned_pages</code>. If pages are image-only, export them with <code>pdf_page_image.py --pages &lt;scanned&gt; --dpi 300 --out-dir imgs/</code> and hand the PNGs to the <code>references/ocr-extraction.md</code> skill — do not report empty text as &quot;no content&quot;.</li>
+<li><strong>Create.</strong> Write a JSON spec with <code>write_file</code> (elements: <code>heading</code>, <code>paragraph</code>, <code>table</code>, <code>image</code>, <code>pagebreak</code>; optional <code>title</code>/<code>author</code> metadata; page numbers are added automatically), then run <code>pdf_create.py</code>. Verify visually with <code>vision_analyze</code> on a rendered page image if layout matters.</li>
+<li><strong>Extract.</strong> <code>--text</code> gives a JSON list of per-page strings; <code>--tables</code> gives row arrays per page and can also emit CSV files. Read results with <code>read_file</code>; never eyeball a binary PDF directly.</li>
+<li><strong>Manipulate.</strong> <code>pdf_merge.py</code> concatenates and can add one bookmark per source file; <code>pdf_split.py</code> handles page ranges (1-based, e.g. <code>1-3,5,9-</code>), rotation in 90° steps, and <code>--compress</code>. Watermark by preparing a single-page stamp PDF (e.g. via <code>pdf_create.py</code>) and overlaying it with <code>pdf_watermark.py</code>; for one-liner stamps (&quot;sign here&quot;, diagonal DRAFT, corner labels) use <code>pdf_stamp.py</code> with text or an image at explicit coordinates.</li>
+<li><strong>Build forms.</strong> Write one form-spec JSON (fields with <code>label_box</code>/<code>entry_box</code> in PDF points — see <code>references/forms.md</code>), lint it with <code>pdf_form_layout.py</code> and fix every reported problem, optionally review the <code>--render-overlay</code> PNG with <code>vision_analyze</code>, then build with <code>pdf_make_form.py</code> and confirm with <code>pdf_read.py --fields</code>.</li>
+<li><strong>Fill forms.</strong> List fields (<code>--fields</code>) to learn exact names and types, write a UTF-8 JSON of <code>{&quot;FieldName&quot;: &quot;value&quot;}</code> with <code>write_file</code> (checkboxes accept <code>true</code>/<code>false</code>; radio/choice values must match the field&#39;s export options), then <code>pdf_fill_form.py</code>. Re-read with <code>--fields</code> to confirm values landed.</li>
+<li><strong>Metadata &amp; attachments.</strong> <code>pdf_meta.py --set-meta</code> writes Title/Author/Subject/Keywords (DocInfo); <code>--clear-meta</code> drops them; <code>--attach</code>/<code>--list-attachments</code>/<code>--extract-attachments</code> round-trip embedded files.</li>
+<li><strong>Secure.</strong> Encrypt with distinct user/owner passwords and AES-256. To remove a password you know, <code>--decrypt</code> writes an unencrypted copy.</li>
+<li><strong>Verify</strong> (see below) before reporting success.</li>
+</ol>
+<h3>Pitfalls</h3>
+<ul>
+<li><strong>Scanned PDFs</strong>: empty <code>extract_text()</code> plus page images means there is no text layer. Route to <code>references/ocr-extraction.md</code>; do not fabricate text.</li>
+<li><strong>Flattening limits</strong>: <code>pdf_fill_form.py --flatten</code> uses pypdf&#39;s flatten support, which converts widget appearances into page content. It is reliable for plain text fields and checkboxes but can drop or misrender exotic widgets (rich text, custom appearance streams, some radio groups). Verify the flattened output visually with <code>vision_analyze</code>; for bulletproof flattening use an external renderer (e.g. Ghostscript or <code>pdftoppm</code>+reassembly) as a fallback.</li>
+<li><strong>NeedAppearances</strong>: after filling, viewers only render values if appearance streams exist. The fill script sets the AcroForm <code>NeedAppearances</code> flag so conforming viewers regenerate them; some minimal viewers ignore it — flatten if display fidelity matters.</li>
+<li><strong>Non-Latin form values</strong>: values are stored correctly (UTF-16), but the field&#39;s default font may lack glyphs, so a viewer can show blanks even though the data round-trips. Verify with <code>--fields</code>, not just visually.</li>
+<li><strong>Compression expectations</strong>: <code>--compress</code> only deflates content streams. Typical savings are 0–20%; it does nothing for PDFs dominated by images or already-compressed streams. It is not a substitute for image downsampling (Ghostscript territory).</li>
+<li><strong>Permission flags don&#39;t enforce</strong>: owner-password permission bits (no-print, no-copy) are polite requests that viewers may honor; any library (including pypdf) can read and strip them. Only the user password actually gates content via encryption. Never present permission flags as security.</li>
+<li><strong>Table extraction is heuristic</strong>: pdfplumber detects tables from ruling lines/word alignment; borderless or merged-cell tables may need <code>table_settings</code> tuning or manual cleanup.</li>
+<li><strong>Page indexing</strong>: helper CLIs take 1-based pages; pypdf APIs are 0-based. The scripts convert — don&#39;t double-convert.</li>
+<li><strong>Rotated stamp text extraction</strong>: pdfplumber&#39;s line grouping scrambles rotated glyphs (a 45° &quot;DRAFT&quot; extracts as stray letters); verify rotated stamps with <code>pypdf</code>&#39;s <code>extract_text()</code> or a rendered image instead.</li>
+<li><strong>Radio groups</strong>: reportlab needs ≥2 <code>radio()</code> widgets per group, fills need the slashed export value (<code>&quot;/red&quot;</code>), and flatten fidelity is worst for radios — see <code>references/forms.md</code>.</li>
+<li><strong>Metadata scope</strong>: <code>pdf_meta.py</code> writes the classic DocInfo dictionary only; embedded XMP metadata (if any) is left untouched and may show different values in some viewers.</li>
+<li><strong>PDF/A is out of scope</strong>: pypdf/reportlab cannot produce or validate conformant PDF/A. If archival conformance is required, run Ghostscript via the <code>terminal</code> tool (e.g. <code>gs -dPDFA=2 -dPDFACompatibilityPolicy=1 -sColorConversionStrategy=UseDeviceIndependentColor -sDEVICE=pdfwrite -o out.pdf in.pdf</code> with a suitable ICC profile) and validate with veraPDF — both are external installs, and the result still needs validation, not assumption.</li>
+<li>Rotation must be a multiple of 90; encrypted inputs must be decrypted before any other operation.</li>
+</ul>
+<h3>Verification</h3>
+<ul>
+<li>After create/merge/split: <code>pdf_read.py out.pdf --meta</code> — confirm <code>page_count</code>, and per-page <code>rotation</code> when you rotated.</li>
+<li>After extraction: check the JSON is non-empty and spot-check a known string or cell.</li>
+<li>Form design loop: <code>pdf_form_layout.py spec.json</code> must exit 0; then <code>--render-overlay boxes.png --pdf form.pdf</code> and review the PNG with <code>vision_analyze</code> (red = entry boxes with field names, blue = label boxes) asking about overlaps, misalignment, and labels detached from their fields. Iterate spec → lint → overlay until clean.</li>
+<li>After building a form: <code>pdf_read.py form.pdf --fields</code> lists every spec field with the right type and options.</li>
+<li>After form fill: <code>pdf_read.py filled.pdf --fields</code> and compare values (exact match, including non-ASCII).</li>
+<li>After stamping: re-extract text (pypdf for rotated stamps) or render the page with <code>pdf_page_image.py</code> and inspect with <code>vision_analyze</code>.</li>
+<li>After metadata/attachment edits: <code>pdf_read.py --meta</code> / <code>pdf_meta.py --list-attachments</code>, and re-extract an attachment to byte-compare.</li>
+<li>After encrypt: <code>--meta</code> shows <code>&quot;encrypted&quot;: true</code> and opening without a password fails; after decrypt, text extraction matches the original.</li>
+<li>For anything visual (watermarks, flattened forms), render and inspect with <code>vision_analyze</code>.</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>skills/productivity/pdf</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>

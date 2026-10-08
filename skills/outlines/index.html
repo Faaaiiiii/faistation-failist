@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>outlines — Skill Hermes</title>
+<meta name="description" content="Outlines: structured JSON/regex/Pydantic LLM generation.">
+<style>
+  :root{
+    --paper:#f7f4ec; --paper-2:#efeadd; --ink:#1c1a16; --ink-soft:#5f594e;
+    --rule:#d8d0bf; --stamp:#8a2b2b; --accent:#2f4b3f;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:17px/1.68 Georgia,"Times New Roman",Times,serif}
+  .wrap{max-width:780px;margin:0 auto;padding:34px 20px 80px}
+  a{color:var(--stamp)}
+  a:hover{color:var(--accent)}
+  a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+  header{border-bottom:2px solid var(--ink);padding-bottom:18px}
+  .stamp{display:inline-block;font:600 11px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--stamp);
+    border:1px solid var(--stamp);border-radius:3px;padding:4px 8px;margin-bottom:14px}
+  h1{font-size:30px;line-height:1.15;margin:0 0 8px;letter-spacing:-.4px;word-break:break-word}
+  .lede{color:var(--ink-soft);font-size:16px;margin:0;max-width:62ch}
+  .meta{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:16px 0 0;
+    font:400 13px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:5px;padding:12px 14px}
+  .meta dt{font-weight:600;color:var(--ink-soft);letter-spacing:.04em;text-transform:uppercase;font-size:11px;
+    padding-top:1px;white-space:nowrap}
+  .meta dd{margin:0;color:var(--ink);word-break:break-word}
+  .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+  a.btn{display:inline-block;font:600 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    text-decoration:none;color:var(--paper);background:var(--ink);border:1px solid var(--ink);
+    border-radius:4px;padding:10px 15px;white-space:nowrap}
+  a.btn:hover{background:var(--stamp);border-color:var(--stamp);color:var(--paper)}
+  a.btn.ghost{background:none;color:var(--ink)}
+  a.btn.ghost:hover{background:var(--paper-2);color:var(--ink);border-color:var(--ink)}
+  section{margin-top:40px}
+  h2.sec{font:600 12.5px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);
+    margin:0 0 12px;padding-bottom:10px;border-bottom:1px solid var(--rule)}
+  /* file list */
+  table.files{width:100%;border-collapse:collapse;
+    font:400 13.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+  table.files th{text-align:left;font-weight:600;color:var(--ink-soft);text-transform:uppercase;
+    letter-spacing:.05em;font-size:11px;border-bottom:1px solid var(--rule);padding:6px 8px}
+  table.files td{padding:6px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  table.files td.sz{text-align:right;white-space:nowrap;color:var(--ink-soft);
+    font-variant-numeric:tabular-nums}
+  table.files tr:last-child td{border-bottom:none}
+  table.files code{font:400 12.5px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;word-break:break-all}
+  .empty{color:var(--ink-soft);font-size:14px;font-style:italic}
+  /* rendered skill body */
+  .md{margin-top:44px}
+  .md h2,.md h3,.md h4,.md h5,.md h6{line-height:1.25;letter-spacing:-.2px;word-break:break-word}
+  .md h2{font-size:24px;margin:36px 0 10px;padding-bottom:7px;border-bottom:2px solid var(--ink)}
+  .md h3{font-size:20px;margin:30px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--rule)}
+  .md h4{font-size:17.5px;margin:24px 0 6px}
+  .md h5{font-size:16px;margin:20px 0 6px;color:var(--ink-soft)}
+  .md h6{font-size:14px;margin:18px 0 6px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em}
+  .md p{margin:12px 0}
+  .md ul,.md ol{padding-left:26px;margin:12px 0}
+  .md li{margin:5px 0}
+  .md li>ul,.md li>ol{margin:5px 0}
+  .md blockquote{margin:16px 0;padding:2px 16px;border-left:3px solid var(--rule);color:var(--ink-soft)}
+  .md hr{border:none;border-top:1px solid var(--rule);margin:28px 0}
+  .md code{font:400 13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--paper-2);border:1px solid var(--rule);border-radius:3px;padding:1.5px 5px;
+    word-break:break-word}
+  .md pre{background:#20201c;color:#f2eee2;border-radius:6px;padding:14px 16px;overflow-x:auto;
+    margin:16px 0;font-size:13px;line-height:1.55}
+  .md pre code{background:none;border:none;padding:0;color:inherit;font-size:13px;
+    white-space:pre;word-break:normal}
+  .md table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+  .md th{background:var(--paper-2);font-weight:600}
+  .md img{max-width:100%;height:auto}
+  .md a{text-decoration:underline}
+  footer{margin-top:56px;padding-top:18px;border-top:2px solid var(--ink);
+    color:var(--ink-soft);font-size:13.5px}
+  footer a{font-weight:600}
+  @media (max-width:520px){
+    .wrap{padding:26px 16px 64px}
+    h1{font-size:25px}
+    .meta{grid-template-columns:1fr;gap:2px 0}
+    .meta dt{margin-top:6px}
+    .meta dt:first-child{margin-top:0}
+    a.btn{padding:11px 14px}
+    .md h2{font-size:21px}
+    .md h3{font-size:18.5px}
+    .md pre{font-size:12px;padding:12px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="stamp">Skill · Hermes</span>
+    <h1>outlines</h1>
+    <p class="lede">Outlines: structured JSON/regex/Pydantic LLM generation.</p>
+    <dl class="meta">
+      <dt>Nama</dt><dd>outlines</dd>
+      <dt>Keterangan</dt><dd>Outlines: structured JSON/regex/Pydantic LLM generation.</dd>
+      <dt>Versi</dt><dd>1.0.1</dd>
+      <dt>Pengarang</dt><dd>Orchestra Research</dd>
+      <dt>Lesen</dt><dd>MIT</dd>
+      <dt>Kategori</dt><dd>mlops · official (pilihan rasmi Hermes)</dd>
+    </dl>
+    <div class="actions">
+      <a class="btn" href="../zips/outlines.zip" download>Muat turun ZIP (21.3 KB)</a>
+      <a class="btn ghost" href="../">← Katalog penuh</a>
+    </div>
+  </header>
+
+  <section>
+    <h2 class="sec">Fail sokongan (4)</h2>
+    <table class="files"><thead><tr><th>Fail (laluan relatif)</th><th class="sz">Saiz</th></tr></thead><tbody>
+<tr><td><code>SKILL.md</code> <em style="color:var(--ink-soft)">(dokumen ini)</em></td><td class="sz">16.9 KB</td></tr>
+<tr><td><code>references/backends.md</code></td><td class="sz">14.1 KB</td></tr>
+<tr><td><code>references/examples.md</code></td><td class="sz">20.7 KB</td></tr>
+<tr><td><code>references/json_generation.md</code></td><td class="sz">14.6 KB</td></tr>
+</tbody></table>
+  </section>
+
+  <article class="md">
+<h2>Outlines: Structured Text Generation</h2>
+<h3>When to Use This Skill</h3>
+<p>Use Outlines when you need to:</p>
+<ul>
+<li><strong>Guarantee valid JSON/XML/code</strong> structure during generation</li>
+<li><strong>Use Pydantic models</strong> for type-safe outputs</li>
+<li><strong>Support local models</strong> (Transformers, llama.cpp, vLLM)</li>
+<li><strong>Maximize inference speed</strong> with zero-overhead structured generation</li>
+<li><strong>Generate against JSON schemas</strong> automatically</li>
+<li><strong>Control token sampling</strong> at the grammar level</li>
+</ul>
+<p><strong>GitHub Stars</strong>: 12,000+ | <strong>From</strong>: dottxt.ai (formerly .txt)</p>
+<blockquote>
+<p><strong>API note (Outlines 1.x):</strong> This skill targets the current v1 API.
+The pre-1.0 helpers (<code>outlines.models.transformers(...)</code>,
+<code>outlines.generate.json/choice/regex/...</code>) have been <strong>removed</strong>. In v1 you
+create a model with <code>outlines.from_transformers(...)</code> (or <code>from_vllm</code>,
+<code>from_llamacpp</code>, <code>from_openai</code>) and then <strong>call the model directly</strong> with an
+output type: <code>model(prompt, output_type)</code>. JSON/Pydantic outputs are returned
+as a <strong>JSON string</strong> — validate with <code>YourModel.model_validate_json(result)</code>.</p>
+</blockquote>
+<h3>Installation</h3>
+<pre><code class="language-bash"># Base installation
+pip install outlines
+
+# With specific backends
+pip install outlines transformers  # Hugging Face models
+pip install outlines llama-cpp-python  # llama.cpp
+pip install outlines vllm  # vLLM for high-throughput
+</code></pre>
+<h3>Quick Start</h3>
+<h4>Basic Example: Classification</h4>
+<pre><code class="language-python">import outlines
+from typing import Literal
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+MODEL_NAME = &quot;microsoft/Phi-3-mini-4k-instruct&quot;
+
+# v1: wrap a Transformers model + tokenizer
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(MODEL_NAME),
+)
+
+# Call the model directly with an output type
+prompt = &quot;Sentiment of &#39;This product is amazing!&#39;: &quot;
+sentiment = model(prompt, Literal[&quot;positive&quot;, &quot;negative&quot;, &quot;neutral&quot;])
+
+print(sentiment)  # &quot;positive&quot; (guaranteed one of these)
+</code></pre>
+<h4>With Pydantic Models</h4>
+<pre><code class="language-python">from pydantic import BaseModel
+import outlines
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+class User(BaseModel):
+    name: str
+    age: int
+    email: str
+
+MODEL_NAME = &quot;microsoft/Phi-3-mini-4k-instruct&quot;
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(MODEL_NAME),
+)
+
+# Generate structured output (returns a JSON string)
+prompt = &quot;Extract user: John Doe, 30 years old, john@example.com&quot;
+result = model(prompt, User, max_new_tokens=200)
+
+user = User.model_validate_json(result)  # parse into the Pydantic model
+print(user.name)   # &quot;John Doe&quot;
+print(user.age)    # 30
+print(user.email)  # &quot;john@example.com&quot;
+</code></pre>
+<h3>Core Concepts</h3>
+<h4>1. Constrained Token Sampling</h4>
+<p>Outlines constrains token generation at the logit level using a compiled
+automaton derived from your output type.</p>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Convert the output type (JSON/Pydantic/regex/<code>Literal</code>) to a schema/grammar</li>
+<li>Compile the grammar into a token-level automaton</li>
+<li>Filter invalid tokens at each step during generation</li>
+<li>Fast-forward when only one valid token exists</li>
+</ol>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li><strong>Zero overhead</strong>: Filtering happens at token level</li>
+<li><strong>Speed improvement</strong>: Fast-forward through deterministic paths</li>
+<li><strong>Guaranteed validity</strong>: Invalid outputs impossible</li>
+</ul>
+<pre><code class="language-python">import outlines
+from pydantic import BaseModel
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;),
+)
+
+result = model(&quot;Generate person: Alice, 25&quot;, Person)
+person = Person.model_validate_json(result)
+</code></pre>
+<h4>2. Output Types</h4>
+<p>In v1 you pass the desired <strong>output type</strong> directly as the second argument.</p>
+<h5>Multiple choice (<code>Literal</code>)</h5>
+<pre><code class="language-python">from typing import Literal
+
+sentiment = model(&quot;Review: This is great!&quot;, Literal[&quot;positive&quot;, &quot;negative&quot;, &quot;neutral&quot;])
+# Result: one of the three choices
+</code></pre>
+<h5>JSON via Pydantic</h5>
+<pre><code class="language-python">from pydantic import BaseModel
+
+class Product(BaseModel):
+    name: str
+    price: float
+    in_stock: bool
+
+result = model(&quot;Extract: iPhone 15, $999, available&quot;, Product)
+product = Product.model_validate_json(result)  # valid Product instance
+</code></pre>
+<h5>Regex (pass a regex string)</h5>
+<pre><code class="language-python"># Generate text matching a regex pattern
+phone = model(&quot;Generate phone number:&quot;, r&quot;[0-9]{3}-[0-9]{3}-[0-9]{4}&quot;)
+# Result: &quot;555-123-4567&quot; (guaranteed to match the pattern)
+</code></pre>
+<h5>Numeric types</h5>
+<pre><code class="language-python"># Pass the Python type directly
+age = model(&quot;Person&#39;s age:&quot;, int)      # guaranteed integer
+price = model(&quot;Product price:&quot;, float)  # guaranteed float
+</code></pre>
+<h4>3. Model Backends</h4>
+<p>Outlines supports multiple local and API-based backends via <code>from_*</code> factories.</p>
+<h5>Transformers (Hugging Face)</h5>
+<pre><code class="language-python">import outlines
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;),
+)
+
+result = model(prompt, YourModel)
+</code></pre>
+<h5>llama.cpp</h5>
+<pre><code class="language-python">import outlines
+from llama_cpp import Llama
+
+llm = Llama(&quot;./models/llama-3.1-8b-instruct.Q4_K_M.gguf&quot;, n_gpu_layers=35, n_ctx=4096)
+model = outlines.from_llamacpp(llm)
+
+result = model(prompt, YourModel)
+</code></pre>
+<h5>vLLM (High Throughput)</h5>
+<pre><code class="language-python">import outlines
+from vllm import LLM
+
+llm = LLM(&quot;meta-llama/Llama-3.1-8B-Instruct&quot;, tensor_parallel_size=2)
+model = outlines.from_vllm(llm)
+
+result = model(prompt, YourModel)
+</code></pre>
+<h5>OpenAI (server-side constrained JSON)</h5>
+<pre><code class="language-python">import outlines
+from openai import OpenAI
+
+client = OpenAI()
+model = outlines.from_openai(client, &quot;gpt-4o-mini&quot;)
+
+# API backends support JSON-schema style structured output
+result = model(prompt, YourModel)
+</code></pre>
+<h4>4. Pydantic Integration</h4>
+<p>Outlines has first-class Pydantic support with automatic schema translation.
+Generation returns a JSON string; call <code>model_validate_json</code> to get an instance.</p>
+<h5>Basic Models</h5>
+<pre><code class="language-python">from pydantic import BaseModel, Field
+
+class Article(BaseModel):
+    title: str = Field(description=&quot;Article title&quot;)
+    author: str = Field(description=&quot;Author name&quot;)
+    word_count: int = Field(description=&quot;Number of words&quot;, gt=0)
+    tags: list[str] = Field(description=&quot;List of tags&quot;)
+
+result = model(&quot;Generate article about AI&quot;, Article, max_new_tokens=300)
+article = Article.model_validate_json(result)
+print(article.title)
+print(article.word_count)  # Guaranteed &gt; 0
+</code></pre>
+<h5>Nested Models</h5>
+<pre><code class="language-python">class Address(BaseModel):
+    street: str
+    city: str
+    country: str
+
+class Person(BaseModel):
+    name: str
+    age: int
+    address: Address  # Nested model
+
+result = model(&quot;Generate person in New York&quot;, Person)
+person = Person.model_validate_json(result)
+print(person.address.city)  # &quot;New York&quot;
+</code></pre>
+<h5>Enums and Literals</h5>
+<pre><code class="language-python">from enum import Enum
+from typing import Literal
+
+class Status(str, Enum):
+    PENDING = &quot;pending&quot;
+    APPROVED = &quot;approved&quot;
+    REJECTED = &quot;rejected&quot;
+
+class Application(BaseModel):
+    applicant: str
+    status: Status  # Must be one of enum values
+    priority: Literal[&quot;low&quot;, &quot;medium&quot;, &quot;high&quot;]  # Must be one of literals
+
+result = model(&quot;Generate application&quot;, Application)
+app = Application.model_validate_json(result)
+print(app.status)  # Status.PENDING (or APPROVED/REJECTED)
+</code></pre>
+<h3>Common Patterns</h3>
+<h4>Pattern 1: Data Extraction</h4>
+<pre><code class="language-python">from pydantic import BaseModel
+import outlines
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+class CompanyInfo(BaseModel):
+    name: str
+    founded_year: int
+    industry: str
+    employees: int
+
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;),
+)
+
+text = &quot;&quot;&quot;
+Apple Inc. was founded in 1976 in the technology industry.
+The company employs approximately 164,000 people worldwide.
+&quot;&quot;&quot;
+
+prompt = f&quot;Extract company information:\n{text}\n\nCompany:&quot;
+company = CompanyInfo.model_validate_json(model(prompt, CompanyInfo, max_new_tokens=200))
+
+print(f&quot;Name: {company.name}&quot;)
+print(f&quot;Founded: {company.founded_year}&quot;)
+print(f&quot;Industry: {company.industry}&quot;)
+print(f&quot;Employees: {company.employees}&quot;)
+</code></pre>
+<h4>Pattern 2: Classification</h4>
+<pre><code class="language-python">from typing import Literal
+from pydantic import BaseModel
+
+# Binary classification
+result = model(&quot;Email: Buy now! 50% off!&quot;, Literal[&quot;spam&quot;, &quot;not_spam&quot;])
+
+# Multi-class classification
+category = model(
+    &quot;Article: Apple announces new iPhone...&quot;,
+    Literal[&quot;technology&quot;, &quot;business&quot;, &quot;sports&quot;, &quot;entertainment&quot;],
+)
+
+# With confidence
+class Classification(BaseModel):
+    label: Literal[&quot;positive&quot;, &quot;negative&quot;, &quot;neutral&quot;]
+    confidence: float
+
+out = model(&quot;Review: This product is okay, nothing special&quot;, Classification)
+result = Classification.model_validate_json(out)
+</code></pre>
+<h4>Pattern 3: Structured Forms</h4>
+<pre><code class="language-python">class UserProfile(BaseModel):
+    full_name: str
+    age: int
+    email: str
+    phone: str
+    country: str
+    interests: list[str]
+
+prompt = &quot;&quot;&quot;
+Extract user profile from:
+Name: Alice Johnson
+Age: 28
+Email: alice@example.com
+Phone: 555-0123
+Country: USA
+Interests: hiking, photography, cooking
+&quot;&quot;&quot;
+
+profile = UserProfile.model_validate_json(model(prompt, UserProfile, max_new_tokens=250))
+print(profile.full_name)
+print(profile.interests)  # [&quot;hiking&quot;, &quot;photography&quot;, &quot;cooking&quot;]
+</code></pre>
+<h4>Pattern 4: Multi-Entity Extraction</h4>
+<pre><code class="language-python">from typing import Literal
+
+class Entity(BaseModel):
+    name: str
+    type: Literal[&quot;PERSON&quot;, &quot;ORGANIZATION&quot;, &quot;LOCATION&quot;]
+
+class DocumentEntities(BaseModel):
+    entities: list[Entity]
+
+text = &quot;Tim Cook met with Satya Nadella at Microsoft headquarters in Redmond.&quot;
+prompt = f&quot;Extract entities from: {text}&quot;
+
+result = DocumentEntities.model_validate_json(model(prompt, DocumentEntities, max_new_tokens=300))
+for entity in result.entities:
+    print(f&quot;{entity.name} ({entity.type})&quot;)
+</code></pre>
+<h4>Pattern 5: Code Generation</h4>
+<pre><code class="language-python">class PythonFunction(BaseModel):
+    function_name: str
+    parameters: list[str]
+    docstring: str
+    body: str
+
+prompt = &quot;Generate a Python function to calculate factorial&quot;
+func = PythonFunction.model_validate_json(model(prompt, PythonFunction, max_new_tokens=300))
+
+print(f&quot;def {func.function_name}({&#39;, &#39;.join(func.parameters)}):&quot;)
+print(f&#39;    &quot;&quot;&quot;{func.docstring}&quot;&quot;&quot;&#39;)
+print(f&quot;    {func.body}&quot;)
+</code></pre>
+<h4>Pattern 6: Batch Processing</h4>
+<pre><code class="language-python">import outlines
+from transformers import AutoModelForCausalLM, AutoTokenizer
+from pydantic import BaseModel
+
+class Person(BaseModel):
+    name: str
+    age: int
+
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(&quot;microsoft/Phi-3-mini-4k-instruct&quot;),
+)
+
+texts = [
+    &quot;John is 30 years old&quot;,
+    &quot;Alice is 25 years old&quot;,
+    &quot;Bob is 40 years old&quot;,
+]
+
+# v1 accepts a list of prompts for batched generation
+prompts = [f&quot;Extract from: {t}&quot; for t in texts]
+outputs = model(prompts, Person, max_new_tokens=100)
+people = [Person.model_validate_json(o) for o in outputs]
+for person in people:
+    print(f&quot;{person.name}: {person.age}&quot;)
+</code></pre>
+<h3>Backend Configuration</h3>
+<h4>Transformers</h4>
+<pre><code class="language-python">import outlines
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+MODEL_NAME = &quot;microsoft/Phi-3-mini-4k-instruct&quot;
+
+# Basic usage
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map=&quot;auto&quot;),
+    AutoTokenizer.from_pretrained(MODEL_NAME),
+)
+
+# GPU + dtype configuration is set on the HF model itself
+import torch
+model = outlines.from_transformers(
+    AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map=&quot;cuda&quot;, torch_dtype=torch.float16),
+    AutoTokenizer.from_pretrained(MODEL_NAME),
+)
+
+# Popular models
+for name in [
+    &quot;meta-llama/Llama-3.1-8B-Instruct&quot;,
+    &quot;mistralai/Mistral-7B-Instruct-v0.3&quot;,
+    &quot;Qwen/Qwen2.5-7B-Instruct&quot;,
+]:
+    model = outlines.from_transformers(
+        AutoModelForCausalLM.from_pretrained(name, device_map=&quot;auto&quot;),
+        AutoTokenizer.from_pretrained(name),
+    )
+</code></pre>
+<h4>llama.cpp</h4>
+<pre><code class="language-python">import outlines
+from llama_cpp import Llama
+
+# Load GGUF model
+llm = Llama(
+    &quot;./models/llama-3.1-8b.Q4_K_M.gguf&quot;,
+    n_ctx=4096,       # Context window
+    n_gpu_layers=35,  # GPU layers
+    n_threads=8,      # CPU threads
+)
+model = outlines.from_llamacpp(llm)
+
+# Full GPU offload: set n_gpu_layers=-1 on the Llama object
+</code></pre>
+<h4>vLLM (Production)</h4>
+<pre><code class="language-python">import outlines
+from vllm import LLM
+
+# Single GPU
+model = outlines.from_vllm(LLM(&quot;meta-llama/Llama-3.1-8B-Instruct&quot;))
+
+# Multi-GPU
+model = outlines.from_vllm(LLM(&quot;meta-llama/Llama-3.1-70B-Instruct&quot;, tensor_parallel_size=4))
+
+# With quantization
+model = outlines.from_vllm(LLM(&quot;meta-llama/Llama-3.1-8B-Instruct&quot;, quantization=&quot;awq&quot;))
+</code></pre>
+<h3>Best Practices</h3>
+<h4>1. Use Specific Types</h4>
+<pre><code class="language-python"># ✅ Good: Specific types
+class Product(BaseModel):
+    name: str
+    price: float  # Not str
+    quantity: int  # Not str
+    in_stock: bool  # Not str
+
+# ❌ Bad: Everything as string
+class Product(BaseModel):
+    name: str
+    price: str  # Should be float
+    quantity: str  # Should be int
+</code></pre>
+<h4>2. Add Constraints</h4>
+<pre><code class="language-python">from pydantic import Field
+
+# ✅ Good: With constraints
+class User(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    age: int = Field(ge=0, le=120)
+    email: str = Field(pattern=r&quot;^[\w\.-]+@[\w\.-]+\.\w+$&quot;)
+
+# ❌ Bad: No constraints
+class User(BaseModel):
+    name: str
+    age: int
+    email: str
+</code></pre>
+<h4>3. Use Enums for Categories</h4>
+<pre><code class="language-python"># ✅ Good: Enum for fixed set
+class Priority(str, Enum):
+    LOW = &quot;low&quot;
+    MEDIUM = &quot;medium&quot;
+    HIGH = &quot;high&quot;
+
+class Task(BaseModel):
+    title: str
+    priority: Priority
+
+# ❌ Bad: Free-form string
+class Task(BaseModel):
+    title: str
+    priority: str  # Can be anything
+</code></pre>
+<h4>4. Provide Context in Prompts</h4>
+<pre><code class="language-python"># ✅ Good: Clear context
+prompt = &quot;&quot;&quot;
+Extract product information from the following text.
+Text: iPhone 15 Pro costs $999 and is currently in stock.
+Product:
+&quot;&quot;&quot;
+
+# ❌ Bad: Minimal context
+prompt = &quot;iPhone 15 Pro costs $999 and is currently in stock.&quot;
+</code></pre>
+<h4>5. Handle Optional Fields</h4>
+<pre><code class="language-python">from typing import Optional
+
+# ✅ Good: Optional fields for incomplete data
+class Article(BaseModel):
+    title: str  # Required
+    author: Optional[str] = None  # Optional
+    date: Optional[str] = None  # Optional
+    tags: list[str] = []  # Default empty list
+
+# Can succeed even if author/date missing
+</code></pre>
+<h4>6. Always Validate JSON Output</h4>
+<pre><code class="language-python"># v1 returns a JSON string for Pydantic/JSON output types.
+result = model(prompt, Article)          # str
+article = Article.model_validate_json(result)  # Article instance
+</code></pre>
+<h3>Comparison to Alternatives</h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Outlines</th>
+<th>Instructor</th>
+<th>Guidance</th>
+<th>LMQL</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Pydantic Support</td>
+<td>✅ Native</td>
+<td>✅ Native</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>JSON Schema</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Regex Constraints</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Local Models</td>
+<td>✅ Full</td>
+<td>⚠️ Limited</td>
+<td>✅ Full</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>API Models</td>
+<td>✅ Yes</td>
+<td>✅ Full</td>
+<td>✅ Yes</td>
+<td>✅ Full</td>
+</tr>
+<tr>
+<td>Zero Overhead</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>⚠️ Partial</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td>Automatic Retrying</td>
+<td>❌ No</td>
+<td>✅ Yes</td>
+<td>❌ No</td>
+<td>❌ No</td>
+</tr>
+<tr>
+<td>Learning Curve</td>
+<td>Low</td>
+<td>Low</td>
+<td>Low</td>
+<td>High</td>
+</tr>
+</tbody></table>
+<p><strong>When to choose Outlines:</strong></p>
+<ul>
+<li>Using local models (Transformers, llama.cpp, vLLM)</li>
+<li>Need maximum inference speed</li>
+<li>Want Pydantic model support</li>
+<li>Require zero-overhead structured generation</li>
+<li>Control token sampling process</li>
+</ul>
+<p><strong>When to choose alternatives:</strong></p>
+<ul>
+<li>Instructor: Need API models with automatic retrying</li>
+<li>Guidance: Need token healing and complex workflows</li>
+<li>LMQL: Prefer declarative query syntax</li>
+</ul>
+<h3>Performance Characteristics</h3>
+<p><strong>Speed:</strong></p>
+<ul>
+<li><strong>Zero overhead</strong>: Structured generation as fast as unconstrained</li>
+<li><strong>Fast-forward optimization</strong>: Skips deterministic tokens</li>
+<li><strong>1.2-2x faster</strong> than post-generation validation approaches</li>
+</ul>
+<p><strong>Memory:</strong></p>
+<ul>
+<li>Automaton compiled once per output type (cached)</li>
+<li>Minimal runtime overhead</li>
+<li>Efficient with vLLM for high throughput</li>
+</ul>
+<p><strong>Accuracy:</strong></p>
+<ul>
+<li><strong>100% valid outputs</strong> (guaranteed by the constrained automaton)</li>
+<li>No retry loops needed</li>
+<li>Deterministic token filtering</li>
+</ul>
+<h3>Resources</h3>
+<ul>
+<li><strong>Documentation</strong>: <a href="https://dottxt-ai.github.io/outlines/">https://dottxt-ai.github.io/outlines/</a></li>
+<li><strong>GitHub</strong>: <a href="https://github.com/dottxt-ai/outlines">https://github.com/dottxt-ai/outlines</a> (12k+ stars)</li>
+<li><strong>Discord</strong>: <a href="https://discord.gg/R9DSu34mGd">https://discord.gg/R9DSu34mGd</a></li>
+<li><strong>Blog</strong>: <a href="https://blog.dottxt.co">https://blog.dottxt.co</a></li>
+</ul>
+<h3>See Also</h3>
+<ul>
+<li><code>references/json_generation.md</code> - Comprehensive JSON and Pydantic patterns</li>
+<li><code>references/backends.md</code> - Backend-specific configuration</li>
+<li><code>references/examples.md</code> - Production-ready examples</li>
+</ul>
+
+  </article>
+
+  <footer>
+    <p>Skill ini dibaca daripada <code>optional-skills/mlops/inference/outlines</code>.
+    <a href="../">← Balik ke Katalog Skill Hermes</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
