@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aurel — mockup hero v2c (blueprint)</title>
+<meta name="description" content="Mockup hero statik untuk arah visual Aurel v2c — lukisan teknik / blueprint.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   AUREL v2c — mockup hero (STATIC, no animation). Direction: "blueprint".
+   Register: systems & data — a cool technical WHITE ground with a DRAWN grid,
+   dimension lines and measure callouts; mono annotations; the brand cyan
+   deepened for a light surface. NOT cream, NOT archival serif.
+   Tokens + reasons: design/COMMIT-SHEET.md. Refs: design/refs/REFERENCES.md.
+   ========================================================================== */
+:root{
+  --paper:    #F4F6F8;   /* cool technical white (oklch .965 .006 235) — NOT warm cream */
+  --plate:    #FFFFFF;   /* raised callout plate */
+  --ink:      #13171D;   /* 15.6:1 on paper */
+  --ink-2:    #3B4551;   /* 8.2:1 */
+  --muted:    #5D6874;   /* 5.1:1 */
+  --grid:     #D8E0E8;   /* drawn drafting grid */
+  --grid-2:   #BECAD6;   /* stronger measure line */
+  --rule:     #C7D1DB;   /* hairline */
+  --signal:   #0B6E92;   /* ⚠ brand cyan deepened for the light ground — 5.4:1, text + structure */
+  --signal-b: #48C2E1;   /* the brand's own cyan — filled marks only, no text */
+  --mark-ink: #13171D;
+
+  --font: "IBM Plex Sans","Helvetica Neue",Arial,system-ui,sans-serif;
+  --mono: "IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+  --fs-state: clamp(2.35rem, 5.9vw, 5.0rem);
+  --fs-lede:  clamp(1.0rem, 1.1vw, 1.2rem);
+  --fs-meta:  0.8125rem;
+
+  --pad-m: clamp(22px, 4.6vw, 72px);
+  --gut:   clamp(20px, 3.2vw, 48px);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--paper); }
+body{ color:var(--ink); font-family:var(--font); font-weight:400;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+/* the drawn drafting grid — the layout logic is made visible (12 columns × modules) */
+.sheet{ position:relative; min-height:100svh; overflow:clip; background:var(--paper);
+  padding:0 0 clamp(22px,3.4vw,44px); display:flex; flex-direction:column; }
+.draftgrid{ position:absolute; inset:0; width:100%; height:100%; pointer-events:none; opacity:.8;
+  -webkit-mask:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%);
+          mask:linear-gradient(to bottom,#000 0,#000 78%,transparent 100%); }
+
+.bar{ position:relative; z-index:1; display:flex; align-items:flex-end; gap:16px;
+  padding:16px var(--pad-m) 12px; border-bottom:1px solid var(--rule); }
+.bar .lab{ font-family:var(--mono); font-size:var(--fs-meta); font-weight:500;
+  text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-2); }
+.bar .r{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+.bar .sq{ width:9px; height:9px; background:var(--signal-b); }
+/* coordinate ruler along the top edge */
+.ruler{ position:relative; z-index:1; height:22px; margin:0 var(--pad-m); border-bottom:1px solid var(--rule); }
+.ruler .let{ position:absolute; top:8px; font-family:var(--mono); font-size:0.6875rem;
+  color:var(--muted); letter-spacing:0.04em; }
+
+.wrap{ position:relative; z-index:1; flex:1 1 auto; min-height:0;
+  padding:clamp(30px,4.6vw,64px) var(--pad-m) 0; display:flex; flex-direction:column;
+  gap:clamp(26px,3.6vw,50px); }
+
+/* dimension line over the statement — a drafting measure, not decoration */
+.dim{ display:flex; align-items:center; gap:0; max-width:660px; color:var(--muted); }
+.dim .cap{ width:1px; height:12px; background:var(--grid-2); }
+.dim .ln{ flex:1 1 auto; height:1px; background:var(--grid-2); }
+.dim .tag{ font-family:var(--mono); font-size:var(--fs-meta); text-transform:uppercase;
+  letter-spacing:0.03em; padding:0 12px; color:var(--signal); font-weight:500; }
+
+.measure{ display:grid; grid-template-columns:minmax(0,1fr); gap:var(--gut); }
+.statement{ margin:0; font-weight:600; font-size:var(--fs-state); line-height:0.99;
+  letter-spacing:-0.026em; text-wrap:balance; color:var(--ink); max-width:16ch; }
+.statement .l2{ display:block; color:var(--ink-2); font-weight:400; }
+
+/* callout plate — an annotated note anchored with a leader tick */
+.note{ align-self:end; }
+.note .leader{ width:1px; height:34px; background:var(--grid-2); margin-left:14px; }
+.note .card{ background:var(--plate); border:1px solid var(--rule); max-width:34ch; }
+.note .hd{ font-family:var(--mono); font-size:var(--fs-meta); text-transform:uppercase;
+  letter-spacing:0.03em; color:var(--signal); font-weight:500;
+  padding:10px 14px; border-bottom:1px solid var(--rule); }
+.note .bd{ margin:0; padding:12px 14px; font-size:0.9375rem; line-height:1.5; color:var(--ink-2); }
+
+.sig{ width:100%; max-width:460px; height:40px; display:block; }
+.sig .axis{ stroke:var(--grid-2); stroke-width:1; }
+.sig .line{ fill:none; stroke:var(--signal); stroke-width:1.6; }
+.sig .node{ fill:var(--signal-b); }
+
+.lower{ margin-top:auto; padding:24px 0 0; border-top:1px solid var(--rule);
+  display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+  gap:clamp(20px,3vw,48px); }
+.lede{ margin:0; max-width:60ch; font-size:var(--fs-lede); line-height:1.55; color:var(--ink-2); }
+.cta-row{ margin:14px 0 0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+.cta{ font-weight:600; font-size:var(--fs-lede); color:var(--signal); text-decoration:none;
+  border-bottom:1px solid var(--signal); padding-bottom:2px; }
+.cta:focus-visible{ outline:3px solid var(--signal); outline-offset:4px; }
+.cta-note{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--muted); }
+
+.mark{ display:block; }
+.mark svg{ display:block; width:clamp(94px,11.5vw,146px); height:auto; }
+.mark [fill="#F2F5F7"]{ fill:var(--mark-ink); }
+
+@media (min-width:960px){
+  .measure{ grid-template-columns:minmax(0,8fr) minmax(0,4fr); align-items:end; }
+  .statement{ max-width:14ch; }
+}
+</style>
+</head>
+<body>
+<main class="sheet">
+  <svg class="draftgrid" viewBox="0 0 1200 1000" preserveAspectRatio="none" aria-hidden="true">
+    <g stroke="#D8E0E8" stroke-width="1" vector-effect="non-scaling-stroke"><line x1="100" y1="0" x2="100" y2="1000"/><line x1="200" y1="0" x2="200" y2="1000"/><line x1="300" y1="0" x2="300" y2="1000"/><line x1="400" y1="0" x2="400" y2="1000"/><line x1="500" y1="0" x2="500" y2="1000"/><line x1="600" y1="0" x2="600" y2="1000"/><line x1="700" y1="0" x2="700" y2="1000"/><line x1="800" y1="0" x2="800" y2="1000"/><line x1="900" y1="0" x2="900" y2="1000"/><line x1="1000" y1="0" x2="1000" y2="1000"/><line x1="1100" y1="0" x2="1100" y2="1000"/><line x1="0" y1="72" x2="1200" y2="72"/><line x1="0" y1="144" x2="1200" y2="144"/><line x1="0" y1="216" x2="1200" y2="216"/><line x1="0" y1="288" x2="1200" y2="288"/><line x1="0" y1="360" x2="1200" y2="360"/><line x1="0" y1="432" x2="1200" y2="432"/><line x1="0" y1="504" x2="1200" y2="504"/><line x1="0" y1="576" x2="1200" y2="576"/><line x1="0" y1="648" x2="1200" y2="648"/><line x1="0" y1="720" x2="1200" y2="720"/><line x1="0" y1="792" x2="1200" y2="792"/><line x1="0" y1="864" x2="1200" y2="864"/><line x1="0" y1="936" x2="1200" y2="936"/></g>
+  </svg>
+
+  <div class="bar">
+    <span class="lab">aurel — salinan posisi</span>
+    <span class="r"><span class="lab" style="color:var(--muted)">fig. 01</span><span class="sq" aria-hidden="true"></span></span>
+  </div>
+
+  <div class="ruler" aria-hidden="true"><svg class="rtick" viewBox="0 0 960 22" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;left:0;right:0;top:0;width:100%;height:7px;color:var(--grid-2)"><g stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke"><line x1="0" y1="0" x2="0" y2="7"/><line x1="20" y1="0" x2="20" y2="7"/><line x1="40" y1="0" x2="40" y2="7"/><line x1="60" y1="0" x2="60" y2="7"/><line x1="80" y1="0" x2="80" y2="7"/><line x1="100" y1="0" x2="100" y2="7"/><line x1="120" y1="0" x2="120" y2="7"/><line x1="140" y1="0" x2="140" y2="7"/><line x1="160" y1="0" x2="160" y2="7"/><line x1="180" y1="0" x2="180" y2="7"/><line x1="200" y1="0" x2="200" y2="7"/><line x1="220" y1="0" x2="220" y2="7"/><line x1="240" y1="0" x2="240" y2="7"/><line x1="260" y1="0" x2="260" y2="7"/><line x1="280" y1="0" x2="280" y2="7"/><line x1="300" y1="0" x2="300" y2="7"/><line x1="320" y1="0" x2="320" y2="7"/><line x1="340" y1="0" x2="340" y2="7"/><line x1="360" y1="0" x2="360" y2="7"/><line x1="380" y1="0" x2="380" y2="7"/><line x1="400" y1="0" x2="400" y2="7"/><line x1="420" y1="0" x2="420" y2="7"/><line x1="440" y1="0" x2="440" y2="7"/><line x1="460" y1="0" x2="460" y2="7"/><line x1="480" y1="0" x2="480" y2="7"/><line x1="500" y1="0" x2="500" y2="7"/><line x1="520" y1="0" x2="520" y2="7"/><line x1="540" y1="0" x2="540" y2="7"/><line x1="560" y1="0" x2="560" y2="7"/><line x1="580" y1="0" x2="580" y2="7"/><line x1="600" y1="0" x2="600" y2="7"/><line x1="620" y1="0" x2="620" y2="7"/><line x1="640" y1="0" x2="640" y2="7"/><line x1="660" y1="0" x2="660" y2="7"/><line x1="680" y1="0" x2="680" y2="7"/><line x1="700" y1="0" x2="700" y2="7"/><line x1="720" y1="0" x2="720" y2="7"/><line x1="740" y1="0" x2="740" y2="7"/><line x1="760" y1="0" x2="760" y2="7"/><line x1="780" y1="0" x2="780" y2="7"/><line x1="800" y1="0" x2="800" y2="7"/><line x1="820" y1="0" x2="820" y2="7"/><line x1="840" y1="0" x2="840" y2="7"/><line x1="860" y1="0" x2="860" y2="7"/><line x1="880" y1="0" x2="880" y2="7"/><line x1="900" y1="0" x2="900" y2="7"/><line x1="920" y1="0" x2="920" y2="7"/><line x1="940" y1="0" x2="940" y2="7"/></g></svg>
+    <span class="let" style="left:0">A</span>
+    <span class="let" style="left:25%">D</span>
+    <span class="let" style="left:50%">G</span>
+    <span class="let" style="left:75%">J</span>
+    <span class="let" style="left:calc(100% - 6px)">L</span>
+  </div>
+
+  <div class="wrap">
+
+    <div class="dim" aria-hidden="true">
+      <span class="cap"></span><span class="ln"></span>
+      <span class="tag">satu sumber</span>
+      <span class="ln"></span><span class="cap"></span>
+    </div>
+
+    <div class="measure">
+      <h1 class="statement">Posisi jalan<span class="l2">tanpa Anda nunggu sinyal.</span></h1>
+
+      <aside class="note">
+        <div class="leader" aria-hidden="true"></div>
+        <div class="card">
+          <div class="hd">Keterangan</div>
+          <p class="bd">Satu sumber masuk. Ukuran mengikuti akun Anda, batasnya Anda pegang.</p>
+        </div>
+      </aside>
+    </div>
+
+    <svg class="sig" viewBox="0 0 460 40" role="img" aria-label="Garis sinyal">
+      <line class="axis" x1="0" y1="20" x2="460" y2="20"></line>
+      <polyline class="line" points="0,30 52,28 104,31 156,18 208,22 260,11 312,15 364,7 416,10 460,6"></polyline>
+      <circle class="node" cx="460" cy="6" r="3.4"></circle>
+    </svg>
+
+    <div class="lower">
+      <div>
+        <p class="lede">Aurel menyalin setiap posisi dari satu sumber ke akun Anda, dengan ukuran dan batas rugi yang Anda tetapkan sendiri.</p>
+        <p class="cta-row">
+          <a class="cta" href="[TELEGRAM_URL_PLACEHOLDER]">Sertai saluran Telegram</a>
+          <span class="cta-note">Percuma, tanpa borang.</span>
+        </p>
+      </div>
+      <span class="mark" role="img" aria-label="aurel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 722 190" role="img" aria-label="aurel"><rect x="28" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="0" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="28" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="0" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="28" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="252" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="196" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="224" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="392" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="420" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="364" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="448" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="616" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="616" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="0" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="28" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="700" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="728" y="0" width="22" height="22" rx="4" fill="#35C4E8"/></svg></span>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

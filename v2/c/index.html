@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aurel — mockup hero v2d (signal)</title>
+<meta name="description" content="Mockup hero statik untuk arah visual Aurel v2d — medan sinyal kontras tinggi.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   AUREL v2d — mockup hero (STATIC, no animation). Direction: "signal field".
+   Register: systems & data — a committed deep brand-cyan field with ONE bright
+   cyan signal band (the accent at full commitment), huge tight display type,
+   strong asymmetry, a mono state readout. No glow, no terminal, no code rain.
+   Tokens + reasons: design/COMMIT-SHEET.md. Refs: design/refs/REFERENCES.md.
+   ========================================================================== */
+:root{
+  --field:   #0B242C;   /* deep signal ink (oklch .24 .045 225) — the brand hue, committed */
+  --field-2: #0F2E38;
+  --chalk:   #EAF4F7;   /* 15.1:1 on field */
+  --chalk-2: #B9CDD3;   /* 8.9:1 */
+  --muted:   #8FA6AE;   /* 6.0:1 */
+  --rule:    #1E3F4A;
+  --signal:  #35D2F2;   /* ⚠ the brand cyan, brightened — the ONE bright accent, full-commit */
+  --band-ink:#07202A;   /* text reversed out of the signal band */
+  --mark-ink:#EAF4F7;
+
+  --font: "Familjen Grotesk","Helvetica Neue",Arial,system-ui,sans-serif;
+  --mono: "Space Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+  --fs-state: clamp(2.5rem, 7.4vw, 6.4rem);  /* type-led signature — declared */
+  --fs-lede:  clamp(1.0rem, 1.1vw, 1.22rem);
+  --fs-meta:  0.8125rem;
+
+  --pad-m: clamp(22px, 4.2vw, 68px);
+}
+*{ box-sizing:border-box; }
+html,body{ margin:0; background:var(--field); }
+body{ color:var(--chalk); font-family:var(--font); font-weight:400;
+  -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+.frame{ position:relative; min-height:100svh; overflow:clip; background:var(--field);
+  display:grid; grid-template-columns:minmax(0,1fr); row-gap:clamp(24px,5vw,44px);
+  padding:clamp(24px,3.6vw,44px) clamp(22px,4.2vw,68px) clamp(22px,3.4vw,44px) var(--pad-m); }
+
+/* ── left: the type mass ─────────────────────────────────────────────────── */
+.lead{ display:flex; flex-direction:column; gap:clamp(22px,3vw,40px);
+  min-width:0; padding-right:clamp(0px,2vw,36px); }
+
+.strip{ display:flex; align-items:center; gap:10px; padding-bottom:16px;
+  border-bottom:1px solid var(--rule); }
+.strip .dot{ width:9px; height:9px; border-radius:50%; background:var(--signal); flex:0 0 auto; }
+.strip .mono{ font-family:var(--mono); font-size:var(--fs-meta); font-weight:700;
+  letter-spacing:0.02em; color:var(--chalk-2); }
+.strip .mono.strong{ color:var(--signal); }
+.strip .sep{ margin-left:auto; font-family:var(--mono); font-size:var(--fs-meta);
+  color:var(--muted); letter-spacing:0.02em; }
+
+.statement{ margin:0; font-weight:700; font-size:var(--fs-state); line-height:0.96;
+  letter-spacing:-0.035em; color:var(--chalk); text-wrap:balance;
+  margin-left:-0.02em; }
+.statement .l3{ color:var(--signal); }
+
+.tagrow{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin:0;
+  font-family:var(--mono); font-size:var(--fs-meta); color:var(--muted);
+  text-transform:uppercase; letter-spacing:0.02em; }
+.tagrow .k{ color:var(--chalk-2); }
+
+.lower{ margin-top:auto; display:flex; flex-direction:column; gap:16px;
+  padding-top:24px; border-top:1px solid var(--rule); }
+.lede{ margin:0; max-width:52ch; font-size:var(--fs-lede); line-height:1.55; color:var(--chalk-2); }
+.cta-row{ margin:0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+.cta{ font-weight:600; font-size:var(--fs-lede); color:var(--field); background:var(--signal);
+  text-decoration:none; padding:11px 18px; display:inline-block; letter-spacing:-0.01em; }
+.cta:focus-visible{ outline:3px solid var(--chalk); outline-offset:4px; }
+.cta-note{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--muted); }
+
+/* ── the bright signal band (the one accent) — a strip on mobile, a column on desktop ── */
+.band{ display:flex; align-items:center; gap:16px; background:var(--signal); color:var(--band-ink);
+  margin-inline:calc(-1 * var(--pad-m)); margin-top:auto; padding:15px var(--pad-m); }
+.band .top{ display:flex; align-items:center; gap:9px; }
+.band .bt{ font-family:var(--mono); font-size:var(--fs-meta); font-weight:700;
+  letter-spacing:0.02em; color:var(--band-ink); text-transform:uppercase; }
+.band .pulse{ width:10px; height:10px; border-radius:50%; background:var(--band-ink); }
+.band .sig{ flex:1 1 auto; min-width:56px; height:26px; display:block; }
+.band .sig .axis{ stroke:rgba(7,32,42,0.22); stroke-width:1; }
+.band .sig .line{ fill:none; stroke:var(--band-ink); stroke-width:1.8; }
+.band .sig .node{ fill:var(--band-ink); }
+.band .bot{ display:none; }
+.band .seq{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--band-ink); letter-spacing:0.02em; }
+
+@media (min-width:900px){
+  .frame{ grid-template-columns:minmax(0,1fr) clamp(230px,26vw,380px); padding-right:0;
+    column-gap:clamp(24px,3.4vw,56px); }
+  .band{ flex-direction:column; align-items:stretch; justify-content:space-between;
+    margin-inline:0; margin-top:0; padding:clamp(24px,3.6vw,44px) clamp(20px,2.4vw,34px); }
+  .band .sig{ height:46px; }
+  .band .bot{ display:flex; flex-direction:column; gap:6px; }
+}
+
+.foot{ grid-column:1 / -1; display:flex; align-items:flex-end; justify-content:space-between;
+  gap:18px; padding-top:clamp(18px,2.6vw,30px); margin-top:clamp(18px,2.6vw,30px);
+  border-top:1px solid var(--rule); }
+.foot .mono{ font-family:var(--mono); font-size:var(--fs-meta); color:var(--muted); letter-spacing:0.02em; }
+.mark{ display:block; }
+.mark svg{ display:block; width:clamp(94px,11.5vw,146px); height:auto; }
+.mark [fill="#F2F5F7"]{ fill:var(--mark-ink); }
+</style>
+</head>
+<body>
+<main class="frame">
+
+  <section class="lead">
+    <header class="strip">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="mono">STATUS</span>
+      <span class="mono strong">JALAN</span>
+      <span class="sep">SALINAN POSISI</span>
+    </header>
+
+    <h1 class="statement">Posisi jalan tanpa Anda <span class="l3">nunggu sinyal.</span></h1>
+
+    <p class="tagrow">
+      <span class="k">Sumber</span> 1
+      <span>&middot;</span>
+      <span class="k">Akun</span> Anda
+      <span>&middot;</span>
+      <span class="k">Batas rugi</span> Anda
+    </p>
+
+    <div class="lower">
+      <p class="lede">Aurel menyalin setiap posisi dari satu sumber ke akun Anda, dengan ukuran dan batas rugi yang Anda tetapkan sendiri.</p>
+      <p class="cta-row">
+        <a class="cta" href="[TELEGRAM_URL_PLACEHOLDER]">Sertai saluran Telegram</a>
+        <span class="cta-note">Percuma, tanpa borang.</span>
+      </p>
+    </div>
+  </section>
+
+  <aside class="band" aria-label="Garis sinyal">
+    <div class="top">
+      <span class="pulse" aria-hidden="true"></span>
+      <span class="bt">Sinyal</span>
+    </div>
+    <svg class="sig" viewBox="0 0 300 46" role="img" aria-label="Garis sinyal">
+      <line class="axis" x1="0" y1="23" x2="300" y2="23"></line>
+      <polyline class="line" points="0,34 34,32 68,35 102,20 136,24 170,12 204,16 238,8 272,11 300,6"></polyline>
+      <circle class="node" cx="300" cy="6" r="3.6"></circle>
+    </svg>
+    <div class="bot">
+      <span class="seq">SUMBER &rarr; BAND</span>
+      <span class="seq">AKUN ANDA</span>
+    </div>
+  </aside>
+
+  <footer class="foot">
+    <span class="mono">AUREL — POSISI JALAN TANPA ANDA NUNGGU SINYAL</span>
+    <span class="mark" role="img" aria-label="aurel"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 722 190" role="img" aria-label="aurel"><rect x="28" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="0" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="28" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="0" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="28" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="56" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="84" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="112" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="168" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="252" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="196" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="224" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="280" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="392" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="420" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="364" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="448" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="336" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="616" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="616" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="504" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="532" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="560" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="588" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="0" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="28" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="56" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="84" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="112" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="140" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="672" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="700" y="168" width="22" height="22" rx="4" fill="#F2F5F7"/><rect x="728" y="0" width="22" height="22" rx="4" fill="#35C4E8"/></svg></span>
+  </footer>
+
+</main>
+</body>
+</html>
